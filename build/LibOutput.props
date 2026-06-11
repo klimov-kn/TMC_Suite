@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  LibOutput.props — для проектов-БИБЛИОТЕК (.lib).
+  Кладёт готовую библиотеку в dist\<платформа>\lib.
+  Подключать к: sfile95, complex, exprint, TMCLibError, prepr, TMCIndan.
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Import Project="Common.props" Condition="'$(TmcRoot)'==''" />
+
+  <PropertyGroup>
+    <!-- Куда класть готовый .lib (одна папка на платформу) -->
+    <OutDir>$(TmcRoot)dist\$(PlatformFolder)\lib\</OutDir>
+  </PropertyGroup>
+
+</Project>

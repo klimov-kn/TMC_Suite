@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="SFILE95">
+</Property><Property Name="Solution File" Value="E:\WORK\Source\SFILE95\SFILE95.sln">
+</Property><Property Name="User Options File" Value="E:\WORK\Source\SFILE95\SFILE95.suo">
+</Property><Property Name="Date" Value="10 ноября 2009 г.">
+</Property><Property Name="Time" Value="12:09">
+</Property></Properties><Event ErrorLevel="0" Project="" Source="SFILE95.sln" Description="File successfully backed up as E:\WORK\Source\SFILE95\SFILE95.sln.old">
+</Event><Event ErrorLevel="0" Project="" Source="SFILE95.suo" Description="File successfully backed up as E:\WORK\Source\SFILE95\SFILE95.suo.old">
+</Event><Event ErrorLevel="0" Project="SFILE95" Source="SFILE95.vcproj" Description="Project upgraded successfully.">
+</Event><Event ErrorLevel="3" Project="SFILE95" Source="SFILE95.vcproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="" Source="SFILE95.sln" Description="Solution converted successfully">
+</Event><Event ErrorLevel="3" Project="" Source="SFILE95.sln" Description="Converted">
+</Event></UpgradeLog>

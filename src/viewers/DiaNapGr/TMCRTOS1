@@ -1,0 +1,22 @@
+#TMCGROTS
+!Graphics parameters
+#PointDrawFlag 1; 0;
+#nXType 1
+#nYType 3
+#Xmin -180
+#Xmax 180
+#Ymin 3.40282e+038
+#Ymax -3.40282e+038
+#nAFlagX 1
+#nAFlagY 1
+#EditorFileName  winword.exe
+#sDrawTextFont Times New Roman;32;0;0;0;400;0;0;0;2;
+#sDrawTextColor 0;
+#sDrawBckgrdColor 12632256;
+#sDrawAxiesColor 0;
+#sDrawGridColor 0;
+#sDrawPointColor 0; 16711680; 0; 50; 65280; 0; 50; 16776960; 0; 50; 16711935; 0; 50; 65535; 0; 50; 8388608; 0; 50; 32768; 0; 50; 8421376; 0; 50; 5248; 0; 50; 8388736; 0; 50; 32896; 0; 50; 8421504; 0; 50; 12582912; 0; 50; 49152; 0; 50; 12632064; 0; 50; 49344; 0; 50;
+!Graphics data
+!file name : C:\WORK\SOURCE\DiaNapGr\TMCRTOS1
+!Data file for draw graphics
+!TFileName GraphicsName DrawFlag Input1 Mod1 Input2 Mod2

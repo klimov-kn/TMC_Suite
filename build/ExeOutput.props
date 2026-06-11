@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ExeOutput.props — для проектов-ПРОГРАММ (.exe).
+  Кладёт готовую программу в dist\<платформа>\bin.
+  Подключать к: TMCGROUT, TMC_DN, TMCROS, tmc_rth, tmc_rtx, FieldView.
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Import Project="Common.props" Condition="'$(TmcRoot)'==''" />
+
+  <PropertyGroup>
+    <!-- Куда класть готовый .exe (одна папка на платформу) -->
+    <OutDir>$(TmcRoot)dist\$(PlatformFolder)\bin\</OutDir>
+  </PropertyGroup>
+
+</Project>

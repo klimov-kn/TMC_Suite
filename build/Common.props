@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Common.props — общие настройки сборки для ВСЕХ проектов TMC Suite.
+  Подключается к каждому проекту через Property Manager.
+  Принцип: исходники общие, сборки раздельные (win32 -> dist\win32, win64 -> dist\win64).
+  Меняешь путь здесь — меняется во всех проектах сразу.
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup Label="UserMacros">
+    <!-- Корень проекта: одна папка вверх от build\ -->
+    <TmcRoot>$(MSBuildThisFileDirectory)..\</TmcRoot>
+
+    <!-- Имя папки платформы: Win32 -> win32, x64 -> win64.
+         $(Platform) Visual Studio подставляет сама при выборе платформы сборки. -->
+    <PlatformFolder Condition="'$(Platform)'=='Win32'">win32</PlatformFolder>
+    <PlatformFolder Condition="'$(Platform)'=='x64'">win64</PlatformFolder>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Общий путь к заголовкам (один на обе платформы) -->
+    <IncludePath>$(TmcRoot)src\Include;$(IncludePath)</IncludePath>
+
+    <!-- Путь к собранным библиотекам — зависит от платформы автоматически.
+         win32 -> dist\win32\lib, win64 -> dist\win64\lib -->
+    <LibraryPath>$(TmcRoot)dist\$(PlatformFolder)\lib;$(LibraryPath)</LibraryPath>
+
+    <!-- Промежуточные файлы (.obj) — раздельно по платформе и конфигурации,
+         чтобы сборки win32/win64 и Debug/Release не затирали друг друга. -->
+    <IntDir>$(TmcRoot)build\obj\$(PlatformFolder)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <!-- Legacy-код (родом из win16/win32, русские строки в Windows-1251) —
+           НЕ Unicode. Многобайтовая кодировка как в оригинале. -->
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <PropertyGroup>
+    <!-- Набор символов проекта: многобайтовый (MBCS), а не Unicode. -->
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{46fa75c8-7b16-44e1-a8f4-35dd40c7f23d}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat;for;f90</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{237b2443-82e1-4d66-a787-2056f09786fa}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;fi;fd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{baf90259-2f56-45ae-96b8-cd4234e1c9e1}</UniqueIdentifier>
+      <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DEF_DEST.CPP">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DEF_ER.CPP">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DEF_ERD.CPP">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DEF_MACR.CPP">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DEF_STR.CPP">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DEFMIS.CPP">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PREP_LD.CPP">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PREP_MN.CPP">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="READ_BUF.CPP">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\INCLUDE\Prepr1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

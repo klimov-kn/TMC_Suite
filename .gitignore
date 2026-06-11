@@ -1,0 +1,138 @@
+# ============================================================
+#  TMC Suite - .gitignore (Visual Studio / C++ / Windows)
+# ============================================================
+
+# --- Visual Studio IDE cache ---
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.opendb
+*.VC.db
+*.VC.VC.opendb
+ipch/
+
+# --- Build configuration output folders ---
+[Dd]ebug/
+[Rr]elease/
+[Dd]ebug[Ww]in32/
+[Rr]elease[Ww]in32/
+x64/
+x86/
+build/obj/
+build/obj_float/
+
+# --- C/C++ intermediate & compiler artifacts ---
+*.obj
+*.o
+*.pch
+*.pdb
+*.ilk
+*.exp
+*.idb
+*.tlog
+*.lastbuildstate
+*.unsuccessfulbuild
+*.log
+*.res
+*.tmp
+
+# --- Binaries: distributed via GitHub Releases, not committed ---
+# See dist/README.md
+*.exe
+*.dll
+*.lib
+dist/win32/
+dist/win64/
+dist/win32_float/
+dist/win64_float/
+
+# --- Installer build output (setup .exe -> GitHub Releases) ---
+installer/Output/
+
+# --- Test data sets (not published) ---
+samples/
+tools/
+
+# --- Internal development journals (not published) ---
+ISSUES.md
+_ISSUES.md
+WORK_PLAN.md
+DEBUG_SESSION_*.md
+CHANGELOG_2026-*.md
+rollback_*.ps1
+debug_runs/
+float_vs_double_*.md
+precision_*.md
+*.prc
+
+# --- Training materials (contain personal student files) ---
+docs/training/
+
+# --- Project tooling instructions (not published) ---
+CLAUDE.md
+.claude/
+
+# --- Python helpers (screenshot/doc generation) ---
+__pycache__/
+*.pyc
+*.pyo
+_gen/
+
+# --- Sphinx documentation build output ---
+docs/_build/
+docs/**/_build/
+
+# --- Archives / temporary dumps ---
+*.zip
+*.7z
+*.rar
+
+# --- Editor / OS junk ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*~
+*.bak
+*.orig
+*.placeholder
+
+# --- Rollback copies of edited sources (working-copy only) ---
+*.pre_*
+*.before_*
+*.pre6port
+*.CP1
+
+# --- Legacy IDE state (user settings and build logs, no build value) ---
+# NOTE: legacy PROJECT files (*.sln.old, *.vcproj.7.00.old, *.mak, *.mdp, *.001)
+# are kept on purpose - they document how the package was built historically.
+*.opt
+*.OPT
+*.plg
+*.PLG
+*.suo.old
+
+# --- Unused legacy includes and leftovers (referenced by nothing) ---
+*.FD
+*.FI
+*.fd
+*.fi
+*.resx
+src/Include/d3d/
+
+# --- Stray data files sitting in source folders ---
+src/**/*.tpl
+src/**/*.TPL
+src/**/*.soc
+src/**/*.s4p
+src/**/*.tos
+src/**/*.TOS
+src/**/*.dat
+src/**/*.DAT
+src/**/*.ex

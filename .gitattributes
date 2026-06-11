@@ -1,0 +1,31 @@
+# ============================================================
+#  TMC Suite - .gitattributes
+# ============================================================
+# The C++ sources carry Russian comments in Windows-1251 and use CRLF.
+# Line-ending normalisation is disabled repository-wide so that every file
+# round-trips byte for byte, exactly as it was compiled and tested.
+
+* -text
+
+# --- Explicitly binary: never diff or merge as text ---
+*.png   binary
+*.jpg   binary
+*.bmp   binary
+*.ico   binary
+*.exe   binary
+*.lib   binary
+*.pdf   binary
+*.docx  binary
+*.doc   binary
+*.suo   binary
+*.opt   binary
+*.mdp   binary
+*.ncb   binary
+*.sdf   binary
+
+# --- Generated artefacts: keep out of diffs and language stats ---
+graphify-out/graph.json  linguist-generated=true -diff
+graphify-out/graph.html  linguist-generated=true -diff
+
+# --- Documentation should not skew the language breakdown ---
+docs/**  linguist-documentation

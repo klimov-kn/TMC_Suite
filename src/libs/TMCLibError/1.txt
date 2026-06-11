@@ -1,0 +1,4 @@
+LibError
+/nologo /env win32  /tlb "Release/TMCLibError.tlb" /h "TMCLibError_h.h"
+/nologo /env win32  /tlb "Release/TMCIndan.tlb" /h "TMCIndan_h.h"
+Indan

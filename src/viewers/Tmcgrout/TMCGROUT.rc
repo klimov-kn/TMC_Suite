@@ -1,0 +1,969 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif\r\n"
+    "#include ""res\\TMCGROUT.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#include ""afxprint.rc""       // printing/print preview resources\r\n"
+    "#endif\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\TMCGROUT.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG1 DIALOG  0, 0, 320, 168
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Viewport"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Graphics window size",IDC_STATIC,3,1,86,137
+    CONTROL         "Automatic XSize Flag ",IDC_GRPAR_AXSFLAG,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,6,12,80,13
+    LTEXT           "X max",IDC_STATIC,32,26,22,10
+    EDITTEXT        IDC_GRPAR_XMAX,55,24,31,12
+    LTEXT           "X min",IDC_STATIC,32,37,22,10
+    EDITTEXT        IDC_GRPAR_XMIN,55,36,31,12
+    CONTROL         "Automatic YSize Flag ",IDC_GRPAR_AYSFLAG,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,6,65,80,13
+    LTEXT           "Y max",IDC_STATIC,31,79,22,10
+    EDITTEXT        IDC_GRPAR_YMAX,55,77,31,12
+    LTEXT           "Y min",IDC_STATIC,32,90,22,10
+    EDITTEXT        IDC_GRPAR_YMIN,55,89,31,12
+    GROUPBOX        "Graphics type",IDC_STATIC,92,1,169,106
+    GROUPBOX        "X-scale",IDC_STATIC,97,12,101,93
+    CONTROL         "GHz",IDC_GRPAR_XINGHZ,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,139,23,30,10
+    CONTROL         "MHz",IDC_GRPAR_XINMHZ,"Button",BS_AUTORADIOBUTTON,139,
+                    33,30,10
+    CONTROL         "KHz",IDC_GRPAR_XINKHZ,"Button",BS_AUTORADIOBUTTON,139,
+                    43,30,10
+    CONTROL         "Hz",IDC_GRPAR_XINHZ,"Button",BS_AUTORADIOBUTTON,139,53,
+                    30,10
+    CONTROL         "User",IDC_GRPAR_XINHZ2,"Button",BS_AUTORADIOBUTTON,139,
+                    63,30,10
+    GROUPBOX        "Y-scale",IDC_STATIC,199,12,60,63
+    CONTROL         "WSVR",IDC_GRPAR_YSKSV1,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,202,23,35,10
+    CONTROL         "L dB",IDC_GRPAR_YLDB1,"Button",BS_AUTORADIOBUTTON,202,
+                    33,40,10
+    CONTROL         "|S|",IDC_GRPAR_YSM1,"Button",BS_AUTORADIOBUTTON,202,43,
+                    40,10
+    CONTROL         "Phase S rad",IDC_GRPAR_YSPGR1,"Button",
+                    BS_AUTORADIOBUTTON,202,53,55,10
+    CONTROL         "Phase S grad",IDC_GRPAR_YSPGR2,"Button",
+                    BS_AUTORADIOBUTTON,202,63,55,10
+    CONTROL         "DrawPoint ",IDC_GRPAR_POINTFLAG,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,138,117,45,12
+    GROUPBOX        "S-matrix output characteristics file name",IDC_STATIC,4,
+                    139,221,25
+    EDITTEXT        IDC_GRPAR_DATFILENAME,6,148,214,13,ES_MULTILINE | 
+                    ES_AUTOHSCROLL | WS_DISABLED
+    GROUPBOX        "Color",IDC_STATIC,266,1,49,88
+    PUSHBUTTON      "Background",IDOK6,269,14,44,13
+    PUSHBUTTON      "Grid",IDOK4,269,28,44,13
+    PUSHBUTTON      "Axies",IDOK5,269,43,44,13
+    PUSHBUTTON      "Point",IDOK3,269,58,44,13
+    PUSHBUTTON      "Font",IDOK2,269,94,44,13
+    DEFPUSHBUTTON   "OK",IDOK,265,127,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,265,144,50,14
+    EDITTEXT        IDC_GRPAR_XUSERUNIT,123,89,73,12
+    EDITTEXT        IDC_GRPAR_XUSERAXIESNAME,123,75,73,12
+    LTEXT           "Name",IDC_STATIC,99,77,21,10
+    LTEXT           "Unit",IDC_STATIC,100,89,21,10
+    EDITTEXT        IDC_GRPAR_YFORMAT,36,103,50,12,ES_AUTOHSCROLL
+    LTEXT           "Format",IDC_STATIC,9,104,27,10
+    EDITTEXT        IDC_GRPAR_XFORMAT,36,50,50,12,ES_AUTOHSCROLL
+    LTEXT           "Format",IDC_STATIC,9,51,27,10
+    PUSHBUTTON      "Default Grid Format",ID_DEFAULT_GRID_FORMAT,5,121,80,13
+    EDITTEXT        IDC_GRPAR_POINTSIZE__,185,131,36,12
+    LTEXT           "PointSize",IDC_STATIC,145,133,35,10
+    GROUPBOX        "Point",IDC_STATIC,134,107,91,37
+    PUSHBUTTON      "Graphics",IDOK7,269,73,44,13
+    CONTROL         "Reduct",IDC_GRPAR_POINTFLAG2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,187,117,33,12
+END
+
+IDD_DIALOG2 DIALOG  0, 0, 400, 250
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Characteristics"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,342,29,51,14
+    PUSHBUTTON      "Cancel",IDCANCEL,342,46,51,14
+    EDITTEXT        IDC_GREDIT_SFILENAME1,10,35,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_1,137,35,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_1,167,35,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_1,197,35,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_1,227,35,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME1,257,35,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG1,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,35,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME2,10,45,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_2,137,45,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_2,167,45,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_2,197,45,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_2,227,45,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME2,257,45,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,45,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME3,10,55,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_3,137,55,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_3,167,55,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_3,197,55,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_3,227,55,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME3,257,55,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG3,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,55,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME4,10,65,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_4,137,65,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_4,167,65,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_4,197,65,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_4,227,65,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME4,257,65,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG4,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,65,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME5,10,75,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_5,137,75,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_5,167,75,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_5,197,75,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_5,227,75,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME5,257,75,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG5,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,75,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME6,10,85,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_6,137,85,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_6,167,85,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_6,197,85,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_6,227,85,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME6,257,85,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG6,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,85,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME7,10,95,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_7,137,95,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_7,167,95,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_7,197,95,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_7,227,95,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME7,257,95,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG7,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,95,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME8,10,105,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_8,137,105,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_8,167,105,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_8,197,105,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_8,227,105,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME8,257,105,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG8,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,105,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME9,10,115,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_9,137,115,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_9,167,115,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_9,197,115,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_9,227,115,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME9,257,115,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG9,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,115,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME10,10,125,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_10,137,125,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_10,167,125,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_10,197,125,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_10,227,125,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME10,257,125,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG10,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,125,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME11,10,135,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_11,137,135,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_11,167,135,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_11,197,135,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_11,227,135,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME11,257,135,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG11,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,135,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME12,10,145,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_12,137,145,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_12,167,145,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_12,197,145,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_12,227,145,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME12,257,145,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG12,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,145,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME13,10,155,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_13,137,155,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_13,167,155,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_13,197,155,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_13,227,155,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME13,257,155,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG13,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,155,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME14,10,165,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_14,137,165,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_14,167,165,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_14,197,165,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_14,227,165,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME14,257,165,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG14,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,165,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME15,10,175,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_15,137,175,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_15,167,175,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_15,197,175,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_15,227,175,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME15,257,175,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG15,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,175,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME16,10,185,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_16,137,185,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_16,167,185,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_16,197,185,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_16,227,185,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME16,257,185,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG16,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,185,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME17,10,195,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_17,137,195,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_17,167,195,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_17,197,195,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_17,227,195,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME17,257,195,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG17,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,195,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME18,10,205,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_18,137,205,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_18,167,205,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_18,197,205,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_18,227,205,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME18,257,205,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG18,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,205,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME19,10,215,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_19,137,215,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_19,167,215,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_19,197,215,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_19,227,215,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME19,257,215,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG19,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,215,10,10
+    EDITTEXT        IDC_GREDIT_SFILENAME20,10,225,117,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP1_20,137,225,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD1_20,167,225,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_INP2_20,197,225,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_MOD2_20,227,225,15,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREDIT_GRAPHNAME20,257,225,40,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_GREDIT_OUTFLAG20,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,225,10,10
+    GROUPBOX        "S FileName or expression",IDC_STATIC,5,25,124,213
+    GROUPBOX        "Input 1",IDC_STATIC,132,25,25,213
+    GROUPBOX        "Mod 1",IDC_STATIC,162,25,25,213
+    GROUPBOX        "Input 2",IDC_STATIC,192,25,25,213
+    GROUPBOX        "Mod 2",IDC_STATIC,222,25,25,213
+    GROUPBOX        "GraphName",IDC_STATIC,252,25,49,213
+    GROUPBOX        "Visible",IDC_STATIC,302,25,37,213
+    EDITTEXT        IDC_GREDIT_DOCFILENAME,10,10,377,12,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    GROUPBOX        "S-matrix output characteristics file name",IDC_STATIC,5,
+                    0,388,25
+    PUSHBUTTON      "Add",IDC_ADD_CHARACTERISTICS,342,64,51,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_DIALOG1, DIALOG
+    BEGIN
+        RIGHTMARGIN, 315
+        TOPMARGIN, 1
+        BOTTOMMARGIN, 164
+    END
+
+    IDD_DIALOG2, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 393
+        VERTGUIDE, 2
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 243
+        HORZGUIDE, 1
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_TMCGROTYPE          ICON                    "res\\TMCGROUTDoc.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 234, 71
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About  Tamic S-matrix Viewer"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "S-matrix Output Characteristics Viewer ",IDC_STATIC,40,
+                    5,180,10,SS_NOPREFIX
+    LTEXT           "Copyright © 2001-2005 Tamic_soft group",IDC_STATIC,40,
+                    27,125,8
+    DEFPUSHBUTTON   "OK",IDOK,179,32,45,14,WS_GROUP
+    LTEXT           "Version 5.1",IDC_STATIC,40,16,40,10,SS_NOPREFIX
+    LTEXT           "www.tamic.ru",IDC_STATIC,51,38,106,8
+    LTEXT           "",IDC_TMC_DOCLINK,40,56,170,10,SS_NOTIFY | WS_TABSTOP
+END
+
+IDD_DIALOGBARCOLORH DIALOG  0, 0, 82, 276
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Graphics parameters"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "",IDC_STATICLEVEL1,5,11,17,8,WS_TABSTOP
+    LTEXT           "",IDC_STATICLEVEL2,5,24,17,8
+    LTEXT           "",IDC_STATICLEVEL3,5,37,17,8
+    LTEXT           "",IDC_STATICLEVEL4,5,50,17,8
+    LTEXT           "",IDC_STATICLEVEL5,5,64,17,8
+    LTEXT           "",IDC_STATICLEVEL6,5,77,17,8
+    LTEXT           "",IDC_STATICLEVEL7,5,90,17,8
+    LTEXT           "",IDC_STATICLEVEL8,5,103,17,8
+    LTEXT           "",IDC_STATICLEVEL9,5,116,17,8
+    LTEXT           "",IDC_STATICLEVEL10,5,128,17,8
+    LTEXT           "",IDC_STATICLEVEL11,5,140,17,8
+    LTEXT           "",IDC_STATICLEVEL12,5,153,17,8
+    LTEXT           "",IDC_STATICLEVEL13,5,166,17,8
+    LTEXT           "",IDC_STATICLEVEL14,5,179,17,8
+    LTEXT           "",IDC_STATICLEVEL15,5,193,17,8
+    LTEXT           "",IDC_STATICLEVEL16,5,206,17,8
+    PUSHBUTTON      "Cancel",IDCANCEL,16,257,50,14,WS_GROUP
+    PUSHBUTTON      "Change",ID_ColorLevelAutoSet,38,10,34,8,WS_GROUP
+    DEFPUSHBUTTON   "OK",IDOK,16,241,50,14,WS_GROUP
+    PUSHBUTTON      "Change",ID_ColorLevelAutoSet2,38,23,34,8,WS_GROUP
+    PUSHBUTTON      "Change",ID_ColorLevelAutoSet3,38,36,34,8,WS_GROUP
+    PUSHBUTTON      "Change",ID_ColorLevelAutoSet4,38,49,34,8,WS_GROUP
+    PUSHBUTTON      "Change",ID_ColorLevelAutoSet5,38,63,34,8,WS_GROUP
+    PUSHBUTTON      "Change",ID_ColorLevelAutoSet6,38,76,34,8,WS_GROUP
+    PUSHBUTTON      "Change",ID_ColorLevelAutoSet7,38,89,34,8,WS_GROUP
+    PUSHBUTTON      "Change",ID_ColorLevelAutoSet8,38,102,34,8,WS_GROUP
+    PUSHBUTTON      "Change",ID_ColorLevelAutoSet9,38,115,34,8,WS_GROUP
+    PUSHBUTTON      "Change",ID_ColorLevelAutoSet10,38,127,34,8,WS_GROUP
+    PUSHBUTTON      "Change",ID_ColorLevelAutoSet11,38,139,34,8,WS_GROUP
+    PUSHBUTTON      "Change",ID_ColorLevelAutoSet12,38,152,34,8,WS_GROUP
+    PUSHBUTTON      "Change",ID_ColorLevelAutoSet13,38,165,34,8,WS_GROUP
+    PUSHBUTTON      "Change",ID_ColorLevelAutoSet14,38,178,34,8,WS_GROUP
+    PUSHBUTTON      "Change",ID_ColorLevelAutoSet15,38,192,34,8,WS_GROUP
+    PUSHBUTTON      "Change",ID_ColorLevelAutoSet16,38,205,34,8,WS_GROUP
+    PUSHBUTTON      "Default",ID_GRAPPARCORDEFAULT,20,223,43,11,WS_GROUP
+END
+
+IDD_DIALOGGRPARALL DIALOG  0, 0, 260, 87
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Graphics parameters"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,203,35,50,14,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,203,51,50,14,WS_GROUP
+    PUSHBUTTON      "Color",ID_GrParam_Color,211,18,34,11,WS_GROUP
+    LTEXT           "",IDC_STATICLEVEL2,5,16,17,8,WS_TABSTOP
+    LTEXT           "",IDC_STATICLEVEL3,5,29,17,8
+    LTEXT           "",IDC_STATICLEVEL4,5,42,17,8
+    LTEXT           "",IDC_STATICLEVEL5,5,55,17,8
+    LTEXT           "",IDC_STATICLEVEL6,5,69,17,8
+    CONTROL         "Solid",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP | WS_TABSTOP,48,15,53,10
+    CONTROL         "Dash",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,48,27,52,
+                    10
+    CONTROL         "Dot",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON,48,40,51,10
+    CONTROL         "DashDot",IDC_RADIO4,"Button",BS_AUTORADIOBUTTON,48,54,
+                    53,10
+    CONTROL         "DashDotDot",IDC_RADIO5,"Button",BS_AUTORADIOBUTTON,48,
+                    68,54,10
+    GROUPBOX        "Style",IDC_STATIC,1,3,106,77,WS_GROUP | WS_TABSTOP
+    LTEXT           "",IDC_STATICLEVEL7,116,16,17,8,WS_TABSTOP
+    LTEXT           "",IDC_STATICLEVEL8,116,29,17,8
+    LTEXT           "",IDC_STATICLEVEL9,116,42,17,8
+    LTEXT           "",IDC_STATICLEVEL10,116,55,17,8
+    LTEXT           "",IDC_STATICLEVEL11,116,69,17,8
+    CONTROL         "",IDC_RADIO6,"Button",BS_AUTORADIOBUTTON | WS_GROUP | 
+                    WS_TABSTOP,159,15,33,10
+    CONTROL         "",IDC_RADIO7,"Button",BS_AUTORADIOBUTTON,159,27,33,10
+    CONTROL         "",IDC_RADIO8,"Button",BS_AUTORADIOBUTTON,159,40,33,10
+    CONTROL         "",IDC_RADIO9,"Button",BS_AUTORADIOBUTTON,159,54,33,10
+    CONTROL         "",IDC_RADIO10,"Button",BS_AUTORADIOBUTTON,159,68,33,10
+    GROUPBOX        "Width",IDC_STATIC,112,3,86,77,WS_GROUP | WS_TABSTOP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_DIALOGBARCOLORH, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 75
+        TOPMARGIN, 3
+    END
+
+    IDD_DIALOGGRPARALL, DIALOG
+    BEGIN
+        RIGHTMARGIN, 253
+        TOPMARGIN, 3
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR  16, 15
+BEGIN
+    BUTTON      ID_FILE_OPEN
+    SEPARATOR
+    BUTTON      ID_EDIT_ADDCHARACTERISTICS
+    BUTTON      ID_EDIT_DOCUMENT
+    SEPARATOR
+    BUTTON      ID_EDIT_GRAPHICSPARAMETERS
+    BUTTON      ID_VIEW_GRAPHICS
+    SEPARATOR
+    BUTTON      ID_VIEW_RESIZECTRLR
+    SEPARATOR
+    BUTTON      ID_VIEW_ZOOM_ZOOMP
+    BUTTON      ID_VIEW_ZOOM_ZOOMXP
+    BUTTON      ID_VIEW_ZOOM_ZOOMYP
+    BUTTON      ID_VIEW_ZOOM_ZOOM
+    BUTTON      ID_VIEW_ZOOM_ZOOMX
+    BUTTON      ID_VIEW_ZOOM_ZOOMY
+    SEPARATOR
+    BUTTON      ID_VIEW_RESIZEWINDOW
+    BUTTON      ID_VIEW_AUTOXSIZE
+    BUTTON      ID_VIEW_AUTOYSIZE
+    SEPARATOR
+    BUTTON      ID_VIEW_TRANSLATE_HOME
+    BUTTON      ID_VIEW_TRANSLATE_END
+    BUTTON      ID_VIEW_CHANGEXMAXXMIN_DECRIMENT
+    BUTTON      ID_VIEW_CHANGEXMAXXMIN_INCREMENT
+    BUTTON      ID_VIEW_CHANGEYMAXYMIN_DECREMENT
+    BUTTON      ID_VIEW_CHANGEYMAXYMIN_INCREMENT
+    SEPARATOR
+    BUTTON      ID_FILE_PRINT
+    BUTTON      ID_APP_ABOUT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM SEPARATOR
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About TMCGROUT...",          ID_APP_ABOUT
+    END
+END
+
+IDR_TMCGROTYPE MENU 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Close",                      ID_FILE_CLOSE
+        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
+        MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
+        MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM SEPARATOR
+        MENUITEM "&Characteristics\tCtrl+D",    ID_EDIT_DOCUMENT
+        MENUITEM "&Add characteristics\tCtrl+A", ID_EDIT_ADDCHARACTERISTICS
+        MENUITEM "&Editor\tAlt+F7",             ID_EDIT_EDIT
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Viewport\tCtrl+H",           ID_EDIT_GRAPHICSPARAMETERS
+        MENUITEM "Redra&w data\tCtrl+W",        ID_VIEW_GRAPHICS
+        MENUITEM SEPARATOR
+        POPUP "Zoom"
+        BEGIN
+            MENUITEM "&ReSize viewport\tCtrl+R",    ID_VIEW_RESIZECTRLR
+            MENUITEM SEPARATOR
+            MENUITEM "Zoom +\t+",                   ID_VIEW_ZOOM_ZOOMP
+            MENUITEM "Zoom +X\tX",                  ID_VIEW_ZOOM_ZOOMXP
+            MENUITEM "Zoom +Y\tY",                  ID_VIEW_ZOOM_ZOOMYP
+            MENUITEM "Zoom -\t-",                   ID_VIEW_ZOOM_ZOOM
+            MENUITEM "Zoom -X\tShift+X",            ID_VIEW_ZOOM_ZOOMX
+            MENUITEM "Zoom -Y\tShift+Y",            ID_VIEW_ZOOM_ZOOMY
+            MENUITEM SEPARATOR
+            MENUITEM "R&esize window\tCtrl+T",      ID_VIEW_RESIZEWINDOW
+            MENUITEM "Auto X size\t Alt+X",         ID_VIEW_AUTOXSIZE
+            MENUITEM "Auto Y size\t Alt+Y",         ID_VIEW_AUTOYSIZE
+        END
+        POPUP "Translate"
+        BEGIN
+            POPUP "Change Xmax, Xmin"
+            BEGIN
+                MENUITEM "Decrement \t<-",              ID_VIEW_CHANGEXMAXXMIN_DECRIMENT
+
+                MENUITEM "Increment \t->",              ID_VIEW_CHANGEXMAXXMIN_INCREMENT
+
+                MENUITEM "Home\tHome",                  ID_VIEW_TRANSLATE_HOME
+
+                MENUITEM "End\tEnd",                    ID_VIEW_TRANSLATE_END
+
+            END
+            POPUP "Change Ymax, Ymin"
+            BEGIN
+                MENUITEM "Decrement \tV",               ID_VIEW_CHANGEYMAXYMIN_DECREMENT
+
+                MENUITEM "Increment \t^",               ID_VIEW_CHANGEYMAXYMIN_INCREMENT
+
+            END
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+    END
+    POPUP "&Config"
+    BEGIN
+        MENUITEM "&Editor",                     ID_CONFIG_EDITOR
+        POPUP "&Color"
+        BEGIN
+            MENUITEM "&Background",                 ID_CONFIG_COLOR_BACKGROUND
+
+            MENUITEM "&Grid",                       ID_CONFIG_COLOR_GRID
+            MENUITEM "&Axies",                      ID_CONFIG_COLOR_AXIS
+            MENUITEM "&Point",                      ID_CONFIG_COLORPOINT
+            MENUITEM "&Graphics",                   ID_CONFIG_COLOR_GRAPHICS
+        END
+        MENUITEM "&Font",                       ID_CONFIG_FONT
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&New Window",                 ID_WINDOW_NEW
+        MENUITEM "&Cascade",                    ID_WINDOW_CASCADE
+        MENUITEM "&Tile",                       ID_WINDOW_TILE_HORZ
+        MENUITEM "&Arrange Icons",              ID_WINDOW_ARRANGE
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About TMCGROUT...",          ID_APP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS 
+BEGIN
+    "+",            ID_VIEW_ZOOM_ZOOMP,     ASCII,  NOINVERT
+    "-",            ID_VIEW_ZOOM_ZOOM,      ASCII,  NOINVERT
+    "<",            ID_VIEW_CHANGEXMAXXMIN_DECRIMENT, ASCII, NOINVERT
+    ">",            ID_VIEW_CHANGEXMAXXMIN_INCREMENT, ASCII, NOINVERT
+    "A",            ID_EDIT_ADDCHARACTERISTICS, VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "D",            ID_EDIT_DOCUMENT,       VIRTKEY, CONTROL, NOINVERT
+    "H",            ID_EDIT_GRAPHICSPARAMETERS, VIRTKEY, CONTROL, NOINVERT
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
+    "R",            ID_VIEW_RESIZECTRLR,    VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
+    "T",            ID_VIEW_RESIZEWINDOW,   VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_VIEW_CHANGEYMAXYMIN_DECREMENT, VIRTKEY, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
+    VK_DOWN,        ID_VIEW_CHANGEYMAXYMIN_DECREMENT, VIRTKEY, NOINVERT
+    VK_END,         ID_VIEW_TRANSLATE_END,  VIRTKEY, NOINVERT
+    VK_F1,          ID_APP_ABOUT,           VIRTKEY, NOINVERT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
+    VK_F7,          ID_EDIT_EDIT,           VIRTKEY, ALT, NOINVERT
+    VK_HOME,        ID_VIEW_TRANSLATE_HOME, VIRTKEY, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    VK_LEFT,        ID_VIEW_CHANGEXMAXXMIN_DECRIMENT, VIRTKEY, NOINVERT
+    VK_RIGHT,       ID_VIEW_CHANGEXMAXXMIN_INCREMENT, VIRTKEY, NOINVERT
+    VK_UP,          ID_VIEW_CHANGEYMAXYMIN_INCREMENT, VIRTKEY, NOINVERT
+    "W",            ID_VIEW_GRAPHICS,       VIRTKEY, CONTROL, NOINVERT
+    "X",            ID_VIEW_ZOOM_ZOOMXP,    VIRTKEY, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "X",            ID_VIEW_AUTOXSIZE,      VIRTKEY, ALT, NOINVERT
+    "X",            ID_VIEW_ZOOM_ZOOMX,     VIRTKEY, SHIFT, NOINVERT
+    "Y",            ID_VIEW_ZOOM_ZOOMYP,    VIRTKEY, NOINVERT
+    "Y",            ID_VIEW_AUTOYSIZE,      VIRTKEY, ALT, NOINVERT
+    "Y",            ID_VIEW_ZOOM_ZOOMY,     VIRTKEY, SHIFT, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+    94,             ID_VIEW_CHANGEYMAXYMIN_INCREMENT, ASCII, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 5,0,0,1
+ PRODUCTVERSION 5,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "Tamic"
+            VALUE "FileDescription", "Tamic S-matrix output characteristics  MFC Application"
+            VALUE "FileVersion", "5, 0, 0, 1"
+            VALUE "InternalName", "Tamic S-matrix output characteristics Viewer"
+            VALUE "LegalCopyright", "Copyright © 2001-2005"
+            VALUE "LegalTrademarks", "Tamic"
+            VALUE "OriginalFilename", "TMCGROUT.EXE"
+            VALUE "ProductName", "Tamic S-matrix output characteristics Viewer Application"
+            VALUE "ProductVersion", "5, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDR_MAINFRAME           "Tamic S-matrix Output Characteristics Viewer"
+    IDR_TMCGROTYPE          "\nTMCGRO\nTMCGRO\n*.soc;*.$oc;*.s;*.s2p;*.s4p;*.s6p;*.s8p;*.tab\n*.soc;*.$oc;*.s;*.s2p;*.s4p;*.s6p;*.s8p;*.tab\nTMCGROUT.Document\nTMCGRO Document"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "Tamic S-matrix Output Characteristics Viewer"
+    AFX_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_NEW             "Create a new document\nNew"
+    ID_FILE_OPEN            "Open an existing document\nOpen"
+    ID_FILE_CLOSE           "Close the active document\nClose"
+    ID_FILE_SAVE            "Save the active document\nSave"
+    ID_FILE_SAVE_AS         "Save the active document with a new name\nSave As"
+    ID_FILE_PAGE_SETUP      "Change the printing options\nPage Setup"
+    ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
+    ID_FILE_PRINT           "Print the active document\nPrint"
+    ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_MRU_FILE1       "Open this document"
+    ID_FILE_MRU_FILE2       "Open this document"
+    ID_FILE_MRU_FILE3       "Open this document"
+    ID_FILE_MRU_FILE4       "Open this document"
+    ID_FILE_MRU_FILE5       "Open this document"
+    ID_FILE_MRU_FILE6       "Open this document"
+    ID_FILE_MRU_FILE7       "Open this document"
+    ID_FILE_MRU_FILE8       "Open this document"
+    ID_FILE_MRU_FILE9       "Open this document"
+    ID_FILE_MRU_FILE10      "Open this document"
+    ID_FILE_MRU_FILE11      "Open this document"
+    ID_FILE_MRU_FILE12      "Open this document"
+    ID_FILE_MRU_FILE13      "Open this document"
+    ID_FILE_MRU_FILE14      "Open this document"
+    ID_FILE_MRU_FILE15      "Open this document"
+    ID_FILE_MRU_FILE16      "Open this document"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_WINDOW_NEW           "Open another window for the active document\nNew Window"
+    ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
+    ID_WINDOW_CASCADE       "Arrange windows so they overlap\nCascade Windows"
+    ID_WINDOW_TILE_HORZ     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_TILE_VERT     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List"
+    AFX_IDS_MDICHILD        "Activate this window"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_PREVIEW_CLOSE   "Close print preview mode\nCancel Preview"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_EDIT_EDIT            "Call extern editor for edit file.soc"
+    ID_EDIT_GRAPHICSPARAMETERS "Edit viewport parameters\nViewport"
+    ID_VIEW_GRAPHICS        "Re-read data and re-drawing  window\nUpdate data"
+    ID_EDIT_DOCUMENT        "Edit number of  input and mode, identificator of graphics, S-matrix file name\nEdit parameters"
+    ID_EDIT_ADDCHARACTERISTICS "Add new S-matrix file\nAdd new S-matrix"
+    ID_VIEW_RESIZECTRLR     "Resize current graphics viewport\nResize viewport"
+    ID_VIEW_RESIZEWINDOW    "Resize current graphics window\nResize  window"
+    ID_CONFIG_EDITOR        "Change extern editor"
+    ID_CONFIG_FONT          "Change font, font size and color"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_CONFIG_COLORPOINT    "Change color for point"
+    ID_CONFIG_COLOR_AXIS    "Change color for axis"
+    ID_CONFIG_COLOR_GRID    "Change color for grid"
+    ID_CONFIG_COLOR_BACKGROUND "Change color for background"
+    ID_VIEW_CHANGEXMAXXMIN_DECRIMENT 
+                            "Decrement Xmin and Xmax\nDecrement Xmin and Xmax"
+    ID_VIEW_CHANGEXMAXXMIN_INCREMENT 
+                            "Increment Xmin and Xmax\nIncrement Xmin and Xmax"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_VIEW_CHANGEYMAXYMIN_DECREMENT 
+                            "Decrement Ymin and Ymax\nDecrement Ymin and Ymax"
+    ID_VIEW_CHANGEYMAXYMIN_INCREMENT 
+                            "Increment Ymin and Ymax\nIncrement Ymin and Ymax"
+    ID_VIEW_AUTOXSIZE       "Auto size along X axies\nAuto size along X axies"
+    ID_CONFIG_COLOR_GRAPHICS "Change color for graphics"
+    ID_VIEW_TRANSLATE_HOME  "Change Xmin auto\nChange Xmin auto"
+    ID_VIEW_AUTOYSIZE       "Auto size along Y axies\nAuto size along Y axies"
+    ID_VIEW_ZOOM_ZOOM       "Zoom -\nZoom -"
+    ID_VIEW_ZOOM_ZOOMX      "Zoom -X\nZoom -X"
+    ID_VIEW_ZOOM_ZOOMY      "Zoom -Y\nZoom -Y"
+    ID_VIEW_TRANSLATE_END   "Change Xmax auto\nChange Xmax auto"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_VIEW_ZOOM_ZOOMP      "Zoom +\nZoom +"
+    ID_VIEW_ZOOM_ZOOMXP     "Zoom +X\nZoom +X"
+    ID_VIEW_ZOOM_ZOOMYP     "Zoom +Y\nZoom +Y"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif
+#include "res\TMCGROUT.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#include "afxprint.rc"       // printing/print preview resources
+#endif
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

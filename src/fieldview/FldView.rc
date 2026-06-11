@@ -1,0 +1,1146 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\FldView.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#include ""afxprint.rc""       // printing/print preview resources\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\FldView.ico"
+IDR_FLDVIETYPE          ICON                    "res\\FldViewDoc.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR  10, 10
+BEGIN
+    BUTTON      ID_FILE_OPEN
+    SEPARATOR
+    BUTTON      ID_VIEW_ZOOM_P
+    BUTTON      ID_VIEW_ZOOM_PX
+    BUTTON      ID_VIEW_ZOOM_PY
+    SEPARATOR
+    BUTTON      ID_VIEW_ZOOM_M
+    BUTTON      ID_VIEW_ZOOM_MX
+    BUTTON      ID_VIEW_ZOOM_MY
+    SEPARATOR
+    BUTTON      ID_FLAGDRAWLINETOP
+    BUTTON      ID_FLAGDRAWSURFACETOP
+    BUTTON      ID_DIMENSION23SWITCHTOP
+    BUTTON      ID_VIEW_TOPOLOGY_BOUNDARY_EPS
+    BUTTON      ID_VIEW_TOPOLOGY_BOUNDARY_METAL
+    BUTTON      ID_VIEW_TOPOLOGY_BOUNDARY_MAGNETIC
+    BUTTON      ID_VIEW_TOPOLOGY_BOUNDARY_ABSORBER
+    BUTTON      ID_VIEW_TOPOLOGY_BOUNDARY_INPUT
+    BUTTON      ID_VIEW_TOPOLOGY_SIZE_BLOCK
+    BUTTON      ID_VIEW_TOPOLOGY_SIZE_LINKLIST
+    SEPARATOR
+    BUTTON      ID_FLAGDRAWLINEEPS
+    BUTTON      ID_FLAGDRAWSURFACEEPS
+    BUTTON      ID_DIMENSION23SWITCHEPS
+    BUTTON      ID_VIEW_EPS_SIZE
+    SEPARATOR
+    BUTTON      ID_FLAGDRAWLINE
+    BUTTON      ID_FLAGDRAWSURFACE
+    BUTTON      ID_DIMENSION23SWITCH
+    BUTTON      ID_VIEW_TOPOLOGY_DIMENSIONS_ALONGANXAXIES
+    BUTTON      ID_VIEW_TOPOLOGY_DIMENSIONS_ALONGANYAXIES
+    BUTTON      ID_VIEW_FIELD_SIZE
+    SEPARATOR
+    BUTTON      ID_VIEW_PROPORTIONALLY
+    SEPARATOR
+    BUTTON      ID_VIEW_DEFAULT12
+    SEPARATOR
+    BUTTON      ID_FILE_PRINT
+    BUTTON      ID_APP_ABOUT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM SEPARATOR
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About FldView...",           ID_APP_ABOUT
+    END
+END
+
+IDR_FLDVIETYPE MENU 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Close",                      ID_FILE_CLOSE
+        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
+        MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
+        MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Parameters\tAlt+P",          ID_VIEW_PARAMETERS
+        MENUITEM SEPARATOR
+        POPUP "T&opology"
+        BEGIN
+            MENUITEM "&Line\tShift+L",              ID_FLAGDRAWLINETOP
+            MENUITEM "S&urface\tShift+S",           ID_FLAGDRAWSURFACETOP
+            MENUITEM "D&imension 2/3\tShift+D",     ID_DIMENSION23SWITCHTOP
+            POPUP "Si&ze"
+            BEGIN
+                MENUITEM "along an X axies\tCtrl+J",    ID_VIEW_TOPOLOGY_DIMENSIONS_ALONGANXAXIES
+
+                MENUITEM "along an Y axies\tShift+J",   ID_VIEW_TOPOLOGY_DIMENSIONS_ALONGANYAXIES
+
+            END
+            POPUP "Dimensions"
+            BEGIN
+                MENUITEM "Block\tK",                    ID_VIEW_TOPOLOGY_SIZE_BLOCK
+
+                MENUITEM "Link_List\tAlt+K",            ID_VIEW_TOPOLOGY_SIZE_LINKLIST
+
+            END
+            POPUP "B&oundary"
+            BEGIN
+                MENUITEM "&Eps\tE",                     ID_VIEW_TOPOLOGY_BOUNDARY_EPS
+
+                MENUITEM "&Metal\tM",                   ID_VIEW_TOPOLOGY_BOUNDARY_METAL
+
+                MENUITEM "Mag&netic\tN",                ID_VIEW_TOPOLOGY_BOUNDARY_MAGNETIC
+
+                MENUITEM "&Absorber\tA",                ID_VIEW_TOPOLOGY_BOUNDARY_ABSORBER
+
+                MENUITEM "&Input\tI",                   ID_VIEW_TOPOLOGY_BOUNDARY_INPUT
+
+            END
+        END
+        POPUP "&Eps"
+        BEGIN
+            MENUITEM "&Line\tAlt+L",                ID_FLAGDRAWLINEEPS
+            MENUITEM "S&urface\tAlt+S",             ID_FLAGDRAWSURFACEEPS
+            MENUITEM "D&imension 2/3\tAlt+D",       ID_DIMENSION23SWITCHEPS
+            MENUITEM "Si&ze\tAlt+J",                ID_VIEW_EPS_SIZE
+        END
+        POPUP "&Field"
+        BEGIN
+            MENUITEM "&Line\tL",                    ID_FLAGDRAWLINE
+            MENUITEM "S&urface\tS",                 ID_FLAGDRAWSURFACE
+            MENUITEM "D&imension 2/3\tD",           ID_DIMENSION23SWITCH
+            MENUITEM "Si&ze\tJ",                    ID_VIEW_FIELD_SIZE
+            MENUITEM "L&evel\tAlt+E",               ID_FIELD_L
+            MENUITEM "V&alue\tAlt+A",               ID_FIELD_VALUE
+            MENUITEM "Modul\tAlt+M",                ID_FIELD_MODUL
+        END
+        MENUITEM SEPARATOR
+        POPUP "Zoom"
+        BEGIN
+            MENUITEM "Zoom +\t+",                   ID_VIEW_ZOOM_P
+            MENUITEM "Zoom +X\tX",                  ID_VIEW_ZOOM_PX
+            MENUITEM "Zoom +Y\tY",                  ID_VIEW_ZOOM_PY
+            MENUITEM "Zoom -\t-",                   ID_VIEW_ZOOM_M
+            MENUITEM "Zoom -X\tShift+X",            ID_VIEW_ZOOM_MX
+            MENUITEM "Zoom -Y\tShift+Y",            ID_VIEW_ZOOM_MY
+        END
+        POPUP "Rotate"
+        BEGIN
+            MENUITEM "Left\tCtrl+NumLock+4",        ID_ROTATE_LEFT
+            MENUITEM "Right\tCtrl+NumLock+6",       ID_ROTATE_RIGHT
+            MENUITEM SEPARATOR
+            MENUITEM "Top\tCtrl+NumLock+8",         ID_ROTATE_TOP
+            MENUITEM "Bottom\tCtrl+NumLock+2",      ID_ROTATE_BOTTOM
+            MENUITEM SEPARATOR
+            MENUITEM "Left_y\tCtrl+NumLock+1",      ID_ROTATE_LEFTY
+            MENUITEM "Right_y\tCtrl+NumLock+7",     ID_ROTATE_RIGHTY
+        END
+        POPUP "Translate"
+        BEGIN
+            MENUITEM "X top\tAlt+NumLock+6",        ID_TRANSLATE_XT
+            MENUITEM "X bottom\tAlt+NumLock+4",     ID_TRANSLATE_XB
+            MENUITEM SEPARATOR
+            MENUITEM "Y top\tAlt+NumLock+7",        ID_TRANSLATE_YT
+            MENUITEM "Y bottom\tAlt+NumLock+1",     ID_TRANSLATE_YB
+            MENUITEM SEPARATOR
+            MENUITEM "Z top\tAlt+NumLock+8",        ID_TRANSLATE_ZT
+            MENUITEM "Z bottom\tAlt+NumLock+2",     ID_TRANSLATE_ZB
+        END
+        MENUITEM SEPARATOR
+        POPUP "Change Xmax, Xmin"
+        BEGIN
+            MENUITEM "Decrement\t<-",               ID_STRELKLEFT
+            MENUITEM "Increment\t->",               ID_STRELKRIGHT
+        END
+        POPUP "Change Ymax, Ymin"
+        BEGIN
+            MENUITEM "Decrement\tV",                ID_STRELKDOWN
+            MENUITEM "Increment\t^",                ID_STRELKUP
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Default\tCtrl+d",            ID_VIEW_DEFAULT12
+        MENUITEM SEPARATOR
+        MENUITEM "P&roportionally\tP",          ID_VIEW_PROPORTIONALLY
+        MENUITEM SEPARATOR
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&New Window",                 ID_WINDOW_NEW
+        MENUITEM "&Cascade",                    ID_WINDOW_CASCADE
+        MENUITEM "&Tile",                       ID_WINDOW_TILE_HORZ
+        MENUITEM "&Arrange Icons",              ID_WINDOW_ARRANGE
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About FldView...",           ID_APP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS 
+BEGIN
+    "D",            ID_DIMENSION23SWITCH,   VIRTKEY, NOINVERT
+    "D",            ID_DIMENSION23SWITCHEPS, VIRTKEY, ALT, NOINVERT
+    "D",            ID_DIMENSION23SWITCHTOP, VIRTKEY, SHIFT, NOINVERT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+    "E",            ID_FIELD_L,             VIRTKEY, ALT, NOINVERT
+    "A",            ID_FIELD_VALUE,         VIRTKEY, ALT, NOINVERT
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
+    "L",            ID_FLAGDRAWLINE,        VIRTKEY, NOINVERT
+    "L",            ID_FLAGDRAWLINEEPS,     VIRTKEY, ALT, NOINVERT
+    "L",            ID_FLAGDRAWLINETOP,     VIRTKEY, SHIFT, NOINVERT
+    "S",            ID_FLAGDRAWSURFACE,     VIRTKEY, NOINVERT
+    "S",            ID_FLAGDRAWSURFACEEPS,  VIRTKEY, ALT, NOINVERT
+    "S",            ID_FLAGDRAWSURFACETOP,  VIRTKEY, SHIFT, NOINVERT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
+    VK_NUMPAD2,     ID_ROTATE_BOTTOM,       VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD4,     ID_ROTATE_LEFT,         VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD1,     ID_ROTATE_LEFTY,        VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD3,     ID_ROTATE_LEFTY,        VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD6,     ID_ROTATE_RIGHT,        VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD7,     ID_ROTATE_RIGHTY,       VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD9,     ID_ROTATE_RIGHTY,       VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD8,     ID_ROTATE_TOP,          VIRTKEY, CONTROL, NOINVERT
+    VK_DOWN,        ID_STRELKDOWN,          VIRTKEY, NOINVERT
+    VK_LEFT,        ID_STRELKLEFT,          VIRTKEY, NOINVERT
+    VK_RIGHT,       ID_STRELKRIGHT,         VIRTKEY, NOINVERT
+    VK_UP,          ID_STRELKUP,            VIRTKEY, NOINVERT
+    VK_NUMPAD4,     ID_TRANSLATE_XB,        VIRTKEY, ALT, NOINVERT
+    VK_NUMPAD6,     ID_TRANSLATE_XT,        VIRTKEY, ALT, NOINVERT
+    VK_NUMPAD1,     ID_TRANSLATE_YB,        VIRTKEY, ALT, NOINVERT
+    VK_NUMPAD3,     ID_TRANSLATE_YB,        VIRTKEY, ALT, NOINVERT
+    VK_NUMPAD7,     ID_TRANSLATE_YT,        VIRTKEY, ALT, NOINVERT
+    VK_NUMPAD9,     ID_TRANSLATE_YT,        VIRTKEY, ALT, NOINVERT
+    VK_NUMPAD2,     ID_TRANSLATE_ZB,        VIRTKEY, ALT, NOINVERT
+    VK_NUMPAD8,     ID_TRANSLATE_ZT,        VIRTKEY, ALT, NOINVERT
+    "D",            ID_VIEW_DEFAULT12,      VIRTKEY, CONTROL, NOINVERT
+    "J",            ID_VIEW_EPS_SIZE,       VIRTKEY, ALT, NOINVERT
+    "J",            ID_VIEW_FIELD_SIZE,     VIRTKEY, NOINVERT
+    "P",            ID_VIEW_PARAMETERS,     VIRTKEY, ALT, NOINVERT
+    "P",            ID_VIEW_PROPORTIONALLY, VIRTKEY, NOINVERT
+    "A",            ID_VIEW_TOPOLOGY_BOUNDARY_ABSORBER, VIRTKEY, NOINVERT
+    "E",            ID_VIEW_TOPOLOGY_BOUNDARY_EPS, VIRTKEY, NOINVERT
+    "I",            ID_VIEW_TOPOLOGY_BOUNDARY_INPUT, VIRTKEY, NOINVERT
+    "N",            ID_VIEW_TOPOLOGY_BOUNDARY_MAGNETIC, VIRTKEY, NOINVERT
+    "M",            ID_VIEW_TOPOLOGY_BOUNDARY_METAL, VIRTKEY, NOINVERT
+    "J",            ID_VIEW_TOPOLOGY_DIMENSIONS_ALONGANXAXIES, VIRTKEY, 
+                                                    CONTROL, NOINVERT
+    "J",            ID_VIEW_TOPOLOGY_DIMENSIONS_ALONGANYAXIES, VIRTKEY, 
+                                                    SHIFT, NOINVERT
+    "K",            ID_VIEW_TOPOLOGY_SIZE_BLOCK, VIRTKEY, NOINVERT
+    "K",            ID_VIEW_TOPOLOGY_SIZE_LINKLIST, VIRTKEY, ALT, NOINVERT
+    "-",            ID_VIEW_ZOOM_M,         ASCII,  NOINVERT
+    "X",            ID_VIEW_ZOOM_MX,        VIRTKEY, SHIFT, NOINVERT
+    "Y",            ID_VIEW_ZOOM_MY,        VIRTKEY, SHIFT, NOINVERT
+    "+",            ID_VIEW_ZOOM_P,         ASCII,  NOINVERT
+    "X",            ID_VIEW_ZOOM_PX,        VIRTKEY, NOINVERT
+    "Y",            ID_VIEW_ZOOM_PY,        VIRTKEY, NOINVERT
+    "M",            ID_FIELD_MODUL,         VIRTKEY, ALT, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 235, 91
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About Tamic RtM Output Field Viewer"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "Tamic Rt Output Field Viewer Version 4.1",IDC_STATIC,40,
+                    10,160,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 2004 Tamic_soft group",IDC_STATIC,40,36,
+                    119,8
+    DEFPUSHBUTTON   "OK",IDOK,178,54,50,14,WS_GROUP
+    LTEXT           "for draw field",IDC_STATIC,40,23,79,8,SS_NOPREFIX
+    LTEXT           "www.tamic.ru",IDC_STATIC,51,50,106,8
+    LTEXT           "",IDC_TMC_DOCLINK,40,76,170,10,SS_NOTIFY | WS_TABSTOP
+END
+
+IDD_DIALOGBARTOPOLOGY DIALOG  0, 0, 289, 137
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Topology"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Block",IDC_DRAWFLAGSIZEBLOCK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,19,95,36,13
+    GROUPBOX        "Size",IDC_STATIC,4,87,65,38
+    CONTROL         "Metal",IDC_DRAWFLAGMETAL,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,68,8,37,13
+    CONTROL         "Magnetic",IDC_DRAWFLAGMAGNETIC,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,125,8,47,13
+    GROUPBOX        "Draw flags",IDC_STATIC,3,0,282,25
+    CONTROL         "Input",IDC_DRAWFLAGInput,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,245,8,30,13
+    GROUPBOX        "Blend",IDC_STATIC,243,89,43,36
+    GROUPBOX        "Dimention",IDC_STATIC,164,84,65,48,WS_GROUP | 
+                    WS_TABSTOP
+    CONTROL         "Eps",IDC_DRAWFLAGEPS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,15,8,27,13
+    EDITTEXT        IDC_BLENDEPS,247,100,34,15,ES_AUTOHSCROLL
+    CONTROL         "2D",IDC_RADIO9,"Button",BS_AUTORADIOBUTTON | WS_GROUP,
+                    171,100,34,9
+    CONTROL         "3D",IDC_RADIO10,"Button",BS_AUTORADIOBUTTON,171,111,37,
+                    9
+    GROUPBOX        "",IDC_STATIC,3,20,282,59,WS_GROUP | WS_TABSTOP
+    PUSHBUTTON      "Change",ID_TOPEPSCOLOREPS,11,42,31,14,WS_GROUP
+    PUSHBUTTON      "Change",ID_TOPMETCOLORMETAL,67,42,31,14,WS_GROUP
+    PUSHBUTTON      "Change",ID_TOPMAGCOLORMAGNETIC,125,42,31,14,WS_GROUP
+    PUSHBUTTON      "Change",ID_TOPINPCOLORINPUT,237,42,31,14,WS_GROUP
+    CONTROL         "Link List",IDC_DRAWFLAGSIZELINKLIST,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,19,108,47,13
+    GROUPBOX        "Draw",IDC_STATIC,86,85,65,46
+    CONTROL         "Line",IDC_DRAWFLAGLINE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,101,97,24,13
+    CONTROL         "Surface",IDC_DRAWFLAGSURFACE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,101,111,35,13
+    EDITTEXT        IDC_COLORTOPOLOGYEBS,15,28,19,14,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_BORDER
+    EDITTEXT        IDC_COLORTOPOLOGYMET,69,28,19,14,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_BORDER
+    EDITTEXT        IDC_COLORTOPOLOGYMAG,127,28,19,14,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_BORDER
+    EDITTEXT        IDC_COLORTOPOLOGYINP,243,28,19,14,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_BORDER
+    PUSHBUTTON      "Default",ID_TOPMETCOLORDEFAULT,11,61,258,14,WS_GROUP
+    CONTROL         "Absorber",IDC_DRAWFLAGAbsorber,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,180,8,50,13
+    PUSHBUTTON      "Change",ID_TOPINPCOLORABSORBER,184,42,31,14,WS_GROUP
+    EDITTEXT        IDC_COLORTOPOLOGYABS,190,28,19,14,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_BORDER
+END
+
+IDD_DIALOGBARPLACE DIALOG  0, 0, 278, 133
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Place"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "X axies",-1,0,4,70,124
+    CONTROL         "Auto size",IDC_AUTOSIZEFLAGX,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,3,17,40,12
+    EDITTEXT        IDC_XAXIESMIN,21,31,43,15,ES_AUTOHSCROLL
+    LTEXT           "min",-1,3,34,16,9
+    EDITTEXT        IDC_XAXIESMAX,21,52,43,15,ES_AUTOHSCROLL
+    LTEXT           "max",-1,3,55,16,9
+    GROUPBOX        "Y axies",-1,83,4,70,124
+    CONTROL         "Auto size",IDC_AUTOSIZEFLAGY,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,86,17,40,12
+    EDITTEXT        IDC_YAXIESMIN,104,31,43,15,ES_AUTOHSCROLL
+    LTEXT           "min",-1,86,34,16,9
+    EDITTEXT        IDC_YAXIESMAX,104,52,43,15,ES_AUTOHSCROLL
+    LTEXT           "max",-1,86,55,16,9
+    EDITTEXT        IDC_XAXIESANGLE,21,75,43,15,ES_AUTOHSCROLL | WS_DISABLED
+    LTEXT           "angl",-1,3,78,16,9
+    EDITTEXT        IDC_XAXIESTRANS,21,92,43,15,ES_AUTOHSCROLL | WS_DISABLED
+    LTEXT           "trans",-1,3,95,16,9
+    GROUPBOX        "",-1,0,68,70,43
+    EDITTEXT        IDC_YAXIESANGLE,104,76,43,15,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    LTEXT           "angl",-1,86,79,16,9
+    EDITTEXT        IDC_YAXIESTRANS,104,93,43,15,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    LTEXT           "trans",-1,86,96,16,9
+    GROUPBOX        "",-1,83,68,70,43
+    CONTROL         "Draw",IDC_DRAWAXIESFLAG,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,175,17,38,12
+    GROUPBOX        "Axies",-1,166,4,52,37
+    PUSHBUTTON      "Color",ID_PLACEAXIESCOLOR,169,74,47,13,WS_GROUP
+    PUSHBUTTON      "Font",ID_PLACEAXIESFONT,169,92,47,13,WS_GROUP
+    LTEXT           "",IDC_STATICAXIESCOLORIM,184,56,16,12
+    EDITTEXT        IDC_LONGUNIT,225,14,43,15,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER
+    GROUPBOX        "Long Unit",-1,221,4,52,31
+    GROUPBOX        "Time Unit",-1,221,38,52,31
+    EDITTEXT        IDC_TIMEUNIT,225,50,43,15,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER
+    CONTROL         "Draw size flag",IDC_AUTODRAWSIZEFLAGX,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,4,114,57,12
+    CONTROL         "Draw size flag",IDC_AUTODRAWSIZEFLAGY,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,88,114,57,12
+    GROUPBOX        "Text",-1,166,43,52,67
+    CONTROL         "Proportionally",IDC_FLGPROPORTIONALLY,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,167,116,57,12
+END
+
+IDD_DIALOGBAREPS DIALOG  0, 0, 286, 139
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Eps"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Surface",IDC_DRAWFLAGSURFACE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,26,13,40,13
+    CONTROL         "Line",IDC_DRAWFLAGLINE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,26,29,40,13
+    GROUPBOX        "Draw flags",IDC_STATIC,14,4,58,44
+    EDITTEXT        IDC_BLEND,37,56,35,15,ES_AUTOHSCROLL
+    LTEXT           "Blend",IDC_STATIC,11,59,23,9
+    CONTROL         "2D",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | WS_GROUP | 
+                    WS_TABSTOP,28,86,27,9
+    CONTROL         "3D",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,28,97,27,9
+    GROUPBOX        "Dimention",IDC_STATIC,14,74,58,37,WS_GROUP | WS_TABSTOP
+    GROUPBOX        "Color",IDC_STATIC,78,0,125,138,WS_GROUP | WS_TABSTOP
+    LTEXT           "",IDC_STATICLEVEL1,81,11,110,116,WS_TABSTOP
+    CONTROL         "Auto size",IDC_AUTOSIZEFLAGZ,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,213,13,40,12
+    EDITTEXT        IDC_ZAXIESMIN,231,25,43,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ZAXIESMAX,231,40,43,15,ES_AUTOHSCROLL
+    PUSHBUTTON      "Set color",ID_ColorLevelChange,210,102,50,15,WS_GROUP
+    PUSHBUTTON      "Default",ID_DEFAULT_TRXYZ_ANGXYZ,210,120,50,14,WS_GROUP
+    GROUPBOX        "Z axies",IDC_STATIC,210,4,70,60
+    LTEXT           "min",IDC_STATIC,213,28,16,9
+    LTEXT           "max",IDC_STATIC,213,43,16,9
+    GROUPBOX        "",IDC_STATIC,202,90,64,48
+    GROUPBOX        "",IDC_STATIC,210,59,70,21
+    CONTROL         "Draw size flag",IDC_AUTODRAWSIZEFLAGZ,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,214,66,57,12
+END
+
+IDD_DIALOGBARFIELD DIALOGEX 0, 0, 286, 146
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Field"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "Surface",IDC_DRAWFLAGSURFACE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,26,13,40,13
+    CONTROL         "Line",IDC_DRAWFLAGLINE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,26,29,40,13
+    GROUPBOX        "Draw flags",IDC_STATIC,14,4,58,44
+    EDITTEXT        IDC_BLEND,37,56,35,15,ES_AUTOHSCROLL
+    LTEXT           "Blend",IDC_STATIC,11,59,23,9
+    CONTROL         "2D",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | WS_GROUP | 
+                    WS_TABSTOP,28,86,27,9
+    CONTROL         "3D",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,28,97,27,9
+    GROUPBOX        "Dimention",IDC_STATIC,14,74,58,37,WS_GROUP | WS_TABSTOP
+    GROUPBOX        "Color",IDC_STATIC,78,0,125,138,WS_GROUP | WS_TABSTOP
+    LTEXT           "",IDC_STATICLEVEL1,81,11,116,122,WS_TABSTOP
+    CONTROL         "Auto size",IDC_AUTOSIZEFLAGZ,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,213,13,40,12
+    EDITTEXT        IDC_ZAXIESMIN,231,25,43,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ZAXIESMAX,231,40,43,15,ES_AUTOHSCROLL
+    PUSHBUTTON      "Default",ID_DEFAULT_TRXYZ_ANGXYZ,210,120,50,14,WS_GROUP
+    GROUPBOX        "Z axies",IDC_STATIC,210,4,70,60
+    LTEXT           "min",IDC_STATIC,213,28,16,9
+    LTEXT           "max",IDC_STATIC,213,43,16,9
+    GROUPBOX        "",IDC_STATIC,202,76,64,62
+    GROUPBOX        "",IDC_STATIC,210,59,70,21
+    CONTROL         "Draw size flag",IDC_AUTODRAWSIZEFLAGZ,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,214,66,57,12
+    PUSHBUTTON      "Set color",ID_ColorLevelChangeAuto,210,101,50,15,
+                    WS_GROUP
+    CONTROL         "256 Resolution",IDC_AUTODRAWSIZEFLAGZ2,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,207,85,55,12
+    CONTROL         "Draw Modul",IDC_AUTODRAWSIZEFLAGZ3,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,14,122,57,12
+END
+
+IDD_DIALOGBARCOLORH DIALOG  0, 0, 333, 166
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Auto color"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Level1",IDC_RADIO110,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP | WS_TABSTOP,34,9,30,11
+    CONTROL         "Level2",IDC_RADIO111,"Button",BS_AUTORADIOBUTTON,34,22,
+                    30,11
+    CONTROL         "Level3",IDC_RADIO112,"Button",BS_AUTORADIOBUTTON,34,35,
+                    30,11
+    CONTROL         "Level4",IDC_RADIO113,"Button",BS_AUTORADIOBUTTON,34,48,
+                    30,11
+    CONTROL         "Level5",IDC_RADIO114,"Button",BS_AUTORADIOBUTTON,34,62,
+                    30,11
+    CONTROL         "Level6",IDC_RADIO115,"Button",BS_AUTORADIOBUTTON,34,75,
+                    30,11
+    CONTROL         "Level7",IDC_RADIO116,"Button",BS_AUTORADIOBUTTON,34,88,
+                    30,11
+    CONTROL         "Level8",IDC_RADIO117,"Button",BS_AUTORADIOBUTTON,34,101,
+                    30,11
+    CONTROL         "Level9",IDC_RADIO118,"Button",BS_AUTORADIOBUTTON,34,114,
+                    30,11
+    CONTROL         "Level10",IDC_RADIO119,"Button",BS_AUTORADIOBUTTON,34,
+                    126,36,11
+    CONTROL         "Level11",IDC_RADIO120,"Button",BS_AUTORADIOBUTTON,96,9,
+                    35,11
+    CONTROL         "Level12",IDC_RADIO121,"Button",BS_AUTORADIOBUTTON,96,22,
+                    37,11
+    CONTROL         "Level13",IDC_RADIO122,"Button",BS_AUTORADIOBUTTON,96,35,
+                    36,11
+    CONTROL         "Level14",IDC_RADIO123,"Button",BS_AUTORADIOBUTTON,96,48,
+                    36,11
+    CONTROL         "Level15",IDC_RADIO124,"Button",BS_AUTORADIOBUTTON,96,62,
+                    34,11
+    CONTROL         "Level16",IDC_RADIO125,"Button",BS_AUTORADIOBUTTON,96,75,
+                    35,11
+    CONTROL         "Level17",IDC_RADIO126,"Button",BS_AUTORADIOBUTTON,96,88,
+                    36,11
+    CONTROL         "Level18",IDC_RADIO127,"Button",BS_AUTORADIOBUTTON,96,
+                    101,37,11
+    CONTROL         "Level19",IDC_RADIO128,"Button",BS_AUTORADIOBUTTON,96,
+                    114,36,11
+    CONTROL         "Level20",IDC_RADIO129,"Button",BS_AUTORADIOBUTTON,96,
+                    126,36,11
+    GROUPBOX        "Color",IDC_STATIC,10,0,125,159,WS_GROUP | WS_TABSTOP
+    LTEXT           "",IDC_STATICLEVEL1,13,11,17,8,WS_TABSTOP
+    LTEXT           "",IDC_STATICLEVEL2,13,24,17,8
+    LTEXT           "",IDC_STATICLEVEL3,13,37,17,8
+    LTEXT           "",IDC_STATICLEVEL4,13,50,17,8
+    LTEXT           "",IDC_STATICLEVEL5,13,64,17,8
+    LTEXT           "",IDC_STATICLEVEL6,13,77,17,8
+    LTEXT           "",IDC_STATICLEVEL7,13,90,17,8
+    LTEXT           "",IDC_STATICLEVEL8,13,103,17,8
+    LTEXT           "",IDC_STATICLEVEL9,13,116,17,8
+    LTEXT           "",IDC_STATICLEVEL10,13,128,17,8
+    LTEXT           "",IDC_STATICLEVEL11,75,11,17,8
+    LTEXT           "",IDC_STATICLEVEL12,75,24,17,8
+    LTEXT           "",IDC_STATICLEVEL13,75,37,17,8
+    LTEXT           "",IDC_STATICLEVEL14,75,50,17,8
+    LTEXT           "",IDC_STATICLEVEL15,75,64,17,8
+    LTEXT           "",IDC_STATICLEVEL16,75,77,17,8
+    LTEXT           "",IDC_STATICLEVEL17,75,90,17,8
+    LTEXT           "",IDC_STATICLEVEL18,75,103,17,8
+    LTEXT           "",IDC_STATICLEVEL19,75,116,17,8
+    LTEXT           "",IDC_STATICLEVEL20,75,128,17,8
+    PUSHBUTTON      "Change",ID_ColorLevelChange,47,143,50,15,WS_GROUP
+    PUSHBUTTON      "Cancel",ID_DEFAULT_TRXYZ_ANGXYZ,270,145,50,14,WS_GROUP
+    CONTROL         "Level1",IDC_RADIO130,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP | WS_TABSTOP,164,9,30,11
+    CONTROL         "Level2",IDC_RADIO131,"Button",BS_AUTORADIOBUTTON,164,22,
+                    30,11
+    CONTROL         "Level3",IDC_RADIO132,"Button",BS_AUTORADIOBUTTON,164,35,
+                    30,11
+    CONTROL         "Level4",IDC_RADIO133,"Button",BS_AUTORADIOBUTTON,164,48,
+                    30,11
+    CONTROL         "Level5",IDC_RADIO134,"Button",BS_AUTORADIOBUTTON,164,62,
+                    30,11
+    CONTROL         "Level6",IDC_RADIO135,"Button",BS_AUTORADIOBUTTON,164,75,
+                    30,11
+    CONTROL         "Level7",IDC_RADIO136,"Button",BS_AUTORADIOBUTTON,164,88,
+                    30,11
+    CONTROL         "Level8",IDC_RADIO137,"Button",BS_AUTORADIOBUTTON,164,
+                    101,30,11
+    CONTROL         "Level9",IDC_RADIO138,"Button",BS_AUTORADIOBUTTON,164,
+                    114,30,11
+    CONTROL         "Level10",IDC_RADIO139,"Button",BS_AUTORADIOBUTTON,164,
+                    126,36,11
+    CONTROL         "Level11",IDC_RADIO140,"Button",BS_AUTORADIOBUTTON,226,9,
+                    35,11
+    CONTROL         "Level12",IDC_RADIO141,"Button",BS_AUTORADIOBUTTON,226,
+                    22,37,11
+    CONTROL         "Level13",IDC_RADIO142,"Button",BS_AUTORADIOBUTTON,226,
+                    35,36,11
+    CONTROL         "Level14",IDC_RADIO143,"Button",BS_AUTORADIOBUTTON,226,
+                    48,36,11
+    CONTROL         "Level15",IDC_RADIO144,"Button",BS_AUTORADIOBUTTON,226,
+                    62,34,11
+    CONTROL         "Level16",IDC_RADIO145,"Button",BS_AUTORADIOBUTTON,226,
+                    75,35,11
+    CONTROL         "Level17",IDC_RADIO146,"Button",BS_AUTORADIOBUTTON,226,
+                    88,36,11
+    CONTROL         "Level18",IDC_RADIO147,"Button",BS_AUTORADIOBUTTON,226,
+                    101,37,11
+    CONTROL         "Level19",IDC_RADIO148,"Button",BS_AUTORADIOBUTTON,226,
+                    114,36,11
+    CONTROL         "Level20",IDC_RADIO149,"Button",BS_AUTORADIOBUTTON,226,
+                    126,36,11
+    GROUPBOX        "Color",IDC_STATIC,140,0,125,158,WS_GROUP | WS_TABSTOP
+    LTEXT           "",IDC_STATICLEVEL21,143,11,17,8,WS_TABSTOP
+    LTEXT           "",IDC_STATICLEVEL22,143,24,17,8
+    LTEXT           "",IDC_STATICLEVEL23,143,37,17,8
+    LTEXT           "",IDC_STATICLEVEL24,143,50,17,8
+    LTEXT           "",IDC_STATICLEVEL25,143,64,17,8
+    LTEXT           "",IDC_STATICLEVEL26,143,77,17,8
+    LTEXT           "",IDC_STATICLEVEL27,143,90,17,8
+    LTEXT           "",IDC_STATICLEVEL28,143,103,17,8
+    LTEXT           "",IDC_STATICLEVEL29,143,116,17,8
+    LTEXT           "",IDC_STATICLEVEL30,143,128,17,8
+    LTEXT           "",IDC_STATICLEVEL31,205,11,17,8
+    LTEXT           "",IDC_STATICLEVEL32,205,24,17,8
+    LTEXT           "",IDC_STATICLEVEL33,205,37,17,8
+    LTEXT           "",IDC_STATICLEVEL34,205,50,17,8
+    LTEXT           "",IDC_STATICLEVEL35,205,64,17,8
+    LTEXT           "",IDC_STATICLEVEL36,205,77,17,8
+    LTEXT           "",IDC_STATICLEVEL37,205,90,17,8
+    LTEXT           "",IDC_STATICLEVEL38,205,103,17,8
+    LTEXT           "",IDC_STATICLEVEL39,205,116,17,8
+    LTEXT           "",IDC_STATICLEVEL40,205,128,17,8
+    PUSHBUTTON      "Change",ID_ColorLevelChange2,181,142,50,15,WS_GROUP
+    PUSHBUTTON      "Auto set",ID_ColorLevelAutoSet,270,61,50,15,WS_GROUP
+    PUSHBUTTON      "Auto set Red",ID_ColorLevelAutoSet2,270,76,50,15,
+                    WS_GROUP
+    PUSHBUTTON      "Auto set Green",ID_ColorLevelAutoSet3,270,91,50,15,
+                    WS_GROUP
+    DEFPUSHBUTTON   "OK",ID_DEFAULT_TRXYZ_ANGXYZ2,270,128,50,14,WS_GROUP
+    LTEXT           "",IDC_STATICLEVEL_COLORALL,271,5,49,51
+    PUSHBUTTON      "Auto set Blue",ID_ColorLevelAutoSet4,270,106,50,15,
+                    WS_GROUP
+END
+
+IDD_DIALOGBARCOLORH1 DIALOGEX 0, 0, 160, 161
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Value for color level"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "",IDC_STATICLEVEL1,13,11,17,8,WS_TABSTOP
+    LTEXT           "",IDC_STATICLEVEL2,13,24,17,8
+    LTEXT           "",IDC_STATICLEVEL3,13,37,17,8
+    LTEXT           "",IDC_STATICLEVEL4,13,50,17,8
+    LTEXT           "",IDC_STATICLEVEL5,13,64,17,8
+    LTEXT           "",IDC_STATICLEVEL6,13,77,17,8
+    LTEXT           "",IDC_STATICLEVEL7,13,90,17,8
+    LTEXT           "",IDC_STATICLEVEL8,13,103,17,8
+    LTEXT           "",IDC_STATICLEVEL9,13,116,17,8
+    LTEXT           "",IDC_STATICLEVEL10,13,128,17,8
+    LTEXT           "",IDC_STATICLEVEL11,87,11,17,8
+    LTEXT           "",IDC_STATICLEVEL12,87,24,17,8
+    LTEXT           "",IDC_STATICLEVEL13,87,37,17,8
+    LTEXT           "",IDC_STATICLEVEL14,87,50,17,8
+    LTEXT           "",IDC_STATICLEVEL15,87,64,17,8
+    LTEXT           "",IDC_STATICLEVEL16,87,77,17,8
+    LTEXT           "",IDC_STATICLEVEL17,87,90,17,8
+    LTEXT           "",IDC_STATICLEVEL18,87,103,17,8
+    LTEXT           "",IDC_STATICLEVEL19,87,116,17,8
+    LTEXT           "",IDC_STATICLEVEL20,87,128,17,8
+    PUSHBUTTON      "Cancel",ID_DEFAULT_TRXYZ_ANGXYZ,103,143,50,14,WS_GROUP
+    DEFPUSHBUTTON   "OK",ID_DEFAULT_TRXYZ_ANGXYZ2,7,143,50,14,WS_GROUP
+    EDITTEXT        IDC_EDIT1,34,10,41,12,ES_AUTOHSCROLL | ES_READONLY | NOT 
+                    WS_BORDER
+    EDITTEXT        IDC_EDIT2,34,24,41,12,ES_AUTOHSCROLL | ES_READONLY | NOT 
+                    WS_BORDER
+    EDITTEXT        IDC_EDIT3,34,37,41,12,ES_AUTOHSCROLL | ES_READONLY | NOT 
+                    WS_BORDER
+    EDITTEXT        IDC_EDIT4,34,50,41,12,ES_AUTOHSCROLL | ES_READONLY | NOT 
+                    WS_BORDER
+    EDITTEXT        IDC_EDIT5,34,64,41,12,ES_AUTOHSCROLL | ES_READONLY | NOT 
+                    WS_BORDER
+    EDITTEXT        IDC_EDIT6,34,77,41,12,ES_AUTOHSCROLL | ES_READONLY | NOT 
+                    WS_BORDER
+    EDITTEXT        IDC_EDIT7,34,90,41,12,ES_AUTOHSCROLL | ES_READONLY | NOT 
+                    WS_BORDER
+    EDITTEXT        IDC_EDIT8,34,103,41,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER
+    EDITTEXT        IDC_EDIT9,34,115,41,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER
+    EDITTEXT        IDC_EDIT10,34,128,41,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER
+    EDITTEXT        IDC_EDIT11,109,10,41,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER
+    EDITTEXT        IDC_EDIT12,109,24,41,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER
+    EDITTEXT        IDC_EDIT13,109,37,41,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER
+    EDITTEXT        IDC_EDIT14,109,50,41,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER
+    EDITTEXT        IDC_EDIT15,109,64,41,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER
+    EDITTEXT        IDC_EDIT16,109,77,41,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER
+    EDITTEXT        IDC_EDIT17,109,90,41,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER
+    EDITTEXT        IDC_EDIT18,109,103,41,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER
+    EDITTEXT        IDC_EDIT19,109,115,41,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER
+    EDITTEXT        IDC_EDIT20,109,128,41,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 3,0,0,1
+ PRODUCTVERSION 3,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "Tamic_soft group"
+            VALUE "FileDescription", "FldView MFC Application"
+            VALUE "FileVersion", "3, 0, 0, 1"
+            VALUE "InternalName", "FldView"
+            VALUE "LegalCopyright", "Copyright (C) 2000"
+            VALUE "LegalTrademarks", "Tamic_soft group"
+            VALUE "OriginalFilename", "FldView.EXE"
+            VALUE "ProductName", "FldView Application"
+            VALUE "ProductVersion", "3, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 68
+    END
+
+    IDD_DIALOGBARPLACE, DIALOG
+    BEGIN
+        RIGHTMARGIN, 271
+    END
+
+    IDD_DIALOGBAREPS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 279
+        TOPMARGIN, 3
+        BOTTOMMARGIN, 134
+    END
+
+    IDD_DIALOGBARFIELD, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 279
+        TOPMARGIN, 3
+    END
+
+    IDD_DIALOGBARCOLORH, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 326
+        TOPMARGIN, 3
+    END
+
+    IDD_DIALOGBARCOLORH1, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 153
+        TOPMARGIN, 3
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDR_MAINFRAME           "Tamic Rt Output Field Viewer"
+    IDR_FLDVIETYPE          "\nFldVie\nFldVie\nFldVie Files (*.tf;*.AMP;*.FAZ;)\n*.tf;*.AMP;*.FAZ;\nFldView.Document\nFldVie Document"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "Tamic Rt Output Field Viewer"
+    AFX_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_NEW             "Create a new document\nNew"
+    ID_FILE_OPEN            "Open an existing document\nOpen"
+    ID_FILE_CLOSE           "Close the active document\nClose"
+    ID_FILE_SAVE            "Save the active document\nSave"
+    ID_FILE_SAVE_AS         "Save the active document with a new name\nSave As"
+    ID_FILE_PAGE_SETUP      "Change the printing options\nPage Setup"
+    ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
+    ID_FILE_PRINT           "Print the active document\nPrint"
+    ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_MRU_FILE1       "Open this document"
+    ID_FILE_MRU_FILE2       "Open this document"
+    ID_FILE_MRU_FILE3       "Open this document"
+    ID_FILE_MRU_FILE4       "Open this document"
+    ID_FILE_MRU_FILE5       "Open this document"
+    ID_FILE_MRU_FILE6       "Open this document"
+    ID_FILE_MRU_FILE7       "Open this document"
+    ID_FILE_MRU_FILE8       "Open this document"
+    ID_FILE_MRU_FILE9       "Open this document"
+    ID_FILE_MRU_FILE10      "Open this document"
+    ID_FILE_MRU_FILE11      "Open this document"
+    ID_FILE_MRU_FILE12      "Open this document"
+    ID_FILE_MRU_FILE13      "Open this document"
+    ID_FILE_MRU_FILE14      "Open this document"
+    ID_FILE_MRU_FILE15      "Open this document"
+    ID_FILE_MRU_FILE16      "Open this document"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_WINDOW_NEW           "Open another window for the active document\nNew Window"
+    ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
+    ID_WINDOW_CASCADE       "Arrange windows so they overlap\nCascade Windows"
+    ID_WINDOW_TILE_HORZ     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_TILE_VERT     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List"
+    AFX_IDS_MDICHILD        "Activate this window"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_PREVIEW_CLOSE   "Close print preview mode\nCancel Preview"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_TRANSLATE_YB         "Translate bottom Y\nTranslate bottom Y"
+    ID_VIEW_PARAMETERS      "Edit view parameters\nEdit view parameters"
+    ID_STRELKLEFT           "Decrement Xmin and Xmax\nDecrement Xmin and Xmax"
+    ID_STRELKRIGHT          "Increment Xmin and Xmax\nIncrement Xmin and Xmax"
+    ID_STRELKUP             "Increment Ymin and Ymax\nIncrement Ymin and Ymax"
+    ID_STRELKDOWN           "Decrement Ymin and Ymax\nDecrement Ymin and Ymax"
+    ID_VIEW_ZOOM            "Zoom +\nZoom +"
+    ID_VIEW_ZOOM_P          "Zoom +\nZoom +"
+    ID_VIEW_ZOOM_M          "Zoom -\nZoom -"
+    ID_VIEW_ZOOM_PX         "Zoom +X\nZoom +X"
+    ID_VIEW_ZOOM_MX         "Zoom -X\nZoom -X"
+    ID_VIEW_ZOOM_PY         "Zoom +Y\nZoom +Y"
+    ID_VIEW_ZOOM_MY         "Zoom -Y\nZoom -Y"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_VIEW_DEFAULT         "Set default view parameters\nDefault view parameters"
+    ID_ROTATEXN             "Rotate\nRotate"
+    ID_ROTATEXV             "Rotate\nRotate"
+    ID_ROTATEYN             "Rotate\nRotate"
+    ID_ROTATEYV             "Rotate\nRotate"
+    ID_ROTATEZV             "Rotate\nRotate"
+    ID_ROTATEZN             "Rotate\nRotate"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_TRANSLATE_YN         "Translation Y-axies\nTranslation Y-axies"
+    ID_TRANSLATE_YV         "Translation Y-axies\nTranslation Y-axies"
+    ID_TRANSLATE_XN         "Translation X-axies\nTranslation X-axies"
+    ID_TRANSLATE_XV         "Translation X-axies\nTranslation X-axies"
+    ID_TRANSLATE_ZN         "Translation Zaxies\nTranslation Z-axies"
+    ID_TRANSLATE_ZV         "Translation Zaxies\nTranslation Z-axies"
+    ID_TRANSLATEDATAXN      "Decriment Xmin-Xmax\nDecriment Xmin-Xmax"
+    ID_TRANSLATEDATAXV      "Incriment Xmin-Xmax\nIncriment Xmin-Xmax"
+    ID_TRANSLATEDATAYV      "Incriment Ymin-Ymax\nIncriment Ymin-Ymax"
+    ID_TRANSLATEDATAYN      "Decriment Ymin-Ymax\nDecriment Ymin-Ymax"
+    ID_DIMENSION23SWITCH    "2-3 dimension\nField 2-3 dimension"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FLAGDRAWLINE         "Draw line\nField line"
+    ID_FLAGDRAWSURFACE      "Draw surface\nField surface"
+    ID_VIEW_DEFAULT12       "Set default view parameters\nDefault view parameters"
+    ID_FLAGDRAWLINEEPS      "Draw line\nEps line"
+    ID_FLAGDRAWSURFACEEPS   "Draw surface\nEps surface"
+    ID_DIMENSION23SWITCHEPS "2-3 dimension\nEps 2-3 dimension"
+    ID_VIEW_PROPORTIONALLY  "On/off proportionally  X and Y axies size\nProportionally"
+    ID_FLAGDRAWLINETOP      "Draw line\nTopology line"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FLAGDRAWSURFACETOP   "Draw surface\nTopology surface"
+    ID_DIMENSION23SWITCHTOP "2-3 dimension\nTopology 2-3 dimension"
+    ID_VIEW_TOPOLOGY_BOUNDARY_EPS 
+                            "Draw boundary for eps\nDraw boundary for eps"
+    ID_VIEW_TOPOLOGY_BOUNDARY_METAL 
+                            "Draw boundary for metal\nDraw boundary for metal"
+    ID_VIEW_TOPOLOGY_BOUNDARY_MAGNETIC 
+                            "Draw boundary for magnetic\nDraw boundary for magnetic"
+    ID_VIEW_TOPOLOGY_BOUNDARY_ABSORBER 
+                            "Draw boundary for absorber\nDraw boundary for absorber"
+    ID_VIEW_TOPOLOGY_BOUNDARY_INPUT 
+                            "Draw boundary for input\nDraw boundary for input"
+    ID_VIEW_EPS_SIZE        "Draw eps - Z axies\nDraw eps - Z axies"
+    ID_VIEW_FIELD_SIZE      "Draw field - Z axies\nDraw field - Z axies"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_ROTATE_LEFT          "Rotate left\nRotate left"
+    ID_ROTATE_RIGHT         "Rotate right\nRotate right"
+    ID_ROTATE_TOP           "Rotate top\nRotate top"
+    ID_ROTATE_BOTTOM        "Rotate bottom\nRotate bottom"
+    ID_ROTATE_RIGHTY        "Rotate right Y\nRotate right Y"
+    ID_ROTATE_LEFTY         "Rotate left Y\nRotate left Y"
+    ID_TRANSLATE_XT         "Translate top X\nTranslate top X"
+    ID_TRANSLATE_XB         "Translate bottom X\nTranslate bottom X"
+    ID_TRANSLATE_ZB         "Translate bottom Z\nTranslate bottom Z"
+    ID_TRANSLATE_ZT         "Translate top Z\nTranslate top Z"
+    ID_TRANSLATE_YT         "Translate top Y\nTranslate top Y"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_VIEW_TOPOLOGY_DIMENSIONS_ALONGANXAXIES 
+                            "Draw size along X axies\nDraw size along X axies"
+    ID_VIEW_TOPOLOGY_DIMENSIONS_ALONGANYAXIES 
+                            "Draw size along Y axies\nDraw size along Y axies"
+    ID_VIEW_TOPOLOGY_SIZE_BLOCK "Draw block size\nDraw block size"
+    ID_VIEW_TOPOLOGY_SIZE_LINKLIST "Draw link list size\nDraw linl list size"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\FldView.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#include "afxprint.rc"       // printing/print preview resources
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

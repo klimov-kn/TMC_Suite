@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 7.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "exprint", "exprint.vcproj", "{C90EB646-D26C-4AD3-83FF-7E0597937AEF}"
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		ConfigName.0 = Debug
+		ConfigName.1 = Release
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{C90EB646-D26C-4AD3-83FF-7E0597937AEF}.Debug.ActiveCfg = Debug|Win32
+		{C90EB646-D26C-4AD3-83FF-7E0597937AEF}.Debug.Build.0 = Debug|Win32
+		{C90EB646-D26C-4AD3-83FF-7E0597937AEF}.Release.ActiveCfg = Release|Win32
+		{C90EB646-D26C-4AD3-83FF-7E0597937AEF}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

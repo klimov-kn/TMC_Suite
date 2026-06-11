@@ -1,0 +1,48 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="Win32" />
+  </Configurations>
+  <Project Path="fieldview/FldView.vcxproj" Id="e4628270-4a3e-8903-5881-b3d03993a55b">
+    <BuildDependency Project="libs/exprint/exprint.vcxproj" />
+    <BuildDependency Project="libs/PREPR/Prepr.vcxproj" />
+    <BuildDependency Project="libs/SFILE95/SFILE95.vcxproj" />
+    <BuildDependency Project="libs/TMCIndan/TMCIndan.vcxproj" />
+    <BuildDependency Project="libs/TMCLibError/TMCLibError.vcxproj" />
+  </Project>
+  <Project Path="kernels/PlanarRT_H/PlanRT_H.vcxproj" Id="10c1b008-269c-422f-9ce3-b9525565132c">
+    <BuildDependency Project="libs/exprint/exprint.vcxproj" />
+    <BuildDependency Project="libs/PREPR/Prepr.vcxproj" />
+    <BuildDependency Project="libs/SFILE95/SFILE95.vcxproj" />
+    <BuildDependency Project="libs/TMCIndan/TMCIndan.vcxproj" />
+    <BuildDependency Project="libs/TMCLibError/TMCLibError.vcxproj" />
+  </Project>
+  <Project Path="kernels/PlanarRT_X/PlanRT_X.vcxproj" Id="fb1791ba-5b3a-4d3e-8808-81ea4bfd9914">
+    <BuildDependency Project="libs/exprint/exprint.vcxproj" />
+    <BuildDependency Project="libs/PREPR/Prepr.vcxproj" />
+    <BuildDependency Project="libs/SFILE95/SFILE95.vcxproj" />
+    <BuildDependency Project="libs/TMCIndan/TMCIndan.vcxproj" />
+    <BuildDependency Project="libs/TMCLibError/TMCLibError.vcxproj" />
+  </Project>
+  <Project Path="libs/complex/complex.vcxproj" Id="e89063ec-5ff6-4fb2-aeb9-0b503479cda2" />
+  <Project Path="libs/exprint/exprint.vcxproj" Id="4804ef82-1a2b-41a8-ab44-3a89c6075808" />
+  <Project Path="libs/PREPR/Prepr.vcxproj" Id="59cd3c8a-31b7-4cc6-a500-9e5785d9b5f0" />
+  <Project Path="libs/SFILE95/SFILE95.vcxproj" Id="0f75a3f2-9c9a-405a-80e6-d4794388b9d3" />
+  <Project Path="libs/TMCIndan/TMCIndan.vcxproj" Id="6b367e48-a04a-4c50-b6cd-c4e4a18a2703" />
+  <Project Path="libs/TMCLibError/TMCLibError.vcxproj" Id="0e4b81bc-2445-44c6-91f1-cc21a03184d2" />
+  <Project Path="viewers/DiaNapGr/TMC_DN.vcxproj" Id="4729e064-b332-4267-a517-3d77a8d37116">
+    <BuildDependency Project="libs/complex/complex.vcxproj" />
+    <BuildDependency Project="libs/exprint/exprint.vcxproj" />
+    <BuildDependency Project="libs/SFILE95/SFILE95.vcxproj" />
+  </Project>
+  <Project Path="viewers/Tmcgrout/TMCGROUT.vcxproj" Id="950a7496-6b5a-4442-88d3-49d717b5481a">
+    <BuildDependency Project="libs/complex/complex.vcxproj" />
+    <BuildDependency Project="libs/exprint/exprint.vcxproj" />
+    <BuildDependency Project="libs/SFILE95/SFILE95.vcxproj" />
+  </Project>
+  <Project Path="viewers/Tmcrtout/TMCROS.vcxproj" Id="92fbf23e-b3ed-4614-b3f6-1d7a8296ba0a">
+    <BuildDependency Project="libs/complex/complex.vcxproj" />
+    <BuildDependency Project="libs/exprint/exprint.vcxproj" />
+    <BuildDependency Project="libs/SFILE95/SFILE95.vcxproj" />
+  </Project>
+</Solution>

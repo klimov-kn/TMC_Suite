@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="COMPLEX">
+</Property><Property Name="Файл решения" Value="D:\work\Source\COMPLEX\COMPLEX.sln">
+</Property><Property Name="Файл параметров пользователя" Value="D:\work\Source\COMPLEX\COMPLEX.suo">
+</Property><Property Name="Date" Value="30 мая 2025 г.">
+</Property><Property Name="Time" Value="15:44">
+</Property></Properties><Event ErrorLevel="0" Project="" Source="COMPLEX.sln" Description="Успешно создана резервная копия файла D:\work\Source\COMPLEX\COMPLEX.sln.old">
+</Event><Event ErrorLevel="0" Project="" Source="COMPLEX.suo" Description="Успешно создана резервная копия файла D:\work\Source\COMPLEX\COMPLEX.suo.old">
+</Event><Event ErrorLevel="0" Project="complex" Source="complex.vcproj" Description="Проект обновлен успешно.">
+</Event><Event ErrorLevel="3" Project="complex" Source="complex.vcproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="" Source="COMPLEX.sln" Description="Преобразование решения успешно завершено">
+</Event><Event ErrorLevel="3" Project="" Source="COMPLEX.sln" Description="Converted">
+</Event></UpgradeLog>

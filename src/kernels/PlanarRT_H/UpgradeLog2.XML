@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="PlanRT_H">
+</Property><Property Name="Solution File" Value="E:\WORK\Source\PlanRT_H\PlanRT_H.sln">
+</Property><Property Name="Date" Value="15 мая 2012 г.">
+</Property><Property Name="Time" Value="15:54">
+</Property><Property Name="Log Number" Value="2">
+</Property></Properties><Event ErrorLevel="0" Project="PlanRT_H" Source="PlanRT_H.vcproj" Description="Converting project file 'E:\WORK\Source\PlanRT_H\PlanRT_H.vcproj'.">
+</Event><Event ErrorLevel="1" Project="PlanRT_H" Source="PlanRT_H.vcproj" Description="VCWebServiceProxyGeneratorTool is no longer supported. The tool has been removed from your project settings.">
+</Event><Event ErrorLevel="1" Project="PlanRT_H" Source="PlanRT_H.vcproj" Description="Attribute 'OptimizeForWindows98' of 'VCLinkerTool' is not supported in this version and has been removed during conversion.">
+</Event><Event ErrorLevel="1" Project="PlanRT_H" Source="PlanRT_H.vcproj" Description="MSB8012: $(TargetName) ('PlanRT_H') does not match the Linker's OutputFile property value 'c:\tmc\exe\tmc_rth.exe' ('tmc_rth') in project configuration 'Debug|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetName) property value matches the value specified in %(Link.OutputFile).">
+</Event><Event ErrorLevel="1" Project="PlanRT_H" Source="PlanRT_H.vcproj" Description="MSB8012: $(TargetPath) ('E:\WORK\Source\PlanRT_H\.\Debug\PlanRT_H.exe') does not match the Linker's OutputFile property value 'c:\tmc\exe\tmc_rth.exe' ('c:\tmc\exe\tmc_rth.exe') in project configuration 'Debug|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).">
+</Event><Event ErrorLevel="1" Project="PlanRT_H" Source="PlanRT_H.vcproj" Description="MSB8012: $(TargetName) ('PlanRT_H') does not match the Linker's OutputFile property value 'c:\tmc\exe\tmc_rth.exe' ('tmc_rth') in project configuration 'Release|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetName) property value matches the value specified in %(Link.OutputFile).">
+</Event><Event ErrorLevel="1" Project="PlanRT_H" Source="PlanRT_H.vcproj" Description="MSB8012: $(TargetPath) ('E:\WORK\Source\PlanRT_H\.\Release\PlanRT_H.exe') does not match the Linker's OutputFile property value 'c:\tmc\exe\tmc_rth.exe' ('c:\tmc\exe\tmc_rth.exe') in project configuration 'Release|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).">
+</Event><Event ErrorLevel="0" Project="PlanRT_H" Source="PlanRT_H.vcproj" Description="Done converting to new project file 'E:\WORK\Source\PlanRT_H\PlanRT_H.vcxproj'.">
+</Event><Event ErrorLevel="3" Project="PlanRT_H" Source="PlanRT_H.vcproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="" Source="PlanRT_H.sln" Description="Solution converted successfully">
+</Event><Event ErrorLevel="3" Project="" Source="PlanRT_H.sln" Description="Converted">
+</Event></UpgradeLog>

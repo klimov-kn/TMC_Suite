@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{102b2b6c-46b1-4fe9-8e2f-6400aef5a9b3}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{9e544002-3976-4a26-bf8a-f711c6e12364}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{761dd8b9-205f-4a0e-b3d4-b38e50d35889}</UniqueIdentifier>
+      <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ChildFrm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorLevelDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FldView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FldViewDoc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FldViewView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainFrm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StdAfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TMCDialogEps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TMCDialogField.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TMCDialogPlace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TMCDialogPropet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TMCDialogTopology.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TmcASetColor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TmcBlockTpl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TmcBoundaryTpl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TmcGLText.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TmcTopSize.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="FldView.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ChildFrm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorLevelDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FldView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FldViewDoc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FldViewView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MainFrm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StdAfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TMCDialogEps.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TMCDialogField.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TMCDialogPlace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TMCDialogPropet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TMCDialogTopology.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TmcASetColor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TmcBlockTpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TmcBoundaryTpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TmcGLText.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\INCLUDE\TmcRTH_BolckList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TmcTopSize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\INCLUDE\Typerth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\FldView.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\FldView.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\FldViewDoc.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\Toolbar.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00001.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00002.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00003.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00004.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00005.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00006.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00007.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00008.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00009.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00010.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00011.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00012.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00013.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00014.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00015.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00016.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00017.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00018.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ico00019.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\idr_fldv.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="FldView.reg" />
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+</Project>

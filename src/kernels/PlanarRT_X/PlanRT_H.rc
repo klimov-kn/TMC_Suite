@@ -1,0 +1,1213 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif\r\n"
+    "#include ""res\\PlanRT_H.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#include ""afxprint.rc""       // printing/print preview resources\r\n"
+    "#endif\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\PlanRT_H.ico"
+IDR_MAINFRAME1          ICON                    "res\\idr_main.ico"
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_PLANRTTYPE          ICON                    "res\\PlanRT_HDoc.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR  16, 16
+BEGIN
+    BUTTON      ID_FILE_NEW
+    BUTTON      ID_FILE_OPEN
+    SEPARATOR
+    BUTTON      ID_EDIT_EDIT
+    BUTTON      ID_VIEW_OUTPUT
+    BUTTON      ID_VIEW_FIELD_1
+    BUTTON      ID_CONFIG_SMATRIX
+    BUTTON      ID_VIEW_DIRECTIONALPATTERN
+    SEPARATOR
+    BUTTON      ID_VIEW_STATISTICS
+    SEPARATOR
+    BUTTON      ID_RUN_RESTARTALL
+    BUTTON      ID_RUN_RUN
+    BUTTON      ID_RUN_STOP
+    BUTTON      ID_RUN_STARTSTEP
+    BUTTON      ID_RUN_RESTARTSTEP
+    BUTTON      ID_RUN_SKIPSTEP
+    BUTTON      ID_RUN_BACKSTEP
+    SEPARATOR
+    BUTTON      ID_VIEW_TOPOLOGY
+    BUTTON      ID_VIEW_FIELD
+    BUTTON      ID_CONFIG_SINCHRONIZATION
+    BUTTON      ID_CONFIG_DIRECTIONALPATTERN
+    SEPARATOR
+    BUTTON      ID_CONFIG_SOUND
+    BUTTON      ID_CONFIG_AUTORUN
+    SEPARATOR
+    BUTTON      ID_FILE_PRINT
+    BUTTON      ID_APP_ABOUT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM SEPARATOR
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About PlanRT_X...",          ID_APP_ABOUT
+    END
+END
+
+IDR_PLANRTTYPE MENU 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Close",                      ID_FILE_CLOSE
+        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
+        MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
+        MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Edit\tAlt+F7",               ID_EDIT_EDIT
+        MENUITEM SEPARATOR
+        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "Outp&ut\tAlt+Shift+F4",       ID_VIEW_OUTPUT
+        MENUITEM "&Field and topology",         ID_VIEW_FIELD_1
+        MENUITEM "St&atistics\tShift+F4",       ID_VIEW_STATISTICS
+        MENUITEM "S-&matrix\tCtrl+Shift+F4",    ID_CONFIG_SMATRIX
+        MENUITEM "&Directional Pattern\tCtrl+Alt+F4", 
+                                                ID_VIEW_DIRECTIONALPATTERN
+        MENUITEM SEPARATOR
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+    END
+    POPUP "&Run"
+    BEGIN
+        MENUITEM "Run\tF5",                     ID_RUN_RUN
+        MENUITEM "Load first step\tShift+F5",   ID_RUN_RESTARTALL
+        MENUITEM SEPARATOR
+        MENUITEM "Run Step\tF8",                ID_RUN_STARTSTEP
+        MENUITEM "Load Step\tShift+F8",         ID_RUN_RESTARTSTEP
+        MENUITEM SEPARATOR
+        MENUITEM "Skip Step\tCtrl+F6",          ID_RUN_SKIPSTEP
+        MENUITEM "Back Step\tAlt+F6",           ID_RUN_BACKSTEP
+        MENUITEM SEPARATOR
+        MENUITEM "&Stop\tAlt+F5",               ID_RUN_STOP
+    END
+    POPUP "&Config"
+    BEGIN
+        MENUITEM "&Editor",                     ID_CONFIG_EDITOR
+        MENUITEM SEPARATOR
+        POPUP "Viewer"
+        BEGIN
+            MENUITEM "&Output signal",              ID_CONFIG_VIEWER_OUTPUTSIGNAL
+
+            MENUITEM "&Field",                      ID_CONFIG_VIEWER_FIELD
+            MENUITEM "&S-matrix",                   ID_CONFIG_VIEWER_SMATRIX
+            MENUITEM "Directional Pattern",         ID_CONFIG_VIEWER_DIRECTIONALPATTERN
+
+        END
+        POPUP "&Color"
+        BEGIN
+            MENUITEM "&BackGround",                 ID_CONFIG_COLOR_BACKGROUND
+
+        END
+        POPUP "&Format"
+        BEGIN
+            MENUITEM "&OutputDataFile",             ID_CONFIG_FORMAT_OUTPUTDATAFILE
+
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "T&opology\tF4",               ID_VIEW_TOPOLOGY
+        MENUITEM "&Field\tCtrl+F4",             ID_VIEW_FIELD
+        MENUITEM "&Synchronization",            ID_CONFIG_SINCHRONIZATION
+        MENUITEM "&Directional Pattern",        ID_CONFIG_DIRECTIONALPATTERN
+        MENUITEM SEPARATOR
+        POPUP "Sound"
+        BEGIN
+            MENUITEM "On/Off",                      ID_CONFIG_SOUND
+            MENUITEM "Melody",                      ID_CONFIG_SOUND_MELODY
+        END
+        MENUITEM "&AutoRun",                    ID_CONFIG_AUTORUN
+        MENUITEM "Setup",                       ID_CONFIG_SETUP
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&Cascade",                    ID_WINDOW_CASCADE
+        MENUITEM "&Tile",                       ID_WINDOW_TILE_HORZ
+        MENUITEM "&Arrange Icons",              ID_WINDOW_ARRANGE
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About PlanRT_X...",          ID_APP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS 
+BEGIN
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
+    VK_F4,          ID_VIEW_TOPOLOGY,       VIRTKEY, NOINVERT
+    VK_F4,          ID_VIEW_FIELD,          VIRTKEY, CONTROL, NOINVERT
+    VK_F4,          ID_VIEW_DIRECTIONALPATTERN, VIRTKEY, CONTROL, ALT, 
+                                                    NOINVERT
+    VK_F4,          ID_VIEW_STATISTICS,     VIRTKEY, SHIFT, NOINVERT
+    VK_F4,          ID_CONFIG_SMATRIX,      VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    VK_F4,          ID_VIEW_OUTPUT,         VIRTKEY, SHIFT, ALT, NOINVERT
+    VK_F5,          ID_RUN_RUN,             VIRTKEY, NOINVERT
+    VK_F5,          ID_RUN_STOP,            VIRTKEY, ALT, NOINVERT
+    VK_F5,          ID_RUN_RESTARTALL,      VIRTKEY, SHIFT, NOINVERT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
+    VK_F6,          ID_RUN_SKIPSTEP,        VIRTKEY, CONTROL, NOINVERT
+    VK_F6,          ID_RUN_BACKSTEP,        VIRTKEY, ALT, NOINVERT
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
+    VK_F7,          ID_EDIT_EDIT,           VIRTKEY, ALT, NOINVERT
+    VK_F8,          ID_RUN_STARTSTEP,       VIRTKEY, NOINVERT
+    VK_F8,          ID_RUN_RESTARTSTEP,     VIRTKEY, SHIFT, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 217, 84
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Planar RT H analyzer"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "Copyright © 2005 Tamic_soft group",IDC_STATIC,40,39,119,
+                    8
+    DEFPUSHBUTTON   "OK",IDOK,178,50,32,14,WS_GROUP
+    EDITTEXT        IDC_RTHTMCABOUTBOXMODEL,41,24,162,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_BORDER
+    LTEXT           "www.tamic.ru",IDC_STATIC,51,50,106,8
+    LTEXT           "",IDC_TMC_DOCLINK,40,69,160,10,SS_NOTIFY | WS_TABSTOP
+    LTEXT           "Planar RT X analyzer Version 1.0",IDC_STATIC,40,10,119,
+                    8,SS_NOPREFIX
+END
+
+IDD_TMC_STATISTICS DIALOG  0, 0, 404, 273
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Statistics"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,350,252,47,14,WS_GROUP
+    PUSHBUTTON      "Cancel",IDC_TMCSTATISTICSVIEWBLOCKLIST,350,235,47,14,
+                    WS_GROUP
+    PUSHBUTTON      "Prev.",IDC_TMCSTATISTICSPREVSTEP,340,10,25,14,WS_GROUP
+    PUSHBUTTON      "Next",IDC_TMCSTATISTICSNEXTSTEP,370,10,25,14,WS_GROUP
+    PUSHBUTTON      "View block list",IDC_TMCSTATISTICSVIEWBLOCKLIST2,339,
+                    172,57,14,WS_GROUP
+    EDITTEXT        IDC_TMCSTATISTICSLONGUNIT,11,29,40,15,ES_MULTILINE | 
+                    ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_TMCSTATISTICSTIMEUNIT,11,62,40,15,ES_MULTILINE | 
+                    ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_TMCSTATISTICSFREQUNIT,11,95,40,15,ES_MULTILINE | 
+                    ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_TMCSTATISTICSANGLEUNIT,11,128,40,15,ES_MULTILINE | 
+                    ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_TMCSTATISTICSDELTA,70,20,90,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICST0,70,45,90,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICSFREQ,70,70,90,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICSWAVELENGHT,70,100,90,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICSTMIN,190,20,60,15,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICSTMAX,190,35,60,15,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICSXMIN,190,70,60,15,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICSXMAX,190,85,60,15,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICSYMIN,190,120,60,15,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICSYMAX,190,135,60,15,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICSWAVELENGHTDELT,81,164,64,12,
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICST2,189,163,61,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICSFILEOUT,46,216,225,15,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICSNSTEP,270,11,60,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICSERRORMESSAGE,270,45,125,105,
+                    ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY
+    EDITTEXT        IDC_TMCSTATISTICSNBLOCK,292,172,40,15,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    CONTROL         "Field",IDC_TMCSTATISTICSFIELDOUT,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,285,221,35,10
+    CONTROL         "Topology",IDC_TMCSTATISTICSTOPOLOGYOUT,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,285,233,45,10
+    GROUPBOX        "Error message",IDC_STATIC,265,34,135,121
+    GROUPBOX        "Step",IDC_STATIC,265,0,135,30
+    GROUPBOX        "t0 - time discr",IDC_STATIC,65,35,100,23
+    GROUPBOX        "Long",IDC_STATIC,6,19,50,30
+    GROUPBOX        "Unit",IDC_STATIC,4,10,55,141
+    GROUPBOX        "Frequence",IDC_STATIC,6,85,50,30
+    GROUPBOX        "Time",IDC_STATIC,6,52,50,30
+    GROUPBOX        "Frequence",IDC_STATIC,65,60,100,26
+    GROUPBOX        "Delta - space discr",IDC_STATIC,65,10,100,25
+    GROUPBOX        "Parameters",IDC_STATIC,0,0,260,200
+    GROUPBOX        "Time",IDC_STATIC,170,10,85,45
+    LTEXT           "min",IDC_STATIC,175,21,15,10
+    LTEXT           "max",IDC_STATIC,175,37,15,10
+    GROUPBOX        "X size",IDC_STATIC,170,60,85,45
+    LTEXT           "min",IDC_STATIC,175,72,15,10
+    LTEXT           "max",IDC_STATIC,175,87,15,10
+    GROUPBOX        "Y size",IDC_STATIC,170,110,85,42
+    LTEXT           "min",IDC_STATIC,175,122,15,10
+    LTEXT           "max",IDC_STATIC,175,136,15,10
+    GROUPBOX        "Angle",IDC_STATIC,6,118,50,30
+    GROUPBOX        "Wavelenght",IDC_STATIC,65,90,100,24
+    GROUPBOX        "Topology",IDC_STATIC,265,160,135,30
+    LTEXT           "Block",IDC_STATIC,270,173,20,10
+    GROUPBOX        "Output",IDC_STATIC,0,206,340,60
+    LTEXT           "Signal",IDC_STATIC,5,220,28,10
+    LTEXT           "Wavelenght / Delta",IDC_STATIC,5,166,74,10
+    LTEXT           "T / t0",IDC_STATIC,160,166,27,10
+    EDITTEXT        IDC_TMCSTATISTICSXSIZEWL,81,176,64,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICSYSIZEWL,81,188,64,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICSTSIZEWL,189,175,61,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    LTEXT           "Xsize / Wavelenght",IDC_STATIC,5,178,74,10
+    LTEXT           "Ysize / Wavelenght",IDC_STATIC,5,189,74,10
+    LTEXT           "Time / t0",IDC_STATIC,150,177,37,10
+    LTEXT           "Time / T",IDC_STATIC,150,190,38,10
+    EDITTEXT        IDC_TMCSTATISTICSTSIZEWL1,189,187,61,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    GROUPBOX        "Calculated value",IDC_STATIC,0,155,260,45
+    GROUPBOX        "NumNode",IDC_STATIC,65,114,50,25
+    EDITTEXT        IDC_TMCSTATISTICSNUMNODE,70,124,40,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICSNUMMEMORYMB,120,124,40,12,
+                    ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    GROUPBOX        "Memory   MB",IDC_STATIC,115,114,50,25
+    LTEXT           "Field",IDC_STATIC,5,236,28,10
+    EDITTEXT        IDC_TMCSTATISTICSFILEOUT2,46,233,225,15,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    GROUPBOX        "Data Format",IDC_STATIC,283,243,57,23
+    EDITTEXT        IDC_TMCSTATISTICSACCURACY,289,252,45,13,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER | NOT WS_BORDER
+    LTEXT           "Topology",IDC_STATIC,5,252,35,10
+    EDITTEXT        IDC_TMCSTATISTICSFILEOUT3,46,250,225,15,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCSTATISTICSTOLERANCE,118,148,41,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER | NOT WS_BORDER
+    LTEXT           "Accuracy  :",IDC_STATIC,76,147,36,10
+    GROUPBOX        "",IDC_STATIC,65,140,100,20
+END
+
+IDD_TMC_RTH_TOPBLOCK DIALOG  0, 0, 404, 180
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Block"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,50,160,42,14,WS_GROUP
+    PUSHBUTTON      "Cancel",ID_TMCBLOCKBUTTONNEXT2,5,160,42,14,WS_GROUP
+    EDITTEXT        IDC_TMCBLOCKNUMBER,10,10,80,15,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKX0,10,55,75,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKY0,10,85,75,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKLONGUNIT,10,117,80,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    EDITTEXT        IDC_TMCBLOCKSTRING,110,15,80,15,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_READONLY
+    GROUPBOX        "Y0",IDC_STATIC,6,76,85,25
+    GROUPBOX        "Block",IDC_STATIC,100,0,300,175
+    GROUPBOX        "LongUnit",IDC_STATIC,6,107,89,25
+    GROUPBOX        "Number",IDC_STATIC,5,0,90,30
+    GROUPBOX        "Displacement",IDC_STATIC,5,35,90,70
+    GROUPBOX        "X0",IDC_STATIC,6,46,85,25
+    PUSHBUTTON      "Previous",ID_TMCBLOCKBUTTONPREV,5,140,42,14,WS_GROUP
+    PUSHBUTTON      "Next",ID_TMCBLOCKBUTTONNEXT,50,140,42,14,WS_GROUP
+    GROUPBOX        "Type",IDC_STATIC,106,8,89,25
+    EDITTEXT        IDC_TMCBLOCKEXPREPS,110,42,131,15,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_READONLY
+    GROUPBOX        "Expression for eps",IDC_STATIC,105,35,140,25
+    EDITTEXT        IDC_TMCBLOCKXMINB,109,129,61,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKXMAXB,109,157,61,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKYMINB,184,129,56,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKYMAXB,184,157,56,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKVXSPEED,120,71,50,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    GROUPBOX        "Linear speed",IDC_STATIC,105,62,140,25
+    EDITTEXT        IDC_TMCBLOCKWSPEED,109,96,61,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    GROUPBOX        "Angular speed",IDC_STATIC,105,87,70,25
+    EDITTEXT        IDC_TMCBLOCKVYSPEED,190,71,49,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDX1,255,20,66,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    GROUPBOX        "X",IDC_STATIC,250,10,75,160
+    EDITTEXT        IDC_TMCBLOCKDY1,330,20,61,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    GROUPBOX        "Y",IDC_STATIC,325,10,70,160
+    EDITTEXT        IDC_TMCBLOCKDX2,255,35,66,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDX3,255,50,66,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDX4,255,65,66,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDX5,255,80,66,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDX6,255,95,66,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDX7,255,110,66,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDX8,255,125,66,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDX9,255,140,66,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDX10,255,155,66,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDY2,330,35,61,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDY3,330,50,61,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDY4,330,65,61,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDY5,330,80,61,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDY6,330,95,61,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDY7,330,110,61,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDY8,330,125,61,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDY9,330,140,61,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKDY10,330,155,61,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_TMCBLOCKNPOINTXY,180,95,25,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    GROUPBOX        "nPoint",IDC_STATIC,175,87,35,25
+    GROUPBOX        "nType",IDC_STATIC,210,87,35,25
+    EDITTEXT        IDC_TMCBLOCKNTYPE,215,95,25,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    LTEXT           "Vx:",IDC_STATIC,108,73,12,10
+    LTEXT           "Vy:",IDC_STATIC,178,73,12,10
+    EDITTEXT        IDC_TMCBLOCKXMINBTEXT,110,117,45,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER | NOT WS_BORDER
+    EDITTEXT        IDC_TMCBLOCKXMAXBTEXT,110,145,45,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER | NOT WS_BORDER
+    EDITTEXT        IDC_TMCBLOCKYMINBTEXT,185,117,45,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER | NOT WS_BORDER
+    EDITTEXT        IDC_TMCBLOCKYMAXBTEXT,185,145,45,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER | NOT WS_BORDER
+    GROUPBOX        "",IDC_STATIC,105,120,70,25
+    GROUPBOX        "",IDC_STATIC,175,148,70,25
+    GROUPBOX        "",IDC_STATIC,175,120,70,25
+    GROUPBOX        "",IDC_STATIC,105,148,70,25
+    GROUPBOX        "Memory MB",IDC_STATIC,195,8,50,25
+    EDITTEXT        IDC_TMCBLOCKMEMORY1,200,15,40,15,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_READONLY
+END
+
+IDD_TMC_CONFIG_OUTFFORMAT DIALOG  0, 0, 369, 87
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Set format for output data file"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_TMCRTHFORMUOTF_NT,10,21,50,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TMCRTHFORMUOTF_DT,75,21,60,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TMCRTHFORMUOTF_NBL,150,21,40,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TMCRTHFORMUOTF_INP,205,21,65,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TMCRTHFORMUOTF_OUT,285,21,65,15,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,295,66,60,14,WS_GROUP
+    GROUPBOX        "Time discret - int",IDC_STATIC,5,11,60,30
+    GROUPBOX        "Current time - double",IDC_STATIC,70,11,70,30
+    GROUPBOX        "Block - int",IDC_STATIC,145,11,50,30
+    GROUPBOX        "Falling - double",IDC_STATIC,200,11,75,30
+    GROUPBOX        "Scattering - double",IDC_STATIC,280,11,75,30
+    PUSHBUTTON      "Set default",IDOKDefaultFormat,225,66,62,14,WS_GROUP
+    GROUPBOX        "Signal",IDC_STATIC,1,1,357,46
+    GROUPBOX        "Field",IDC_STATIC,1,51,76,29
+    EDITTEXT        IDC_TMCRTHFORMUOTFIELD,7,59,64,15,ES_AUTOHSCROLL
+END
+
+IDD_TMC_SOUND_MELODY1 DIALOG  0, 0, 425, 167
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Melody"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_TmcSoundEffects_TimeInterval,355,147,35,14,
+                    ES_AUTOHSCROLL
+    GROUPBOX        "Interval ms",IDC_STATIC,350,135,47,30
+    CONTROL         "C",IDC_TmcSoundEffects_Sound,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,5,19,21,12
+    CONTROL         "C#",IDC_TmcSoundEffects_Sound2,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,5,30,21,12
+    CONTROL         "D",IDC_TmcSoundEffects_Sound3,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,5,41,21,12
+    CONTROL         "D#",IDC_TmcSoundEffects_Sound4,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,5,52,21,12
+    CONTROL         "E",IDC_TmcSoundEffects_Sound5,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,5,63,21,12
+    CONTROL         "F",IDC_TmcSoundEffects_Sound6,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,5,74,21,12
+    CONTROL         "F#",IDC_TmcSoundEffects_Sound7,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,5,85,21,12
+    CONTROL         "G",IDC_TmcSoundEffects_Sound8,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,5,96,21,12
+    CONTROL         "G#",IDC_TmcSoundEffects_Sound9,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,5,107,21,12
+    CONTROL         "A",IDC_TmcSoundEffects_Sound10,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,5,118,21,12
+    CONTROL         "A#",IDC_TmcSoundEffects_Sound11,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,5,129,21,12
+    CONTROL         "B",IDC_TmcSoundEffects_Sound12,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,5,140,21,12
+    CONTROL         "End",IDC_TmcSoundEffects_Sound97,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,5,151,21,12
+    GROUPBOX        "Note",IDC_STATIC,0,3,30,162,WS_GROUP | WS_TABSTOP
+    CONTROL         "C",IDC_TmcSoundEffects_Sound98,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,34,18,21,12
+    CONTROL         "C#",IDC_TmcSoundEffects_Sound99,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,34,29,21,12
+    CONTROL         "D",IDC_TmcSoundEffects_Sound100,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,34,40,21,12
+    CONTROL         "D#",IDC_TmcSoundEffects_Sound101,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,34,51,21,12
+    CONTROL         "E",IDC_TmcSoundEffects_Sound102,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,34,62,21,12
+    CONTROL         "F",IDC_TmcSoundEffects_Sound103,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,34,73,21,12
+    CONTROL         "F#",IDC_TmcSoundEffects_Sound104,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,34,84,21,12
+    CONTROL         "G",IDC_TmcSoundEffects_Sound105,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,34,95,21,12
+    CONTROL         "G#",IDC_TmcSoundEffects_Sound106,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,34,106,21,12
+    CONTROL         "A",IDC_TmcSoundEffects_Sound107,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,34,117,21,12
+    CONTROL         "A#",IDC_TmcSoundEffects_Sound108,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,34,128,21,12
+    CONTROL         "B",IDC_TmcSoundEffects_Sound109,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,34,139,21,12
+    CONTROL         "End",IDC_TmcSoundEffects_Sound110,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,34,150,21,12
+    GROUPBOX        "Note",IDC_STATIC,29,3,30,162,WS_GROUP | WS_TABSTOP
+    CONTROL         "C",IDC_TmcSoundEffects_Sound111,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,63,18,21,12
+    CONTROL         "C#",IDC_TmcSoundEffects_Sound112,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,63,29,21,12
+    CONTROL         "D",IDC_TmcSoundEffects_Sound113,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,63,40,21,12
+    CONTROL         "D#",IDC_TmcSoundEffects_Sound114,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,63,51,21,12
+    CONTROL         "E",IDC_TmcSoundEffects_Sound115,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,63,62,21,12
+    CONTROL         "F",IDC_TmcSoundEffects_Sound116,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,63,73,21,12
+    CONTROL         "F#",IDC_TmcSoundEffects_Sound117,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,63,84,21,12
+    CONTROL         "G",IDC_TmcSoundEffects_Sound118,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,63,95,21,12
+    CONTROL         "G#",IDC_TmcSoundEffects_Sound119,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,63,106,21,12
+    CONTROL         "A",IDC_TmcSoundEffects_Sound120,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,63,117,21,12
+    CONTROL         "A#",IDC_TmcSoundEffects_Sound121,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,63,128,21,12
+    CONTROL         "B",IDC_TmcSoundEffects_Sound122,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,63,139,21,12
+    CONTROL         "End",IDC_TmcSoundEffects_Sound123,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,63,150,21,12
+    GROUPBOX        "Note",IDC_STATIC,58,3,30,162,WS_GROUP | WS_TABSTOP
+    CONTROL         "C",IDC_TmcSoundEffects_Sound124,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,92,18,21,12
+    CONTROL         "C#",IDC_TmcSoundEffects_Sound125,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,92,29,21,12
+    CONTROL         "D",IDC_TmcSoundEffects_Sound126,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,92,40,21,12
+    CONTROL         "D#",IDC_TmcSoundEffects_Sound127,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,92,51,21,12
+    CONTROL         "E",IDC_TmcSoundEffects_Sound128,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,92,62,21,12
+    CONTROL         "F",IDC_TmcSoundEffects_Sound129,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,92,73,21,12
+    CONTROL         "F#",IDC_TmcSoundEffects_Sound130,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,92,84,21,12
+    CONTROL         "G",IDC_TmcSoundEffects_Sound131,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,92,95,21,12
+    CONTROL         "G#",IDC_TmcSoundEffects_Sound132,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,92,106,21,12
+    CONTROL         "A",IDC_TmcSoundEffects_Sound133,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,92,117,21,12
+    CONTROL         "A#",IDC_TmcSoundEffects_Sound134,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,92,128,21,12
+    CONTROL         "B",IDC_TmcSoundEffects_Sound135,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,92,139,21,12
+    CONTROL         "End",IDC_TmcSoundEffects_Sound136,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,92,150,21,12
+    GROUPBOX        "Note",IDC_STATIC,87,3,30,162,WS_GROUP | WS_TABSTOP
+    CONTROL         "C",IDC_TmcSoundEffects_Sound137,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,121,18,21,12
+    CONTROL         "C#",IDC_TmcSoundEffects_Sound138,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,121,29,21,12
+    CONTROL         "D",IDC_TmcSoundEffects_Sound139,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,121,40,21,12
+    CONTROL         "D#",IDC_TmcSoundEffects_Sound140,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,121,51,21,12
+    CONTROL         "E",IDC_TmcSoundEffects_Sound141,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,121,62,21,12
+    CONTROL         "F",IDC_TmcSoundEffects_Sound142,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,121,73,21,12
+    CONTROL         "F#",IDC_TmcSoundEffects_Sound143,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,121,84,21,12
+    CONTROL         "G",IDC_TmcSoundEffects_Sound144,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,121,95,21,12
+    CONTROL         "G#",IDC_TmcSoundEffects_Sound145,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,121,106,21,12
+    CONTROL         "A",IDC_TmcSoundEffects_Sound146,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,121,117,21,12
+    CONTROL         "A#",IDC_TmcSoundEffects_Sound147,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,121,128,21,12
+    CONTROL         "B",IDC_TmcSoundEffects_Sound148,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,121,139,21,12
+    CONTROL         "End",IDC_TmcSoundEffects_Sound149,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,121,150,21,12
+    GROUPBOX        "Note",IDC_STATIC,116,3,30,162,WS_GROUP | WS_TABSTOP
+    CONTROL         "C",IDC_TmcSoundEffects_Sound150,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,150,18,21,12
+    CONTROL         "C#",IDC_TmcSoundEffects_Sound151,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,150,29,21,12
+    CONTROL         "D",IDC_TmcSoundEffects_Sound152,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,150,40,21,12
+    CONTROL         "D#",IDC_TmcSoundEffects_Sound153,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,150,51,21,12
+    CONTROL         "E",IDC_TmcSoundEffects_Sound154,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,150,62,21,12
+    CONTROL         "F",IDC_TmcSoundEffects_Sound155,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,150,73,21,12
+    CONTROL         "F#",IDC_TmcSoundEffects_Sound156,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,150,84,21,12
+    CONTROL         "G",IDC_TmcSoundEffects_Sound157,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,150,95,21,12
+    CONTROL         "G#",IDC_TmcSoundEffects_Sound158,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,150,106,21,12
+    CONTROL         "A",IDC_TmcSoundEffects_Sound159,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,150,117,21,12
+    CONTROL         "A#",IDC_TmcSoundEffects_Sound160,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,150,128,21,12
+    CONTROL         "B",IDC_TmcSoundEffects_Sound161,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,150,139,21,12
+    CONTROL         "End",IDC_TmcSoundEffects_Sound162,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,150,150,21,12
+    GROUPBOX        "Note",IDC_STATIC,145,3,30,162,WS_GROUP | WS_TABSTOP
+    CONTROL         "C",IDC_TmcSoundEffects_Sound163,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,179,18,21,12
+    CONTROL         "C#",IDC_TmcSoundEffects_Sound164,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,179,29,21,12
+    CONTROL         "D",IDC_TmcSoundEffects_Sound165,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,179,40,21,12
+    CONTROL         "D#",IDC_TmcSoundEffects_Sound166,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,179,51,21,12
+    CONTROL         "E",IDC_TmcSoundEffects_Sound167,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,179,62,21,12
+    CONTROL         "F",IDC_TmcSoundEffects_Sound168,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,179,73,21,12
+    CONTROL         "F#",IDC_TmcSoundEffects_Sound169,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,179,84,21,12
+    CONTROL         "G",IDC_TmcSoundEffects_Sound170,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,179,95,21,12
+    CONTROL         "G#",IDC_TmcSoundEffects_Sound171,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,179,106,21,12
+    CONTROL         "A",IDC_TmcSoundEffects_Sound172,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,179,117,21,12
+    CONTROL         "A#",IDC_TmcSoundEffects_Sound173,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,179,128,21,12
+    CONTROL         "B",IDC_TmcSoundEffects_Sound174,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,179,139,21,12
+    CONTROL         "End",IDC_TmcSoundEffects_Sound175,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,179,150,21,12
+    GROUPBOX        "Note",IDC_STATIC,174,3,30,162,WS_GROUP | WS_TABSTOP
+    CONTROL         "C",IDC_TmcSoundEffects_Sound176,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,208,18,21,12
+    CONTROL         "C#",IDC_TmcSoundEffects_Sound177,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,208,29,21,12
+    CONTROL         "D",IDC_TmcSoundEffects_Sound178,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,208,40,21,12
+    CONTROL         "D#",IDC_TmcSoundEffects_Sound179,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,208,51,21,12
+    CONTROL         "E",IDC_TmcSoundEffects_Sound180,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,208,62,21,12
+    CONTROL         "F",IDC_TmcSoundEffects_Sound181,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,208,73,21,12
+    CONTROL         "F#",IDC_TmcSoundEffects_Sound182,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,208,84,21,12
+    CONTROL         "G",IDC_TmcSoundEffects_Sound183,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,208,95,21,12
+    CONTROL         "G#",IDC_TmcSoundEffects_Sound184,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,208,106,21,12
+    CONTROL         "A",IDC_TmcSoundEffects_Sound185,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,208,117,21,12
+    CONTROL         "A#",IDC_TmcSoundEffects_Sound186,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,208,128,21,12
+    CONTROL         "B",IDC_TmcSoundEffects_Sound187,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,208,139,21,12
+    CONTROL         "End",IDC_TmcSoundEffects_Sound188,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,208,150,21,12
+    GROUPBOX        "Note",IDC_STATIC,203,3,30,162,WS_GROUP | WS_TABSTOP
+    CONTROL         "C",IDC_TmcSoundEffects_Sound189,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,237,18,21,12
+    CONTROL         "C#",IDC_TmcSoundEffects_Sound190,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,237,29,21,12
+    CONTROL         "D",IDC_TmcSoundEffects_Sound191,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,237,40,21,12
+    CONTROL         "D#",IDC_TmcSoundEffects_Sound192,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,237,51,21,12
+    CONTROL         "E",IDC_TmcSoundEffects_Sound193,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,237,62,21,12
+    CONTROL         "F",IDC_TmcSoundEffects_Sound194,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,237,73,21,12
+    CONTROL         "F#",IDC_TmcSoundEffects_Sound195,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,237,84,21,12
+    CONTROL         "G",IDC_TmcSoundEffects_Sound196,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,237,95,21,12
+    CONTROL         "G#",IDC_TmcSoundEffects_Sound197,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,237,106,21,12
+    CONTROL         "A",IDC_TmcSoundEffects_Sound198,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,237,117,21,12
+    CONTROL         "A#",IDC_TmcSoundEffects_Sound199,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,237,128,21,12
+    CONTROL         "B",IDC_TmcSoundEffects_Sound200,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,237,139,21,12
+    CONTROL         "End",IDC_TmcSoundEffects_Sound201,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,237,150,21,12
+    GROUPBOX        "Note",IDC_STATIC,232,3,30,162,WS_GROUP | WS_TABSTOP
+    CONTROL         "C",IDC_TmcSoundEffects_Sound202,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,266,18,21,12
+    CONTROL         "C#",IDC_TmcSoundEffects_Sound203,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,266,29,21,12
+    CONTROL         "D",IDC_TmcSoundEffects_Sound204,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,266,40,21,12
+    CONTROL         "D#",IDC_TmcSoundEffects_Sound205,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,266,51,21,12
+    CONTROL         "E",IDC_TmcSoundEffects_Sound206,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,266,62,21,12
+    CONTROL         "F",IDC_TmcSoundEffects_Sound207,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,266,73,21,12
+    CONTROL         "F#",IDC_TmcSoundEffects_Sound208,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,266,84,21,12
+    CONTROL         "G",IDC_TmcSoundEffects_Sound209,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,266,95,21,12
+    CONTROL         "G#",IDC_TmcSoundEffects_Sound210,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,266,106,21,12
+    CONTROL         "A",IDC_TmcSoundEffects_Sound211,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,266,117,21,12
+    CONTROL         "A#",IDC_TmcSoundEffects_Sound212,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,266,128,21,12
+    CONTROL         "B",IDC_TmcSoundEffects_Sound213,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,266,139,21,12
+    CONTROL         "End",IDC_TmcSoundEffects_Sound214,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,266,150,21,12
+    GROUPBOX        "Note",IDC_STATIC,261,3,30,162,WS_GROUP | WS_TABSTOP
+    CONTROL         "C",IDC_TmcSoundEffects_Sound215,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,296,18,21,12
+    CONTROL         "C#",IDC_TmcSoundEffects_Sound216,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,296,29,21,12
+    CONTROL         "D",IDC_TmcSoundEffects_Sound217,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,296,40,21,12
+    CONTROL         "D#",IDC_TmcSoundEffects_Sound218,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,296,51,21,12
+    CONTROL         "E",IDC_TmcSoundEffects_Sound219,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,296,62,21,12
+    CONTROL         "F",IDC_TmcSoundEffects_Sound220,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,296,73,21,12
+    CONTROL         "F#",IDC_TmcSoundEffects_Sound221,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,296,84,21,12
+    CONTROL         "G",IDC_TmcSoundEffects_Sound222,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,296,95,21,12
+    CONTROL         "G#",IDC_TmcSoundEffects_Sound223,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,296,106,21,12
+    CONTROL         "A",IDC_TmcSoundEffects_Sound224,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,296,117,21,12
+    CONTROL         "A#",IDC_TmcSoundEffects_Sound225,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,296,128,21,12
+    CONTROL         "B",IDC_TmcSoundEffects_Sound226,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,296,139,21,12
+    CONTROL         "End",IDC_TmcSoundEffects_Sound227,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,296,150,21,12
+    GROUPBOX        "Note",IDC_STATIC,291,3,30,162,WS_GROUP | WS_TABSTOP
+    CONTROL         "C",IDC_TmcSoundEffects_Sound228,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,325,18,21,12
+    CONTROL         "C#",IDC_TmcSoundEffects_Sound229,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,325,29,21,12
+    CONTROL         "D",IDC_TmcSoundEffects_Sound230,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,325,40,21,12
+    CONTROL         "D#",IDC_TmcSoundEffects_Sound231,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,325,51,21,12
+    CONTROL         "E",IDC_TmcSoundEffects_Sound232,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,325,62,21,12
+    CONTROL         "F",IDC_TmcSoundEffects_Sound233,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,325,73,21,12
+    CONTROL         "F#",IDC_TmcSoundEffects_Sound234,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,325,84,21,12
+    CONTROL         "G",IDC_TmcSoundEffects_Sound235,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,325,95,21,12
+    CONTROL         "G#",IDC_TmcSoundEffects_Sound236,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,325,106,21,12
+    CONTROL         "A",IDC_TmcSoundEffects_Sound237,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,325,117,21,12
+    CONTROL         "A#",IDC_TmcSoundEffects_Sound238,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,325,128,21,12
+    CONTROL         "B",IDC_TmcSoundEffects_Sound239,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,325,139,21,12
+    CONTROL         "End",IDC_TmcSoundEffects_Sound240,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,325,150,21,12
+    GROUPBOX        "Note",IDC_STATIC,320,3,30,162,WS_GROUP | WS_TABSTOP
+    EDITTEXT        IDC_EDIT1,354,7,64,112,ES_AUTOHSCROLL | WS_DISABLED | 
+                    NOT WS_BORDER
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "Tamic_soft group"
+            VALUE "FileDescription", "PLANRT_X MFC Application"
+            VALUE "FileVersion", "4, 0, 0, 1"
+            VALUE "InternalName", "PLANRT_X"
+            VALUE "LegalCopyright", "Copyright © 2005"
+            VALUE "LegalTrademarks", "Tamic_soft group"
+            VALUE "OriginalFilename", "PLANRT_X.EXE"
+            VALUE "ProductName", "PLANRT_X Application"
+            VALUE "ProductVersion", "4, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 210
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 64
+    END
+
+    IDD_TMC_STATISTICS, DIALOG
+    BEGIN
+        RIGHTMARGIN, 397
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 266
+    END
+
+    IDD_TMC_RTH_TOPBLOCK, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 397
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 173
+    END
+
+    IDD_TMC_CONFIG_OUTFFORMAT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 362
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 80
+    END
+
+    IDD_TMC_SOUND_MELODY1, DIALOG
+    BEGIN
+        RIGHTMARGIN, 418
+        TOPMARGIN, 4
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDR_MAINFRAME           "Planar RT X-mode analyzer"
+    IDR_PLANRTTYPE          "\nPlanRTX\nPlanRTX\nPlanar RT X analyzer Files (*.tpl)\n.TPL\nPlanRTX.Document\nPlanRTX Document"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "Planar RT X analyzer"
+    AFX_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_NEW             "Create a new document\nNew"
+    ID_FILE_OPEN            "Open an existing document\nOpen"
+    ID_FILE_CLOSE           "Close the active document\nClose"
+    ID_FILE_SAVE            "Save the active document\nSave"
+    ID_FILE_SAVE_AS         "Save the active document with a new name\nSave As"
+    ID_FILE_PAGE_SETUP      "Change the printing options\nPage Setup"
+    ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
+    ID_FILE_PRINT           "Print the active document\nPrint"
+    ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_MRU_FILE1       "Open this document"
+    ID_FILE_MRU_FILE2       "Open this document"
+    ID_FILE_MRU_FILE3       "Open this document"
+    ID_FILE_MRU_FILE4       "Open this document"
+    ID_FILE_MRU_FILE5       "Open this document"
+    ID_FILE_MRU_FILE6       "Open this document"
+    ID_FILE_MRU_FILE7       "Open this document"
+    ID_FILE_MRU_FILE8       "Open this document"
+    ID_FILE_MRU_FILE9       "Open this document"
+    ID_FILE_MRU_FILE10      "Open this document"
+    ID_FILE_MRU_FILE11      "Open this document"
+    ID_FILE_MRU_FILE12      "Open this document"
+    ID_FILE_MRU_FILE13      "Open this document"
+    ID_FILE_MRU_FILE14      "Open this document"
+    ID_FILE_MRU_FILE15      "Open this document"
+    ID_FILE_MRU_FILE16      "Open this document"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_WINDOW_NEW           "Open another window for the active document\nNew Window"
+    ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
+    ID_WINDOW_CASCADE       "Arrange windows so they overlap\nCascade Windows"
+    ID_WINDOW_TILE_HORZ     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_TILE_VERT     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List"
+    AFX_IDS_MDICHILD        "Activate this window"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_PREVIEW_CLOSE   "Close print preview mode\nCancel Preview"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_EDIT_EDIT            "Edit *.tpl in extern editor\nExtern edit"
+    ID_RUN_RUN              "Run calculation at current step to last step\nRun"
+    ID_RUN_STOP             "Stop calculation thred\nStop"
+    ID_CONFIG_EDITOR        "Set extern editor name\nExtern editor"
+    ID_RUN_SKIPSTEP         "Skip step\nSkip step"
+    ID_RUN_BACKSTEP         "Back step\nBack step"
+    ID_RUN_RESTARTALL       "Load first step\nLoad first step"
+    ID_RUN_STARTSTEP        "Run calculation current step\nRun step"
+    ID_RUN_RESTARTSTEP      "Load current step\nLoad step"
+    ID_VIEW_STATISTICS      "View statistics dialog\nView statistics dialog"
+    ID_VIEW_TOPOLOGY        "Output topology\nOutput topology"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_VIEW_FIELD           "Output fields\nOutput fields"
+    ID_VIEW_OUTPUT          "View output\nView output"
+    ID_CONFIG_COLOR_BACKGROUND "Set color for background\nBackground color"
+    ID_CONFIG_FORMAT_OUTPUTDATAFILE 
+                            "Set format for output data file\nFormat output data file"
+    ID_CONFIG_VIEWER        "Set extern viewer name\nExtern viewer"
+    ID_CONFIG_VIEWER_OUTPUTSIGNAL 
+                            "Set extern viewer name\nOutput signal viewer name"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_VIEW_FIELD_1         "View field and topology\nView field and topology"
+    ID_CONFIG_VIEWER_FIELD  "Set extern field viewer name\nOutput field viewer name"
+    ID_CONFIG_SINCHRONIZATION 
+                            "Synchronization run and viewer process\nSynchronization"
+    ID_CONFIG_SOUND         "Sound effect\nSound effect"
+    ID_CONFIG_SOUND_MELODY  "Set melody for sound effects\nSet melody for sound effects"
+    ID_CONFIG_SMATRIX       "View S-matrix\nView S-matrix"
+    ID_CONFIG_VIEWER_SMATRIX 
+                            "Set extern S-matrix viewer name\nS-matrix output viewer name"
+    ID_CONFIG_AUTORUN       "Automatic start on performance of calculations and exit from the program\nBatch mode"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_CONFIG_SETUP         "Reread data from the setup program\nRead setup data"
+    ID_VIEW_DIRECTIONALPATTERN 
+                            "View Directional Pattern\nView Directional Pattern"
+    ID_CONFIG_VIEWER_DIRECTIONALPATTERN 
+                            "Set extern Directional Pattern viewer name\nDirectional Pattern output viewer name"
+    ID_CONFIG_DIRECTIONALPATTERN 
+                            "Export *.AMP and *.FAZ file to directional Pattern file\nExport to directional Pattern file"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif
+#include "res\PlanRT_H.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#include "afxprint.rc"       // printing/print preview resources
+#endif
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

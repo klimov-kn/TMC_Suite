@@ -1,0 +1,23 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DiaNapr", "DiaNapr.vcproj", "{77739094-90C9-42E6-977F-542490AA42DC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "exprint", "..\exprint\exprint.vcproj", "{4804EF82-1A2B-41A8-AB44-3A89C6075808}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{77739094-90C9-42E6-977F-542490AA42DC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{77739094-90C9-42E6-977F-542490AA42DC}.Debug|Win32.Build.0 = Debug|Win32
+		{77739094-90C9-42E6-977F-542490AA42DC}.Release|Win32.ActiveCfg = Release|Win32
+		{77739094-90C9-42E6-977F-542490AA42DC}.Release|Win32.Build.0 = Release|Win32
+		{4804EF82-1A2B-41A8-AB44-3A89C6075808}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4804EF82-1A2B-41A8-AB44-3A89C6075808}.Release|Win32.ActiveCfg = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

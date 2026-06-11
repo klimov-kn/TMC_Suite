@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{FB1791BA-5B3A-4D3E-8808-81EA4BFD9914}</ProjectGuid>
+    <Keyword>MFCProj</Keyword>
+    <ProjectName>PlanRT_X</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v145</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v145</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v145</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v145</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(MSBuildThisFileDirectory)..\..\..\build\ExeOutput.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(MSBuildThisFileDirectory)..\..\..\build\ExeOutput.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(MSBuildThisFileDirectory)..\..\..\build\ExeOutput.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(MSBuildThisFileDirectory)..\..\..\build\ExeOutput.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <!-- OutDir from build\ExeOutput.props -> dist\<platform>\bin ; IntDir from Common.props -->
+    <TargetName>tmc_rtx</TargetName>
+    <LinkIncremental Condition="'$(Configuration)'=='Debug'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)'=='Release'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;DEBUG__1;ELECTRON_Q___;ELECTRON_M___;CTMCRTH_INDANBLCK_FILEY;CTMCRTH_INDANBLCK_RECTSTATY;CTMCRTH_INDANBLCK_CIRCSTATY;CTMCRTH_INDANBLCK_POLYGSTTY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0419</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>sfile95.lib;prepr.lib;exprint.lib;TMCIndan.lib;TMCLibError.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;DEBUG__1;ELECTRON_Q___;ELECTRON_M___;CTMCRTH_INDANBLCK_FILEY;CTMCRTH_INDANBLCK_RECTSTATY;CTMCRTH_INDANBLCK_CIRCSTATY;CTMCRTH_INDANBLCK_POLYGSTTY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>16Bytes</StructMemberAlignment>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0419</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>sfile95.lib;prepr.lib;exprint.lib;TMCIndan.lib;TMCLibError.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;DEBUG__1;ELECTRON_Q___;ELECTRON_M___;CTMCRTH_INDANBLCK_FILEY;CTMCRTH_INDANBLCK_RECTSTATY;CTMCRTH_INDANBLCK_CIRCSTATY;CTMCRTH_INDANBLCK_POLYGSTTY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0419</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>sfile95.lib;prepr.lib;exprint.lib;TMCIndan.lib;TMCLibError.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;DEBUG__1;ELECTRON_Q___;ELECTRON_M___;CTMCRTH_INDANBLCK_FILEY;CTMCRTH_INDANBLCK_RECTSTATY;CTMCRTH_INDANBLCK_CIRCSTATY;CTMCRTH_INDANBLCK_POLYGSTTY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>16Bytes</StructMemberAlignment>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0419</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>sfile95.lib;prepr.lib;exprint.lib;TMCIndan.lib;TMCLibError.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="ChildFrm.cpp" />
+    <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="PL_GLFUN.CPP" />
+    <ClCompile Include="PL_IOFOR.CPP" />
+    <ClCompile Include="PlanRT_H.cpp" />
+    <ClCompile Include="PlanRT_HDoc.cpp" />
+    <ClCompile Include="PlanRT_HView.cpp" />
+    <ClCompile Include="StdAfx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="TmcDialogStatistics.cpp" />
+    <ClCompile Include="TmcRTHNodeDiel.cpp" />
+    <ClCompile Include="TmcRTHRectNode.cpp" />
+    <ClCompile Include="TmcRTH_DialogBlock.cpp" />
+    <ClCompile Include="TmcRTH_DialogFormatOutFile.cpp" />
+    <ClCompile Include="..\..\viewers\Tmcrtout\TmcSMatrix.cpp" />
+    <ClCompile Include="TmcSoundEffProp.cpp" />
+    <ClCompile Include="TmcSoundMel1.cpp" />
+    <ClCompile Include="..\..\viewers\Tmcrtout\TmcTtoS.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="PlanRT_H.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="res\PlanRT_H.ico" />
+    <None Include="res\PlanRT_H.rc2" />
+    <None Include="res\PlanRT_HDoc.ico" />
+    <None Include="res\Toolbar.bmp" />
+    <None Include="RES\idr_main.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ChildFrm.h" />
+    <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="Pl_iofor.h" />
+    <ClInclude Include="PlanRT_H.h" />
+    <ClInclude Include="PlanRT_HDoc.h" />
+    <ClInclude Include="PlanRT_HView.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="TmcDialogStatistics.h" />
+    <ClInclude Include="TmcRTHNodeDiel.h" />
+    <ClInclude Include="TmcRTHRectNode.h" />
+    <ClInclude Include="TmcRTH_BolckList.h" />
+    <ClInclude Include="TmcRTH_DialogBlock.h" />
+    <ClInclude Include="TmcRTH_DialogFormatOutFile.h" />
+    <ClInclude Include="..\..\viewers\Tmcrtout\TmcSMatrix.h" />
+    <ClInclude Include="TmcSoundEffProp.h" />
+    <ClInclude Include="TmcSoundMel1.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

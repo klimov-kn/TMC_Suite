@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{cc72b629-8025-4ac6-98f1-24c32e3e8ed7}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat;for;f90</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{2e3302c9-8212-4c53-8f15-f3d0c3e3d4f7}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;fi;fd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{1ce71c81-10d0-4664-adc5-a9ab1215b375}</UniqueIdentifier>
+      <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ChildFrm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainFrm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PL_GLFUN.CPP">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PL_IOFOR.CPP">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanRT_H.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanRT_HDoc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanRT_HView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StdAfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TmcDialogStatistics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TmcRTHNodeDiel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TmcRTHRectNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TmcRTH_DialogBlock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TmcRTH_DialogFormatOutFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tmcrtout\TmcSMatrix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TmcSoundEffProp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TmcSoundMel1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tmcrtout\TmcTtoS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="PlanRT_H.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="res\PlanRT_H.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\PlanRT_H.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\PlanRT_HDoc.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\Toolbar.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="RES\idr_main.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ChildFrm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MainFrm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pl_iofor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanRT_H.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanRT_HDoc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanRT_HView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StdAfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TmcDialogStatistics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TmcRTHNodeDiel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TmcRTHRectNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TmcRTH_BolckList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TmcRTH_DialogBlock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TmcRTH_DialogFormatOutFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tmcrtout\TmcSMatrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TmcSoundEffProp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TmcSoundMel1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
