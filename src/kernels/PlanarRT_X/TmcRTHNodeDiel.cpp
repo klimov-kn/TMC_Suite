@@ -3451,33 +3451,33 @@ void CTmcRTHNodeDiel::RunBlockNode( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int
 			for( i = 0; i < nNumNode; i++)
 			{
 				if(
-					((2*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 1) > 0)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 1) < nArraySize)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal + nX ) + 1) > 0)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal + nX ) + 1) < nArraySize)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 1) > 0)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 1) < nArraySize)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal - nX ) + 1) > 0)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal - nX ) + 1) < nArraySize)&&
-					((2*pcNodeDielOne[i].nNodeGlobal + 1) > 0)&&
-					((2*pcNodeDielOne[i].nNodeGlobal + 1) < nArraySize)
+					((6*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 5) > 0)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 5) < nArraySize)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal + nX ) + 5) > 0)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal + nX ) + 5) < nArraySize)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 5) > 0)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 5) < nArraySize)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal - nX ) + 5) > 0)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal - nX ) + 5) < nArraySize)&&
+					((6*pcNodeDielOne[i].nNodeGlobal + 5) > 0)&&
+					((6*pcNodeDielOne[i].nNodeGlobal + 5) < nArraySize)
 					)
 				{
-					u1  = prUNode1[ 2*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 1 ];
-					u2  = prUNode1[ 2*(pcNodeDielOne[i].nNodeGlobal + nX ) + 1 ];
-					u3  = prUNode1[ 2*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 1 ];
-					u4  = prUNode1[ 2*(pcNodeDielOne[i].nNodeGlobal - nX ) + 1 ];
-					ut1 = prUNode1[ 2*pcNodeDielOne[i].nNodeGlobal + 1 ];
+					u1  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 3 ];
+					u2  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal + nX ) + 3 ];
+					u3  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 3 ];
+					u4  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal - nX ) + 3 ];
+					ut1 = prUNode1[ 6*pcNodeDielOne[i].nNodeGlobal + 3 ];
 					ut2 = pcNodeDielOne[i].rU;
 //					pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)ut1;
 					y = pcNodeDielOne[i].rY;
 //					if( y < (1.e-6) ) y = (1.e-6);
-					y5 = prYNode[ 2*pcNodeDielOne[i].nNodeGlobal ];
+					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
 //{		CString csBuf1;
 //		csBuf1.Format("y = %lg; y5 = %lg;", y, y5);
 //		AfxMessageBox(csBuf1);		
 //	};
-					prU = prUNode1 + (2*pcNodeDielOne[i].nNodeGlobal);
+					prU = prUNode1 + (6*pcNodeDielOne[i].nNodeGlobal + 0);
 					switch( pcNodeDielOne[i].nType )
 					{
 						case CTMCRTH_BLCKNTYPE_ABSR_0000:
@@ -3563,7 +3563,7 @@ void CTmcRTHNodeDiel::RunBlockNode( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int
 			};
 			for( i = 0; i < nNumNode; i++)
 			{
-				pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)(prUNode1[ 2*pcNodeDielOne[i].nNodeGlobal + 3 ]);
+				pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)(prUNode1[ 6*pcNodeDielOne[i].nNodeGlobal + 3 ]);
 			};
 			break;
 		default:
@@ -3599,29 +3599,29 @@ void CTmcRTHNodeDiel::RunBlockNode1( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 			for( i = 0; i < nNumNode; i++)
 			{
 				if(
-					((2*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 1) > 0)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 1) < nArraySize)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal + nX ) + 1) > 0)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal + nX ) + 1) < nArraySize)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 1) > 0)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 1) < nArraySize)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal - nX ) + 1) > 0)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal - nX ) + 1) < nArraySize)&&
-					((2*pcNodeDielOne[i].nNodeGlobal + 1) > 0)&&
-					((2*pcNodeDielOne[i].nNodeGlobal + 1) < nArraySize)
+					((6*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 5) > 0)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 5) < nArraySize)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal + nX ) + 5) > 0)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal + nX ) + 5) < nArraySize)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 5) > 0)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 5) < nArraySize)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal - nX ) + 5) > 0)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal - nX ) + 5) < nArraySize)&&
+					((6*pcNodeDielOne[i].nNodeGlobal + 5) > 0)&&
+					((6*pcNodeDielOne[i].nNodeGlobal + 5) < nArraySize)
 					)
 				{
-					u1  = prUNode1[ 2*(pcNodeDielOne[i].nNodeGlobal -  1 ) ];
-					u2  = prUNode1[ 2*(pcNodeDielOne[i].nNodeGlobal + nX ) ];
-					u3  = prUNode1[ 2*(pcNodeDielOne[i].nNodeGlobal +  1 ) ];
-					u4  = prUNode1[ 2*(pcNodeDielOne[i].nNodeGlobal - nX ) ];
-					ut1 = prUNode1[ 2*pcNodeDielOne[i].nNodeGlobal ];
+					u1  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 0 ];
+					u2  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal + nX ) + 0 ];
+					u3  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 0 ];
+					u4  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal - nX ) + 0 ];
+					ut1 = prUNode1[ 6*pcNodeDielOne[i].nNodeGlobal + 0 ];
 					ut2 = pcNodeDielOne[i].rU;
 //					pcNodeDielOne[i].rU = ut1;
 					y = pcNodeDielOne[i].rY;
 //					if( y < (1.e-6) ) y = (1.e-6);
-					y5 = prYNode[ 2*pcNodeDielOne[i].nNodeGlobal ];
-					prU = prUNode1 + (2*pcNodeDielOne[i].nNodeGlobal+1);
+					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
+					prU = prUNode1 + (6*pcNodeDielOne[i].nNodeGlobal + 1);
 					switch( pcNodeDielOne[i].nType )
 					{
 						case CTMCRTH_BLCKNTYPE_ABSR_0000:
@@ -3707,7 +3707,7 @@ void CTmcRTHNodeDiel::RunBlockNode1( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 			};
 			for( i = 0; i < nNumNode; i++)
 			{
-				pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)(prUNode1[ 2*pcNodeDielOne[i].nNodeGlobal ]);
+				pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)(prUNode1[ 6*pcNodeDielOne[i].nNodeGlobal + 0 ]);
 			};
 			break;
 		default:
@@ -3746,33 +3746,33 @@ void CTmcRTHNodeDiel::RunBlockNode2( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 			for( i = 0; i < nNumNode; i++)
 			{
 				if(
-					((2*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 1) > 0)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 1) < nArraySize)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal + nX ) + 1) > 0)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal + nX ) + 1) < nArraySize)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 1) > 0)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 1) < nArraySize)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal - nX ) + 1) > 0)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal - nX ) + 1) < nArraySize)&&
-					((2*pcNodeDielOne[i].nNodeGlobal + 1) > 0)&&
-					((2*pcNodeDielOne[i].nNodeGlobal + 1) < nArraySize)
+					((6*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 5) > 0)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 5) < nArraySize)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal + nX ) + 5) > 0)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal + nX ) + 5) < nArraySize)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 5) > 0)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 5) < nArraySize)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal - nX ) + 5) > 0)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal - nX ) + 5) < nArraySize)&&
+					((6*pcNodeDielOne[i].nNodeGlobal + 5) > 0)&&
+					((6*pcNodeDielOne[i].nNodeGlobal + 5) < nArraySize)
 					)
 				{
-					u1  = prUNode1[ 2*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 1 ];
-					u2  = prUNode1[ 2*(pcNodeDielOne[i].nNodeGlobal + nX ) + 1 ];
-					u3  = prUNode1[ 2*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 1 ];
-					u4  = prUNode1[ 2*(pcNodeDielOne[i].nNodeGlobal - nX ) + 1 ];
-					ut1 = prUNode1[ 2*pcNodeDielOne[i].nNodeGlobal + 1 ];
+					u1  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 1 ];
+					u2  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal + nX ) + 1 ];
+					u3  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 1 ];
+					u4  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal - nX ) + 1 ];
+					ut1 = prUNode1[ 6*pcNodeDielOne[i].nNodeGlobal + 1 ];
 					ut2 = pcNodeDielOne[i].rU;
 //					pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)ut1;
 					y = pcNodeDielOne[i].rY;
 //					if( y < (1.e-6) ) y = (1.e-6);
-					y5 = prYNode[ 2*pcNodeDielOne[i].nNodeGlobal ];
+					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
 //{		CString csBuf1;
 //		csBuf1.Format("y = %lg; y5 = %lg;", y, y5);
 //		AfxMessageBox(csBuf1);		
 //	};
-					prU = prUNode1 + (2*pcNodeDielOne[i].nNodeGlobal);
+					prU = prUNode1 + (6*pcNodeDielOne[i].nNodeGlobal + 2);
 					switch( pcNodeDielOne[i].nType )
 					{
 						case CTMCRTH_BLCKNTYPE_ABSR_0000:
@@ -3858,7 +3858,7 @@ void CTmcRTHNodeDiel::RunBlockNode2( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 			};
 			for( i = 0; i < nNumNode; i++)
 			{
-				pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)(prUNode1[ 2*pcNodeDielOne[i].nNodeGlobal + 1 ]);
+				pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)(prUNode1[ 6*pcNodeDielOne[i].nNodeGlobal + 1 ]);
 			};
 			break;
 		default:
@@ -3894,29 +3894,29 @@ void CTmcRTHNodeDiel::RunBlockNode3( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 			for( i = 0; i < nNumNode; i++)
 			{
 				if(
-					((2*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 1) > 0)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 1) < nArraySize)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal + nX ) + 1) > 0)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal + nX ) + 1) < nArraySize)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 1) > 0)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 1) < nArraySize)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal - nX ) + 1) > 0)&&
-					((2*(pcNodeDielOne[i].nNodeGlobal - nX ) + 1) < nArraySize)&&
-					((2*pcNodeDielOne[i].nNodeGlobal + 1) > 0)&&
-					((2*pcNodeDielOne[i].nNodeGlobal + 1) < nArraySize)
+					((6*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 5) > 0)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 5) < nArraySize)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal + nX ) + 5) > 0)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal + nX ) + 5) < nArraySize)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 5) > 0)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 5) < nArraySize)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal - nX ) + 5) > 0)&&
+					((6*(pcNodeDielOne[i].nNodeGlobal - nX ) + 5) < nArraySize)&&
+					((6*pcNodeDielOne[i].nNodeGlobal + 5) > 0)&&
+					((6*pcNodeDielOne[i].nNodeGlobal + 5) < nArraySize)
 					)
 				{
-					u1  = prUNode1[ 2*(pcNodeDielOne[i].nNodeGlobal -  1 ) ];
-					u2  = prUNode1[ 2*(pcNodeDielOne[i].nNodeGlobal + nX ) ];
-					u3  = prUNode1[ 2*(pcNodeDielOne[i].nNodeGlobal +  1 ) ];
-					u4  = prUNode1[ 2*(pcNodeDielOne[i].nNodeGlobal - nX ) ];
-					ut1 = prUNode1[ 2*pcNodeDielOne[i].nNodeGlobal ];
+					u1  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 2 ];
+					u2  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal + nX ) + 2 ];
+					u3  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal +  1 ) + 2 ];
+					u4  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal - nX ) + 2 ];
+					ut1 = prUNode1[ 6*pcNodeDielOne[i].nNodeGlobal + 2 ];
 					ut2 = pcNodeDielOne[i].rU;
 //					pcNodeDielOne[i].rU = ut1;
 					y = pcNodeDielOne[i].rY;
 //					if( y < (1.e-6) ) y = (1.e-6);
-					y5 = prYNode[ 2*pcNodeDielOne[i].nNodeGlobal ];
-					prU = prUNode1 + (2*pcNodeDielOne[i].nNodeGlobal+1);
+					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
+					prU = prUNode1 + (6*pcNodeDielOne[i].nNodeGlobal + 3);
 					switch( pcNodeDielOne[i].nType )
 					{
 						case CTMCRTH_BLCKNTYPE_ABSR_0000:
@@ -4002,7 +4002,7 @@ void CTmcRTHNodeDiel::RunBlockNode3( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 			};
 			for( i = 0; i < nNumNode; i++)
 			{
-				pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)(prUNode1[ 2*pcNodeDielOne[i].nNodeGlobal + 2 ]);
+				pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)(prUNode1[ 6*pcNodeDielOne[i].nNodeGlobal + 2 ]);
 			};
 			break;
 		default:
