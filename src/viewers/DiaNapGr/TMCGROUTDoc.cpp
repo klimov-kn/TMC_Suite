@@ -566,7 +566,7 @@ BOOL CTMCGROUTDoc::WriteDocFile()
 		 return TRUE;
 	 };
 // save graphics default parameters 
- if(sprintf(ch,"%s %d; %d;�%s %d�%s %d�%s %lg�%s %lg�%s %lg�%s %lg�%s %d�%s %d�%s %s�%s %s;%ld;%ld;%ld;%ld;%ld;%d;%d;%d;%d;�%s %d;�%s %d;�%s %d;�%s %d;�%s %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d;�",
+ if(sprintf(ch,"%s %d; %d;%s %d%s %d%s %lg%s %lg%s %lg%s %lg%s %d%s %d%s %s%s %s;%ld;%ld;%ld;%ld;%ld;%d;%d;%d;%d;%s %d;%s %d;%s %d;%s %d;%s %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d;",
 			TMC_GROUT_DOCFILE_ID_PointDrawFlag , grdoc.PointDrawFlag, bLossPoint,
 			TMC_GROUT_DOCFILE_ID_nXType,	 grdoc.nXType,
 			TMC_GROUT_DOCFILE_ID_nYType,	 grdoc.nYType,
@@ -1458,14 +1458,14 @@ void CTMCGROUTDoc::ReadGraphParametersDefault()
 
  for( i = 0, i1 = 0; ch1[i] != '\0' ; i++)
  {
-	 if( ch1[i] == '�')
+	 if( ch1[i] == '')
 	 {
 		 ch1[i] = '\n';
 		 ch2 = ch1[i+1];
 		 ch1[i+1] = '\0';
 		 strcpy( ch, ch1+i1);
 		 SetOneReadGraphParameters( ch );
-		 ch1[i]   = '�';
+		 ch1[i]   = '';
 		 ch1[i+1] = ch2;
 		 i1 = i+1;
 	 };
