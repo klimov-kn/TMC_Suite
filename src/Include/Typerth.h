@@ -1,8 +1,8 @@
 #ifndef _TYPERTH_H
   #define _TYPERTH_H
 
-//#define _PREC_DOUBLE
-#define _PREC_FLOAT
+#define _PREC_DOUBLE
+//#define _PREC_FLOAT
 
 //#define _VERSION_DEMO___
 //#define _VERSION_EDUC___
