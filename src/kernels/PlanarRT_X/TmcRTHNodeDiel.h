@@ -66,6 +66,10 @@ public:
 	void ExciteInputs1( CTmcLibError &cError1, double dWT, double dT, _ELEM_VAL_RTH *pr1, int nX, CTmcRTH_IndanParam &cParam, double dtCurrent );
 	void ExciteInputs2( CTmcLibError &cError1, double dWT, double dT, _ELEM_VAL_RTH *pr1, int nX, CTmcRTH_IndanParam &cParam, double dtCurrent );
 	void ExciteInputs3( CTmcLibError &cError1, double dWT, double dT, _ELEM_VAL_RTH *pr1, int nX, CTmcRTH_IndanParam &cParam, double dtCurrent );
+	/* BUG12 portfix: exclude input-port nodes from scattering */
+	void SaveInputNodes( _ELEM_VAL_RTH *pr );
+	void RestoreInputNodes( _ELEM_VAL_RTH *pr );
+	_ELEM_VAL_RTH *prInputSave;
 	void SetBlockInDielList( sTmcRTH_DielNodeList **  pcNodeDielList, int nNumNode1, CTmcLibError &cError1 );
 	CTmcLibError &SetBlock( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH_IndanParam &cParam, CTmcRTH_IndanOutput *cOut, _real *prYNode, volatile BOOL *pbStopFlag, CString csCurrentPath );
 	CTmcLibError &SetBorderXmax( int nX, int nY );

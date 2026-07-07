@@ -534,6 +534,19 @@ BOOL CTmcRTHRectNode::IsError( void )
 	return cError.IsError();
 }
 
+/* ==== BUG12 PORTFIX (RectNode wrappers) ==== */
+void CTmcRTHRectNode::RunSaveInputs( void )
+{
+    int i;
+    for( i = 0; i < nDiel; i++ ) pcNodeDiel[i].SaveInputNodes( prUNode1 );
+}
+void CTmcRTHRectNode::RunRestoreInputs( void )
+{
+    int i;
+    for( i = 0; i < nDiel; i++ ) pcNodeDiel[i].RestoreInputNodes( prUNode1 );
+}
+/* ==== END BUG12 PORTFIX (RectNode) ==== */
+
 void CTmcRTHRectNode::RunKernel1T( void )
 {
 	if( IsError() ) return;
@@ -542,7 +555,9 @@ void CTmcRTHRectNode::RunKernel1T( void )
 //   excite and out reflection wave for inputs 
 //   calculation reflection wave
 	RunExciteInputs();
+	RunSaveInputs();
 	RunScatteringNode();
+	RunRestoreInputs();
 	RunBlockNode();
 	PutField( 0 );
 //	DistributionIntegrated( 0 );
@@ -552,7 +567,9 @@ void CTmcRTHRectNode::RunKernel1T( void )
 //   excite and out reflection wave for inputs 
 //   calculation reflection wave
 	RunExciteInputs1();
+	RunSaveInputs();
 	RunScatteringNode1();
+	RunRestoreInputs();
 	RunBlockNode1();
 	PutField( 1 );
 //	DistributionIntegrated( 1 );
@@ -562,7 +579,9 @@ void CTmcRTHRectNode::RunKernel1T( void )
 //   excite and out reflection wave for inputs 
 //   calculation reflection wave
 	RunExciteInputs2();
+	RunSaveInputs();
 	RunScatteringNode2();
+	RunRestoreInputs();
 	RunBlockNode2();
 	PutField( 2 );
 //	DistributionIntegrated( 2 );
@@ -572,7 +591,9 @@ void CTmcRTHRectNode::RunKernel1T( void )
 //   excite and out reflection wave for inputs 
 //   calculation reflection wave
 	RunExciteInputs3();
+	RunSaveInputs();
 	RunScatteringNode3();
+	RunRestoreInputs();
 	RunBlockNode3();
 	PutField( 3 );
 //	DistributionIntegrated( 3 );

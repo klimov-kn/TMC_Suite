@@ -50,6 +50,7 @@ CTmcRTHNodeDiel::CTmcRTHNodeDiel()
 	dX0 = 0.0;
 	dY0 = 0.0;
 	dY1_InputAdmitance = 1.0;
+	prInputSave = NULL;				// BUG12 portfix buffer
 	pbIsStop = NULL;
 	csFileNameEps.Format("");
 	return;
@@ -82,6 +83,7 @@ void CTmcRTHNodeDiel::DeleteData( void )
 		delete []pcNodeDielOne;
 		pcNodeDielOne = NULL;
 	};
+	if( prInputSave != NULL ){ delete []prInputSave; prInputSave = NULL; }	// BUG12 portfix
 	dYInput = 0.;
 	dTmin = -INT_MAX;					// T_min for excite input block
 	dTmax =  INT_MAX;					// T_max for excite input block
@@ -1917,6 +1919,37 @@ void CTmcRTHNodeDiel::AddList( sTmcRTHNodeDielOne *pcNodeDielOne1, sTmcRTH_DielN
 	return;
 }
 
+
+/* ==== BUG12 PORTFIX: input nodes excluded from scattering ==== */
+void CTmcRTHNodeDiel::SaveInputNodes( _ELEM_VAL_RTH *pr )
+{
+    if( (nType != CTMCRTH_BLCKNTYPE_INPXLEFT )&&
+        (nType != CTMCRTH_BLCKNTYPE_INPXRIGHT)&&
+        (nType != CTMCRTH_BLCKNTYPE_INPYTOP  )&&
+        (nType != CTMCRTH_BLCKNTYPE_INPYBOT  )) return;
+    if( pcNodeDielOne == NULL || nNumNode <= 0 || pr == NULL ) return;
+    if( prInputSave == NULL ) prInputSave = new _ELEM_VAL_RTH[ 6*nNumNode ];
+    if( prInputSave == NULL ) return;
+    int i, c;
+    for( i = 0; i < nNumNode; i++ ){
+        int g = pcNodeDielOne[i].nNodeGlobal;
+        for( c = 0; c < 6; c++ ) prInputSave[6*i+c] = pr[6*g+c];
+    }
+}
+void CTmcRTHNodeDiel::RestoreInputNodes( _ELEM_VAL_RTH *pr )
+{
+    if( (nType != CTMCRTH_BLCKNTYPE_INPXLEFT )&&
+        (nType != CTMCRTH_BLCKNTYPE_INPXRIGHT)&&
+        (nType != CTMCRTH_BLCKNTYPE_INPYTOP  )&&
+        (nType != CTMCRTH_BLCKNTYPE_INPYBOT  )) return;
+    if( pcNodeDielOne == NULL || nNumNode <= 0 || pr == NULL || prInputSave == NULL ) return;
+    int i, c;
+    for( i = 0; i < nNumNode; i++ ){
+        int g = pcNodeDielOne[i].nNodeGlobal;
+        for( c = 0; c < 6; c++ ) pr[6*g+c] = prInputSave[6*i+c];
+    }
+}
+/* ==== END BUG12 PORTFIX ==== */
 
 void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT, _ELEM_VAL_RTH *pr1, int nX, CTmcRTH_IndanParam &cParam, double dtCurrent )
 {

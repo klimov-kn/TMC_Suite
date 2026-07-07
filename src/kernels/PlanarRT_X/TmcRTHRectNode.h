@@ -90,6 +90,8 @@ private:
 	void RunScatteringNode1( void );
 	void RunScatteringNode2( void );
 	void RunScatteringNode3( void );
+	void RunSaveInputs( void );		// BUG12 portfix
+	void RunRestoreInputs( void );	// BUG12 portfix
 	CTmcRTH_IndanParam cParam;
 	void DeleteDielArray( void );
 	void InitDielArray( void );
