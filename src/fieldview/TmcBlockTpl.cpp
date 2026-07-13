@@ -18,6 +18,10 @@ CTmcBlockTpl::CTmcBlockTpl()
 	nX = 0;
 	nY = 0;
 	pdSurface = NULL;
+	pdSurfaceN = NULL;
+	pdSurfaceY = NULL;
+	pdSurfaceB = NULL;
+	bHasPlasma = 0;
 	return;
 }
 
@@ -67,6 +71,13 @@ void CTmcBlockTpl::DeleteData()
 	nY = 0;
 	if( pdSurface != NULL ) delete []pdSurface;
 	pdSurface = NULL;
+	if( pdSurfaceN != NULL ) delete []pdSurfaceN;
+	pdSurfaceN = NULL;
+	if( pdSurfaceY != NULL ) delete []pdSurfaceY;
+	pdSurfaceY = NULL;
+	if( pdSurfaceB != NULL ) delete []pdSurfaceB;
+	pdSurfaceB = NULL;
+	bHasPlasma = 0;
 
 	CTmcRTH_BlockList::DeleteData();
 	return;
@@ -310,6 +321,43 @@ void CTmcBlockTpl::ReadData()
 		};
 	};
 
+
+	// ---- X-mode plasma extra grids: N (electron concentration), Y (losses), B (magnetic field).
+	// The X-mode kernel writes 4 grids into .tt (eps, N, Y, B). H-mode writes only eps.
+	// If the extra grids are absent (EOF) we leave them NULL and bHasPlasma stays 0.
+	{
+		int nn = nX*nY;
+		double **ppArr[3];
+		ppArr[0] = &pdSurfaceN;
+		ppArr[1] = &pdSurfaceY;
+		ppArr[2] = &pdSurfaceB;
+		bHasPlasma = 1;
+		int g;
+		for( g = 0; g < 3; g++ )
+		{
+			double *pd = new double[nn];
+			if( pd == NULL ) { bHasPlasma = 0; break; }
+			double dBuf2; int ii2, i2, j2; char ch2; int bOk = 1;
+			for( i2 = 0, ii2 = 0; ( i2 < nY ) && bOk; i2++ )
+			{
+				for( j2 = 0; j2 < nX; j2++ )
+				{
+					if( fread( &(dBuf2), sizeof(double), 1, fp ) != 1 ) { bOk = 0; break; }
+					pd[ii2++] = dBuf2;
+				}
+				fread( &(ch2), 1, 1, fp );
+				fread( &(ch2), 1, 1, fp );
+			}
+			if( !bOk ) { delete []pd; bHasPlasma = 0; break; }
+			*(ppArr[g]) = pd;
+		}
+		if( !bHasPlasma )
+		{
+			if( pdSurfaceN != NULL ) { delete []pdSurfaceN; pdSurfaceN = NULL; }
+			if( pdSurfaceY != NULL ) { delete []pdSurfaceY; pdSurfaceY = NULL; }
+			if( pdSurfaceB != NULL ) { delete []pdSurfaceB; pdSurfaceB = NULL; }
+		}
+	}
 	if( fp != NULL ) fclose( fp );
 	fp = NULL;
 	return;
@@ -369,4 +417,21 @@ double * CTmcBlockTpl::GetpdSurface()
 int CTmcBlockTpl::GetnX()
 {
 	return nX;
+}
+
+double * CTmcBlockTpl::GetpdSurfaceByType( int nType )
+{
+	switch( nType )
+	{
+	case 1: if( pdSurfaceN != NULL ) return pdSurfaceN; break;
+	case 2: if( pdSurfaceY != NULL ) return pdSurfaceY; break;
+	case 3: if( pdSurfaceB != NULL ) return pdSurfaceB; break;
+	default: break;
+	}
+	return pdSurface;
+}
+
+int CTmcBlockTpl::HasPlasma( void )
+{
+	return bHasPlasma;
 }

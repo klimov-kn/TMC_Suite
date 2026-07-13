@@ -241,13 +241,17 @@
 #define ID_VIEW_TOPOLOGY_SIZE_BLOCK     32866
 #define ID_VIEW_TOPOLOGY_SIZE_LINKLIST  32867
 
+#define ID_EPS_TYPE_EPS                 32882
+#define ID_EPS_TYPE_N                   32883
+#define ID_EPS_TYPE_Y                   32884
+#define ID_EPS_TYPE_B                   32885
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        133
-#define _APS_NEXT_COMMAND_VALUE         32882
+#define _APS_NEXT_COMMAND_VALUE         32886
 #define _APS_NEXT_CONTROL_VALUE         1063
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

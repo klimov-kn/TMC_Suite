@@ -52,6 +52,7 @@
 #define TMC_GROFLDNUMPROPPAGE_INI	"#TMC_GraphOutFld_PropertyPageNumber"
 #define TMC_GROFLDCOLORRESOL_INI	"#TMC_GraphOutFld_ColorResolution"
 #define TMC_GROFLDTOPEPSPAR_INI		"#TMC_GraphOutFld_EpsParam"
+#define TMC_GROFLDTOPEPSTYPE_INI	"#TMC_GraphOutFld_EpsType"
 #define TMC_GROFLDMODULFL_INI		"#TMC_GraphOutFld_DrawFieldModulFlag"
 
 void PutTrace( CString csTrace );
@@ -271,6 +272,8 @@ private:
 	int nBlend;
 	int nBlendTopology;
 	int nBlend_Eps;
+	int nEpsType;
+	volatile BOOL bReadBusy;
 	int n2D3DFlag;
 	int n2D3DFlagTopology;
 	int n2D3DFlag_Eps;
@@ -381,6 +384,14 @@ private:
 public:
 	afx_msg void OnFieldModul();
 	afx_msg void OnUpdateFieldModul(CCmdUI *pCmdUI);
+	afx_msg void OnEpsTypeEps();
+	afx_msg void OnEpsTypeN();
+	afx_msg void OnEpsTypeY();
+	afx_msg void OnEpsTypeB();
+	afx_msg void OnUpdateEpsTypeEps(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateEpsTypeN(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateEpsTypeY(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateEpsTypeB(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in FldViewView.cpp

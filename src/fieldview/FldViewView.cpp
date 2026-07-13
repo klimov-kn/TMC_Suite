@@ -79,6 +79,14 @@ BEGIN_MESSAGE_MAP(CFldViewView, CScrollView)
 	ON_MESSAGE( WM_USERAPPLY_PROPFIELD, OnUserApplyPropDialogField )
 	ON_MESSAGE( WM_USERAPPLY_PROPEPS, OnUserApplyPropDialogEps )
 	ON_MESSAGE( WM_USERAPPLY_PROPTOPOL, OnUserApplyPropDialogTopol )
+	ON_COMMAND( ID_EPS_TYPE_EPS, OnEpsTypeEps )
+	ON_COMMAND( ID_EPS_TYPE_N, OnEpsTypeN )
+	ON_COMMAND( ID_EPS_TYPE_Y, OnEpsTypeY )
+	ON_COMMAND( ID_EPS_TYPE_B, OnEpsTypeB )
+	ON_UPDATE_COMMAND_UI( ID_EPS_TYPE_EPS, OnUpdateEpsTypeEps )
+	ON_UPDATE_COMMAND_UI( ID_EPS_TYPE_N, OnUpdateEpsTypeN )
+	ON_UPDATE_COMMAND_UI( ID_EPS_TYPE_Y, OnUpdateEpsTypeY )
+	ON_UPDATE_COMMAND_UI( ID_EPS_TYPE_B, OnUpdateEpsTypeB )
 	ON_WM_LBUTTONDBLCLK()
 	ON_COMMAND(ID_ROTATE_LEFT, OnRotateLeft)
 	ON_COMMAND(ID_ROTATE_RIGHT, OnRotateRight)
@@ -250,6 +258,9 @@ CFldViewView::CFldViewView()
 	pcBoundBlockTpl = NULL;
 
 	scBackgoundColor = RGB( 0, 0, 0);
+	nEpsType = AfxGetApp()->GetProfileInt( TMC_GROFLD_RAZDEL_INI, TMC_GROFLDTOPEPSTYPE_INI, 0 );
+	if( nEpsType < 0 || nEpsType > 3 ) nEpsType = 0;
+	bReadBusy = FALSE;
 
 /*
 	pscSurfaceColor[  0 ] = RGB( 25,125, 225);
@@ -867,6 +878,7 @@ void CFldViewView::CreateRGBPalette( void )
 
 void CFldViewView::DrawScene( void )
 {
+	if( bReadBusy ) return; // skip paint while ReadData rebuilds arrays (prevents use-after-free crash during live compute) (prevents use-after-free crash during live compute)
 	if( cError.IsError() ) 
 	{
 //		RedrawWindow();
@@ -1191,6 +1203,8 @@ void CFldViewView::DeleteData()
 void CFldViewView::ReadData()
 {
 	static BOOL bIsDataAlredyRead = FALSE;
+	if( bReadBusy ) return; // guard: kernel writes file while 50ms timer + double-click re-read -> prevent re-entrant free/realloc
+	bReadBusy = TRUE;
 
 	if(bIsDataAlredyRead)
 	{
@@ -1220,6 +1234,7 @@ void CFldViewView::ReadData()
 		};
 	};
 
+	bReadBusy = FALSE;
 	return;
 }
 
@@ -1685,7 +1700,7 @@ void CFldViewView::SetColor( double z )
 	}
 	else
 	{
-		i = (int)(( fabs( z ) )*19 );
+		i = (int)(( fabs( z ) )*19 ); if( i < 0 ) i = 0; if( i > 19 ) i = 19;
 		glColor4f( ((float)(GetRValue(pscSurfaceColor[i])))/256,
 					((float)(GetGValue(pscSurfaceColor[i])))/256,
 					((float)(GetBValue(pscSurfaceColor[i])))/256,
@@ -1889,6 +1904,10 @@ void CFldViewView::WriteIniFile()
 // save hight resolution color flag
 	sprintf( szBuffer, "%d", bHightColorRezolution);
 	AfxGetApp()->WriteProfileString( TMC_GROFLD_RAZDEL_INI, TMC_GROFLDCOLORRESOL_INI, szBuffer);
+
+// save eps type (0 Eps+, 1 N, 2 Y, 3 B)
+	sprintf( szBuffer, "%d", nEpsType);
+	AfxGetApp()->WriteProfileString( TMC_GROFLD_RAZDEL_INI, TMC_GROFLDTOPEPSTYPE_INI, szBuffer);
 
 // save field modul flag
 	sprintf( szBuffer, "%d", bDrawFieldModulFlag);
@@ -3252,7 +3271,7 @@ void CFldViewView::PrepareTpl()
 		return;
 	};
 
-	if( ( pdBuf = cBlockTpl.GetpdSurface() ) == NULL ) return;
+	if( ( pdBuf = cBlockTpl.GetpdSurfaceByType( nEpsType ) ) == NULL ) return;
 
 	n = nX*nY;
 	
@@ -3534,7 +3553,7 @@ void CFldViewView::SetColor_Eps( double z )
 	if( z < -1. ) z = -1.0001;
 
 //	i = (int)(( fabs( z - (dZmax+dZmin)/2 )/((dZmax-dZmin)/2)*20 -0.5));
-	i = (int)( 10 + z*10 );
+	i = (int)( 10 + z*10 ); if( i < 0 ) i = 0; if( i > 19 ) i = 19;
 
 	glColor4f( ((float)(GetRValue(pscSurfaceColor_Eps[i])))/256,
 				((float)(GetGValue(pscSurfaceColor_Eps[i])))/256,
@@ -3744,9 +3763,7 @@ void CFldViewView::PrepareBoundaryTpl()
 		{
 			if( (pX1 == NULL)||(pX2 == NULL)||(pX3 == NULL)||(pX4 == NULL)||(pY1 == NULL)||(pY2 == NULL)||(pY3 == NULL)||(pY4 == NULL) )
 			{
-				cError.PutErrorMessage("pointer topology polygon is NULL");
-				RedrawWindow();
-				return;
+				continue; // plasma / non-boundary block (RECT_STAT_N) has no topology polygon: skip, do not blank scene
 			};
 			if( (nType == CTMCRTH_BLCKNTYPE_INPXLEFT)||(nType == CTMCRTH_BLCKNTYPE_INPXRIGHT)||(nType == CTMCRTH_BLCKNTYPE_INPYTOP)||(nType == CTMCRTH_BLCKNTYPE_INPYBOT) )
 			{
@@ -3834,9 +3851,7 @@ void CFldViewView::CalcnTopPolygon()
 			if( (nType == CTMCRTH_BLCKNTYPE_INPXLEFT)||(nType == CTMCRTH_BLCKNTYPE_INPXRIGHT)||(nType == CTMCRTH_BLCKNTYPE_INPYTOP)||(nType == CTMCRTH_BLCKNTYPE_INPYBOT) ) nInputNum++;
 			if( (pX1 == NULL)||(pX2 == NULL)||(pX3 == NULL)||(pX4 == NULL)||(pY1 == NULL)||(pY2 == NULL)||(pY3 == NULL)||(pY4 == NULL) )
 			{
-				cError.PutErrorMessage("pointer topology polygon is NULL");
-				RedrawWindow();
-				return;
+				continue; // plasma / non-boundary block (RECT_STAT_N) has no topology polygon: skip, do not blank scene
 			};
 			for( j = 0; j < n; j++ )
 			{
@@ -4378,9 +4393,7 @@ void CFldViewView::PrepareBoundTplSize()
 			n = pcBoundBlockTpl[i].GetnTopSize();
 			if( (pcTopSize1 == NULL)||( n < 1 ) )
 			{
-				cError.PutErrorMessage("pointer size of topology is NULL");
-				RedrawWindow();
-				return;
+				continue; // plasma block (RECT_STAT_N/_B) has no size data: skip, do not blank scene
 			};
 			for( j = 0; j < n; j++ )
 			{
@@ -4448,9 +4461,7 @@ void CFldViewView::PrepareBoundTplSize()
 			n = pcBoundBlockTpl[i].GetnTopSize();
 			if( (pcTopSize1 == NULL)||( n < 1 ) )
 			{
-				cError.PutErrorMessage("pointer size of topology is NULL");
-				RedrawWindow();
-				return;
+				continue; // plasma block (RECT_STAT_N/_B) has no size data: skip, do not blank scene
 			};
 			for( j = 0; j < n; j++ )
 			{
@@ -5084,7 +5095,7 @@ void CFldViewView::SetColor_Cursor( double z )
 	}
 	else
 	{
-		i = (int)(( fabs( z ) )*19 );
+		i = (int)(( fabs( z ) )*19 ); if( i < 0 ) i = 0; if( i > 19 ) i = 19;
 		glColor4f( 1-((float)(GetRValue(pscSurfaceColor[i])))/256,
 					1-((float)(GetGValue(pscSurfaceColor[i])))/256,
 					1-((float)(GetBValue(pscSurfaceColor[i])))/256,
@@ -5239,3 +5250,17 @@ void CFldViewView::OnUpdateFieldModul(CCmdUI *pCmdUI)
 	pCmdUI->SetCheck( bDrawFieldModulFlag );	
 	return;
 }
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Eps view type (X-mode plasma): 0 Eps+, 1 N, 2 Y, 3 B
+
+void CFldViewView::OnEpsTypeEps() { nEpsType = 0; bDrawSurfaceFlag_Eps = TRUE; bReadBusy = TRUE; PrepareData(); bReadBusy = FALSE; DrawScene(); WriteIniFile(); }
+void CFldViewView::OnEpsTypeN()   { nEpsType = 1; bDrawSurfaceFlag_Eps = TRUE; bReadBusy = TRUE; PrepareData(); bReadBusy = FALSE; DrawScene(); WriteIniFile(); }
+void CFldViewView::OnEpsTypeY()   { nEpsType = 2; bDrawSurfaceFlag_Eps = TRUE; bReadBusy = TRUE; PrepareData(); bReadBusy = FALSE; DrawScene(); WriteIniFile(); }
+void CFldViewView::OnEpsTypeB()   { nEpsType = 3; bDrawSurfaceFlag_Eps = TRUE; bReadBusy = TRUE; PrepareData(); bReadBusy = FALSE; DrawScene(); WriteIniFile(); }
+
+void CFldViewView::OnUpdateEpsTypeEps(CCmdUI *pCmdUI) { pCmdUI->Enable( TRUE );                  pCmdUI->SetCheck( nEpsType == 0 ); }
+void CFldViewView::OnUpdateEpsTypeN(CCmdUI *pCmdUI)   { pCmdUI->Enable( cBlockTpl.HasPlasma() ); pCmdUI->SetCheck( nEpsType == 1 ); }
+void CFldViewView::OnUpdateEpsTypeY(CCmdUI *pCmdUI)   { pCmdUI->Enable( cBlockTpl.HasPlasma() ); pCmdUI->SetCheck( nEpsType == 2 ); }
+void CFldViewView::OnUpdateEpsTypeB(CCmdUI *pCmdUI)   { pCmdUI->Enable( cBlockTpl.HasPlasma() ); pCmdUI->SetCheck( nEpsType == 3 ); }

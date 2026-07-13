@@ -121,6 +121,10 @@ BEGIN
     BUTTON      ID_FLAGDRAWSURFACEEPS
     BUTTON      ID_DIMENSION23SWITCHEPS
     BUTTON      ID_VIEW_EPS_SIZE
+    BUTTON      ID_EPS_TYPE_EPS
+    BUTTON      ID_EPS_TYPE_N
+    BUTTON      ID_EPS_TYPE_B
+    BUTTON      ID_EPS_TYPE_Y
     SEPARATOR
     BUTTON      ID_FLAGDRAWLINE
     BUTTON      ID_FLAGDRAWSURFACE
@@ -236,6 +240,13 @@ BEGIN
             MENUITEM "S&urface\tAlt+S",             ID_FLAGDRAWSURFACEEPS
             MENUITEM "D&imension 2/3\tAlt+D",       ID_DIMENSION23SWITCHEPS
             MENUITEM "Si&ze\tAlt+J",                ID_VIEW_EPS_SIZE
+            POPUP "Type"
+            BEGIN
+                MENUITEM "Eps+",                        ID_EPS_TYPE_EPS
+                MENUITEM "N - electron concentration",  ID_EPS_TYPE_N
+                MENUITEM "Y - losses",                  ID_EPS_TYPE_Y
+                MENUITEM "B - magnetic field",          ID_EPS_TYPE_B
+            END
         END
         POPUP "&Field"
         BEGIN
@@ -897,10 +908,18 @@ END
 // String Table
 //
 
+
+STRINGTABLE
+BEGIN
+    ID_EPS_TYPE_EPS         "Show permittivity Eps+\nEps+"
+    ID_EPS_TYPE_N           "Show plasma electron concentration N\nN"
+    ID_EPS_TYPE_Y           "Show plasma losses Y\nY"
+    ID_EPS_TYPE_B           "Show plasma magnetic field B\nB"
+END
 STRINGTABLE 
 BEGIN
     IDR_MAINFRAME           "Tamic Rt Output Field Viewer"
-    IDR_FLDVIETYPE          "\nFldVie\nFldVie\nFldVie Files (*.tf;*.AMP;*.FAZ;)\n*.tf;*.AMP;*.FAZ;\nFldView.Document\nFldVie Document"
+    IDR_FLDVIETYPE          "\nFldVie\nFldVie\nFldVie Files (*.tf;*.AMP;*.FAZ;*.ex;)\n*.tf;*.AMP;*.FAZ;*.ex;\nFldView.Document\nFldVie Document"
 END
 
 STRINGTABLE 
