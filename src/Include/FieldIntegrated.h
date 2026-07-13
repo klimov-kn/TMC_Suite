@@ -21,6 +21,7 @@ public:
 	BOOL bIsItegratedInMemory( void );
 	void SetIntegrateInMemory( void );
 	void Integrate( double dTCurrent1, int nTCurrent1, _real *prUNode1 );
+	void SetNodeStep( int nStep );
 	BOOL IsFullPath( void );
 	void AddPath( CString csPath );
 	CTmcLibError& GetError( void );
@@ -95,6 +96,7 @@ private:
 	int nEmitterInFile;
 	int nY;
 	int nX;
+	int nNodeStep;
 	CTmcLibError cError;
 	double dFreq;
 	double dTmin;

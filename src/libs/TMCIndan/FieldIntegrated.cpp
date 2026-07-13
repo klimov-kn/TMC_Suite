@@ -21,6 +21,7 @@ static char THIS_FILE[]=__FILE__;
 
 CFieldIntegrated::CFieldIntegrated()
 {
+	nNodeStep = 2;
 	prSin = NULL;
 	prCos = NULL;
 	prAmp = NULL;
@@ -48,6 +49,12 @@ CFieldIntegrated::CFieldIntegrated()
 	csFileDirectPattern.Format("");
 
 	cError.Clear();
+	return;
+}
+
+void CFieldIntegrated::SetNodeStep( int nStep )
+{
+	if( nStep > 0 ) nNodeStep = nStep;
 	return;
 }
 
@@ -502,7 +509,7 @@ void CFieldIntegrated::Integrate(CString csFileName, _real *prUNode1, _real r1)
 			fflush( fp );
 			fwrite( &(r), sizeof(_real), 1, fp );
 			fflush( fp );
-			ii += 2;
+			ii += nNodeStep;
 		};
 	};
 	
@@ -717,7 +724,7 @@ void CFieldIntegrated::IntegrateInMemory(_real *prUNode1, _real rCosCurrent, _re
 			prCos[jj] = (_real)(prCos[jj] + prUNode1[ii]*rCosCurrent*dT);
 			prSin[jj] = (_real)(prSin[jj] + prUNode1[ii]*rSinCurrent*dT);
 			jj++;
-			ii += 2;
+			ii += nNodeStep;
 		};
 	};
 	

@@ -426,6 +426,8 @@ void CTmcRTHRectNode::InitKernel( void )
 
 	cIndan.GetOutput()->GetFieldIntegrated().InitAllFile( nX, nY, dDelta, dXmin, dYmin, cParam, dT );
 
+	cIndan.GetOutput()->GetFieldIntegrated().SetNodeStep( 6 );
+
 	cError = cIndan.GetOutput()->GetFieldIntegrated().GetError();
 
 
@@ -560,7 +562,7 @@ void CTmcRTHRectNode::RunKernel1T( void )
 	RunRestoreInputs();
 	RunBlockNode();
 	PutField( 0 );
-//	DistributionIntegrated( 0 );
+	DistributionIntegrated( 0 );
 	nTCurrent++;
 	dTCurrent += dT;
 
@@ -572,7 +574,7 @@ void CTmcRTHRectNode::RunKernel1T( void )
 	RunRestoreInputs();
 	RunBlockNode1();
 	PutField( 1 );
-//	DistributionIntegrated( 1 );
+	DistributionIntegrated( 1 );
 	nTCurrent++;
 	dTCurrent += dT;
 
@@ -584,7 +586,7 @@ void CTmcRTHRectNode::RunKernel1T( void )
 	RunRestoreInputs();
 	RunBlockNode2();
 	PutField( 2 );
-//	DistributionIntegrated( 2 );
+	DistributionIntegrated( 2 );
 	nTCurrent++;
 	dTCurrent += dT;
 
@@ -596,7 +598,7 @@ void CTmcRTHRectNode::RunKernel1T( void )
 	RunRestoreInputs();
 	RunBlockNode3();
 	PutField( 3 );
-//	DistributionIntegrated( 3 );
+	DistributionIntegrated( 3 );
 	nTCurrent++;
 	dTCurrent += dT;
 
