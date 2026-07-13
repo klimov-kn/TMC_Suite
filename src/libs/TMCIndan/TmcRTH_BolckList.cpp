@@ -2441,6 +2441,12 @@ void CTmcRTH_BlockList::ReadInputX( CTmcLibError &cError, CTmcRTH_IndanParam * p
 		cError.PutErrorMessage(csBuf);
 		return;
 	};
+	if( strlen(szBuf1) > 0 && (r + 1.0) <= 0.0 )
+	{
+		csBuf.Format("Error: input epsilon must be > 0 (block %d)", nBlock);
+		cError.PutErrorMessage(csBuf);
+		return;
+	};
 	csW.Format("%s", szBuf1);
 
 	return;
@@ -2623,6 +2629,12 @@ void CTmcRTH_BlockList::ReadInputY( CTmcLibError &cError, CTmcRTH_IndanParam * p
 	if( i1nte_atof_1( szBuf1, &r ) != 0 )
 	{
 		csBuf.Format("In{%s}%s{%s}", szBuf, expr_get_error(), szBuf1);
+		cError.PutErrorMessage(csBuf);
+		return;
+	};
+	if( strlen(szBuf1) > 0 && (r + 1.0) <= 0.0 )
+	{
+		csBuf.Format("Error: input epsilon must be > 0 (block %d)", nBlock);
 		cError.PutErrorMessage(csBuf);
 		return;
 	};
