@@ -582,15 +582,21 @@ void CTmcRTH_BlockList::Read( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam
 		return;
 	};
 
-	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_RECTSTATN), strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == 0 )
+	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_RECTSTATN), strlen(CTMCRTH_INDANBLCK_RECTSTATN) ) == 0 )
 	{
 		ReadRectStatN( cError, pcParam );
 		return;
 	};
 
-	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_RECTSTATB), strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == 0 )
+	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_RECTSTATB), strlen(CTMCRTH_INDANBLCK_RECTSTATB) ) == 0 )
 	{
 		ReadRectStatB( cError, pcParam );
+		return;
+	};
+
+	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_RECTSTATY), strlen(CTMCRTH_INDANBLCK_RECTSTATY) ) == 0 )
+	{
+		ReadRectStatY( cError, pcParam );
 		return;
 	};
 
@@ -761,6 +767,38 @@ void CTmcRTH_BlockList::ReadRectStatB( CTmcLibError &cError, CTmcRTH_IndanParam 
 		csBuf.Format("In{%s%d;} for type {%s} must be only B(Tl) distribution ",
 			CTMCRTH_INDANMET_BLOCK,	-nBlock,
 			CTMCRTH_INDANBLCK_RECTSTATB);
+		cError.PutErrorMessage(csBuf);
+		return;
+	};
+
+	return;
+}
+
+
+void CTmcRTH_BlockList::ReadRectStatY( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam )
+{
+	CString csBuf;
+
+	if( cError.IsError() ) return;
+	if( pcParam == NULL )
+	{
+		csBuf.Format("pointer for parametrs is NULL");
+		cError.PutErrorMessage(csBuf);
+		return;
+	};
+
+	int i;
+
+	i = (int)(strlen( CTMCRTH_INDANBLCK_RECTSTATY ));
+
+	ReadRectStat_1( cError, pcParam, i );
+	csBlock.Format("%s", CTMCRTH_INDANBLCK_RECTSTATY);
+
+	if( nType != CTMCRTH_BLCKNTYPE_EPS )
+	{
+		csBuf.Format("In{%s%d;} for type {%s} must be only Y (loss) distribution ",
+			CTMCRTH_INDANMET_BLOCK,	-nBlock,
+			CTMCRTH_INDANBLCK_RECTSTATY);
 		cError.PutErrorMessage(csBuf);
 		return;
 	};

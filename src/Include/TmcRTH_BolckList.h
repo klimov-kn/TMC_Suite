@@ -100,6 +100,7 @@ private:
 	void ReadRectStat( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam );
 	void ReadRectStatN( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam );
 	void ReadRectStatB( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam );
+	void ReadRectStatY( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam );
 	void ReadRectStat_1( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam, int i );
 	void ReadCircleStat( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam );
 	void ReadCircleStatN( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam );
