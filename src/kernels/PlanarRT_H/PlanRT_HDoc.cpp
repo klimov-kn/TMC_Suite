@@ -39,11 +39,17 @@ CPlanRT_HDoc::CPlanRT_HDoc()
 	csExternViewerField.Format("winword.exe");
 	nStep = 1;
 	bIsReadData = FALSE;
+	m_hRunThread = NULL;
 	return;
 }
 
 CPlanRT_HDoc::~CPlanRT_HDoc()
 {
+	if( m_hRunThread != NULL )
+	{
+		::CloseHandle( m_hRunThread );
+		m_hRunThread = NULL;
+	};
 }
 
 BOOL CPlanRT_HDoc::OnNewDocument()
@@ -297,6 +303,47 @@ void CPlanRT_HDoc::Stop( void )
 
 //	CloseAndExit();
 	
+	return;
+}
+
+void CPlanRT_HDoc::SetRunThreadHandle( HANDLE hThread )
+{
+	if( m_hRunThread != NULL )
+	{
+		::CloseHandle( m_hRunThread );
+		m_hRunThread = NULL;
+	};
+	if( hThread != NULL )
+	{
+		::DuplicateHandle( ::GetCurrentProcess(), hThread,
+			::GetCurrentProcess(), &m_hRunThread,
+			0, FALSE, DUPLICATE_SAME_ACCESS );
+	};
+	return;
+}
+
+void CPlanRT_HDoc::StopAndWait( void )
+{
+	Stop();
+	if( m_hRunThread == NULL ) return;
+	DWORD dwStart = ::GetTickCount();
+	for( ;; )
+	{
+		DWORD dwRes = ::MsgWaitForMultipleObjects( 1, &m_hRunThread, FALSE, 100, QS_ALLINPUT );
+		if( dwRes == WAIT_OBJECT_0 ) break;
+		if( dwRes == WAIT_OBJECT_0 + 1 )
+		{
+			MSG msg;
+			while( ::PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
+			{
+				::TranslateMessage( &msg );
+				::DispatchMessage( &msg );
+			};
+		};
+		if( ::GetTickCount() - dwStart > 30000 ) break;
+	};
+	::CloseHandle( m_hRunThread );
+	m_hRunThread = NULL;
 	return;
 }
 

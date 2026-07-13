@@ -85,15 +85,16 @@ CDocument* CChildFrame::GetActiveDocument()
 
 void CChildFrame::OnClose() 
 {
-	// TODO: Add your message handler code here and/or call default
-	CPlanRT_HView* pView = (CPlanRT_HView*)GetActiveView();
-	if( pView != NULL ) pView->Stop();
-
 	CPlanRT_HDoc* pDoc = (CPlanRT_HDoc*)GetActiveDocument();
-	ASSERT_VALID(pDoc);
-
-	pDoc->Stop();
-	pDoc->CloseAndExit();
+	if( pDoc != NULL )
+	{
+		if( pDoc->IsRun() && !IsBatchRun() )
+		{
+			if( AfxMessageBox( "Computation in progress. Stop and close?", MB_YESNO | MB_ICONWARNING ) != IDYES )
+				return;
+		};
+		pDoc->StopAndWait();
+	}
 
 
 	CMDIChildWnd::OnClose();

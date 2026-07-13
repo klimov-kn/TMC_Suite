@@ -26,6 +26,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_STATUS_BAR, OnUpdateViewStatusBar)
 	ON_WM_QUERYENDSESSION()
 	ON_WM_DESTROY()
+	ON_WM_CLOSE()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -151,6 +152,26 @@ BOOL CMainFrame::OnQueryEndSession()
 	
 	return TRUE;
 }
+
+void CMainFrame::OnClose() 
+{
+	CMDIChildWnd* pChild = MDIGetActive();
+	CPlanRT_HDoc* pDoc = NULL;
+	if( pChild != NULL ) pDoc = (CPlanRT_HDoc*)pChild->GetActiveDocument();
+	if( pDoc != NULL )
+	{
+		if( pDoc->IsRun() && !IsBatchRun() )
+		{
+			if( AfxMessageBox( "Computation in progress. Stop and close?", MB_YESNO | MB_ICONWARNING ) != IDYES )
+				return;
+		};
+		pDoc->StopAndWait();
+	};
+
+	CMDIFrameWnd::OnClose();
+	return;
+}
+
 
 void CMainFrame::OnDestroy() 
 {

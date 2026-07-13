@@ -40,7 +40,6 @@ BEGIN_MESSAGE_MAP(CPlanRT_HView, CScrollView)
 	ON_COMMAND(ID_FILE_SAVE_AS, OnFileSaveAs)
 	ON_COMMAND(ID_RUN_STOP, OnRunStop)
 	ON_COMMAND(ID_RUN_RUN, OnRunAll)
-	ON_COMMAND(WM_CLOSE, OnClose)
 	ON_WM_DESTROY()
 	ON_COMMAND(ID_CONFIG_VIEWER_OUTPUTSIGNAL, OnConfigViewerOutputsignal)
 	ON_COMMAND(ID_VIEW_OUTPUT, OnViewOutput)
@@ -467,12 +466,15 @@ void CPlanRT_HView::OnRunStartstep()
 
 //	pDoc->SetModifiedFlag();
 	
-	if( ( AfxBeginThread( RunStepGlobal, (void *)(pDoc), THREAD_PRIORITY_NORMAL ) ) == NULL )
+	CWinThread* pThread = AfxBeginThread( RunStepGlobal, (void *)(pDoc), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED );
+	if( pThread == NULL )
 	{
 		PutTrace( "Can't open thread for read data" );
 		bIsReadData = FALSE;
 		return;
 	};
+	pDoc->SetRunThreadHandle( pThread->m_hThread );
+	pThread->ResumeThread();
 
 	bIsReadData = FALSE;
 	return;
@@ -492,11 +494,14 @@ void CPlanRT_HView::OnRunAll()
 
 //	pDoc->SetModifiedFlag();
 	
-	if( ( AfxBeginThread( RunAllGlobal, (void *)(pDoc), THREAD_PRIORITY_NORMAL ) ) == NULL )
+	CWinThread* pThread = AfxBeginThread( RunAllGlobal, (void *)(pDoc), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED );
+	if( pThread == NULL )
 	{
 		PutTrace( "Can't open thread for read data" );
 		return;
 	};
+	pDoc->SetRunThreadHandle( pThread->m_hThread );
+	pThread->ResumeThread();
 
 	csBuf.Format( "Step:%d;%s", pDoc->GetnStep(), pDoc->GetErrorMessage() );
 	PutTrace( csBuf );
@@ -1027,13 +1032,7 @@ void CPlanRT_HView::OnUpdateFileClose(CCmdUI* pCmdUI)
 void CPlanRT_HView::OnClose() 
 {
 	// TODO: Add your command update UI handler code here
-	CPlanRT_HDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-{
-	CString csBuf1;
-	csBuf1.Format("It is impossible to close the document %s, while the process of calculations proceeds. Please stop calculations.", pDoc->GetPathName() );
-	AfxMessageBox(csBuf1);
-};
+	// dead code kept for linkage; real close handling is in the frame windows
 	CScrollView::OnClose();
 	return;
 }

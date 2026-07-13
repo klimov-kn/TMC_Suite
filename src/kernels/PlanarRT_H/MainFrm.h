@@ -44,6 +44,7 @@ protected:
 	afx_msg void OnUpdateViewStatusBar(CCmdUI* pCmdUI);
 	afx_msg BOOL OnQueryEndSession();
 	afx_msg void OnDestroy();
+	afx_msg void OnClose();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

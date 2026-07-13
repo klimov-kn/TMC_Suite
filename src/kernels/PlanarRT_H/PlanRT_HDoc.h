@@ -39,6 +39,8 @@ public:
 	BOOL IsRun( void );
 	void RunAll( void );
 	void Stop( void );
+	void SetRunThreadHandle( HANDLE hThread );
+	void StopAndWait( void );
 	void RunStep( void );
 	BOOL IsReadData( void );
 	CTmcRTH_IndanOutput* GetOutput( void );
@@ -118,6 +120,7 @@ private:
 	CString csExternViewerField;
 	CString csExternViewer;
 	volatile BOOL bIsReadData;
+	HANDLE m_hRunThread;
 	int nStep;
 	CTmcRTHRectNode cRectNode;
 	CString csEditorName;
