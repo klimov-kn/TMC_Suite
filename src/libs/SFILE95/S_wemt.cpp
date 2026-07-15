@@ -97,7 +97,7 @@ int _far _fortran save_S_matrix_element( int in1, char *filename, _complex *sss,
 			   {
 					for( ii1 = 0; ii1 < nInput ; ii1++ )
 					{
-						s[ii+ii1] = sss[ii1];
+						s[ii+ii1*id1.dim] = sss[ii1];
 					};
 			   };
 			   ii++;
@@ -134,7 +134,7 @@ int _far _fortran save_S_matrix_element( int in1, char *filename, _complex *sss,
 								bIsFreqInMatrix = TRUE;
 								for( ii1 = 0; ii1 < nInput ; ii1++ )
 								{
-									lpxS1[ii+ii1*kol] = sss[ii1];
+									lpxS1[ii+ii1*id[k].dim] = sss[ii1];
 								};
 							};
 					   };
@@ -182,7 +182,7 @@ int _far _fortran save_S_matrix_element( int in1, char *filename, _complex *sss,
 			   {
 					for( ii1 = 0; ii1 < nInput ; ii1++ )
 					{
-						s[ii+ii1] = sss[ii1];
+						s[ii+ii1*id1.dim] = sss[ii1];
 					};
 			   };
 			   ii++;
