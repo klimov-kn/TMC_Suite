@@ -75,10 +75,6 @@ precision_*.md
 # --- Training materials (contain personal student files) ---
 docs/training/
 
-# --- Project tooling instructions (not published) ---
-CLAUDE.md
-.claude/
-
 # --- Python helpers (screenshot/doc generation) ---
 __pycache__/
 *.pyc
