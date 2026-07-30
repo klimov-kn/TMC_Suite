@@ -1,0 +1,49 @@
+name: Вопрос по работе пакета
+description: Не получается задать расчёт, непонятен формат файла или назначение параметра
+labels: ["вопрос"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Перед тем как спрашивать, возможно, ответ уже есть:
+
+        - [Справочник входного языка `.tpl`](../blob/main/docs/user-manual/tpl-guide.md) —
+          ключевые слова, примитивы, препроцессор, частотный свип, типичные ошибки;
+        - [Руководства пользователя](../tree/main/docs/user-manual) — по каждой программе,
+          с описанием каждого окна;
+        - [Инструкции по сборке](../tree/main/docs/build-guide) — если вопрос о компиляции.
+
+  - type: dropdown
+    id: topic
+    attributes:
+      label: О чём вопрос
+      options:
+        - Составление файла задания .tpl
+        - Запуск расчёта и его параметры
+        - Просмотр результатов во вьюверах
+        - Визуализация полей (FieldView)
+        - Форматы выходных файлов
+        - Сборка из исходников
+        - Другое
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Вопрос
+      description: Опишите, что пытаетесь сделать и на чём застряли.
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: Что уже пробовали
+      description: Помогает не советовать то, что вы уже проверили.
+
+  - type: textarea
+    id: tpl
+    attributes:
+      label: Файл задания, если вопрос о расчёте
+      render: text

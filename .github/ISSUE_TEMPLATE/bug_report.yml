@@ -1,0 +1,89 @@
+name: Сообщить об ошибке
+description: Программа падает, зависает, считает неверно или ведёт себя не как в документации
+labels: ["дефект"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Спасибо, что нашли время сообщить. Прежде чем заполнять — загляните в
+        [список Issues](../issues?q=is%3Aissue): часть дефектов уже описана,
+        в том числе закрытых, там же указано, в какой версии исправлено.
+
+  - type: input
+    id: version
+    attributes:
+      label: Версия пакета
+      description: Указана в окне «О программе», либо имя скачанного файла
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Разрядность
+      options:
+        - 64 бита (x64)
+        - 32 бита (x86)
+        - проверял на обеих
+    validations:
+      required: true
+
+  - type: dropdown
+    id: program
+    attributes:
+      label: Какая программа
+      multiple: true
+      options:
+        - tmc_rth (счётное ядро, H-поляризация)
+        - tmc_rtx (счётное ядро, X-мода)
+        - TMCGROUT (матрицы рассеяния)
+        - TMC_DN (диаграммы направленности)
+        - TMCROS (временные сигналы)
+        - FieldView (визуализация полей)
+        - не могу определить
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: Что происходит
+      description: Опишите наблюдаемое поведение. Если есть сообщение об ошибке — приведите его текст целиком.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Чего вы ожидали
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Как воспроизвести
+      description: Пронумерованные шаги — от запуска до появления проблемы.
+      placeholder: |
+        1. Запустить tmc_rtx
+        2. Открыть файл ...
+        3. Нажать ...
+        4. Появляется ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: tpl
+    attributes:
+      label: Файл задания .tpl
+      description: |
+        Вставьте содержимое файла (или его сокращённый вариант, на котором проблема
+        всё ещё воспроизводится). Это самое полезное, что можно приложить.
+      render: text
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Дополнительно
+      description: Скриншоты, выходные файлы, версия Windows — всё, что считаете важным.
