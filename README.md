@@ -74,6 +74,19 @@ msbuild <Solution>.sln /p:Platform=x64 /p:Configuration=Release
 > **Build order matters.** Build all 6 libraries first, then the viewers, then the kernels, then
 > FieldView. See the full step-by-step guide in the documentation (`docs/build-guide/`).
 
+## Ports to other systems
+
+The package has been ported from Windows/MFC to Qt 6 and to the console. The computational code is
+shared: the same Windows source tree, compiled by another compiler, so the numbers stay the same and
+the file formats stay compatible in every direction.
+
+| Repository | What it is |
+|---|---|
+| **this repository** | Windows, the original package — MFC / OpenGL, 32 and 64 bits |
+| [TMC Suite for Linux (graphical)](https://github.com/klimov-kn/TMC_Suite_Linux_GUI) | Linux, all six programs on Qt 6 |
+| [TMC Suite for Linux (console)](https://github.com/klimov-kn/TMC_Suite_Linux_Console) | Linux, computation kernels without windows |
+| [TMC Suite for macOS](https://github.com/klimov-kn/TMC_Suite_MacOS) | macOS, universal build for Apple Silicon and Intel |
+
 ## Documentation
 
 Full documentation (in Russian) lives in [`docs/`](docs/): API reference, build guide, user manuals
@@ -82,7 +95,7 @@ with screenshots, architecture notes and training materials.
 ## Author & links
 
 - **Author:** K. N. Klimov
-- **Website:** *(TAMIC — coming soon)*
+- **Website:** [www.tamic.ru](https://www.tamic.ru)
 - Social links are provided on the author's profile.
 
 ## License
@@ -164,6 +177,19 @@ msbuild <Solution>.sln /p:Platform=x64 /p:Configuration=Release
 > **Важен порядок сборки.** Сначала все 6 библиотек, затем вьюверы, затем счётные ядра, затем
 > FieldView. Подробная пошаговая инструкция — в документации (`docs/build-guide/`).
 
+## Сборки для других систем
+
+Пакет перенесён с Windows/MFC на Qt 6 и в консоль. Вычислительный код общий: те же исходники
+Windows-версии, скомпилированные другим компилятором, — числа остаются теми же, а форматы файлов
+совместимы во всех направлениях.
+
+| Репозиторий | Что это |
+|---|---|
+| **этот репозиторий** | Windows, исходный пакет — MFC / OpenGL, 32 и 64 бита |
+| [TMC Suite для Linux (графический)](https://github.com/klimov-kn/TMC_Suite_Linux_GUI) | Linux, все шесть программ на Qt 6 |
+| [TMC Suite для Linux (консоль)](https://github.com/klimov-kn/TMC_Suite_Linux_Console) | Linux, счётные ядра без окон |
+| [TMC Suite для macOS](https://github.com/klimov-kn/TMC_Suite_MacOS) | macOS, универсальная сборка для Apple Silicon и Intel |
+
 ## Документация
 
 Полная документация (на русском) — в папке [`docs/`](docs/): описание API, инструкция по сборке,
@@ -172,7 +198,7 @@ msbuild <Solution>.sln /p:Platform=x64 /p:Configuration=Release
 ## Автор и ссылки
 
 - **Автор:** К. Н. Климов
-- **Сайт:** *(ТАМИC — скоро)*
+- **Сайт:** [www.tamic.ru](https://www.tamic.ru)
 - Ссылки на соцсети указаны в профиле автора.
 
 ## Лицензия
