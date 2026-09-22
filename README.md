@@ -58,6 +58,18 @@ for both **win32** and **win64**.
 Simulations are described in **`.tpl`** text files (the TAMIC input language): geometry, materials,
 sources, frequency sweeps and output requests.
 
+## Download
+
+Ready-made builds are published in [Releases](../../releases):
+
+| File | For |
+|---|---|
+| `TMC_Suite_Setup.exe` | **most users** — installer with the programs, the documentation and Start menu shortcuts |
+| `TMC_Suite_v1.0_x86.rar` · `_x64.rar` · `_x86-x64.rar` | those who prefer an archive to an installer |
+
+The archives unpack into the ready `dist\win32\bin` and `dist\win64\bin` layout, so the paths
+used throughout the documentation work as written.
+
 ## Building (Windows)
 
 The package is built with **Microsoft Visual Studio / MSBuild**. Source is shared; build outputs are
@@ -160,6 +172,18 @@ C++ · MFC · OpenGL · Windows (32/64 бита)
 
 Задачи описываются в текстовых файлах **`.tpl`** (входной язык TAMIC): геометрия, материалы,
 источники, частотные развёртки и запросы на вывод.
+
+## Загрузка
+
+Готовые сборки опубликованы в разделе [Releases](../../releases):
+
+| Файл | Кому |
+|---|---|
+| `TMC_Suite_Setup.exe` | **большинству пользователей** — установщик с программами, документацией и ярлыками в меню «Пуск» |
+| `TMC_Suite_v1.0_x86.rar` · `_x64.rar` · `_x86-x64.rar` | кто предпочитает архив установщику |
+
+Архивы разворачиваются в готовую структуру `dist\win32\bin` и `dist\win64\bin` — пути из
+документации заработают как написано.
 
 ## Сборка (Windows)
 
