@@ -2439,7 +2439,7 @@ void CTmcRTH_BlockList::ReadInputX( CTmcLibError &cError, CTmcRTH_IndanParam * p
 	};
 	strcpy( szBuf1, csBuf );
 	expr_del_Blanks2( szBuf1 );
-	if( i1nte_atof_1( szBuf1, &r ) != 0 )
+	if( ( szBuf1[0] != '[' )&&( i1nte_atof_1( szBuf1, &r ) != 0 ) )
 	{
 		csBuf.Format("In{%s}%s{%s}", szBuf, expr_get_error(), szBuf1);
 		cError.PutErrorMessage(csBuf);
@@ -2630,7 +2630,7 @@ void CTmcRTH_BlockList::ReadInputY( CTmcLibError &cError, CTmcRTH_IndanParam * p
 	};
 	strcpy( szBuf1, csBuf );
 	expr_del_Blanks2( szBuf1 );
-	if( i1nte_atof_1( szBuf1, &r ) != 0 )
+	if( ( szBuf1[0] != '[' )&&( i1nte_atof_1( szBuf1, &r ) != 0 ) )
 	{
 		csBuf.Format("In{%s}%s{%s}", szBuf, expr_get_error(), szBuf1);
 		cError.PutErrorMessage(csBuf);
