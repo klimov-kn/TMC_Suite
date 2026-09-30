@@ -19,6 +19,10 @@ class CDialogTtoS : public CDialog
 public:
 	double dTUnit;
 	CDialogTtoS(CWnd* pParent = NULL);   // standard constructor
+	//  one signal file -> S-matrix. Wideband runs go the wideband way,
+	//  everything else keeps the old single-frequency path.
+	void ConvertOne( CString csTFile, double dXValue );
+	BOOL m_bLastError;
 	CString	m_DocFileName;
 
 // Dialog Data

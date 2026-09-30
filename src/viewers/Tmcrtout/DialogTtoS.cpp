@@ -5,6 +5,7 @@
 #include "TMCGROUT.h"
 #include <tmcgrviw.h>
 #include "DialogTtoS.h"
+#include "TmcWideband.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -573,162 +574,142 @@ void CDialogTtoS::OnExportCharacteristics()
 
 	if( (m_OutGrFlag_1)&&(m_SFileName_1.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_1, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue1 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_1, m_dXValue1 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_2)&&(m_SFileName_2.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_2, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue2 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_2, m_dXValue2 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_3)&&(m_SFileName_3.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_3, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue3 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_3, m_dXValue3 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_4)&&(m_SFileName_4.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_4, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue4 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_4, m_dXValue4 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_5)&&(m_SFileName_5.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_5, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue5 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_5, m_dXValue5 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_6)&&(m_SFileName_6.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_6, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue6 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_6, m_dXValue6 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_7)&&(m_SFileName_7.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_7, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue7 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_7, m_dXValue7 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_8)&&(m_SFileName_8.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_8, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue8 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_8, m_dXValue8 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_9)&&(m_SFileName_9.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_9, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue9 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_9, m_dXValue9 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_10)&&(m_SFileName_10.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_10, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue10 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_10, m_dXValue10 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_11)&&(m_SFileName_11.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_11, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue11 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_11, m_dXValue11 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_12)&&(m_SFileName_12.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_12, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue12 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_12, m_dXValue12 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_13)&&(m_SFileName_13.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_13, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue13 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_13, m_dXValue13 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_14)&&(m_SFileName_14.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_14, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue14 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_14, m_dXValue14 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_15)&&(m_SFileName_15.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_15, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue15 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_15, m_dXValue15 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_16)&&(m_SFileName_16.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_16, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue16 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_16, m_dXValue16 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_17)&&(m_SFileName_17.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_17, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue17 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_17, m_dXValue17 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_18)&&(m_SFileName_18.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_18, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue18 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_18, m_dXValue18 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_19)&&(m_SFileName_19.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_19, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue19 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_19, m_dXValue19 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	if( (m_OutGrFlag_20)&&(m_SFileName_20.GetLength() != 0) )
 	{
-		cTtoS.TtoS( m_SFileName_20, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, m_dXValue20 );
-		m_csError = cTtoS.GetErrorMessage();
+		ConvertOne( m_SFileName_20, m_dXValue20 );
 		UpdateData(FALSE);
-		if( cTtoS.IsError() ) return;
+		if( m_bLastError ) return;
 	};
 
 	return;
@@ -753,5 +734,29 @@ void CDialogTtoS::OnChangeSfiledelet()
 
 	UpdateData(FALSE);
 	
+	return;
+}
+
+//  One signal file -> S-matrix.
+//  If the kernel marked the run as wideband, the whole frequency sweep is
+//  built at once and the port mismatch is removed; otherwise the old
+//  single-frequency conversion is used, unchanged.
+void CDialogTtoS::ConvertOne( CString csTFile, double dXValue )
+{
+	m_bLastError = FALSE;
+
+	if( CTmcWideband::IsWidebandFile( csTFile ) )
+	{
+		CTmcWideband cWide;
+		cWide.Process( csTFile, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit );
+		m_csError = cWide.GetErrorMessage();
+		m_bLastError = cWide.IsError();
+		return;
+	};
+
+	CTmcTtoS cTtoS;
+	cTtoS.TtoS( csTFile, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, dXValue );
+	m_csError = cTtoS.GetErrorMessage();
+	m_bLastError = cTtoS.IsError();
 	return;
 }

@@ -181,6 +181,7 @@
     <ClCompile Include="TmcGrParColTypWid.cpp" />
     <ClCompile Include="TmcSMatrix.cpp" />
     <ClCompile Include="TmcTtoS.cpp" />
+    <ClCompile Include="TmcWideband.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TMCGROUT.rc" />
@@ -200,6 +201,7 @@
     <ClInclude Include="TmcGrParColTypWid.h" />
     <ClInclude Include="TmcSMatrix.h" />
     <ClInclude Include="TmcTtoS.h" />
+    <ClInclude Include="TmcWideband.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -64,6 +64,9 @@
 #define TMC_GROTS_FILEOUT_ID		"#TMC_GraphicsOutputSignalFile FormVer2.0 2000 "
 #define TMC_GROTS_FLOUTFreq_ID		"#TMC_GROTS_Freq "
 #define TMC_GROTS_FLOUTInpNum_ID	"#TMC_GROTS_InpNum "
+#define TMC_GROTS_FLOUTWideband_ID	"#TMC_GROTS_Wideband "
+#define TMC_GROTS_FLOUTPort_ID		"#TMC_GROTS_Port "
+#define TMC_GROTS_FLOUTSigFreq_ID	"#TMC_GROTS_SigFreq "
 
 #define TMC_RTH_FILETOP_ID		"#TMC_TopologyOutputFile FormVer2.0 2000"
 
