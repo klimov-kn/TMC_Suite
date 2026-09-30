@@ -193,6 +193,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TmcDialogStatistics.cpp" />
+    <ClCompile Include="TmcDialogCalcTime.cpp" />
     <ClCompile Include="TmcRTHNodeDiel.cpp" />
     <ClCompile Include="TmcRTHRectNode.cpp" />
     <ClCompile Include="TmcRTH_DialogBlock.cpp" />
@@ -223,6 +224,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="TmcDialogStatistics.h" />
+    <ClInclude Include="TmcDialogCalcTime.h" />
     <ClInclude Include="TmcRTHNodeDiel.h" />
     <ClInclude Include="TmcRTHRectNode.h" />
     <ClInclude Include="TmcRTH_BolckList.h" />

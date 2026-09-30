@@ -68,6 +68,8 @@ public:
 	CTmcLibError &SetBorderYmin( int nX );
 	void DeleteData( void );
 	CTmcRTHNodeDiel();
+	void SetTimingCounters( __int64 *pqSignalFile, __int64 *pqEpsFile ) { m_pqSignalFileTicks = pqSignalFile; m_pqEpsFileTicks = pqEpsFile; }	// TIMING
+	void SetTimingEpsCounters( __int64 *pqEpsRead, int *pnEpsWritten, int *pnEpsRead ) { m_pqEpsReadTicks = pqEpsRead; m_pnEpsWritten = pnEpsWritten; m_pnEpsRead = pnEpsRead; }	// TIMING
 
 // Attributes
 public:
@@ -106,6 +108,12 @@ private:
 	CString csFileNameEps;
 	void DeleteStatDielData( void );
 	volatile BOOL * pbIsStop;
+	__int64 * m_pqSignalFileTicks;	// TIMING: time of writing port signals (QPC ticks)
+	__int64 * m_pqEpsFileTicks;		// TIMING: time of writing eps-distribution files
+	__int64 * m_pqEpsReadTicks;		// TIMING: time of FILE blocks (reading distribution files)
+	int * m_pnEpsWritten;			// TIMING: number of blocks that wrote a distribution file
+	int * m_pnEpsRead;				// TIMING: number of blocks read from a distribution file
+	void TimingEpsRead( __int64 qTicks ) { if( m_pqEpsReadTicks != NULL ) *m_pqEpsReadTicks += qTicks; if( ( m_pnEpsRead != NULL )&&( !cError.IsError() ) ) (*m_pnEpsRead)++; }	// TIMING
 	void SaveFileRect( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH_IndanParam &cParam, CString csCurrentPath );
 	void DeleteDublicateData( void );
 	void SetAbsorberNodeType( CTmcRTH_IndanParam &cParam );

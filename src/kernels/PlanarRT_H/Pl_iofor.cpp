@@ -25,6 +25,7 @@ static char	 szDFieldOutFormat[MAX_LEN_FORMAT_OUT_FILE] = {FORMAT_OUT_FILE_DFLDO
 static volatile BOOL	 bAutoRunFlag = FALSE;
 static volatile BOOL	 bDemoRunFlag = FALSE;
 static volatile BOOL	 bBatchRunFlag = FALSE;
+static volatile BOOL	 bTimeReportFlag = FALSE;	// TIMING: key /Time
 static PROCESS_INFORMATION piProcInfo;
 static CMainFrame* HwndMainFrame = NULL;
 static CPlanRT_HView* pcView = NULL;
@@ -153,12 +154,59 @@ BOOL IsDemoRun( void )
 }
 
 
+// TIMING: key /Time (or -Time) of the command line: at the end of "Run all"
+// the calculation time report <tpl>.timing_<H|X>_<win32|win64>.txt is written
+// next to the .tpl (the same text as Statistics -> "Calc. time..." -> "Export to TXT").
+// The key is a separate word: it is not searched inside "quoted" file names
+// and inside words (a path like C:\Time\a.tpl or my-time.tpl is not a key).
+void SetTimeReportOn( void )
+{
+	bTimeReportFlag = TRUE;
+	return;
+}
+
+void SetTimeReportOff( void )
+{
+	bTimeReportFlag = FALSE;
+	return;
+}
+
+BOOL IsTimeReport( void )
+{
+	return bTimeReportFlag;
+}
+
+static BOOL IsKeyTimeInCommandLine( const char *lpszCmdLine )
+{
+	int i;
+	BOOL bQuote = FALSE;
+	char c;
+
+	for( i = 0; lpszCmdLine[i] != '\0'; i++ )
+	{
+		if( lpszCmdLine[i] == '"' )
+		{
+			bQuote = !bQuote;
+			continue;
+		};
+		if( bQuote ) continue;
+		if( ( lpszCmdLine[i] != '/' )&&( lpszCmdLine[i] != '-' ) ) continue;
+		if( ( i > 0 )&&( lpszCmdLine[i-1] != ' ' )&&( lpszCmdLine[i-1] != '\t' ) ) continue;
+		if( _strnicmp( lpszCmdLine + i + 1, "Time", 4 ) != 0 ) continue;
+		c = lpszCmdLine[i+5];
+		if( ( c == '\0' )||( c == ' ' )||( c == '\t' ) ) return TRUE;
+	};
+	return FALSE;
+}
+
 void Set_CommandLine_Flags( char *lpszCmdLine )
 {
 	int i;
 	
 	SetAutoRunOff();
 	SetDemoRunOff();
+	SetTimeReportOff();											// TIMING
+	if( IsKeyTimeInCommandLine( lpszCmdLine ) ) SetTimeReportOn();	// TIMING: key /Time
 	
 	for( i = 0; lpszCmdLine[i] != '\0'; i++ )
 	{

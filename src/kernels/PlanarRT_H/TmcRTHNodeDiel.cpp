@@ -12,6 +12,7 @@
 #include <float.h>
 #include <expr.h>
 #include "Pl_iofor.h"
+#include <TmcCalcTiming.h>	// TIMING
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -52,6 +53,11 @@ CTmcRTHNodeDiel::CTmcRTHNodeDiel()
 	dY1_InputAdmitance = 1.0;
 	pbIsStop = NULL;
 	csFileNameEps.Format("");
+	m_pqSignalFileTicks = NULL;	// TIMING
+	m_pqEpsFileTicks = NULL;		// TIMING
+	m_pqEpsReadTicks = NULL;		// TIMING
+	m_pnEpsWritten = NULL;		// TIMING
+	m_pnEpsRead = NULL;			// TIMING
 	return;
 }
 
@@ -316,7 +322,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 		case  CTMCRTH_BLCKNTYPE_EPS      :
 			if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILE, strlen(CTMCRTH_INDANBLCK_FILE) ) == NULL ) 
 			{
-				cError = SetRectFile( pcNextBlockList, cParam, csCurrentPath );
+				{ __int64 qTmF = TmcTimingNow(); cError = SetRectFile( pcNextBlockList, cParam, csCurrentPath ); TimingEpsRead( TmcTimingNow() - qTmF ); }	// TIMING
 				i = 1;
 			};
 			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTAT, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == NULL ) 
@@ -410,7 +416,10 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 
 CTmcLibError &CTmcRTHNodeDiel::SetRect( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH_IndanParam &cParam, CString csCurrentPath )
 {
+	__int64 qTm = TmcTimingNow();	// TIMING
 	SaveFileRect( pcNextBlockList, cParam, csCurrentPath);
+	if( m_pqEpsFileTicks != NULL ) *m_pqEpsFileTicks += TmcTimingNow() - qTm;	// TIMING
+	if( ( m_pnEpsWritten != NULL )&&( strlen(csFileNameEps) != 0 )&&( !cError.IsError() ) ) (*m_pnEpsWritten)++;	// TIMING
 	
 	if( cError.IsError() ) return cError;
 	if( pcNextBlockList == NULL )
@@ -2350,6 +2359,7 @@ void CTmcRTHNodeDiel::OutputUpUo( double dUp, double dUo, CTmcLibError &cError1)
 {
 	FILE *fp;
 	char *psForm;
+	__int64 qTm = TmcTimingNow();	// TIMING
 
 	for( ; (fp = fopen( csBlock, "a")) == NULL ; )
 	{
@@ -2375,6 +2385,7 @@ void CTmcRTHNodeDiel::OutputUpUo( double dUp, double dUo, CTmcLibError &cError1)
 #endif
 	
 	fclose( fp );
+	if( m_pqSignalFileTicks != NULL ) *m_pqSignalFileTicks += TmcTimingNow() - qTm;	// TIMING
 	return;
 
 }

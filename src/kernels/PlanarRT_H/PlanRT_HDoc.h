@@ -125,6 +125,7 @@ private:
 	CTmcRTHRectNode cRectNode;
 	CString csEditorName;
 	BOOL CreatProc(char * lpszComLine);
+	void RunAll1( void );	// TIMING: RunAll without time measurement wrapper
 };
 
 

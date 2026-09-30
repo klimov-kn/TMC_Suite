@@ -98,6 +98,12 @@
 #define IDC_TMCBLOCKDY6                 1031
 #define IDC_TmcSoundEffects_Sound7      1031
 #define IDC_TMCSTATISTICSTOLERANCE      1031
+// TIMING: calculation time window
+#define IDD_TMC_CALCTIME                170
+#define IDC_TMCSTATISTICSCALCTIME       1900
+#define IDC_TMCCALCTIMETEXT             1901
+#define IDC_TMCCALCTIMEEXPORT           1902
+#define IDC_TMCCALCTIMEREFRESH          1903
 #define IDC_TMCBLOCKDY7                 1032
 #define IDC_TmcSoundEffects_Sound8      1032
 #define IDC_TMCBLOCKDY8                 1033

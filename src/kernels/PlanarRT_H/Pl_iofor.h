@@ -41,6 +41,9 @@ void SetBatchRunOn( void );
 void SetBatchRunOff( void );
 void SwitchBatchRunFlag( void );
 BOOL IsBatchRun( void );
+void SetTimeReportOn( void );	// TIMING: key /Time - calculation time report file
+void SetTimeReportOff( void );
+BOOL IsTimeReport( void );
 void SetProcessInformation( PROCESS_INFORMATION piProcInfo1 );
 PROCESS_INFORMATION GetProcessInformation( void );
 void SetPointerClassView( CPlanRT_HView* pcView1 );

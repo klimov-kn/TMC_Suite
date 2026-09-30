@@ -2943,7 +2943,6 @@ void CTmcRTH_BlockList::ReadFileStat( CTmcLibError &cError, CTmcRTH_IndanParam *
 	int i;
 
 	i = (int)(strlen( CTMCRTH_INDANBLCK_FILE ));
-	csBlock.Format("%s", CTMCRTH_INDANBLCK_FILE);
 
 	ReadFileStat_1( cError, pcParam, i );
 
@@ -2965,7 +2964,6 @@ void CTmcRTH_BlockList::ReadFileStatN( CTmcLibError &cError, CTmcRTH_IndanParam 
 	int i;
 
 	i = (int)(strlen( CTMCRTH_INDANBLCK_FILEN ));
-	csBlock.Format("%s", CTMCRTH_INDANBLCK_FILEN);
 
 	ReadFileStat_1( cError, pcParam, i );
 
@@ -2987,7 +2985,6 @@ void CTmcRTH_BlockList::ReadFileStatB( CTmcLibError &cError, CTmcRTH_IndanParam 
 	int i;
 
 	i = (int)(strlen( CTMCRTH_INDANBLCK_FILEB ));
-	csBlock.Format("%s", CTMCRTH_INDANBLCK_FILEB);
 
 	ReadFileStat_1( cError, pcParam, i );
 

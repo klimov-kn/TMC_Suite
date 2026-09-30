@@ -5,6 +5,7 @@
 #include "PlanRT_H.h"
 #include "TmcDialogStatistics.h"
 #include "TmcRTH_DialogBlock.h"
+#include "TmcDialogCalcTime.h"	// TIMING
 #include "TmcRTHNodeDiel.h"
 #include <limits.h>
 #include <float.h>
@@ -25,6 +26,7 @@ CTmcDialogStatistics::CTmcDialogStatistics(CWnd* pParent /*=NULL*/)
 {
 	pcBlockList = NULL;
 	m_cOut = NULL;
+	m_pcTiming = NULL;	// TIMING
 	csTolerance = "100 %";
 	//{{AFX_DATA_INIT(CTmcDialogStatistics)
 		// NOTE: the ClassWizard will add member initialization here
@@ -132,6 +134,7 @@ BEGIN_MESSAGE_MAP(CTmcDialogStatistics, CDialog)
 	ON_BN_CLICKED(IDC_TMCSTATISTICSPREVSTEP, OnStepPrev)
 	ON_BN_CLICKED(IDC_TMCSTATISTICSNEXTSTEP, OnStepNext)
 	ON_BN_CLICKED(IDC_TMCSTATISTICSVIEWBLOCKLIST2, OnViewBlockInformation)
+	ON_BN_CLICKED(IDC_TMCSTATISTICSCALCTIME, OnCalcTime)	// TIMING
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -180,7 +183,8 @@ void CTmcDialogStatistics::PrepareData( void )
 	{
 		int nnn = 1;
 		dWaveLenDelt = dWaveLen/dDelta;
-		m_nNumNode = ((int)(( m_cParam.rXmax - m_cParam.rXmin )/m_cParam.rDelta)+1)*((int)(( m_cParam.rYmax - m_cParam.rYmin )/m_cParam.rDelta)+1);
+		m_nNumNode = ((double)((int)(( m_cParam.rXmax - m_cParam.rXmin )/m_cParam.rDelta)+1))*	// INT64
+			((int)(( m_cParam.rYmax - m_cParam.rYmin )/m_cParam.rDelta)+1);
 		if(m_cOut != NULL)
 		{
 			if(m_cOut->GetFieldIntegrated().bIsItegratedInMemory()) nnn = 3;
@@ -249,5 +253,15 @@ void CTmcDialogStatistics::OnCancel1( void )
 {
 	nFlagStep = -1;
 	CDialog::OnCancel();
+	return;
+}
+
+// TIMING: window "Calculation time" (phases of the calculation, export to TXT)
+void CTmcDialogStatistics::OnCalcTime( void )
+{
+	if( m_pcTiming == NULL ) return;
+	CTmcDialogCalcTime cDlg;
+	cDlg.m_pcTiming = m_pcTiming;
+	cDlg.DoModal();
 	return;
 }

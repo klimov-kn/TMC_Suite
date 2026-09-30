@@ -13,6 +13,7 @@
 #include <TmcLibError.h>
 #include <TmcRTH_Indan.h>
 #include <TmcRTH_IndanParam.h>
+#include <TmcCalcTiming.h>	// TIMING: calculation time report
 
 class CTmcRTHRectNode : public CWnd
 {
@@ -31,6 +32,7 @@ public:
 	void ReadData( void );
 	void RunStep( void );
 	CTmcRTHRectNode();
+	CTmcCalcTiming & GetTiming( void ) { return m_cTiming; }	// TIMING
 
 // Attributes
 public:
@@ -129,6 +131,7 @@ private:
 //	_real * prUNode;			// array falling voltage 1 = V; 2 = ^; 3 = <; 4 = >
 //	sTmcRTH_DielNodeList ** pcNodeDielList; // array node dielectric list for each node
 	int nNumNode;				// number of all node = nX*nY
+	CTmcCalcTiming m_cTiming;	// TIMING: calculation time report
 };
 
 

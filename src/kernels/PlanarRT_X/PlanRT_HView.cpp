@@ -525,6 +525,7 @@ void CPlanRT_HView::OnViewStatistics()
 	cDlg.m_cParam = pDoc->GetParam();
 	cDlg.m_cTopol = pDoc->GetTopology();
 	cDlg.m_cOut = pDoc->GetOutput();
+	cDlg.m_pcTiming = &(pDoc->GetRectNode().GetTiming());	// TIMING
 	
 	cDlg.PrepareData();
 	

@@ -349,6 +349,18 @@ void CPlanRT_HDoc::StopAndWait( void )
 
 void CPlanRT_HDoc::RunAll( void )
 {
+	// TIMING: the whole "Run all" is measured; with the key /Time of the command line
+	// the report is saved next to the .tpl (without the key - window "Calc. time..." only)
+	if( bIsReadData ) return;
+	cRectNode.GetTiming().BeginRunAll();
+	RunAll1();
+	cRectNode.GetTiming().EndRunAll();
+	if( IsTimeReport() ) cRectNode.GetTiming().SaveReport( cRectNode.GetTiming().DefaultReportName() );
+	return;
+}
+
+void CPlanRT_HDoc::RunAll1( void )
+{
 	CString csBuf;
 	if( bIsReadData ) return;
 
@@ -356,7 +368,9 @@ void CPlanRT_HDoc::RunAll( void )
 	
 	int i, n;
 	
+	__int64 qTmPr = TmcTimingNow();								// TIMING
 	n = cRectNode.GetNStepMax( GetPathName() ) + 1;
+	cRectNode.GetTiming().qRunPrepr += TmcTimingNow() - qTmPr;		// TIMING
 	
 	for( i = nStep; i < n; i++ )
 	{

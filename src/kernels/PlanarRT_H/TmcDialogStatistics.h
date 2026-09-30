@@ -7,6 +7,7 @@
 #include "TmcRTH_IndanParam.h"
 #include "TmcRTH_IndanTopology.h"
 #include "TmcRTH_IndanOutput.h"
+#include <TmcCalcTiming.h>	// TIMING
 
 
 class CTmcDialogStatistics : public CDialog
@@ -22,13 +23,14 @@ public:
 	//{{AFX_DATA(CTmcDialogStatistics)
 	enum { IDD = IDD_TMC_STATISTICS };
 	int		           m_nStep;
-	int		           m_nNumNode;
+	double			   m_nNumNode;	// INT64: can be > 2^31
 	double		       m_dMemory;
 	int		           m_nBlock;
 	CString            m_csErrorMessage;
 	CTmcRTH_IndanParam m_cParam;
 	CTmcRTH_IndanTopology m_cTopol;
 	CTmcRTH_IndanOutput* m_cOut;
+	CTmcCalcTiming *m_pcTiming;	// TIMING: calculation time of the document
 	double dDelta;
 	double dFreq;
 	double dt;
@@ -66,6 +68,7 @@ protected:
 	afx_msg void OnStepPrev();;
 	afx_msg void OnStepNext();
 	afx_msg void OnCancel1();
+	afx_msg void OnCalcTime();	// TIMING
 		// NOTE: the ClassWizard will add member functions here
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

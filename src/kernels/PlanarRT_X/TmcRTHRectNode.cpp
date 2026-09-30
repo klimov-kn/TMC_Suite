@@ -48,6 +48,7 @@ CTmcRTHRectNode::CTmcRTHRectNode()
 	dYmin = 0.0;				// global parameter Ymin for rectangle
 	dYmax = 0.0;				// global parameter Ymax for rectangle
 	bIsRunStep1Run = FALSE;
+	m_cTiming.csKernel = "PlanarRT_X (tmc_rtx.exe)";	// TIMING
 	return;
 }
 
@@ -96,9 +97,14 @@ void CTmcRTHRectNode::DeleteData( void )
 void CTmcRTHRectNode::ReadData( CString csFileName, int nStep1 )
 {
 	CString csBuf;
+	__int64 qTm = TmcTimingNow();				// TIMING
+	m_cTiming.BeginStep( nStep1 );				// TIMING
+	m_cTiming.csTplFile = csFileName;			// TIMING
 	DeleteData();
+	m_cTiming.Add( TMCT_MEMFREE, qTm );			// TIMING
 	int i;
 
+	qTm = TmcTimingNow();						// TIMING
 	cIndan.SetTplFileName(csFileName);
 	if( cIndan.IsError() )
 	{
@@ -132,10 +138,13 @@ void CTmcRTHRectNode::ReadData( CString csFileName, int nStep1 )
 	};
 	
 	SetStepNumber( nStep1 );
+	m_cTiming.Add( TMCT_PREPR, qTm );			// TIMING
+	qTm = TmcTimingNow();						// TIMING
 	ReadParamSection();
 	ReadTopologySection();
 	ReadLinkListSection();
 	ReadOutputSection();
+	m_cTiming.Add( TMCT_READTPL, qTm );			// TIMING
 
 	csBuf.Format("Step:%d;%s", nStep1, cError.GetErrorMessage());
 	PutTrace(csBuf);
@@ -150,12 +159,15 @@ void CTmcRTHRectNode::ReadData( void )
 {
 	bIsReadData = TRUE;
 	CString csBuf;
+	__int64 qTm = TmcTimingNow();				// TIMING
 	DeleteData();
-
+	m_cTiming.Add( TMCT_MEMFREE, qTm );			// TIMING
+	qTm = TmcTimingNow();						// TIMING
 	ReadParamSection();
 	ReadTopologySection();
 	ReadLinkListSection();
 	ReadOutputSection();
+	m_cTiming.Add( TMCT_READTPL, qTm );			// TIMING
 
 	csBuf.Format("Step:%d;%s", cIndan.GetnStep(), cError.GetErrorMessage());
 	PutTrace(csBuf);
@@ -170,7 +182,12 @@ void CTmcRTHRectNode::RunStep( void )
 {
 	if( bIsRunStep1Run ) return;
 	bIsRunStep1Run = TRUE;
+	__int64 qTmStep = TmcTimingNow();			// TIMING
+	m_cTiming.BeginRunStep();					// TIMING
 	RunStep1();
+	m_cTiming.cur.nTDone = nTCurrent;			// TIMING
+	m_cTiming.EndRunStep( ( cError.IsError() || cIndan.IsError() ) ? 4 :
+		( ( ( nTMax > 0 )&&( nTCurrent >= nTMax ) ) ? 2 : 3 ), qTmStep );	// TIMING
 	bIsRunStep1Run = FALSE;
 	bIsReadData = FALSE;
 	return;
@@ -325,7 +342,9 @@ void CTmcRTHRectNode::InitKernel( void )
 	
 	nTCurrent = 0;
 
+	__int64 qTm = TmcTimingNow();				// TIMING
 	DeleteOutputFile();
+	m_cTiming.Add( TMCT_OUTFILEINIT, qTm );		// TIMING
 
 	nTMax     = cIndan.nGetTmax();
 	csBuf.Format("nTmax %d", nTMax);
@@ -414,6 +433,8 @@ void CTmcRTHRectNode::InitKernel( void )
 		return;
 	};
 	nNumNode = nX*nY;
+	m_cTiming.cur.nX = nX; m_cTiming.cur.nY = nY; m_cTiming.cur.dNodes = ((double)nX)*((double)nY);	// TIMING
+	m_cTiming.cur.nTMax = nTMax; m_cTiming.cur.dT = dT; m_cTiming.cur.dDelta = dDelta;	// TIMING
 	csBuf.Format("nNumNode:(%d);", nNumNode );
 	PutStatistics(csBuf);
 	if( nNumNode <= 1 )
@@ -424,14 +445,18 @@ void CTmcRTHRectNode::InitKernel( void )
 		return;
 	};
 
+	qTm = TmcTimingNow();						// TIMING
 	cIndan.GetOutput()->GetFieldIntegrated().InitAllFile( nX, nY, dDelta, dXmin, dYmin, cParam, dT );
+	m_cTiming.Add( TMCT_DISTRINIT, qTm );			// TIMING
 
 	cIndan.GetOutput()->GetFieldIntegrated().SetNodeStep( 6 );
 
 	cError = cIndan.GetOutput()->GetFieldIntegrated().GetError();
 
 
+	qTm = TmcTimingNow();						// TIMING
 	InitNodeArray();
+	m_cTiming.Add( TMCT_MEMINIT, qTm );			// TIMING
 	if( IsError() ) 
 	{
 		DeleteNodeArray();
@@ -477,11 +502,14 @@ void CTmcRTHRectNode::RunKernel( void )
 		ltime_start = ltime_current - ltime_start;
 	};
 
+	__int64 qTmLoop = TmcTimingNow();					// TIMING
 	for( ; nTCurrent < nTMax;  ii+=4)
 	{
-		if( IsError() ) return;
+		if( IsError() ) { m_cTiming.Add( TMCT_LOOPWALL, qTmLoop ); m_cTiming.cur.nTDone = nTCurrent; return; }	// TIMING
 		if( !bIsReadData ) 
 		{
+			m_cTiming.Add( TMCT_LOOPWALL, qTmLoop );	// TIMING
+			m_cTiming.cur.nTDone = nTCurrent;		// TIMING
 			time( &ltime_current );
 			nBuf = (int)( (dTCurrent/cParam.rTimeUnit)*100 + 0.5 );
 			csBuf.Format("nT:%d(%lg%s);%ld;%lg", nTCurrent, nBuf*0.01,
@@ -492,6 +520,7 @@ void CTmcRTHRectNode::RunKernel( void )
 		};
 		if( ii == 100 )
 		{
+			__int64 qTmSt = TmcTimingNow();			// TIMING
 			time( &ltime_current );
 			nBuf = (int)( (dTCurrent/cParam.rTimeUnit)*100 + 0.5 );
 			csBuf.Format("nT:%d;Time:%lg%s", nTCurrent, nBuf*0.01, cParam.csTimeUnit );
@@ -515,10 +544,14 @@ void CTmcRTHRectNode::RunKernel( void )
 					PutTrace(csBuf);
 				}
 			}
+			m_cTiming.cur.nTDone = nTCurrent;		// TIMING
+			m_cTiming.Add( TMCT_STATUS, qTmSt );	// TIMING
 			ii = 0;
 		};
 		RunKernel1T();
 	};
+	m_cTiming.Add( TMCT_LOOPWALL, qTmLoop );			// TIMING
+	m_cTiming.cur.nTDone = nTCurrent;					// TIMING
 
 	time( &ltime_current );
 	csBuf.Format("nT:%d;%ld;%lg", nTCurrent,
@@ -526,7 +559,9 @@ void CTmcRTHRectNode::RunKernel( void )
 		((double)ltime_current - ltime_start)/nTCurrent);
 	PutStatistics(csBuf);
 	
+	__int64 qTmPost = TmcTimingNow();			// TIMING
 	PutSmatrix();
+	m_cTiming.Add( TMCT_SMATRIX, qTmPost );		// TIMING
 	
 	return;
 }
@@ -553,51 +588,72 @@ void CTmcRTHRectNode::RunKernel1T( void )
 {
 	if( IsError() ) return;
 	if( !bIsReadData ) return;
+	__int64 qTm0, qTm1;							// TIMING
 
 //   excite and out reflection wave for inputs 
 //   calculation reflection wave
+	qTm0 = TmcTimingNow();								// TIMING
 	RunExciteInputs();
 	RunSaveInputs();
+	qTm1 = TmcTimingNow(); m_cTiming.cur.q[TMCT_EXCITE] += qTm1 - qTm0;		// TIMING
 	RunScatteringNode();
+	qTm0 = TmcTimingNow(); m_cTiming.cur.q[TMCT_SCATTER] += qTm0 - qTm1;		// TIMING
 	RunRestoreInputs();
 	RunBlockNode();
+	qTm1 = TmcTimingNow(); m_cTiming.cur.q[TMCT_BLOCKNODE] += qTm1 - qTm0;	// TIMING
 	PutField( 0 );
+	m_cTiming.cur.q[TMCT_FIELDFILE] += TmcTimingNow() - qTm1;				// TIMING
 	DistributionIntegrated( 0 );
 	nTCurrent++;
 	dTCurrent += dT;
 
 //   excite and out reflection wave for inputs 
 //   calculation reflection wave
+	qTm0 = TmcTimingNow();								// TIMING
 	RunExciteInputs1();
 	RunSaveInputs();
+	qTm1 = TmcTimingNow(); m_cTiming.cur.q[TMCT_EXCITE] += qTm1 - qTm0;		// TIMING
 	RunScatteringNode1();
+	qTm0 = TmcTimingNow(); m_cTiming.cur.q[TMCT_SCATTER] += qTm0 - qTm1;		// TIMING
 	RunRestoreInputs();
 	RunBlockNode1();
+	qTm1 = TmcTimingNow(); m_cTiming.cur.q[TMCT_BLOCKNODE] += qTm1 - qTm0;	// TIMING
 	PutField( 1 );
+	m_cTiming.cur.q[TMCT_FIELDFILE] += TmcTimingNow() - qTm1;				// TIMING
 	DistributionIntegrated( 1 );
 	nTCurrent++;
 	dTCurrent += dT;
 
 //   excite and out reflection wave for inputs 
 //   calculation reflection wave
+	qTm0 = TmcTimingNow();								// TIMING
 	RunExciteInputs2();
 	RunSaveInputs();
+	qTm1 = TmcTimingNow(); m_cTiming.cur.q[TMCT_EXCITE] += qTm1 - qTm0;		// TIMING
 	RunScatteringNode2();
+	qTm0 = TmcTimingNow(); m_cTiming.cur.q[TMCT_SCATTER] += qTm0 - qTm1;		// TIMING
 	RunRestoreInputs();
 	RunBlockNode2();
+	qTm1 = TmcTimingNow(); m_cTiming.cur.q[TMCT_BLOCKNODE] += qTm1 - qTm0;	// TIMING
 	PutField( 2 );
+	m_cTiming.cur.q[TMCT_FIELDFILE] += TmcTimingNow() - qTm1;				// TIMING
 	DistributionIntegrated( 2 );
 	nTCurrent++;
 	dTCurrent += dT;
 
 //   excite and out reflection wave for inputs 
 //   calculation reflection wave
+	qTm0 = TmcTimingNow();								// TIMING
 	RunExciteInputs3();
 	RunSaveInputs();
+	qTm1 = TmcTimingNow(); m_cTiming.cur.q[TMCT_EXCITE] += qTm1 - qTm0;		// TIMING
 	RunScatteringNode3();
+	qTm0 = TmcTimingNow(); m_cTiming.cur.q[TMCT_SCATTER] += qTm0 - qTm1;		// TIMING
 	RunRestoreInputs();
 	RunBlockNode3();
+	qTm1 = TmcTimingNow(); m_cTiming.cur.q[TMCT_BLOCKNODE] += qTm1 - qTm0;	// TIMING
 	PutField( 3 );
+	m_cTiming.cur.q[TMCT_FIELDFILE] += TmcTimingNow() - qTm1;				// TIMING
 	DistributionIntegrated( 3 );
 	nTCurrent++;
 	dTCurrent += dT;
@@ -762,7 +818,9 @@ void CTmcRTHRectNode::RunStep1( void )
 		return;
 	};
 
+	__int64 qTmSnd = TmcTimingNow();			// TIMING
 	PutStepEndSound();
+	m_cTiming.Add( TMCT_SOUND, qTmSnd );		// TIMING
 
 	bIsReadData = FALSE;
 
@@ -807,9 +865,16 @@ void CTmcRTHRectNode::InitDielArray( void )
 		return;
 	};
 
+	m_cTiming.cur.nBlocks = nDiel;				// TIMING
+	__int64 qTm = TmcTimingNow();				// TIMING
 	SetDielTopology();
+	m_cTiming.Add( TMCT_BLOCKGEOM, qTm );			// TIMING
+	qTm = TmcTimingNow();						// TIMING
 	SetDielInNodeList();
+	m_cTiming.Add( TMCT_ADMITTANCE, qTm );		// TIMING
+	qTm = TmcTimingNow();						// TIMING
 	PutTopology();
+	m_cTiming.Add( TMCT_TOPOLOGYFILE, qTm );		// TIMING
 
 	return;
 }
@@ -848,6 +913,8 @@ void CTmcRTHRectNode::SetDielTopology( void )
 	CTmcRTH_BlockList * pcNextBlockList;
 	for( i = 0, pcNextBlockList = cIndan.GetTopology().GetBlockList(); i < nDiel; i++)
 	{
+		pcNodeDiel[i].SetTimingCounters( m_cTiming.Counter( TMCT_SIGNALFILE ), m_cTiming.Counter( TMCT_EPSFILE ) );	// TIMING
+		pcNodeDiel[i].SetTimingEpsCounters( m_cTiming.Counter( TMCT_EPSREAD ), &(m_cTiming.cur.nEpsWritten), &(m_cTiming.cur.nEpsRead) );	// TIMING
 		cError = pcNodeDiel[i].SetBlock( pcNextBlockList, cParam, GetOutput(), prYNode, &bIsReadData, cIndan.GetCurrentPath() );
 		if( IsError() ) return;
 		pcNextBlockList = pcNextBlockList->GetNext();
@@ -1300,6 +1367,7 @@ void CTmcRTHRectNode::OutputnT( void )
 
 	FILE *fp;
 	char *psForm;
+	__int64 qTm = TmcTimingNow();				// TIMING
 
 	for( ; ( fp = fopen( cOut->csFileName , "a") ) == NULL;  ) 
 	{
@@ -1315,6 +1383,7 @@ void CTmcRTHRectNode::OutputnT( void )
 	fprintf( fp, psForm, dTCurrent);
 
 	fclose( fp );
+	m_cTiming.Add( TMCT_SIGNALFILE, qTm );		// TIMING
 	return;
 }
 
@@ -2335,8 +2404,15 @@ void CTmcRTHRectNode::PutSmatrix()
 
 void CTmcRTHRectNode::DistributionIntegrated( int ii )
 {
+	__int64 qTm = TmcTimingNow();				// TIMING
+	BOOL bTmFinal = FALSE;						// TIMING
+	if( cIndan.GetOutput()->GetFieldIntegrated().bIsFieldDistr() )	// TIMING
+		bTmFinal = m_cTiming.IsDistrFinalCall( TRUE, dTCurrent,
+			cIndan.GetOutput()->GetFieldIntegrated().GetTmin(),
+			cIndan.GetOutput()->GetFieldIntegrated().GetTmax() );	// TIMING
 	cIndan.GetOutput()->GetFieldIntegrated().Integrate( dTCurrent, nTCurrent, &(prUNode1[ii]) );
 	cError = cIndan.GetOutput()->GetFieldIntegrated().GetError();
+	m_cTiming.Add( bTmFinal ? TMCT_DISTRFINAL : TMCT_DISTRINTEGR, qTm );	// TIMING
 	return;
 }
 
