@@ -5,6 +5,7 @@
 #include <TmcRTH_IndanOutput.h>
 #include <TmcRTH_Indan.h>
 #include <TmcTtoS.h>
+#include <TmcWideband.h>
 #include <expr.h>
 
 //#ifdef _DEBUG
@@ -520,6 +521,25 @@ void CTmcRTH_IndanOutput::SetFreqAndTimeUnit(double dFr, double dTim)
 void CTmcRTH_IndanOutput::PutSmatrix()
 {
 	if( !bOutSMatrix ) return;
+
+//  A run excited by a multi-frequency incident wave carries the whole sweep.
+//  The single-frequency TtoS would silently write a wrong .s file, so such a
+//  run is converted by the wideband post-processing - the same class TMCROS
+//  uses, so both ways give the same file. An old (narrow-band) .t has no
+//  wideband header, so IsWidebandFile is FALSE and the former path is kept.
+	if( CTmcWideband::IsWidebandFile( csFileName ) )
+	{
+		CTmcWideband cWide;
+		cWide.Process( csFileName, csFileNameSMatrix, dTmin, dTmax );
+		if( cWide.IsError() )
+		{
+			CString csBuf1;
+			csBuf1.Format("S-matrix (wideband): %s", (LPCTSTR)cWide.GetErrorMessage() );
+			cError.PutErrorMessage( csBuf1 );
+		};
+		return;
+	};
+
 	CTmcTtoS cTtoS;
 //	{
 //		CString csBuf1;

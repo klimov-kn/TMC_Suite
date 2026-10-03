@@ -202,6 +202,7 @@
     <ClCompile Include="TmcSoundEffProp.cpp" />
     <ClCompile Include="TmcSoundMel1.cpp" />
     <ClCompile Include="..\..\viewers\Tmcrtout\TmcTtoS.cpp" />
+    <ClCompile Include="..\..\viewers\Tmcrtout\TmcWideband.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PlanRT_H.rc" />
@@ -230,6 +231,7 @@
     <ClInclude Include="TmcRTH_DialogFormatOutFile.h" />
     <ClInclude Include="TmcRTHNodeDiel.h" />
     <ClInclude Include="TmcRTHRectNode.h" />
+    <ClInclude Include="..\..\Include\TmcWideband.h" />
     <ClInclude Include="..\..\viewers\Tmcrtout\TmcSMatrix.h" />
     <ClInclude Include="TmcSoundEffProp.h" />
     <ClInclude Include="TmcSoundMel1.h" />
