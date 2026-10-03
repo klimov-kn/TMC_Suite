@@ -74,13 +74,14 @@ private:
 	void RunBlockNode2( void );
 	void RunBlockNode1( void );
 	void RunBlockNode( void );
-	void PutField( int ii );
+	void PutField( TmcIdx ii );	// INT64
 	near void RunScatteringNode1line( _ELEM_VAL_RTH *pr_111, _real *prY_111, int nx_111, int nX_111);
 	near void RunScatteringNode1line1( _ELEM_VAL_RTH *pr_111, _real *prY_111, int nx_111, int nX_111);
 	near void RunScatteringNode1line2( _ELEM_VAL_RTH *pr_111, _real *prY_111, int nx_111, int nX_111);
 	near void RunScatteringNode1line3( _ELEM_VAL_RTH *pr_111, _real *prY_111, int nx_111, int nX_111);
 	void OutputnT( void );
 	void DeleteOutputFile( void );
+	void PutPortInfo( void );		// wideband: port data for post-processing
 	void RunExciteInputs3( void );
 	void RunExciteInputs2( void );
 	void RunExciteInputs1( void );
@@ -150,7 +151,7 @@ private:
 //	_ELEM_VAL_RTH * prUxNodeLeft;		// array falling voltage on unit at the left   > for each node
 //	_real * prUNode;			// array falling voltage 1 = V; 2 = ^; 3 = <; 4 = >
 //	sTmcRTH_DielNodeList ** pcNodeDielList; // array node dielectric list for each node
-	int nNumNode;				// number of all node = nX*nY
+	TmcIdx nNumNode;			// number of all node = nX*nY	// INT64
 	CTmcCalcTiming m_cTiming;	// TIMING: calculation time report
 };
 

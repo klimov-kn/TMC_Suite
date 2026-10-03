@@ -34,7 +34,7 @@ struct STMCRTH_NODEDIELONE
 	_ELEM_VAL_RTH rU_Cur1;	// curretn+1 takt voltage on dielectric
 	_ELEM_VAL_RTH rUo;	// scattering voltage for input
 	_real rY;			// admitance for node
-	int   nNodeGlobal;  // number of node in global topology
+	TmcIdx nNodeGlobal;  // number of node in global topology	// INT64
 	int nType;			// signum for eps	=  0 for eps < 0;
 						//					=  1 for eps > 0;
 						//					= -1 for metall;
@@ -60,7 +60,7 @@ class CTmcRTHNodeDiel : public CWnd
 public:
 	void CTmcRTHNodeDiel::ExciteInputs(  CTmcLibError &cError1, double dWT, double dT, _ELEM_VAL_RTH *pr1, int nX, CTmcRTH_IndanParam &cParam, double dtCurrent );
 	void CTmcRTHNodeDiel::ExciteInputs1( CTmcLibError &cError1, double dWT, double dT, _ELEM_VAL_RTH *pr1, int nX, CTmcRTH_IndanParam &cParam, double dtCurrent );
-	void SetBlockInDielList( sTmcRTH_DielNodeList **  pcNodeDielList, int nNumNode1, CTmcLibError &cError1 );
+	void SetBlockInDielList( sTmcRTH_DielNodeList **  pcNodeDielList, TmcIdx nNumNode1, CTmcLibError &cError1 );	// INT64
 	CTmcLibError &SetBlock( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH_IndanParam &cParam, CTmcRTH_IndanOutput *cOut, _real *prYNode, volatile BOOL *pbStopFlag, CString csCurrentPath );
 	CTmcLibError &SetBorderXmax( int nX, int nY );
 	CTmcLibError &SetBorderXmin( int nX, int nY );
@@ -70,6 +70,12 @@ public:
 	CTmcRTHNodeDiel();
 	void SetTimingCounters( __int64 *pqSignalFile, __int64 *pqEpsFile ) { m_pqSignalFileTicks = pqSignalFile; m_pqEpsFileTicks = pqEpsFile; }	// TIMING
 	void SetTimingEpsCounters( __int64 *pqEpsRead, int *pnEpsWritten, int *pnEpsRead ) { m_pqEpsReadTicks = pqEpsRead; m_pnEpsWritten = pnEpsWritten; m_pnEpsRead = pnEpsRead; }	// TIMING
+	// --- wideband post-processing: port data for the .t header
+	BOOL IsSignalFromFile( void ) { return bSigFile; }
+	BOOL IsInputBlock( void );
+	int GetBlockNumber( void ) { return nBlock; }
+	double GetWidthWaveg( void ) { return dWidthWaveg; }
+	CString GetSigFreqList( void ) { return csSigFreq; }
 
 // Attributes
 public:
@@ -86,8 +92,8 @@ public:
 public:
 	void AddCurrentPath( CString csCurrentPath );
 	CTmcLibError & GetError( void );
-	void RunBlockNode1( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int nX, int nArraySize );
-	void RunBlockNode( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int nX, int nArraySize  );
+	void RunBlockNode1( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int nX, TmcIdx nArraySize );
+	void RunBlockNode( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int nX, TmcIdx nArraySize  );
 	virtual ~CTmcRTHNodeDiel();
 
 	// Generated message map functions
@@ -106,6 +112,18 @@ private:
 	void AddFileEpsExtention( void );
 	void SeachEpsFileName( CString csCurrentPath );
 	CString csFileNameEps;
+// --- incident wave from file (wideband excitation) ---------------------
+	void SeachSignalFileName( void );
+	void ReadSignalFile( void );
+	void DeleteSignalData( void );
+	double dSignalFromFile( double dtCurrent, CTmcRTH_IndanParam &cParam );
+	BOOL bSigFile;
+	double *pdSigT;
+	double *pdSigV;
+	int nSigN;
+	CString csFileNameSig;
+	CString csSigFreq;		// frequency list named inside the .sig file, if any
+	CString csSigPath;
 	void DeleteStatDielData( void );
 	volatile BOOL * pbIsStop;
 	__int64 * m_pqSignalFileTicks;	// TIMING: time of writing port signals (QPC ticks)
@@ -151,7 +169,7 @@ private:
 	CTmcLibError cError;
 	int nBlock;							// block number
 	CString csBlock;					// block Type
-	int nNumNode;						// number of node in dielectric
+	TmcIdx nNumNode;					// number of node in dielectric	// BIGBLOCK
 	sTmcRTHNodeDielOne * pcNodeDielOne; // array of dielectric node
 	double dXCenter;					// x for center block
 	double dYCenter;					// y for center block

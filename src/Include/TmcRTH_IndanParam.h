@@ -9,6 +9,7 @@
 
 #include <typerth.h>
 #include <TmcLibError.h>
+#include <TmcIdx.h>	// INT64
 
 #define CTMCRTH_LONGUNIT_ID  "LONG_UNIT "
 #define CTMCRTH_LONGUNIT_m  "m"
@@ -83,11 +84,11 @@ class CTmcRTH_IndanParam //: public CWnd
 // Construction
 public:
 	BOOL IsnInRegion( _real x, _real y );
-	BOOL IsnInRegion( int n );
-	int CalcnNodeGlobal( double x, double y );
-	int CalcnNodeGlobalFM( double x, double y );
-	double CalcY( int nNumber );
-	double CalcX( int nNumber );
+	BOOL IsnInRegion( TmcIdx n );	// INT64
+	TmcIdx CalcnNodeGlobal( double x, double y );	// INT64
+	TmcIdx CalcnNodeGlobalFM( double x, double y );	// INT64
+	double CalcY( TmcIdx nNumber );	// INT64
+	double CalcX( TmcIdx nNumber );	// INT64
 	void GetXYMinMax( double &dXmin, double &dXmax, double &dYmin, double &dYmax );
 	double dGetDelta( void );
 	double dGetdT( void );
@@ -168,7 +169,7 @@ private:
 	void ReadNUnit( CString &csCh );
 public:
 	// CalcnNodeGlobal return NodeGlobal or -1, if point x,y isn't in region
-	int CalcnNodeGlobalNorm(double x, double y);
+	TmcIdx CalcnNodeGlobalNorm(double x, double y);	// INT64
 	double rDeltaTMechanical;
 };
 

@@ -426,16 +426,16 @@ void CTmcRTHRectNode::InitKernel( void )
 		return;
 	};
 
-	if( ( ((double)(nX))*((double)(nY)) ) > INT_MAX )
+	if( ( ((double)(nX))*((double)(nY)) ) > ((double)TMC_IDX_MAX)/8. )	// INT64
 	{
 		csBuf.Format("Error : very dimension XY-size ( X*Y ) in %s section", CTMCRTH_INDANMET_PARAM);
 		cError.PutErrorMessage( csBuf );
 		return;
 	};
-	nNumNode = nX*nY;
+	nNumNode = ((TmcIdx)nX)*nY;	// INT64
 	m_cTiming.cur.nX = nX; m_cTiming.cur.nY = nY; m_cTiming.cur.dNodes = ((double)nX)*((double)nY);	// TIMING
 	m_cTiming.cur.nTMax = nTMax; m_cTiming.cur.dT = dT; m_cTiming.cur.dDelta = dDelta;	// TIMING
-	csBuf.Format("nNumNode:(%d);", nNumNode );
+	csBuf.Format("nNumNode:(%.0f);", (double)nNumNode );	// INT64
 	PutStatistics(csBuf);
 	if( nNumNode <= 1 )
 	{
@@ -473,6 +473,7 @@ void CTmcRTHRectNode::InitKernel( void )
 		nDiel = 0;
 		return;
 	};
+	PutPortInfo();
 	
 	return;
 }
@@ -673,7 +674,7 @@ void CTmcRTHRectNode::InitNodeArray( void )
 		return;
 	};
 
-	int i, ii;
+	TmcIdx i, ii;	// INT64
 	void *pTemp;
 	char *pTemp1;
 
@@ -1102,7 +1103,8 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 		return;
 	};
 
-	int i, ii, jj;
+	TmcIdx i, ii;	// INT64
+	int jj;
 	double a, koef, koef1;
 	double d_EpsAdd, d_N_ElectronConcentr, d_B_MagneticField, d_Y_Loss;
 	double d_e, d_m, d_eps0;
@@ -1225,7 +1227,7 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 		{
 			{
 				CString csBuf;
-				csBuf.Format("n:%d", i);
+				csBuf.Format("n:%.0f", (double)i);	// INT64
 				PutStatistics(csBuf);
 			};
 			jj = 0;
@@ -2019,7 +2021,7 @@ near void CTmcRTHRectNode::RunScatteringNode1line3( _ELEM_VAL_RTH *pr1, _real *p
 
 
 
-void CTmcRTHRectNode::PutField( int ii )
+void CTmcRTHRectNode::PutField( TmcIdx ii )	// INT64
 {
 	int i, j;
 	FILE *fp;
@@ -2188,7 +2190,8 @@ void CTmcRTHRectNode::PutTopology()
 	if( !IsDataInit() ) return;
 	if( prYNode == NULL ) return;
 
-	int i, j, ii;
+	int i, j;
+	TmcIdx ii;	// INT64
 	FILE *fp;
 	CTmcRTH_IndanOutput* cOut;
 	CString csBuf;
@@ -2426,5 +2429,75 @@ void CTmcRTHRectNode::ExportToDirectionalPatter()
 		csBuf.Format("Export to Directional pattern error:%s", cError.GetErrorMessage());
 		PutTrace(csBuf);
 	};
+	return;
+}
+
+//  Wideband post-processing needs three numbers per port: grid step,
+//  port aperture and the frequency the port was matched at. They are not
+//  known when the header is written (blocks are not parsed yet), so the
+//  lines are appended right after InitDielArray. OutputnT starts every
+//  data line with '\n', therefore the last line here must NOT end with one.
+void CTmcRTHRectNode::PutPortInfo( void )
+{
+	if( IsError() ) return;
+	if( pcNodeDiel == NULL ) return;
+
+	CTmcRTH_IndanOutput* cOut = cIndan.GetOutput();
+	if( cOut == NULL ) return;
+	if( cOut->csFileName.GetLength() == 0 ) return;
+
+	int i, nWide = 0, nPort = 0;
+
+	for( i = 0; i < nDiel; i++ )
+	{
+		if( !pcNodeDiel[i].IsInputBlock() ) continue;
+		nPort++;
+		if( pcNodeDiel[i].IsSignalFromFile() ) nWide++;
+	};
+	if( nPort < 1 ) return;
+
+	FILE *fp;
+	for( ; ( fp = fopen( cOut->csFileName, "a" ) ) == NULL ; )
+	{
+		Sleep( 10 );
+	};
+
+	fprintf( fp, "\n%s%d", TMC_GROTS_FLOUTWideband_ID, ( nWide > 0 ) ? 1 : 0 );
+
+	//  If the signal file named its frequencies, pass them on: the
+	//  post-processing then knows them exactly instead of hunting for
+	//  peaks in the spectrum, which is not exact for a multi-tone.
+	//  Written in Hz, so that nobody has to guess the units.
+	for( i = 0; i < nDiel; i++ )
+	{
+		CString csL = pcNodeDiel[i].GetSigFreqList();
+		if( csL.GetLength() < 1 ) continue;
+		{
+			char szF[CTMCRTH_INDANSBUF];
+			char *pS;
+			double dV;
+			int nCh;
+			strcpy( szF, ( const char * )csL );
+			fprintf( fp, "%c%s", 10, TMC_GROTS_FLOUTSigFreq_ID );
+			for( pS = szF; sscanf( pS, "%lg%n", &dV, &nCh ) == 1 ; pS += nCh )
+			{
+				fprintf( fp, " %.10lg", dV*cParam.rFreqUnit );
+			};
+		};
+		break;				// one list is enough: it describes the excitation
+	};
+	for( i = 0; i < nDiel; i++ )
+	{
+		if( !pcNodeDiel[i].IsInputBlock() ) continue;
+		//  block, grid step [m], aperture [m], matching frequency [Hz], from file
+		fprintf( fp, "\n%s%d %.10lg %.10lg %.10lg %d",
+			TMC_GROTS_FLOUTPort_ID,
+			pcNodeDiel[i].GetBlockNumber(),
+			cParam.rDelta,
+			pcNodeDiel[i].GetWidthWaveg(),
+			cParam.rFreq,
+			pcNodeDiel[i].IsSignalFromFile() ? 1 : 0 );
+	};
+	fclose( fp );
 	return;
 }

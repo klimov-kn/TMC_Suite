@@ -51,6 +51,12 @@ CTmcRTHNodeDiel::CTmcRTHNodeDiel()
 	dX0 = 0.0;
 	dY0 = 0.0;
 	dY1_InputAdmitance = 1.0;
+	bSigFile = FALSE;					// incident wave from file
+	pdSigT = NULL;
+	pdSigV = NULL;
+	nSigN = 0;
+	csFileNameSig.Format("");
+	csSigPath.Format("");
 	pbIsStop = NULL;
 	csFileNameEps.Format("");
 	m_pqSignalFileTicks = NULL;	// TIMING
@@ -108,6 +114,7 @@ void CTmcRTHNodeDiel::DeleteData( void )
 	pbIsStop = NULL;
 	csFileNameEps.Format("");
 	
+	DeleteSignalData();
 	return;
 }
 
@@ -127,7 +134,8 @@ CTmcLibError &CTmcRTHNodeDiel::SetBorderXmin( int nX, int nY )
 		return cError;
 	};
 	
-	int	i, ii;
+	int	i;
+	TmcIdx	ii;	// INT64
 //	CString csBuf1;
 	for( i = 0, ii = 0; i < nNumNode; i++, ii+=nX )
 	{
@@ -158,7 +166,8 @@ CTmcLibError &CTmcRTHNodeDiel::SetBorderXmax( int nX, int nY )
 		return cError;
 	};
 	
-	int	i, ii;
+	int	i;
+	TmcIdx	ii;	// INT64
 
 	for( i = 0, ii = nX-1; i < nNumNode; i++, ii+=nX )
 	{
@@ -185,7 +194,8 @@ CTmcLibError &CTmcRTHNodeDiel::SetBorderYmin( int nX )
 		return cError;
 	};
 	
-	int	i, ii;
+	int	i;
+	TmcIdx	ii;	// INT64
 
 	for( i = 0, ii = 0; i < nNumNode; i++, ii++ )
 	{
@@ -212,9 +222,10 @@ CTmcLibError &CTmcRTHNodeDiel::SetBorderYmax( int nX, int nY )
 		return cError;
 	};
 	
-	int	i, ii;
+	int	i;
+	TmcIdx	ii;	// INT64
 
-	for( i = 0, ii = nX*nY - nX; i < nNumNode; i++, ii++ )
+	for( i = 0, ii = ((TmcIdx)nX)*nY - nX; i < nNumNode; i++, ii++ )
 	{
 		pcNodeDielOne[i].nNodeGlobal = ii;
 	};
@@ -229,6 +240,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 	DeleteData();
 	double r;
 	int i;
+	csSigPath = csCurrentPath;			// remember path for signal file
 
 	if( cError.IsError() ) return cError;
 	if( pcNextBlockList == NULL )
@@ -391,7 +403,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 
 	{
 		CString csBuf;
-		csBuf.Format("Set block %d; points:%d; Type or eps = {%s}", nBlock, nNumNode, csEpsExpr);
+		csBuf.Format("Set block %d; points:%.0f; Type or eps = {%s}", nBlock, (double)nNumNode, csEpsExpr);	// BIGBLOCK
 		PutTrace(csBuf);
 	};
 	DeleteDublicateData();
@@ -399,7 +411,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 	SetnType();
 	SetYLineForDiel( cParam, prYNode );
 	SetYForInput( cParam );
-	pcNextBlockList->SetnMemory( sizeof(CTmcRTHNodeDiel)+(sizeof(sTmcRTHNodeDielOne))*nNumNode );
+	pcNextBlockList->SetnMemory( sizeof(CTmcRTHNodeDiel)+(sizeof(sTmcRTHNodeDielOne))*((TmcIdx)nNumNode) );	// BIGBLOCK
 	DeleteStatDielData();
 //	{
 //		CString csBuf1;
@@ -498,7 +510,14 @@ CTmcLibError &CTmcRTHNodeDiel::SetRect( CTmcRTH_BlockList * pcNextBlockList, CTm
 	};
 	nY = nYmax - nYmin + 1;
 
-	nNumNode = nX*nY;
+	if( ((double)nX)*((double)nY) > ((double)TMC_IDX_MAX)/64. )	// BIGBLOCK
+	{
+		CString csBuf;
+		csBuf.Format("Block %d is too big: %.0f nodes", nBlock, ((double)nX)*((double)nY));
+		cError.PutErrorMessage(csBuf);
+		return cError;
+	};
+	nNumNode = ((TmcIdx)nX)*nY;	// BIGBLOCK
 	if( nNumNode <= 0)
 	{
 		CString csBuf;
@@ -1092,6 +1111,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpXLeft( CTmcRTH_BlockList * pcNextBlockList,
 	csW  = pcNextBlockList->GetcsW();
 
 	CalculateYForInput( cParam.rFreq, cParam.rDelta );
+	SeachSignalFileName();
 
 	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
 	{
@@ -1195,6 +1215,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpXRight( CTmcRTH_BlockList * pcNextBlockList
 	csW  = pcNextBlockList->GetcsW();
 
 	CalculateYForInput( cParam.rFreq, cParam.rDelta );
+	SeachSignalFileName();
 
 
 	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
@@ -1297,6 +1318,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpYTop( CTmcRTH_BlockList * pcNextBlockList, 
 	csW  = pcNextBlockList->GetcsW();
 
 	CalculateYForInput( cParam.rFreq, cParam.rDelta );
+	SeachSignalFileName();
 
 	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
 	{
@@ -1398,6 +1420,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpYBot( CTmcRTH_BlockList * pcNextBlockList, 
 	csW  = pcNextBlockList->GetcsW();
 
 	CalculateYForInput( cParam.rFreq, cParam.rDelta );
+	SeachSignalFileName();
 
 	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
 	{
@@ -1427,7 +1450,8 @@ void CTmcRTHNodeDiel::SetYLineForDiel( CTmcRTH_IndanParam &cParam, _real *prYNod
 	CString csBuf;
 	char szBuf[CTMCRTH_INDANSBUF];
 	char szBuf1[CTMCRTH_INDANSBUF];
-	int i, nNode, ii;
+	int i;
+	TmcIdx nNode, ii;	// INT64
 	double x, y, y_line, dDelta;
 	BOOL bIsFile;
 	
@@ -1640,7 +1664,7 @@ _real CTmcRTHNodeDiel::CalcEps( double x, double y, CTmcRTH_IndanParam &cParam )
 }
 
 
-void CTmcRTHNodeDiel::SetBlockInDielList( sTmcRTH_DielNodeList **  pcNodeDielList, int nNumNode1, CTmcLibError &cError1 )
+void CTmcRTHNodeDiel::SetBlockInDielList( sTmcRTH_DielNodeList **  pcNodeDielList, TmcIdx nNumNode1, CTmcLibError &cError1 )	// INT64
 {
 	if( cError1.IsError() ) return;
 	if( cError.IsError() )
@@ -1660,8 +1684,8 @@ void CTmcRTHNodeDiel::SetBlockInDielList( sTmcRTH_DielNodeList **  pcNodeDielLis
 	{
 		if( pcNodeDielOne[i].nNodeGlobal >= nNumNode1 )
 		{
-			csBuf.Format("Set Diel array in NodeList nNodeGlobal = %d > nNodeGlobalMax = %d",
-				pcNodeDielOne[i].nNodeGlobal, nNumNode1);
+			csBuf.Format("Set Diel array in NodeList nNodeGlobal = %.0f > nNodeGlobalMax = %.0f",	// INT64
+				(double)pcNodeDielOne[i].nNodeGlobal, (double)nNumNode1);
 			cError.PutErrorMessage(csBuf);
 			cError1 = cError;
 			return;
@@ -1795,13 +1819,14 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 		(nType != CTMCRTH_BLCKNTYPE_INPYTOP  )&&
 		(nType != CTMCRTH_BLCKNTYPE_INPYBOT  )) return;
 
-	int i, n1, i11 = 0;
+	TmcIdx i, n1;	// BIGBLOCK
+	int i11 = 0;
 	
 	CString csBuf;
 	double dUp, dUo, a, a1;
 	_ELEM_VAL_RTH *u2, *u3, *u4, y1, dBuf;
 
-	a = dAmplitude(cParam, dtCurrent)*sin( dWT + dFaza(cParam, dtCurrent) );
+	a = bSigFile ? dSignalFromFile( dtCurrent, cParam ) : dAmplitude(cParam, dtCurrent)*sin( dWT + dFaza(cParam, dtCurrent) );
 //	y1 = (_ELEM_VAL_RTH)1.0;
 	y1 = (_ELEM_VAL_RTH)dY1_InputAdmitance;
 //	y1 = (_ELEM_VAL_RTH)( 1 + 
@@ -2083,13 +2108,14 @@ void CTmcRTHNodeDiel::ExciteInputs1( CTmcLibError &cError1, double dWT, double d
 		(nType != CTMCRTH_BLCKNTYPE_INPYTOP  )&&
 		(nType != CTMCRTH_BLCKNTYPE_INPYBOT  )) return;
 
-	int i, n1, i11 = 0;
+	TmcIdx i, n1;	// BIGBLOCK
+	int i11 = 0;
 	
 	CString csBuf;
 	double dUp, dUo, a, a1;
 	_ELEM_VAL_RTH *u2, *u3, *u4, y1, dBuf;
 
-	a = dAmplitude(cParam, dtCurrent)*sin( dWT + dFaza(cParam, dtCurrent) );
+	a = bSigFile ? dSignalFromFile( dtCurrent, cParam ) : dAmplitude(cParam, dtCurrent)*sin( dWT + dFaza(cParam, dtCurrent) );
 //	y1 = (_ELEM_VAL_RTH)1.0;
 	y1 = (_ELEM_VAL_RTH)dY1_InputAdmitance;
 //	y1 = sqrt(2.)*sqrt(1-(dWT/dT)/(2*dWidthWaveg*C0___)*(dWT/dT)/(2*dWidthWaveg*C0___));
@@ -2562,7 +2588,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetRectMetal(CTmcRTH_BlockList *pcNextBlockList,
 	return cError;
 }
 
-void CTmcRTHNodeDiel::RunBlockNode( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int nX, int nArraySize )
+void CTmcRTHNodeDiel::RunBlockNode( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int nX, TmcIdx nArraySize )
 {
 	if( nType == CTMCRTH_BLCKNTYPE_EPS ) return;
 	if( cError.IsError() ) return;
@@ -2710,7 +2736,7 @@ void CTmcRTHNodeDiel::RunBlockNode( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int
 	return;
 }
 
-void CTmcRTHNodeDiel::RunBlockNode1( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int nX, int nArraySize )
+void CTmcRTHNodeDiel::RunBlockNode1( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int nX, TmcIdx nArraySize )
 {
 	if( nType == CTMCRTH_BLCKNTYPE_EPS ) return;
 	if( cError.IsError() ) return;
@@ -4625,7 +4651,9 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 
 void CTmcRTHNodeDiel::SetAbsorberNodeType( CTmcRTH_IndanParam &cParam )
 {
-	int i, j, n, nx, nn;
+	TmcIdx i, j;	// BIGBLOCK
+	int nx, nn;
+	TmcIdx n;	// INT64
 
 	nx = (int)((cParam.rXmax - cParam.rXmin)/cParam.rDelta + 1 );
 
@@ -4746,7 +4774,8 @@ void CTmcRTHNodeDiel::DeleteDublicateData()
 		csBuf.Format("Delete Dublicated Data");
 		PutStatistics(csBuf);
 	};
-	int i, j, n, n1;
+	int i, j, n;
+	TmcIdx n1;	// INT64
 	sTmcRTHNodeDielOne *pcNodeDielOne1;
 	
 	for( i = 0; i < nNumNode; i++ )
@@ -6798,6 +6827,12 @@ void CTmcRTHNodeDiel::SaveFileRect( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH
 	};
 	nY = nYmax - nYmin + 1;
 
+	if( ((double)nX)*((double)nY) > INT_MAX )	// INT64
+	{
+		csBuf.Format("Block %d is too big for eps file: %.0f nodes", nBlock, ((double)nX)*((double)nY));
+		cError.PutErrorMessage(csBuf);
+		return;
+	};
 	nNumNode1 = nX*nY;
 	if( nNumNode1 <= 0)
 	{
@@ -6857,7 +6892,7 @@ void CTmcRTHNodeDiel::SaveFileRect( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH
 			if( j == (nX - 1) ) pcNodeDielOne1.rY *= (_real)(0.5);
 			pcNodeDielOne1.rY *= CalcEps( x, y, cParam);
 			fwrite( &(pcNodeDielOne1.rY), sizeof(_real), 1, fp );
-			fwrite( &(pcNodeDielOne1.nNodeGlobal), sizeof(int), 1, fp );
+			TmcWriteIdx32( &(pcNodeDielOne1.nNodeGlobal), fp );	// INT64
 			if( !pbIsStop[0] )
 			{
 				CString csBuf;
@@ -7375,7 +7410,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 				delete pcNodeDielOne1;
 				return cError;
 			};
-			if( fread( &(pcNodeDielOne1[i].nNodeGlobal), sizeof(int), 1, pfData ) != 1 )
+			if( TmcReadIdx32( &(pcNodeDielOne1[i].nNodeGlobal), pfData ) != 1 )
 			{
 				CString csBuf;
 				csBuf.Format("bad data node array in diel.data file {%s} for block %d", TMC_RTH_EPSFILE_Delta_, csEpsExpr, nBlock);
@@ -7421,7 +7456,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 							return cError;
 						};
 						pcNodeDielOne1[i].rY = fBuf;
-						if( fread( &(pcNodeDielOne1[i].nNodeGlobal), sizeof(int), 1, pfData ) != 1 )
+						if( TmcReadIdx32( &(pcNodeDielOne1[i].nNodeGlobal), pfData ) != 1 )
 						{
 							CString csBuf;
 							csBuf.Format("bad data node array in diel.data file {%s} for block %d", TMC_RTH_EPSFILE_Delta_, csEpsExpr, nBlock);
@@ -7464,7 +7499,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 							return cError;
 						};
 						pcNodeDielOne1[i].rY = (_real)(dBuf);
-						if( fread( &(pcNodeDielOne1[i].nNodeGlobal), sizeof(int), 1, pfData ) != 1 )
+						if( TmcReadIdx32( &(pcNodeDielOne1[i].nNodeGlobal), pfData ) != 1 )
 						{
 							CString csBuf;
 							csBuf.Format("bad data node array in diel.data file {%s} for block %d", TMC_RTH_EPSFILE_Delta_, csEpsExpr, nBlock);
@@ -7509,7 +7544,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 
 	for( i = 0, ii = 0, jj = 0; i < nPoint; i++ )
 	{
-		j = pcNodeDielOne1[i].nNodeGlobal;
+		j = (int)pcNodeDielOne1[i].nNodeGlobal;	// INT64: local number from .eps file (4 bytes)
 		x = dXmin1 + pcNextBlockList->GetX0() + ( j - ((int)((j)/nX))*nX )*cParam.rDelta;
 		y = dYmin1 + pcNextBlockList->GetY0() + ((int)((j)/nX))*cParam.rDelta;
 		if( (x <= dXmax)&&(x >= dXmin)&&(y <= dYmax)&&(y >= dYmin) ) ii++;
@@ -7565,7 +7600,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 
 	for( i = 0, ii = 0, jj = 0; i < nPoint; i++ )
 	{
-		j = pcNodeDielOne1[i].nNodeGlobal;
+		j = (int)pcNodeDielOne1[i].nNodeGlobal;	// INT64: local number from .eps file (4 bytes)
 		x = dXmin1 + pcNextBlockList->GetX0() + ( j - ((int)((j)/nX))*nX )*cParam.rDelta;
 		y = dYmin1 + pcNextBlockList->GetY0() + ((int)((j)/nX))*cParam.rDelta;
 		if( (x <= dXmax)&&(x >= dXmin)&&(y <= dYmax)&&(y >= dYmin) )
@@ -7770,4 +7805,200 @@ void CTmcRTHNodeDiel::SetMagneticPolygonType( CTmcRTH_IndanParam &cParam )
 		};
 	};
 	return;
+}
+
+
+// =====================================================================
+//  Incident wave from file. Added 2026-09-30.
+//  The port takes a(t) from a text file instead of Amp*sin(wt+Faza).
+//  Syntax in .tpl:  INPUT_X ; ylo; yhi; Tmin; Tmax; [name]; Faza;
+//  File <name>.sig: two columns, time in TIME_UNIT and value of a.
+//  Outside the file range the signal is zero; the Tmin..Tmax window of
+//  the port still applies, so a longer file is cut and a shorter one is
+//  padded with zeros.
+// =====================================================================
+
+void CTmcRTHNodeDiel::DeleteSignalData( void )
+{
+	if( pdSigT != NULL )
+	{
+		delete []pdSigT;
+		pdSigT = NULL;
+	};
+	if( pdSigV != NULL )
+	{
+		delete []pdSigV;
+		pdSigV = NULL;
+	};
+	nSigN = 0;
+	bSigFile = FALSE;
+	csFileNameSig.Format("");
+	csSigFreq.Format("");
+	return;
+}
+
+void CTmcRTHNodeDiel::SeachSignalFileName( void )
+{
+	char szBuf[CTMCRTH_INDANSBUF];
+	int i, n;
+
+	DeleteSignalData();
+
+	if( cError.IsError() ) return;
+	if( strlen( csVx ) < 1 ) return;
+
+	strcpy( szBuf, csVx );
+	n = strlen( szBuf );
+	if( szBuf[0] != '[' ) return;
+
+	for( i = 1; i < n; i++ )
+	{
+		if( szBuf[i] == ']' )
+		{
+			CString csBuf;
+			szBuf[i] = '\0';
+			csFileNameSig.Format("%s", szBuf+1);
+			if( strchr( (const char *)csFileNameSig, '.' ) == NULL )
+			{
+				csBuf.Format("%s.sig", csFileNameSig);
+				csFileNameSig = csBuf;
+			};
+			if( ( strlen( csSigPath ) > 0 )&&
+				( strchr( (const char *)csFileNameSig, '\\' ) == NULL )&&
+				( strchr( (const char *)csFileNameSig, ':' ) == NULL ) )
+			{
+				csBuf.Format("%s\\%s", csSigPath, csFileNameSig);
+				csFileNameSig = csBuf;
+			};
+			ReadSignalFile();
+			return;
+		};
+	};
+
+	{
+		CString csBuf;
+		csBuf.Format("missing ] or bad [ in signal expression {%s} for block %d", csVx, nBlock);
+		cError.PutErrorMessage(csBuf);
+	};
+	return;
+}
+
+void CTmcRTHNodeDiel::ReadSignalFile( void )
+{
+	FILE *fp;
+	char szLine[CTMCRTH_INDANSBUF];
+	int i, n;
+	double t, v;
+
+	if( cError.IsError() ) return;
+
+	if( ( fp = fopen( (const char *)csFileNameSig, "r" ) ) == NULL )
+	{
+		CString csBuf;
+		csBuf.Format("can not open signal file {%s} for block %d", csFileNameSig, nBlock);
+		cError.PutErrorMessage(csBuf);
+		return;
+	};
+
+	//  first pass: count the data lines and pick up the frequency list.
+	//  A multi-tone signal is made by somebody who already knows its
+	//  frequencies, and looking for them afterwards in the spectrum is
+	//  NOT exact: neighbouring tones pull each other peaks aside. So the
+	//  file may simply name them:  #FREQ 3.0 3.2 3.4 ...  (in FREQ_UNIT).
+	csSigFreq.Format("");
+	for( n = 0; fgets( szLine, CTMCRTH_INDANSBUF, fp ) != NULL ; )
+	{
+		if( strncmp( szLine, "#FREQ", 5 ) == 0 )
+		{
+			int nL = strlen( szLine );
+			for( ; ( nL > 0 )&&( ( szLine[nL-1] == 10 )||( szLine[nL-1] == 13 ) ) ; nL-- );
+			szLine[nL] = 0;
+			csSigFreq.Format("%s", szLine + 5);
+			continue;
+		};
+		if( ( szLine[0] == '!' )||( szLine[0] == '#' ) ) continue;
+		if( sscanf( szLine, "%lg %lg", &t, &v ) == 2 ) n++;
+	};
+
+	if( n < 2 )
+	{
+		CString csBuf;
+		csBuf.Format("signal file {%s} for block %d has less than 2 points", csFileNameSig, nBlock);
+		cError.PutErrorMessage(csBuf);
+		fclose( fp );
+		return;
+	};
+
+	if( ( ( pdSigT = new double[n] ) == NULL )||( ( pdSigV = new double[n] ) == NULL ) )
+	{
+		CString csBuf;
+		csBuf.Format("not enough memory for signal file {%s}", csFileNameSig);
+		cError.PutErrorMessage(csBuf);
+		DeleteSignalData();
+		fclose( fp );
+		return;
+	};
+
+	//  second pass: read the values
+	rewind( fp );
+	for( i = 0; ( i < n )&&( fgets( szLine, CTMCRTH_INDANSBUF, fp ) != NULL ) ; )
+	{
+		if( ( szLine[0] == '!' )||( szLine[0] == '#' ) ) continue;
+		if( sscanf( szLine, "%lg %lg", &t, &v ) != 2 ) continue;
+		if( ( i > 0 )&&( t <= pdSigT[i-1] ) )
+		{
+			CString csBuf;
+			csBuf.Format("time is not increasing in signal file {%s} at line %d", csFileNameSig, i+1);
+			cError.PutErrorMessage(csBuf);
+			DeleteSignalData();
+			fclose( fp );
+			return;
+		};
+		pdSigT[i] = t;
+		pdSigV[i] = v;
+		i++;
+	};
+	fclose( fp );
+
+	nSigN = i;
+	bSigFile = TRUE;
+	return;
+}
+
+double CTmcRTHNodeDiel::dSignalFromFile( double dtCurrent, CTmcRTH_IndanParam &cParam )
+{
+	int nLo, nHi, nMid;
+	double t, dT;
+
+	if( !bSigFile ) return 0.0;
+	if( nSigN < 2 ) return 0.0;
+
+	//  file keeps time in TIME_UNIT of the task
+	t = dtCurrent/cParam.rTimeUnit;
+
+	if( t < pdSigT[0] ) return 0.0;
+	if( t > pdSigT[nSigN-1] ) return 0.0;
+
+	//  binary search for the interval
+	nLo = 0;
+	nHi = nSigN - 1;
+	while( nHi - nLo > 1 )
+	{
+		nMid = ( nLo + nHi )/2;
+		if( pdSigT[nMid] > t ) nHi = nMid;
+		else nLo = nMid;
+	};
+
+	dT = pdSigT[nHi] - pdSigT[nLo];
+	if( dT <= 0.0 ) return pdSigV[nLo];
+
+	return pdSigV[nLo] + ( pdSigV[nHi] - pdSigV[nLo] )*( t - pdSigT[nLo] )/dT;
+}
+
+BOOL CTmcRTHNodeDiel::IsInputBlock( void )
+{
+	return ( nType == CTMCRTH_BLCKNTYPE_INPXLEFT )||
+		( nType == CTMCRTH_BLCKNTYPE_INPXRIGHT )||
+		( nType == CTMCRTH_BLCKNTYPE_INPYTOP )||
+		( nType == CTMCRTH_BLCKNTYPE_INPYBOT );
 }

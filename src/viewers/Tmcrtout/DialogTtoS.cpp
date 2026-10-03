@@ -5,7 +5,7 @@
 #include "TMCGROUT.h"
 #include <tmcgrviw.h>
 #include "DialogTtoS.h"
-#include "TmcWideband.h"
+#include <TmcWideband.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

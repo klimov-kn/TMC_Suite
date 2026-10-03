@@ -913,33 +913,34 @@ void CTmcRTH_IndanParam::GetXYMinMax( double &dXmin, double &dXmax, double &dYmi
 }
 
 
-double CTmcRTH_IndanParam::CalcX( int nNumber )
+double CTmcRTH_IndanParam::CalcX( TmcIdx nNumber )	// INT64
 {
 	double r;
 	int nY, nX;
 
 	nX = (int)(( rXmax - rXmin )/rDelta)+1;
-	nY = nNumber - nX*((int)(nNumber/nX));
+	nY = (int)( nNumber - ((TmcIdx)nX)*(nNumber/nX) );	// INT64
 	r = rXmin + nY*rDelta;
 
 	return r;
 }
 
-double CTmcRTH_IndanParam::CalcY( int nNumber )
+double CTmcRTH_IndanParam::CalcY( TmcIdx nNumber )	// INT64
 {
 	double r;
 	int nY, nX;
 
 	nX = (int)(( rXmax - rXmin )/rDelta)+1;
-	nY = nNumber/nX;
+	nY = (int)(nNumber/nX);	// INT64
 	r = rYmin + nY*rDelta;
 
 	return r;
 }
 
-int CTmcRTH_IndanParam::CalcnNodeGlobal( double x, double y )
+TmcIdx CTmcRTH_IndanParam::CalcnNodeGlobal( double x, double y )	// INT64
 {
-	int n, nX, nY;
+	TmcIdx n;	// INT64
+	int nX, nY;
 
 	n = 0;
 	nX = CalcnX();
@@ -953,13 +954,13 @@ int CTmcRTH_IndanParam::CalcnNodeGlobal( double x, double y )
 	if( x >= ((double)rXmax-0.5*(double)rDelta) )
 	{
 		x = (double)rXmax;
-		n = nX*((int)(((double)y - (double)rYmin)/(double)rDelta+0.5))+nX-1;
+		n = ((TmcIdx)nX)*((int)(((double)y - (double)rYmin)/(double)rDelta+0.5))+nX-1;
 		return n;
 	};
 	if( x < ((double)rXmin+0.5*(double)rDelta) )
 	{
 		x = (double)rXmin;
-		n = nX*((int)(((double)y - (double)rYmin)/(double)rDelta+0.5));
+		n = ((TmcIdx)nX)*((int)(((double)y - (double)rYmin)/(double)rDelta+0.5));
 		return n;
 	};
 
@@ -967,7 +968,7 @@ int CTmcRTH_IndanParam::CalcnNodeGlobal( double x, double y )
 	if( y < (double)rYmin )	y = (double)rYmin;
 
 
-	n = (int)(((double)x - (double)rXmin)/(double)rDelta+0.5) + nX*((int)(((double)y - (double)rYmin)/(double)rDelta+0.5));
+	n = (int)(((double)x - (double)rXmin)/(double)rDelta+0.5) + ((TmcIdx)nX)*((int)(((double)y - (double)rYmin)/(double)rDelta+0.5));
 
 //	if( n < 0 ) n = 0;
 //	if( n >= nX*nY ) n = nX*nY-1;
@@ -975,9 +976,10 @@ int CTmcRTH_IndanParam::CalcnNodeGlobal( double x, double y )
 	return n;
 }
 
-int CTmcRTH_IndanParam::CalcnNodeGlobalFM( double x, double y )
+TmcIdx CTmcRTH_IndanParam::CalcnNodeGlobalFM( double x, double y )	// INT64
 {
-	int n, nX, nY;
+	TmcIdx n;	// INT64
+	int nX, nY;
 
 	n = 0;
 	nX = CalcnX();
@@ -991,13 +993,13 @@ int CTmcRTH_IndanParam::CalcnNodeGlobalFM( double x, double y )
 	if( x >= ((double)rXmax-1.5*(double)rDelta) )
 	{
 		x = (double)rXmax;
-		n = nX*((int)(((double)y - (double)rYmin)/(double)rDelta+0.5))+nX-2;
+		n = ((TmcIdx)nX)*((int)(((double)y - (double)rYmin)/(double)rDelta+0.5))+nX-2;
 		return n;
 	};
 	if( x < ((double)rXmin+1.5*(double)rDelta) )
 	{
 		x = (double)rXmin;
-		n = nX*((int)(((double)y - (double)rYmin)/(double)rDelta+0.5))+1;
+		n = ((TmcIdx)nX)*((int)(((double)y - (double)rYmin)/(double)rDelta+0.5))+1;
 		return n;
 	};
 
@@ -1005,7 +1007,7 @@ int CTmcRTH_IndanParam::CalcnNodeGlobalFM( double x, double y )
 	if( y < (double)rYmin )	y = (double)rYmin;
 
 
-	n = (int)(((double)x - (double)rXmin)/(double)rDelta+0.5) + nX*((int)(((double)y - (double)rYmin)/(double)rDelta+0.5));
+	n = (int)(((double)x - (double)rXmin)/(double)rDelta+0.5) + ((TmcIdx)nX)*((int)(((double)y - (double)rYmin)/(double)rDelta+0.5));
 
 //	if( n < 0 ) n = 0;
 //	if( n >= nX*nY ) n = nX*nY-1;
@@ -1013,13 +1015,13 @@ int CTmcRTH_IndanParam::CalcnNodeGlobalFM( double x, double y )
 	return n;
 }
 
-BOOL CTmcRTH_IndanParam::IsnInRegion( int n )
+BOOL CTmcRTH_IndanParam::IsnInRegion( TmcIdx n )	// INT64
 {
 	int nX, nY;
 	nX = (int)(( rXmax - rXmin )/rDelta)+1;
 	nY = (int)(( rYmax - rYmin )/rDelta)+1;
 
-	if( (n < 0)||( n >= nX*nY ) ) return FALSE;
+	if( (n < 0)||( n >= ((TmcIdx)nX)*nY ) ) return FALSE;	// INT64
 
 	return TRUE;
 }
@@ -1125,7 +1127,7 @@ double CTmcRTH_IndanParam::dGetHeight( void )
 }
 
 // CalcnNodeGlobal return NodeGlobal or -1, if point x,y isn't in region
-int CTmcRTH_IndanParam::CalcnNodeGlobalNorm(double x, double y)
+TmcIdx CTmcRTH_IndanParam::CalcnNodeGlobalNorm(double x, double y)	// INT64
 {
 	if( x > (double)(rXmax - 2*rDelta) )	return -1;
 	if( x < (double)(rXmin + 2*rDelta) )	return -1;

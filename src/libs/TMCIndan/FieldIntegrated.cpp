@@ -145,7 +145,7 @@ void CFieldIntegrated::SetFile(CString csFile_ft)
 
 CFieldIntegrated& CFieldIntegrated::operator=( CFieldIntegrated& cFieldIntegr )
 {
-	int i, nNumNode;
+	TmcIdx i, nNumNode;	// INT64
 	DeleteData();
 
 	dT = cFieldIntegr.dT;
@@ -187,7 +187,7 @@ CFieldIntegrated& CFieldIntegrated::operator=( CFieldIntegrated& cFieldIntegr )
 			prSin = NULL;
 		};
 
-		nNumNode = nX*nY;
+		nNumNode = ((TmcIdx)nX)*nY;	// INT64
 		
 		if( ( prCos = new _real[ nNumNode ] ) == NULL )
 		{
@@ -461,7 +461,8 @@ void CFieldIntegrated::Integrate(CString csFileName, _real *prUNode1, _real r1)
 	if( !bIsFieldDistribution ) return;
 	if( bIsIntegretedInMemory ) return;
 
-	int i, j, ii;
+	int i, j;
+	TmcIdx ii;	// INT64
 	FILE *fp;
 	fpos_t fpos;
 	_real r;
@@ -664,7 +665,7 @@ void CFieldIntegrated::InitArrayForIntegrate()
 	if( !bIsIntegretedInMemory ) return;
 	if( (nX < 1)||(nY < 1) ) return;
 
-	int i, nNumNode;
+	TmcIdx i, nNumNode;	// INT64
 
 	if( prCos != NULL )
 	{
@@ -678,7 +679,7 @@ void CFieldIntegrated::InitArrayForIntegrate()
 		prSin = NULL;
 	};
 
-	nNumNode = nX*nY;
+	nNumNode = ((TmcIdx)nX)*nY;	// INT64
 		
 	if( ( prCos = new _real[ nNumNode ] ) == NULL )
 	{
@@ -715,7 +716,8 @@ void CFieldIntegrated::IntegrateInMemory(_real *prUNode1, _real rCosCurrent, _re
 		return;
 	};
 
-	int i, j, ii, jj;
+	int i, j;
+	TmcIdx ii, jj;	// INT64
 
 	for( i = 0, ii = 0, jj = 0; i < nY; i++)
 	{
@@ -752,7 +754,8 @@ void CFieldIntegrated::MakeFileAmplitudeAndFazaFromMemory()
 		return;
 	};
 
-	int i, j, jj;
+	int i, j;
+	TmcIdx jj;	// INT64
 	FILE *fpFaz, *fpAmp;
 	_real rSin, rCos, rAmp, rFaz;
 
@@ -1430,7 +1433,8 @@ void CFieldIntegrated::ReadAmplitudaAndFazaEz(double x, double y, double &aEz, d
 {
 	if( IsError() ) return;
 
-	int i, j, nX1, nY1;
+	TmcIdx i;	// INT64
+	int j, nX1, nY1;
 	_real rBufA, rBufF;
 
 	aEz = 0.0;
@@ -1441,7 +1445,7 @@ void CFieldIntegrated::ReadAmplitudaAndFazaEz(double x, double y, double &aEz, d
 
 	if( (prAmp != NULL)&&(prFaz != NULL) )
 	{
-		i = nY1*nX+nX1;
+		i = ((TmcIdx)nY1)*nX+nX1;	// INT64
 		aEz = prAmp[ i ];
 		fEz = prFaz[ i ];
 		return;		
@@ -1652,9 +1656,9 @@ void CFieldIntegrated::ReadAmplitudaAndFazaEzMInit()
 		return;
 	};
 
-	int nNumNode, ii;
+	TmcIdx nNumNode, ii;	// INT64
 
-	nNumNode = nX*nY;
+	nNumNode = ((TmcIdx)nX)*nY;	// INT64
 		
 	if( ( prAmp = new _real[ nNumNode ] ) == NULL )
 	{

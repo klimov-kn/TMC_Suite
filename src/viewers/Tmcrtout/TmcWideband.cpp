@@ -10,7 +10,7 @@
 #include <Tmcgrviw.h>
 #include <proc_s.h>
 #include <s_file.h>
-#include "TmcWideband.h"
+#include <TmcWideband.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
