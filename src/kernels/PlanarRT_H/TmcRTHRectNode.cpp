@@ -560,6 +560,13 @@ void CTmcRTHRectNode::RunKernel( void )
 	
 	__int64 qTmPost = TmcTimingNow();			// TIMING
 	PutSmatrix();
+
+//  the directional pattern is normally built from the menu; in a batch run
+//  there is no menu, so it can be asked for with TMC_AUTO_DN=1	// BORDER
+	{
+		const char *pszDN = getenv( "TMC_AUTO_DN" );
+		if( ( pszDN != NULL )&&( *pszDN == '1' ) ) ExportToDirectionalPatter();
+	};
 	m_cTiming.Add( TMCT_SMATRIX, qTmPost );		// TIMING
 	
 	return;
@@ -751,7 +758,7 @@ void CTmcRTHRectNode::DeleteNodeArray( void )
 */
 /*	if( pcNodeDielList != NULL )
 	{
-		int i;
+		TmcIdx i;	// BIGBLOCK3
 		for( i = 0; i < nNumNode; i++ )
 		{
 			if( pcNodeDielList[i] != NULL ) 
@@ -984,6 +991,19 @@ void CTmcRTHRectNode::SetDielTopology( void )
 			return;
 		};
 	}
+
+//  The tone list only exists once the blocks have been read, so it is handed
+//  to the integrator here - and the accumulation arrays are laid out again,
+//  because a wide-band run needs one pair of quadratures per tone.	// BORDER
+	for( i = 0; i < nDiel; i++ )
+	{
+		CString csFL = pcNodeDiel[i].GetSigFreqList();
+		if( csFL.GetLength() < 1 ) continue;
+		cIndan.GetOutput()->GetFieldIntegrated().SetFreqList( csFL, cParam.rFreqUnit );
+		if( cIndan.GetOutput()->GetFieldIntegrated().GetFreqNum() > 1 )
+			cIndan.GetOutput()->GetFieldIntegrated().InitArrayForIntegrate();
+		break;					// one list describes the excitation
+	};
 
 	return;
 }

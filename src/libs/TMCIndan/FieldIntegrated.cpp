@@ -22,6 +22,12 @@ static char THIS_FILE[]=__FILE__;
 CFieldIntegrated::CFieldIntegrated()
 {
 	nNodeStep = 2;
+	bBorderOnly = FALSE;	// BORDER
+	nFreqNum = 0;
+	nFreqCur = 0;
+	nBX0 = nBX1 = nBY0 = nBY1 = 0;
+	nBW = nBHm = 0;
+	nBorderSize = 0;
 	prSin = NULL;
 	prCos = NULL;
 	prAmp = NULL;
@@ -449,7 +455,19 @@ void CFieldIntegrated::Integrate(double dTCurrent1, int nTCurrent1, _real *prUNo
 	Integrate( csFileCos, prUNode1, (_real)(cos(dTCurrent*2*3.141592653589*dFreq)) );
 	Integrate( csFileSin, prUNode1, (_real)(sin(dTCurrent*2*3.141592653589*dFreq)) );
 
-	IntegrateInMemory( prUNode1, (_real)(cos(dTCurrent*2*3.141592653589*dFreq)), (_real)(sin(dTCurrent*2*3.141592653589*dFreq))  );
+	if( nFreqNum > 1 )	// BORDER
+	{
+//  every tone gets its own pair of quadratures, side by side in the
+//  same array: tone k occupies [k*nBorderSize .. (k+1)*nBorderSize).
+		int k;
+		for( k = 0; k < nFreqNum; k++ )
+			IntegrateInMemoryOneFreq( prUNode1,
+				(_real)(cos(dTCurrent*2*3.141592653589*dFreqList[k])),
+				(_real)(sin(dTCurrent*2*3.141592653589*dFreqList[k])),
+				((TmcIdx)k)*nBorderSize );
+	}
+	else
+		IntegrateInMemory( prUNode1, (_real)(cos(dTCurrent*2*3.141592653589*dFreq)), (_real)(sin(dTCurrent*2*3.141592653589*dFreq))  );
 
 	return;
 
@@ -679,7 +697,19 @@ void CFieldIntegrated::InitArrayForIntegrate()
 		prSin = NULL;
 	};
 
-	nNumNode = ((TmcIdx)nX)*nY;	// INT64
+//  how much memory is free right now - the strips are used when four
+//  arrays over the whole area would not fit comfortably	// BORDER
+	{
+		MEMORYSTATUSEX ms;
+		ms.dwLength = sizeof(ms);
+		if( GlobalMemoryStatusEx( &ms ) )
+			SetBorderModeIfNeeded( (double)ms.ullAvailPhys );
+		else
+			SetBorderModeIfNeeded( 1.0e9 );
+	};
+
+	nNumNode = bBorderOnly ? nBorderSize : ((TmcIdx)nX)*nY;	// BORDER
+	if( nFreqNum > 1 ) nNumNode *= nFreqNum;	// a pair of quadratures per tone
 		
 	if( ( prCos = new _real[ nNumNode ] ) == NULL )
 	{
@@ -705,6 +735,177 @@ void CFieldIntegrated::InitArrayForIntegrate()
 	return;
 }
 
+
+//  ================= border-only accumulation // BORDER =================
+//
+//  The directional pattern is built from a contour. Keeping cos/sin (and
+//  later amplitude/phase) for every node of a huge area is pointless: four
+//  arrays times 8 bytes per node is more than the grid itself. In border
+//  mode only four strips around the contour are kept, three nodes thick -
+//  three because ReadAmplitudaAndFazaX/Y asks for Ez one node to each side.
+//
+//  Strip layout inside the compact array:
+//      [0 .. 3*W)                 bottom strip, rows nBY0 .. nBY0+2
+//      [3*W .. 6*W)               top strip,    rows nBY1-2 .. nBY1
+//      [6*W .. 6*W+3*Hm)          left strip,   cols nBX0 .. nBX0+2
+//      [6*W+3*Hm .. 6*W+6*Hm)     right strip,  cols nBX1-2 .. nBX1
+//  where W is the strip width and Hm the height of what is left between
+//  the bottom and top strips, so no node is stored twice.
+
+
+//  The signal file may name its tones; the kernel passes that list on.	// BORDER
+//  Values come in the units of the task, so they are scaled to Hz here.
+//  An empty list means the usual single frequency.
+void CFieldIntegrated::SetFreqList( CString csList, double dFreqUnit )
+{
+	char szBuf[2048];
+	char *pS;
+	double dV;
+	int nCh;
+
+	nFreqNum = 0;
+	if( csList.GetLength() < 1 ) return;
+	if( csList.GetLength() >= (int)sizeof(szBuf) ) return;
+
+	strcpy( szBuf, (const char *)csList );
+	for( pS = szBuf; sscanf( pS, "%lg%n", &dV, &nCh ) == 1; pS += nCh )
+	{
+		if( nFreqNum >= TMC_DN_MAXFREQ ) break;
+		dFreqList[ nFreqNum ] = dV*dFreqUnit;
+		nFreqNum++;
+	};
+
+	return;
+}
+void CFieldIntegrated::BorderGeometry( void )
+{
+	double x0, x1, y0, y1;
+
+//  the same defaults SetDirectionalPatternParamDefault would apply later
+	x0 = ( dDirPatXmin < -0.9*FLT_MAX ) ? ( dXmin + 10*dDelta )          : dDirPatXmin;
+	x1 = ( dDirPatXmax < -0.9*FLT_MAX ) ? ( dXmin + (nX-10)*dDelta )     : dDirPatXmax;
+	y0 = ( dDirPatYmin < -0.9*FLT_MAX ) ? ( dYmin + 10*dDelta )          : dDirPatYmin;
+	y1 = ( dDirPatYmax < -0.9*FLT_MAX ) ? ( dYmin + (nY-10)*dDelta )     : dDirPatYmax;
+
+	nBX0 = (int)( (x0 - dXmin)/dDelta + 0.5 ) - 1;
+	nBX1 = (int)( (x1 - dXmin)/dDelta + 0.5 ) + 1;
+	nBY0 = (int)( (y0 - dYmin)/dDelta + 0.5 ) - 1;
+	nBY1 = (int)( (y1 - dYmin)/dDelta + 0.5 ) + 1;
+
+	if( nBX0 < 0 ) nBX0 = 0;
+	if( nBY0 < 0 ) nBY0 = 0;
+	if( nBX1 > nX-1 ) nBX1 = nX-1;
+	if( nBY1 > nY-1 ) nBY1 = nY-1;
+
+	nBW  = nBX1 - nBX0 + 1;
+	nBHm = (nBY1 - 2) - (nBY0 + 3) + 1;
+	if( nBHm < 0 ) nBHm = 0;
+
+	nBorderSize = ((TmcIdx)6)*nBW + ((TmcIdx)6)*nBHm;
+	return;
+}
+
+//  Where this grid node lives in the compact array, or -1 if it is not kept.
+TmcIdx CFieldIntegrated::BorderSlot( int ix, int iy )
+{
+	if( !bBorderOnly ) return ((TmcIdx)iy)*nX + ix;
+
+	if( ( ix < nBX0 )||( ix > nBX1 )||( iy < nBY0 )||( iy > nBY1 ) ) return -1;
+
+	if( iy <= nBY0 + 2 )
+		return ((TmcIdx)(iy - nBY0))*nBW + (ix - nBX0);
+
+	if( iy >= nBY1 - 2 )
+		return ((TmcIdx)3)*nBW + ((TmcIdx)(iy - (nBY1 - 2)))*nBW + (ix - nBX0);
+
+	if( ix <= nBX0 + 2 )
+		return ((TmcIdx)6)*nBW + ((TmcIdx)(iy - (nBY0 + 3)))*3 + (ix - nBX0);
+
+	if( ix >= nBX1 - 2 )
+		return ((TmcIdx)6)*nBW + ((TmcIdx)3)*nBHm
+			 + ((TmcIdx)(iy - (nBY0 + 3)))*3 + (ix - (nBX1 - 2));
+
+	return -1;						// inside the contour: not needed for the pattern
+}
+
+//  Decide whether the whole area still fits. Four arrays of _real per node
+//  are needed (cos, sin, amplitude, phase); if they would eat more than a
+//  quarter of what is free, switch to the strips.
+void CFieldIntegrated::SetBorderModeIfNeeded( double dFreeBytes )
+{
+	double dWhole;
+
+	bBorderOnly = FALSE;
+
+//  a way to exercise the strips on a small task, for checking // BORDER
+	{
+		const char *psz = getenv( "TMC_FORCE_BORDER" );
+		if( ( psz != NULL )&&( *psz == '1' ) )
+		{
+			bBorderOnly = TRUE;
+			BorderGeometry();
+			return;
+		};
+	};
+
+//  a wide-band run is always done on the strips: one pair of quadratures
+//  per tone over the whole area would be out of the question	// BORDER
+	if( nFreqNum > 1 )
+	{
+		bBorderOnly = TRUE;
+		BorderGeometry();
+		return;
+	};
+
+	if( (nX < 32)||(nY < 32) ) return;		// too small to bother
+
+	dWhole = 4.0*sizeof(_real)*((double)nX)*((double)nY);
+	if( dWhole > 0.25*dFreeBytes ) bBorderOnly = TRUE;
+
+	if( bBorderOnly ) BorderGeometry();
+	return;
+}
+
+//  Same accumulation as IntegrateInMemory, but into one slice of the array.	// BORDER
+//  Used when the run carries several tones; iBase picks the slice.
+void CFieldIntegrated::IntegrateInMemoryOneFreq( _real *prUNode1,
+		_real rCosCurrent, _real rSinCurrent, TmcIdx iBase )
+{
+	if( IsError() ) return;
+	if( !bIsFieldDistribution ) return;
+	if( !bIsIntegretedInMemory ) return;
+	if( (prCos == NULL)||(prSin == NULL) ) return;
+	if( !bBorderOnly ) return;		// several tones are kept on the strips only
+
+	int i, j, jlo, jhi, nPart;
+	TmcIdx ii, jj;
+
+	for( i = nBY0; i <= nBY1; i++ )
+	{
+		for( nPart = 0; nPart < 2; nPart++ )
+		{
+			if( ( i <= nBY0 + 2 )||( i >= nBY1 - 2 ) )
+			{
+				if( nPart > 0 ) break;
+				jlo = nBX0;  jhi = nBX1;
+			}
+			else if( nPart == 0 ) { jlo = nBX0;      jhi = nBX0 + 2; }
+			else                  { jlo = nBX1 - 2;  jhi = nBX1;     };
+
+			for( j = jlo; j <= jhi; j++ )
+			{
+				jj = BorderSlot( j, i );
+				if( jj < 0 ) continue;
+				jj += iBase;
+				ii = ( ((TmcIdx)i)*nX + j )*nNodeStep;
+				prCos[jj] = (_real)(prCos[jj] + prUNode1[ii]*rCosCurrent*dT);
+				prSin[jj] = (_real)(prSin[jj] + prUNode1[ii]*rSinCurrent*dT);
+			};
+		};
+	};
+
+	return;
+}
 void CFieldIntegrated::IntegrateInMemory(_real *prUNode1, _real rCosCurrent, _real rSinCurrent)
 {
 	if( IsError() ) return;
@@ -718,6 +919,44 @@ void CFieldIntegrated::IntegrateInMemory(_real *prUNode1, _real rCosCurrent, _re
 
 	int i, j;
 	TmcIdx ii, jj;	// INT64
+
+	if( bBorderOnly )	// BORDER
+	{
+//  only the four strips are kept, so only they are accumulated:
+//  full rows inside the bottom and top strips, three columns on each
+//  side in between. Nothing else is touched.
+		int jlo, jhi, nPart;
+
+		for( i = nBY0; i <= nBY1; i++ )
+		{
+			for( nPart = 0; nPart < 2; nPart++ )
+			{
+				if( ( i <= nBY0 + 2 )||( i >= nBY1 - 2 ) )
+				{
+					if( nPart > 0 ) break;		// whole row at once
+					jlo = nBX0;  jhi = nBX1;
+				}
+				else if( nPart == 0 )
+				{
+					jlo = nBX0;  jhi = nBX0 + 2;	// left column strip
+				}
+				else
+				{
+					jlo = nBX1 - 2;  jhi = nBX1;	// right column strip
+				};
+
+				for( j = jlo; j <= jhi; j++ )
+				{
+					jj = BorderSlot( j, i );
+					if( jj < 0 ) continue;
+					ii = ( ((TmcIdx)i)*nX + j )*nNodeStep;
+					prCos[jj] = (_real)(prCos[jj] + prUNode1[ii]*rCosCurrent*dT);
+					prSin[jj] = (_real)(prSin[jj] + prUNode1[ii]*rSinCurrent*dT);
+				};
+			};
+		};
+		return;
+	};
 
 	for( i = 0, ii = 0, jj = 0; i < nY; i++)
 	{
@@ -738,6 +977,9 @@ void CFieldIntegrated::MakeFileAmplitudeAndFazaFromMemory()
 	if( IsError() ) return;
 	if( !bIsFieldDistribution ) return;
 	if( !bIsIntegretedInMemory ) return;
+//  on the strips the arrays hold nBorderSize nodes, not nX*nY: the whole-area
+//  files cannot be made from them (and are not needed for the pattern)
+	if( bBorderOnly ) return;	// BORDER
 	if( (prCos == NULL)||(prSin == NULL) )
 	{
 		cError.PutErrorMessage("Isn't initial prSin or prCos Array for Field Integrate");
@@ -839,8 +1081,37 @@ void CFieldIntegrated::ExportToDirectionalPattern()
 {
 	if( IsError() ) return;
 
-	ReadParamFromFile();
+	if( !bBorderOnly ) ReadParamFromFile();	// BORDER
 	SetDirectionalPatternParamDefault();
+
+	if( nFreqNum > 1 )	// BORDER
+	{
+//  one pattern per tone: the file name gets the frequency in MHz so that
+//  the whole set can be opened in TMC_DN side by side.
+		CString csBase = csFileDirectPattern;
+		CString csOne;
+		double dFreqSave = dFreq;
+		int k, nCut;
+
+		nCut = csBase.ReverseFind( '.' );
+		if( nCut > 0 ) csBase = csBase.Left( nCut );
+
+		for( k = 0; k < nFreqNum; k++ )
+		{
+			nFreqCur = k;
+			dFreq    = dFreqList[k];
+			csOne.Format( "%s_%.0lfMHz.DAT", (const char *)csBase, dFreqList[k]/1.0e6 );
+			csFileDirectPattern = csOne;
+			MakeDirectionalPatternFile();
+			if( IsError() ) break;
+		};
+
+		nFreqCur = 0;
+		dFreq = dFreqSave;
+		csFileDirectPattern = csBase + ".DAT";
+		return;
+	};
+
 	MakeDirectionalPatternFile();
 
 	return;
@@ -1103,12 +1374,58 @@ void CFieldIntegrated::SetDirectionalPatternParamDefault()
 	return;
 }
 
+
+//  Amplitude and phase straight from the accumulated quadratures // BORDER
+//  In border mode there are no .AMP/.FAZ files to read back: the strips
+//  live in memory and the pattern is built from them directly. The formula
+//  is the same one MakeFileAmplitudeAndFazaFromMemory writes to disk.
+void CFieldIntegrated::MakeAmpFazFromMemory( void )
+{
+	if( IsError() ) return;
+	if( (prCos == NULL)||(prSin == NULL) )
+	{
+		cError.PutErrorMessage("Isn't initial prSin or prCos Array for Field Integrate");
+		return;
+	};
+
+	TmcIdx n = bBorderOnly ? nBorderSize : ((TmcIdx)nX)*nY;
+	TmcIdx iBase = ((TmcIdx)nFreqCur)*n;	// which tone we are building now
+	TmcIdx i;
+	_real rSin, rCos;
+
+	if( prAmp != NULL ) { delete []prAmp; prAmp = NULL; };
+	if( prFaz != NULL ) { delete []prFaz; prFaz = NULL; };
+
+	if( ( prAmp = new _real[ n ] ) == NULL )
+	{
+		cError.PutErrorMessage("Error when init amplitude array for directional pattern");
+		return;
+	};
+	if( ( prFaz = new _real[ n ] ) == NULL )
+	{
+		delete []prAmp;
+		prAmp = NULL;
+		cError.PutErrorMessage("Error when init phase array for directional pattern");
+		return;
+	};
+
+	for( i = 0; i < n; i++ )
+	{
+		rSin = prSin[i + iBase];
+		rCos = prCos[i + iBase];
+		prAmp[i] = (_real)(2*sqrt( rSin*rSin + rCos*rCos )/(dTmax-dTmin));
+		prFaz[i] = (_real)(atan2( rSin, rCos )/cParam.rAngleUnit);
+	};
+
+	return;
+}
 void CFieldIntegrated::MakeDirectionalPatternFile()
 {
 	if( IsError() ) return;
 	if( !IsDirectionalPatternDataCorrect() ) return;
 	MakeDirectionalPatternFileZagolovok();
-	ReadAmplitudaAndFazaEzMInit();
+	if( bBorderOnly ) MakeAmpFazFromMemory();	// BORDER
+	else              ReadAmplitudaAndFazaEzMInit();
 	AddDirectionalPatternFileXmin();
 	AddDirectionalPatternFileXmax();
 	AddDirectionalPatternFileYmin();
@@ -1445,9 +1762,17 @@ void CFieldIntegrated::ReadAmplitudaAndFazaEz(double x, double y, double &aEz, d
 
 	if( (prAmp != NULL)&&(prFaz != NULL) )
 	{
-		i = ((TmcIdx)nY1)*nX+nX1;	// INT64
-		aEz = prAmp[ i ];
-		fEz = prFaz[ i ];
+		TmcIdx iSlot = BorderSlot( nX1, nY1 );	// BORDER
+		if( iSlot < 0 )
+		{
+//  outside the strips the field was not accumulated; for the pattern
+//  such a point is never asked, so zero is the honest answer.
+			aEz = 0.0;
+			fEz = 0.0;
+			return;
+		};
+		aEz = prAmp[ iSlot ];
+		fEz = prFaz[ iSlot ];
 		return;		
 	};
 

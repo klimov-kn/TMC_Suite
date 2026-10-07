@@ -134,7 +134,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetBorderXmin( int nX, int nY )
 		return cError;
 	};
 	
-	int	i;
+	TmcIdx i;	// BIGBLOCK3
 	TmcIdx	ii;	// INT64
 //	CString csBuf1;
 	for( i = 0, ii = 0; i < nNumNode; i++, ii+=nX )
@@ -166,7 +166,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetBorderXmax( int nX, int nY )
 		return cError;
 	};
 	
-	int	i;
+	TmcIdx i;	// BIGBLOCK3
 	TmcIdx	ii;	// INT64
 
 	for( i = 0, ii = nX-1; i < nNumNode; i++, ii+=nX )
@@ -194,7 +194,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetBorderYmin( int nX )
 		return cError;
 	};
 	
-	int	i;
+	TmcIdx i;	// BIGBLOCK3
 	TmcIdx	ii;	// INT64
 
 	for( i = 0, ii = 0; i < nNumNode; i++, ii++ )
@@ -222,7 +222,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetBorderYmax( int nX, int nY )
 		return cError;
 	};
 	
-	int	i;
+	TmcIdx i;	// BIGBLOCK3
 	TmcIdx	ii;	// INT64
 
 	for( i = 0, ii = ((TmcIdx)nX)*nY - nX; i < nNumNode; i++, ii++ )
@@ -441,7 +441,8 @@ CTmcLibError &CTmcRTHNodeDiel::SetRect( CTmcRTH_BlockList * pcNextBlockList, CTm
 	};
 
 	int nXmin, nXmax, nYmin, nYmax;
-	int i, j, nX, nY, ii;
+	int i, j, nX, nY;
+	TmcIdx ii;	// BIGBLOCK3
 	double dXmin, dXmax, dYmin, dYmax, r, x, y;
 
 	dXmin = pcNextBlockList->GetXmin() + pcNextBlockList->GetX0();
@@ -580,7 +581,8 @@ CTmcLibError &CTmcRTHNodeDiel::SetCirc( CTmcRTH_BlockList * pcNextBlockList, CTm
 	};
 
 	int nXmin, nXmax, nYmin, nYmax;
-	int i, j, nX, nY, ii;
+	int i, j, nX, nY;
+	TmcIdx ii;	// BIGBLOCK3
 	double dXmin, dXmax, dYmin, dYmax, r, x, y, rRxy, rFxy, x1, y1, rRxy1, rFxy1;
 	double dRmin, dRmax, dFImin, dFImax, dRRmin, dRRmax;
 
@@ -796,7 +798,8 @@ CTmcLibError &CTmcRTHNodeDiel::SetPoly( CTmcRTH_BlockList * pcNextBlockList, CTm
 	double *pX, *pY;
 	int nXY;
 	int nXmin, nXmax, nYmin, nYmax;
-	int i, j, k, nX, nY, ii, k1;
+	int i, j, k, nX, nY, k1;
+	TmcIdx ii;	// BIGBLOCK3
 	double dXmin, dXmax, dYmin, dYmax, r, x, y, x1, y1;
 
 	if( ( pX = pcNextBlockList->GetpX() ) == NULL )
@@ -1003,7 +1006,7 @@ void CTmcRTHNodeDiel::CalculatedXYCenter( CTmcRTH_IndanParam &cParam )
 	if( nNumNode == 0 ) return;
 	if( pcNodeDielOne == NULL ) return;
 
-	int i;
+	TmcIdx i;	// BIGBLOCK3
 
 	{
 		CString csBuf;
@@ -1032,7 +1035,8 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpXLeft( CTmcRTH_BlockList * pcNextBlockList,
 	};
 
 	int nYmin, nYmax;
-	int j, nY;
+	int nY;
+	TmcIdx j;	// BIGBLOCK3
 	double dYmin, dYmax, r, y;
 
 	dYmin = pcNextBlockList->GetXmin() + pcNextBlockList->GetY0();
@@ -1136,7 +1140,8 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpXRight( CTmcRTH_BlockList * pcNextBlockList
 	};
 
 	int nYmin, nYmax;
-	int j, nY;
+	int nY;
+	TmcIdx j;	// BIGBLOCK3
 	double dYmin, dYmax, r, y;
 
 	dYmin = pcNextBlockList->GetXmin() + pcNextBlockList->GetY0();
@@ -1240,7 +1245,8 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpYTop( CTmcRTH_BlockList * pcNextBlockList, 
 	};
 
 	int nXmin, nXmax;
-	int j, nX;
+	int nX;
+	TmcIdx j;	// BIGBLOCK3
 	double dXmin, dXmax, r, x;
 
 	dXmin = pcNextBlockList->GetXmin() + pcNextBlockList->GetX0();
@@ -1342,7 +1348,8 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpYBot( CTmcRTH_BlockList * pcNextBlockList, 
 	};
 
 	int nXmin, nXmax;
-	int j, nX;
+	int nX;
+	TmcIdx j;	// BIGBLOCK3
 	double dXmin, dXmax, r, x;
 
 	dXmin = pcNextBlockList->GetXmin() + pcNextBlockList->GetX0();
@@ -1450,7 +1457,7 @@ void CTmcRTHNodeDiel::SetYLineForDiel( CTmcRTH_IndanParam &cParam, _real *prYNod
 	CString csBuf;
 	char szBuf[CTMCRTH_INDANSBUF];
 	char szBuf1[CTMCRTH_INDANSBUF];
-	int i;
+	TmcIdx i;	// BIGBLOCK3
 	TmcIdx nNode, ii;	// INT64
 	double x, y, y_line, dDelta;
 	BOOL bIsFile;
@@ -1473,7 +1480,7 @@ void CTmcRTHNodeDiel::SetYLineForDiel( CTmcRTH_IndanParam &cParam, _real *prYNod
 
 	strcpy( szBuf, csEpsExpr );
 	
-	csBuf.Format("Set block %d; points:%d; eps = {%s}", nBlock, nNumNode, csEpsExpr);
+	csBuf.Format("Set block %d; points:%.0f; eps = {%s}", nBlock, (double)nNumNode, csEpsExpr);
 	PutTrace(csBuf);
 
 	for( i = 0, dDelta = cParam.rDelta/2., ii = 0; i < nNumNode; i++, ii++ )
@@ -1481,7 +1488,7 @@ void CTmcRTHNodeDiel::SetYLineForDiel( CTmcRTH_IndanParam &cParam, _real *prYNod
 		if( cError.IsError() ) return;
 		if( ii == 10000 )
 		{
-			csBuf.Format("n:%d", i);
+			csBuf.Format("n:%.0f", (double)i);
 			PutStatistics(csBuf);
 			ii = 0;
 		};
@@ -1529,7 +1536,7 @@ void CTmcRTHNodeDiel::SetnType( void )
 	if( nNumNode == 0 ) return;
 	if( pcNodeDielOne == NULL ) return;
 	
-	int i;
+	TmcIdx i;	// BIGBLOCK3
 
 	{
 		CString csBuf;
@@ -1562,7 +1569,7 @@ void CTmcRTHNodeDiel::SetYForInput( CTmcRTH_IndanParam &cParam )
 	CString csBuf;
 	char szBuf[CTMCRTH_INDANSBUF];
 	char szBuf1[CTMCRTH_INDANSBUF];
-	int i;
+	TmcIdx i;	// BIGBLOCK3
 
 	if( (szBuf == NULL)||(szBuf1 == NULL) )
 	{
@@ -1677,7 +1684,7 @@ void CTmcRTHNodeDiel::SetBlockInDielList( sTmcRTH_DielNodeList **  pcNodeDielLis
 	if( pcNodeDielList == NULL ) return;
 	if( pcNodeDielOne == NULL ) return;
 
-	int i;
+	TmcIdx i;	// BIGBLOCK3
 	CString csBuf;
 
 	for( i = 0; i < nNumNode; i++)
@@ -2463,7 +2470,8 @@ CTmcLibError & CTmcRTHNodeDiel::SetRectMetal(CTmcRTH_BlockList *pcNextBlockList,
 	};
 
 	int nXmin, nXmax, nYmin, nYmax;
-	int i, nX, nY, ii;
+	int i, nX, nY;
+	TmcIdx ii;	// BIGBLOCK3
 	double dXmin, dXmax, dYmin, dYmax, r, x, y;
 
 	dXmin = pcNextBlockList->GetXmin() + pcNextBlockList->GetX0();
@@ -2598,7 +2606,7 @@ void CTmcRTHNodeDiel::RunBlockNode( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int
 		return;
 	};
 
-	int i;
+	TmcIdx i;	// BIGBLOCK3
 	double u1, u2, u3, u4, ut1, ut2, y5, y;
 	_ELEM_VAL_RTH *prU;
 	
@@ -2746,7 +2754,7 @@ void CTmcRTHNodeDiel::RunBlockNode1( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 		return;
 	};
 
-	int i;
+	TmcIdx i;	// BIGBLOCK3
 	double u1, u2, u3, u4, ut1, ut2, y5, y;
 	_ELEM_VAL_RTH *prU;
 	
@@ -2894,7 +2902,8 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 	int nXY, i_step, j_step;
 //	int njj, jj;
 	int nX1, nX2, nY1, nY2;
-	int i, j, k, nX, nY, ii;
+	int j, k, nX, nY;
+	TmcIdx i, ii;	// BIGBLOCK3
 	double r, x, y, x1, y1;
 	CString csBuf1;
 
@@ -3314,7 +3323,8 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMetal(CTmcRTH_BlockList *pcNextBlockList,
 
 	int i_step, j_step, njj, jj;
 	int nX1, nX2, nY1, nY2;
-	int i, j, k1, k2, nX, nY, ii;
+	int j, k1, k2, nX, nY;
+	TmcIdx i, ii;	// BIGBLOCK3
 	double r, x, y, x1, y1, df;
 
 							// calculated nNumNode
@@ -3725,7 +3735,8 @@ CTmcLibError & CTmcRTHNodeDiel::SetRectAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	};
 
 	int nXmin, nXmax, nYmin, nYmax;
-	int i, nX, nY, ii;
+	int nX, nY;
+	TmcIdx i, ii;	// BIGBLOCK3
 	double dXmin, dXmax, dYmin, dYmax, r, x, y, dYAdmit;
 
 	dYAdmit = SetAbsorberAdmitance( cParam.rFreq, cParam.rDelta );
@@ -3973,7 +3984,8 @@ CTmcLibError & CTmcRTHNodeDiel::SetRectMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	};
 
 	int nXmin, nXmax, nYmin, nYmax;
-	int i, nX, nY, ii;
+	int nX, nY;
+	TmcIdx i, ii;	// BIGBLOCK3
 	double dXmin, dXmax, dYmin, dYmax, r, x, y, dYAdmit;
 
 	dYAdmit = 0.0;
@@ -4245,7 +4257,8 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	double *pX, *pY;
 	int nXY, i_step, j_step, njj, jj;
 	int nX1, nX2, nY1, nY2;
-	int i, j, k, nX, nY, ii, n_x, n_y;
+	int j, k, nX, nY, n_x, n_y;
+	TmcIdx i, ii;	// BIGBLOCK3
 	double r, x, y, x1, y1, dYAdmit;
 //	CString csBuf1;
 	dYAdmit = SetAbsorberAdmitance( cParam.rFreq, cParam.rDelta );
@@ -4774,7 +4787,7 @@ void CTmcRTHNodeDiel::DeleteDublicateData()
 		csBuf.Format("Delete Dublicated Data");
 		PutStatistics(csBuf);
 	};
-	int i, j, n;
+	TmcIdx i, j, n;	// BIGBLOCK3
 	TmcIdx n1;	// INT64
 	sTmcRTHNodeDielOne *pcNodeDielOne1;
 	
@@ -4858,7 +4871,8 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 
 	int i_step, j_step, njj, jj;
 	int nX1, nX2, nY1, nY2;
-	int i, j, k1, k2, nX, nY, ii, n_x, n_y;
+	int j, k1, k2, nX, nY, n_x, n_y;
+	TmcIdx i, ii;	// BIGBLOCK3
 	double r, x, y, x1, y1, df, dYAdmit;
 
 	dYAdmit = SetAbsorberAdmitance( cParam.rFreq, cParam.rDelta );
@@ -5596,7 +5610,8 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 
 	int i_step, j_step, njj, jj;
 	int nX1, nX2, nY1, nY2;
-	int i, j, k1, k2, nX, nY, ii, n_x, n_y;
+	int j, k1, k2, nX, nY, n_x, n_y;
+	TmcIdx i, ii;	// BIGBLOCK3
 	double r, x, y, x1, y1, df, dYAdmit;
 
 	dYAdmit = 0.0;
@@ -6336,7 +6351,8 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	double *pX, *pY;
 	int nXY, i_step, j_step, njj, jj;
 	int nX1, nX2, nY1, nY2;
-	int i, j, k, nX, nY, ii, n_x, n_y;
+	int j, k, nX, nY, n_x, n_y;
+	TmcIdx i, ii;	// BIGBLOCK3
 	double r, x, y, x1, y1, dYAdmit;
 //	CString csBuf1;
 	dYAdmit = 0.0;
@@ -7055,7 +7071,8 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 	};
 
 //	int nXmin, nXmax, nYmin, nYmax;
-	int i, j, nX, nY, ii, nPoint, nNumNode1, nAccur, jj;
+	int j, nX, nY, nPoint, nNumNode1, nAccur, jj;
+	TmcIdx i, ii;	// BIGBLOCK3
 	double dXmin, dXmin1, dXmax, dYmin, dYmin1, dYmax, r, x, y;
 	char ch[ CTMCRTH_INDANSBUF ];
 	sTmcRTHNodeDielOne *pcNodeDielOne1;
@@ -7430,7 +7447,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 			};
 			if( jj == 10000 )
 			{
-				csBufTr.Format("Read n:%d", i);
+				csBufTr.Format("Read n:%.0f", (double)i);
 				PutStatistics(csBufTr);
 				jj = 0;
 			};
@@ -7476,7 +7493,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 						};
 						if( jj == 10000 )
 						{
-							csBufTr.Format("Read n:%d", i);
+							csBufTr.Format("Read n:%.0f", (double)i);
 							PutStatistics(csBufTr);
 							jj = 0;
 						};
@@ -7519,7 +7536,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 						};
 						if( jj == 10000 )
 						{
-							csBufTr.Format("Read n:%d", i);
+							csBufTr.Format("Read n:%.0f", (double)i);
 							PutStatistics(csBufTr);
 							jj = 0;
 						};
@@ -7558,7 +7575,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 		};
 		if( jj == 10000 )
 		{
-			csBufTr.Format("Load n:%d %d", ii, i);
+			csBufTr.Format("Load n:%.0f %.0f", (double)ii, (double)i);
 			PutStatistics(csBufTr);
 			jj = 0;
 		};
@@ -7620,7 +7637,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 		};
 		if( jj == 10000 )
 		{
-			csBufTr.Format("Load n:%d %d", ii, i);
+			csBufTr.Format("Load n:%.0f %.0f", (double)ii, (double)i);
 			PutStatistics(csBufTr);
 			jj = 0;
 		};
@@ -7757,7 +7774,7 @@ void CTmcRTHNodeDiel::CalculateYForInput(double dFreq, double dDelta)
 
 void CTmcRTHNodeDiel::SetMagneticPolygonType( CTmcRTH_IndanParam &cParam )
 {
-	int i;
+	TmcIdx i;	// BIGBLOCK3
 //	CString csBuf;
 
 	for( i = 0; i < nNumNode; i++ ) 

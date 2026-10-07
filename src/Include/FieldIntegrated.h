@@ -73,7 +73,6 @@ private:
 	void IntegrateInMemory( _real* prUNode1, _real rCosCurrent, _real rSinCurrent);
 	_real* prSin;
 	_real* prCos;
-	void InitArrayForIntegrate( void );
 	BOOL bIsIntegretedInMemory;
 	void MakeFileAmplitudeAndFaza( void );
 	BOOL bIsBeginIntegreted;
@@ -96,7 +95,41 @@ private:
 	int nEmitterInFile;
 	int nY;
 	int nX;
-	int nNodeStep;
+
+//  ---- border-only accumulation // BORDER ----------------------------
+//  A directional pattern is built from a contour, not from the whole area,
+//  so on a huge grid there is no reason to keep four arrays per node.
+//  In border mode only four strips (3 nodes thick) around the contour are
+//  kept; BorderSlot() maps a grid node to its place inside them, or -1.
+public:
+	BOOL IsBorderOnly( void ) { return bBorderOnly; }
+	TmcIdx GetBorderSize( void ) { return nBorderSize; }
+	void   SetBorderModeIfNeeded( double dFreeBytes );
+	void   MakeAmpFazFromMemory( void );
+
+//  ---- several frequencies at once // BORDER ----------------------
+//  A wide-band run carries many tones; the pattern is wanted for each
+//  of them. One pair of quadratures per frequency is kept, which is
+//  affordable exactly because only the border strips are stored.
+	void   SetFreqList( CString csList, double dFreqUnit );
+	void   InitArrayForIntegrate( void );
+	int    GetFreqNum( void ) { return nFreqNum; }
+#define TMC_DN_MAXFREQ 99
+	double dFreqList[TMC_DN_MAXFREQ];
+	int    nFreqNum;
+	int    nFreqCur;				// tone whose pattern is being built
+	void   IntegrateInMemoryOneFreq( _real *prUNode1, _real rCosCurrent,
+			_real rSinCurrent, TmcIdx iBase );
+	TmcIdx BorderSlot( int ix, int iy );
+private:
+	void   BorderGeometry( void );
+	BOOL   bBorderOnly;
+	int    nBX0, nBX1, nBY0, nBY1;	// contour rectangle widened by one node
+	int    nBW;						// width of the horizontal strips
+	int    nBHm;					// height of the vertical strips (middle part)
+	TmcIdx nBorderSize;				// how many nodes the four strips hold
+
+	int    nNodeStep;
 	CTmcLibError cError;
 	double dFreq;
 	double dTmin;
