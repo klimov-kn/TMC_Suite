@@ -199,10 +199,133 @@ static BOOL IsKeyTimeInCommandLine( const char *lpszCmdLine )
 	return FALSE;
 }
 
+// RUN STATUS: exit code of the process and console output for /Ar, /Arb.
+// Console messages are written only in the auto run mode: to the redirected
+// stdout (file or pipe: "> log.txt", "| more", bash) or to the console of the
+// parent process (cmd, bat). Started not from a console - nothing is written.
+static volatile int	 nRunExitCode = TMC_EXIT_OK;
+static HWND		 hRunMainWnd = NULL;
+static volatile BOOL	 bRunClosing = FALSE;
+static BOOL		 bConsoleInit = FALSE;
+static HANDLE		 hConsoleOut = NULL;
+static BOOL		 bConsoleIsChar = FALSE;
+
+void SetRunExitCode( int nCode )
+{
+	nRunExitCode = nCode;
+	return;
+}
+
+int GetRunExitCode( void )
+{
+	return nRunExitCode;
+}
+
+void SetRunMainWnd( HWND hWnd )
+{
+	hRunMainWnd = hWnd;
+	return;
+}
+
+// the window is being closed (CPlanRT_HDoc::StopAndWait from OnClose): the run thread
+// must not post one more WM_CLOSE - the nested OnClose destroyed the document
+// while the first OnClose was still waiting for the thread
+void SetRunClosing( void )
+{
+	bRunClosing = TRUE;
+	return;
+}
+
+// close the main window after the auto run (by HWND: safe if it is already closed)
+void PostRunClose( void )
+{
+	if( bRunClosing ) return;
+	if( ( hRunMainWnd != NULL )&&( ::IsWindow( hRunMainWnd ) ) )
+		::PostMessage( hRunMainWnd, WM_CLOSE, 0, 0 );
+	return;
+}
+
+static void ConsoleInit( void )
+{
+	HANDLE h;
+	DWORD dwType, dwMode;
+
+	bConsoleInit = TRUE;
+	h = ::GetStdHandle( STD_OUTPUT_HANDLE );
+	dwType = ( ( h != NULL )&&( h != INVALID_HANDLE_VALUE ) ) ? ::GetFileType( h ) : FILE_TYPE_UNKNOWN;
+	if( ( dwType == FILE_TYPE_DISK )||( dwType == FILE_TYPE_PIPE ) )
+	{
+		hConsoleOut = h;
+		return;
+	};
+	if( !::AttachConsole( ATTACH_PARENT_PROCESS ) ) return;
+	h = ::CreateFileA( "CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
+		NULL, OPEN_EXISTING, 0, NULL );
+	if( h == INVALID_HANDLE_VALUE ) return;
+	hConsoleOut = h;
+	bConsoleIsChar = ::GetConsoleMode( h, &dwMode );
+	return;
+}
+
+void ConsolePrint( const char *pszFormat, ... )
+{
+	char szBuf[4096];
+	int n, nPrefix;
+	va_list args;
+	DWORD dwWritten;
+
+	if( !IsAutoRun() ) return;
+	if( !bConsoleInit ) ConsoleInit();
+	if( hConsoleOut == NULL ) return;
+
+	nPrefix = _snprintf( szBuf, sizeof(szBuf) - 3, "[%s] ", AfxGetApp()->m_pszExeName );
+	if( ( nPrefix < 0 )||( nPrefix >= (int)sizeof(szBuf) - 3 ) ) nPrefix = 0;
+	va_start( args, pszFormat );
+	n = _vsnprintf( szBuf + nPrefix, sizeof(szBuf) - 3 - nPrefix, pszFormat, args );
+	va_end( args );
+	if( ( n < 0 )||( n >= (int)sizeof(szBuf) - 3 - nPrefix ) ) n = (int)strlen( szBuf + nPrefix );
+	n += nPrefix;
+	szBuf[n++] = '\r';
+	szBuf[n++] = '\n';
+	szBuf[n] = '\0';
+
+	if( bConsoleIsChar )
+	{
+		WCHAR wszBuf[4096];
+		int nW = ::MultiByteToWideChar( CP_ACP, 0, szBuf, n, wszBuf, 4096 );
+		if( nW > 0 ) ::WriteConsoleW( hConsoleOut, wszBuf, nW, &dwWritten, NULL );
+	}
+	else
+	{
+		::WriteFile( hConsoleOut, szBuf, n, &dwWritten, NULL );
+	};
+	return;
+}
+
+void ConsoleReportResult( void )
+{
+	switch( GetRunExitCode() )
+	{
+		case TMC_EXIT_OK:
+			ConsolePrint( "RESULT %d: OK - all steps are calculated", TMC_EXIT_OK );
+			break;
+		case TMC_EXIT_TPL_ERROR:
+			ConsolePrint( "RESULT %d: ERROR in .tpl file - calculation is not done", TMC_EXIT_TPL_ERROR );
+			break;
+		case TMC_EXIT_CALC_ERROR:
+			ConsolePrint( "RESULT %d: ERROR during calculation", TMC_EXIT_CALC_ERROR );
+			break;
+		default:
+			ConsolePrint( "RESULT %d: STOPPED - calculation is not finished", GetRunExitCode() );
+			break;
+	};
+	return;
+}
+
 void Set_CommandLine_Flags( char *lpszCmdLine )
 {
 	int i;
-	
+
 	SetAutoRunOff();
 	SetDemoRunOff();
 	SetTimeReportOff();											// TIMING
@@ -260,6 +383,8 @@ void Set_CommandLine_Flags( char *lpszCmdLine )
 				break;
 		};
 	};
+	// RUN STATUS: in the auto run the code "stopped" until the run is finished
+	SetRunExitCode( IsAutoRun() ? TMC_EXIT_ABORTED : TMC_EXIT_OK );
 	return;
 };
 

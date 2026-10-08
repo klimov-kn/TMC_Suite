@@ -49,4 +49,18 @@ PROCESS_INFORMATION GetProcessInformation( void );
 void SetPointerClassView( CPlanRT_HView* pcView1 );
 void RunOnViewField1( void );
 
+// RUN STATUS: process exit code and console messages for the command line run
+// (keys /Ar, /Arb). The exit code is returned by CPlanRT_HApp::ExitInstance.
+#define TMC_EXIT_OK				0	// all steps of the .tpl are calculated
+#define TMC_EXIT_TPL_ERROR		1	// .tpl not found or error in .tpl (preprocessor, data)
+#define TMC_EXIT_CALC_ERROR		2	// error during the calculation of a step
+#define TMC_EXIT_ABORTED		3	// stopped by the user / window closed before the end
+void SetRunExitCode( int nCode );
+int  GetRunExitCode( void );
+void SetRunMainWnd( HWND hWnd );
+void SetRunClosing( void );
+void PostRunClose( void );
+void ConsolePrint( const char *pszFormat, ... );
+void ConsoleReportResult( void );
+
 #endif

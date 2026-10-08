@@ -182,11 +182,9 @@ void CTmcRTH_IndanTopology::ReadLink( CString &csCh, CTmcLibError &cError )
 			return;
 		};
 
-{
-	CString csBuf1;
-	csBuf1.Format("Function SetLink\nx0 = %lg;\ny0 = %lg;\nXmin = %lg;\nXmax = %lg;", x0, y0, pcParam->rXmin, pcParam->rXmax );
-	AfxMessageBox(csBuf1);
-};
+// RUN STATUS: the debug message box "Function SetLink x0 = ..." is removed - in the
+// batch run (/Arb) the modal window waited for a click forever; the error text below
+// (block INPUT_X: x0 must be ...) is put into the error message as before
 
 		csBuf.Format("%s %d %s in %s section x0 must be %lg - for left input or %lg - for right input", 
 			CTMCRTH_INDANMET_BLOCK, iBuf, CTMCRTH_INDANBLCK_INPUT_X,

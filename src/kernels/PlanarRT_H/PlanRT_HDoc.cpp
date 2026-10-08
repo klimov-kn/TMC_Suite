@@ -324,6 +324,7 @@ void CPlanRT_HDoc::SetRunThreadHandle( HANDLE hThread )
 
 void CPlanRT_HDoc::StopAndWait( void )
 {
+	SetRunClosing();		// RUN STATUS: the window is closing - no WM_CLOSE from the run thread
 	Stop();
 	if( m_hRunThread == NULL ) return;
 	DWORD dwStart = ::GetTickCount();
@@ -353,9 +354,45 @@ void CPlanRT_HDoc::RunAll( void )
 	// the report is saved next to the .tpl (without the key - window "Calc. time..." only)
 	if( bIsReadData ) return;
 	cRectNode.GetTiming().BeginRunAll();
-	RunAll1();
+	// RUN STATUS: an exception in the run (first of all "not enough memory": the old code
+	// checks new == NULL, but new throws) is not a crash 0xC0000409 any more, but the code 2
+	try
+	{
+		RunAll1();
+	}
+	catch( CException *e )
+	{
+		char szErr[512] = "";
+		e->GetErrorMessage( szErr, sizeof(szErr) );
+		e->Delete();
+		ConsolePrint( "ERROR in calculation (step %d): exception: %s", nStep, szErr );
+		PutTrace( "Error: exception in calculation" );
+		SetRunExitCode( TMC_EXIT_CALC_ERROR );
+		bIsReadData = FALSE;
+	}
+	catch( std::bad_alloc & )
+	{
+		ConsolePrint( "ERROR in calculation (step %d): not enough memory", nStep );
+		PutTrace( "Error: not enough memory" );
+		SetRunExitCode( TMC_EXIT_CALC_ERROR );
+		bIsReadData = FALSE;
+	}
+	catch( ... )
+	{
+		ConsolePrint( "ERROR in calculation (step %d): unknown exception", nStep );
+		PutTrace( "Error: exception in calculation" );
+		SetRunExitCode( TMC_EXIT_CALC_ERROR );
+		bIsReadData = FALSE;
+	};
 	cRectNode.GetTiming().EndRunAll();
 	if( IsTimeReport() ) cRectNode.GetTiming().SaveReport( cRectNode.GetTiming().DefaultReportName() );
+	// RUN STATUS: result to the console; in the auto run the window is closed after
+	// the successful run (always, not only with the sound on) and in /Arb - after any end
+	if( IsAutoRun() )
+	{
+		ConsoleReportResult();
+		if( ( GetRunExitCode() == TMC_EXIT_OK )||IsBatchRun() ) PostRunClose();
+	};
 	return;
 }
 
@@ -365,44 +402,72 @@ void CPlanRT_HDoc::RunAll1( void )
 	if( bIsReadData ) return;
 
 	bIsReadData = TRUE;
-	
+
 	int i, n;
-	
+
 	__int64 qTmPr = TmcTimingNow();								// TIMING
 	n = cRectNode.GetNStepMax( GetPathName() ) + 1;
 	cRectNode.GetTiming().qRunPrepr += TmcTimingNow() - qTmPr;		// TIMING
-	
+
+	// RUN STATUS: the preprocessor error or no #STEP in the .tpl - nothing to calculate
+	if( cRectNode.IsError() )
+	{
+		ConsolePrint( "ERROR in .tpl: %s", (LPCTSTR)cRectNode.GetErrorMessage() );
+		SetRunExitCode( TMC_EXIT_TPL_ERROR );
+		bIsReadData = FALSE;
+		return;
+	};
+	if( n - 1 < nStep )
+	{
+		ConsolePrint( "ERROR in .tpl: no #STEP to calculate (steps found: %d)", n - 1 );
+		SetRunExitCode( TMC_EXIT_TPL_ERROR );
+		bIsReadData = FALSE;
+		return;
+	};
+	ConsolePrint( "Steps: %d", n - 1 );
+
 	for( i = nStep; i < n; i++ )
 	{
 		nStep = i;
-		
+
 		if( !bIsReadData )
 		{
 			csBuf.Format("User cancel run step %d thread", nStep);
 			PutTrace(csBuf);
+			ConsolePrint( "STOPPED before step %d of %d", nStep, n - 1 );	// RUN STATUS
+			SetRunExitCode( TMC_EXIT_ABORTED );
 			bIsReadData = FALSE;
 			return;
 		};
 		cRectNode.ReadData( GetPathName(), nStep );
-		if( cRectNode.IsError() ) 
+		if( cRectNode.IsError() )
 		{
+			ConsolePrint( "ERROR in .tpl (step %d of %d): %s", nStep, n - 1,	// RUN STATUS
+				(LPCTSTR)cRectNode.GetErrorMessage() );
+			SetRunExitCode( TMC_EXIT_TPL_ERROR );
 			bIsReadData = FALSE;
 			return;
 		};
-		
+
 		csBuf.Format("Start step %d", nStep);
 		PutTrace(csBuf);
-		
+		ConsolePrint( "Step %d of %d: start", nStep, n - 1 );			// RUN STATUS
+
 		if( !bIsReadData )
 		{
 			csBuf.Format("User cancel run step %d thread", nStep);
 			PutTrace(csBuf);
+			ConsolePrint( "STOPPED at step %d of %d", nStep, n - 1 );		// RUN STATUS
+			SetRunExitCode( TMC_EXIT_ABORTED );
 			bIsReadData = FALSE;
 			return;
 		};
 		cRectNode.RunStep();
-		if( cRectNode.IsError() ) 
+		if( cRectNode.IsError() )
 		{
+			ConsolePrint( "ERROR in calculation (step %d of %d): %s", nStep, n - 1,	// RUN STATUS
+				(LPCTSTR)cRectNode.GetErrorMessage() );
+			SetRunExitCode( TMC_EXIT_CALC_ERROR );
 			bIsReadData = FALSE;
 			return;
 		};
@@ -410,16 +475,20 @@ void CPlanRT_HDoc::RunAll1( void )
 		{
 			csBuf.Format("User cancel run step %d thread", nStep);
 			PutTrace(csBuf);
+			ConsolePrint( "STOPPED at step %d of %d", nStep, n - 1 );		// RUN STATUS
+			SetRunExitCode( TMC_EXIT_ABORTED );
 			bIsReadData = FALSE;
 			return;
 		};
-		
+
 		csBuf.Format("Finish step %d", nStep);
 		PutTrace(csBuf);
+		ConsolePrint( "Step %d of %d: done", nStep, n - 1 );			// RUN STATUS
 	};
-	
+
+	SetRunExitCode( TMC_EXIT_OK );									// RUN STATUS
 	bIsReadData = FALSE;
-	
+
 	return;
 }
 

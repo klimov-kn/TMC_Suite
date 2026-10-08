@@ -22,6 +22,7 @@ public:
 	//{{AFX_VIRTUAL(CPlanRT_HApp)
 	public:
 	virtual BOOL InitInstance();
+	virtual int ExitInstance();		// RUN STATUS: process exit code
 	//}}AFX_VIRTUAL
 
 // Implementation

@@ -1995,12 +1995,8 @@ void CTmcRTHRectNode::PutStepEndSound()
 	if( n == cIndan.GetNStepMax() )
 	{
 		BeepAllEnd();
-		if( IsAutoRun() )
-		{
-			CMainFrame* HwndMainFrame = GetMainFramePointer__();
-			HwndMainFrame->PostMessage( WM_CLOSE );
-	
-		};
+		// RUN STATUS: the auto close after the last step is moved to CPlanRT_HDoc::RunAll
+		// (here it worked only with the sound on and closed the window before the end of the run)
 		return;
 	};
 	BeepStepEnd( n );

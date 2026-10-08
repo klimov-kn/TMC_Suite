@@ -51,6 +51,14 @@ CPlanRT_HApp theApp;
 /////////////////////////////////////////////////////////////////////////////
 // CPlanRT_HApp initialization
 
+// RUN STATUS: exit code of the process (0 - OK, 1 - .tpl error, 2 - calculation error,
+// 3 - stopped); see TMC_EXIT_* in Pl_iofor.h
+int CPlanRT_HApp::ExitInstance()
+{
+	CWinApp::ExitInstance();
+	return GetRunExitCode();
+}
+
 BOOL CPlanRT_HApp::InitInstance()
 {
 	// Инициализация OLE/COM — нужна для Shell-вызовов в CRecentFileList (Windows 7+).
@@ -90,6 +98,7 @@ BOOL CPlanRT_HApp::InitInstance()
 	if (!pMainFrame->LoadFrame(IDR_MAINFRAME))
 		return FALSE;
 	m_pMainWnd = pMainFrame;
+	SetRunMainWnd( pMainFrame->GetSafeHwnd() );		// RUN STATUS
 
 	// Enable drag/drop open
 	m_pMainWnd->DragAcceptFiles();
@@ -104,6 +113,27 @@ BOOL CPlanRT_HApp::InitInstance()
 
 	CCommandLineInfo cmdInfo;
 	ParseCommandLine(cmdInfo);
+
+	// RUN STATUS: in the auto run (/Ar, /Arb) the .tpl must be given and must exist,
+	// otherwise exit with the code 1 (no last file from the list, no MFC message box)
+	if( IsAutoRun() )
+	{
+		if( cmdInfo.m_strFileName.IsEmpty() )
+		{
+			ConsolePrint( "ERROR: no .tpl file in the command line" );
+			SetRunExitCode( TMC_EXIT_TPL_ERROR );
+			ConsoleReportResult();
+			return FALSE;
+		};
+		if( ::GetFileAttributes( cmdInfo.m_strFileName ) == INVALID_FILE_ATTRIBUTES )
+		{
+			ConsolePrint( "ERROR: can't open file %s", (LPCTSTR)cmdInfo.m_strFileName );
+			SetRunExitCode( TMC_EXIT_TPL_ERROR );
+			ConsoleReportResult();
+			return FALSE;
+		};
+		ConsolePrint( "File: %s", (LPCTSTR)cmdInfo.m_strFileName );
+	};
 											   // if command line is NULL  - open last dat file
 	if( strcmp( cmdInfo.m_strFileName, "" ) == 0 )
 	{
