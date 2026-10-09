@@ -34,10 +34,14 @@
 static _real inter_value = 0;
 void  inte_set_inter_value( _real r )
 {
-	inter_value = r;
+	EXPR_THREAD_CTX *p = expr_get_thread_ctx();	// EPSFAST
+	if( p != NULL ) p->rInterValue = r;
+	else inter_value = r;
 }
 _real  inte_get_inter_value( void )
 {
+	EXPR_THREAD_CTX *p = expr_get_thread_ctx();	// EPSFAST
+	if( p != NULL ) return p->rInterValue;
 	return inter_value;
 }
 

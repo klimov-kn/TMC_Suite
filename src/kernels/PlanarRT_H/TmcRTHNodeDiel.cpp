@@ -13,6 +13,16 @@
 #include <expr.h>
 #include "Pl_iofor.h"
 #include <TmcCalcTiming.h>	// TIMING
+#include <thread>		// EPSFAST
+#include <atomic>		// EPSFAST
+#include <vector>		// EPSFAST
+
+#define EPSFAST_RECT		0	// EPSFAST: block shapes
+#define EPSFAST_CIRC		1
+#define EPSFAST_POLY		2
+#define EPSFAST_CONST		0	// EPSFAST: no x, y, r, f in the expression - one value per block
+#define EPSFAST_PARALLEL	1	//          x, y, r, f, no '=' - nodes are independent
+#define EPSFAST_SERIAL		2	//          '=' - variables live from node to node, keep the order
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -241,6 +251,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 	double r;
 	int i;
 	csSigPath = csCurrentPath;			// remember path for signal file
+	BOOL bEpsFast = FALSE;				// EPSFAST
 
 	if( cError.IsError() ) return cError;
 	if( pcNextBlockList == NULL )
@@ -339,7 +350,8 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 			};
 			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTAT, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == NULL ) 
 			{
-				cError = SetRect( pcNextBlockList, cParam, csCurrentPath );
+				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_RECT, 2, 0 ) ) bEpsFast = TRUE;	// EPSFAST
+				else cError = SetRect( pcNextBlockList, cParam, csCurrentPath );
 				i = 1;
 			};
 			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTMOVE, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == NULL )
@@ -349,7 +361,8 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 			};
 			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTAT, strlen(CTMCRTH_INDANBLCK_CIRCSTAT) ) == NULL )
 			{
-				cError = SetCirc( pcNextBlockList, cParam);
+				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_CIRC, 2, 0 ) ) bEpsFast = TRUE;	// EPSFAST
+				else cError = SetCirc( pcNextBlockList, cParam);
 				i = 1;
 			};
 			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCMOVE, strlen(CTMCRTH_INDANBLCK_CIRCMOVE) ) == NULL )
@@ -359,7 +372,8 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 			};
 			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTT, strlen(CTMCRTH_INDANBLCK_POLYGSTT) ) == NULL )
 			{
-				cError = SetPoly( pcNextBlockList, cParam);
+				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_POLY, 2, 0 ) ) bEpsFast = TRUE;	// EPSFAST
+				else cError = SetPoly( pcNextBlockList, cParam);
 				i = 1;
 			};
 			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGMOV, strlen(CTMCRTH_INDANBLCK_POLYGMOV) ) == NULL )
@@ -406,6 +420,18 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 		csBuf.Format("Set block %d; points:%.0f; Type or eps = {%s}", nBlock, (double)nNumNode, csEpsExpr);	// BIGBLOCK
 		PutTrace(csBuf);
 	};
+	if( bEpsFast )	// EPSFAST: eps is already in prYNode, no node array was built
+	{
+		CString csBuf;
+		csBuf.Format("Set block %d; points:%.0f; Type or eps = {%s}", nBlock, (double)nNumNode, csEpsExpr);
+		PutTrace(csBuf);
+		pcNextBlockList->SetnMemory( sizeof(CTmcRTHNodeDiel) );
+		nNumNode = 0;
+		csBuf.Format(" ");
+		PutStatistics(csBuf);
+		return cError;
+	};
+
 	DeleteDublicateData();
 	CalculatedXYCenter( cParam );
 	SetnType();
@@ -424,6 +450,543 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 		PutStatistics(csBuf);
 	};
 	return cError;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// EPSFAST: fast build of stationary eps blocks
+//          (RECT_STAT, CIRCLE_STAT, POLYGON_STAT and their _N/_B/_Y variants).
+//
+// prYNode gets the same numbers as from SetRect/SetCirc/SetPoly + SetYLineForDiel,
+// but
+//  1) an expression without x, y, r, f is evaluated once per block;
+//  2) eps goes straight into prYNode - the node array (56 bytes per node) that
+//     DeleteStatDielData threw away afterwards is not built at all;
+//  3) nodes are visited row by row, i.e. one after another in memory;
+//  4) an expression with x, y, r, f is evaluated in several threads, each thread
+//     with its own interpreter context (exprint: expr_thread_ctx_begin).
+// Anything unusual (repeated grid nodes, geometry errors, no nodes in the block)
+// returns FALSE, and the original code then builds the block and gives the
+// original messages. Environment: TMC_EPS_FAST=0 - original code for every
+// block; TMC_EPS_THREADS=n - number of threads (default: all processors).
+//////////////////////////////////////////////////////////////////////////////
+
+#define EPSFAST_CHUNK		8		// rows taken by a thread at once
+#define EPSFAST_MAXTHREADS	64		// WaitForMultipleObjects limit
+#define EPSFAST_SMALL		200000	// fewer nodes - one thread
+
+struct sEpsFastJob
+{
+	CTmcRTH_IndanParam *pParam;
+	_real *prYNode;
+	int nStride, nOffset;		// eps of node n goes to prYNode[nStride*n + nOffset]
+	int nShape, nKind;
+	int nX, nY;
+	const char *pszExpr;
+	double *pdX, *pdY;			// node coordinates exactly as the original loops make them
+	TmcIdx *pnXIdx, *pnYRow;	// grid node = pnXIdx[i] + pnYRow[j]
+	double *pdEpsX, *pdEpsY;	// coordinates passed to the eps expression
+	double dRRmin, dRRmax, dFImin, dFImax, dDelta;	// circle
+	double *pPX, *pPY;			// polygon
+	int nXY;
+	_real rEpsConst;
+	volatile BOOL *pbIsStop;
+	std::atomic<int> nNextRow;
+	std::atomic<int> nRowsDone;
+	std::atomic<int> nError;
+	std::atomic<int> nCancel;
+	std::atomic<long long> nCount;
+};
+
+int CTmcRTHNodeDiel::EpsFastExprKind( const char *pszExpr )
+{
+	static const char *aszWord[] = { "return(", "while(", "log10(", "sqrt(", "sinh(", "cosh(", "tanh(",
+		"asin(", "acos(", "atan(", "abs(", "exp(", "log(", "sin(", "cos(", "tan(", "if(" };
+	CString cs = pszExpr;
+	int i;
+
+	if( strchr( pszExpr, '=' ) != NULL ) return EPSFAST_SERIAL;	// variables live from node to node
+	for( i = 0; i < (int)(sizeof(aszWord)/sizeof(aszWord[0])); i++ ) cs.Replace( aszWord[i], " " );
+	if( cs.FindOneOf( "xyrf" ) >= 0 ) return EPSFAST_PARALLEL;
+	return EPSFAST_CONST;
+}
+
+unsigned CTmcRTHNodeDiel::EpsFastThreads( void )
+{
+	unsigned n = std::thread::hardware_concurrency();
+	char *psz = getenv( "TMC_EPS_THREADS" );
+
+	if( ( psz != NULL )&&( atoi( psz ) > 0 ) ) n = (unsigned)atoi( psz );
+	if( n < 1 ) n = 1;
+	if( n > EPSFAST_MAXTHREADS ) n = EPSFAST_MAXTHREADS;
+	return n;
+}
+
+// The same as CalcEps, but without cError, so it can run in any thread.
+int CTmcRTHNodeDiel::EpsFastEval( const char *pszExpr, double x, double y, CTmcRTH_IndanParam &cParam, char *szBuf, char *szBuf1, _real *pr )
+{
+	double r1, r, f;
+
+	strcpy( szBuf, pszExpr );
+
+	x /=cParam.rLongUnit;
+	y /=cParam.rLongUnit;
+	r = sqrt( x*x + y*y );
+	f = atan2__1( y, x)/cParam.rAngleUnit;
+	sprintf( szBuf1, "x=(%lg);y=(%lg);r=(%lg);f=(%lg);", x, y, r, f);
+	if( i1nte_atof_1( szBuf1, &r1 ) != 0 ) return -1;
+	if( i1nte_atof_1( szBuf, &r1 ) != 0 ) return -1;
+	*pr = (_real)r1;
+	return 0;
+}
+
+// Is node (i, j) of the block's bounding box in the block, and its weight
+// (the original SetRect/SetCirc/SetPoly rY).
+BOOL CTmcRTHNodeDiel::EpsFastNode( sEpsFastJob *pJob, int i, int j, _real *prY )
+{
+	double x, y, x1, y1, rRxy, rFxy, rRxy1, rFxy1, d;
+	double *pX, *pY;
+	int k, k1, nXY;
+	BOOL bIn;
+
+	switch( pJob->nShape )
+	{
+		case EPSFAST_RECT:
+			*prY = (_real)(1.0);
+			if( i == 0 )               *prY *= (_real)(0.5);
+			if( i == (pJob->nX - 1) )  *prY *= (_real)(0.5);
+			if( j == 0 )               *prY *= (_real)(0.5);
+			if( j == (pJob->nY - 1) )  *prY *= (_real)(0.5);
+			return TRUE;
+
+		case EPSFAST_CIRC:
+			x = pJob->pdX[i];
+			y = pJob->pdY[j];
+			d = pJob->dDelta;
+			rRxy = x*x + y*y;
+			rFxy = atan2__1( y, x);
+			if( !( ( rRxy >= pJob->dRRmin )&&( rRxy <= pJob->dRRmax)&&
+				( rFxy >= pJob->dFImin )&&( rFxy <= pJob->dFImax )&&
+				pJob->pParam->IsnInRegion( pJob->pnXIdx[i] + pJob->pnYRow[j] ) ) ) return FALSE;
+			*prY = (_real)(0.0);
+			x1 = x - d;
+			y1 = y - d;
+			rRxy1 = x1*x1 + y1*y1;
+			rFxy1 = atan2__1( y1, x1);
+			if( ( rRxy1 >= pJob->dRRmin )&&( rRxy1 <= pJob->dRRmax)&&
+				( rFxy1 >= pJob->dFImin )&&( rFxy1 <= pJob->dFImax )) *prY += (_real)(0.25);
+			x1 = x - d;
+			y1 = y + d;
+			rRxy1 = x1*x1 + y1*y1;
+			rFxy1 = atan2__1( y1, x1);
+			if( ( rRxy1 >= pJob->dRRmin )&&( rRxy1 <= pJob->dRRmax)&&
+				( rFxy1 >= pJob->dFImin )&&( rFxy1 <= pJob->dFImax )) *prY += (_real)(0.25);
+			x1 = x + d;
+			y1 = y + d;
+			rRxy1 = x1*x1 + y1*y1;
+			rFxy1 = atan2__1( y1, x1);
+			if( ( rRxy1 >= pJob->dRRmin )&&( rRxy1 <= pJob->dRRmax)&&
+				( rFxy1 >= pJob->dFImin )&&( rFxy1 <= pJob->dFImax )) *prY += (_real)(0.25);
+			x1 = x + d;
+			y1 = y - d;
+			rRxy1 = x1*x1 + y1*y1;
+			rFxy1 = atan2__1( y1, x1);
+			if( ( rRxy1 >= pJob->dRRmin )&&( rRxy1 <= pJob->dRRmax)&&
+				( rFxy1 >= pJob->dFImin )&&( rFxy1 <= pJob->dFImax )) *prY += (_real)(0.25);
+			return TRUE;
+
+		case EPSFAST_POLY:
+			x = pJob->pdX[i];
+			y = pJob->pdY[j];
+			d = pJob->dDelta;
+			pX = pJob->pPX;
+			pY = pJob->pPY;
+			nXY = pJob->nXY;
+			for( k = 2, bIn = FALSE; k < nXY; k++ )
+			{
+				if( IsPointInTr( pX[0], pY[0], pX[k-1], pY[k-1], pX[k], pY[k], x, y )&&
+					pJob->pParam->IsnInRegion( pJob->pnXIdx[i] + pJob->pnYRow[j] ) )
+				{
+					bIn = TRUE;
+					break;
+				};
+			};
+			if( !bIn ) return FALSE;
+			*prY = (_real)(0.0);
+			x1 = x - d;
+			y1 = y - d;
+			for( k1 = 2; k1 < nXY; k1++ )
+				if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) ) { *prY += (_real)(0.25); break; };
+			x1 = x - d;
+			y1 = y + d;
+			for( k1 = 2; k1 < nXY; k1++ )
+				if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) ) { *prY += (_real)(0.25); break; };
+			x1 = x + d;
+			y1 = y + d;
+			for( k1 = 2; k1 < nXY; k1++ )
+				if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) ) { *prY += (_real)(0.25); break; };
+			x1 = x + d;
+			y1 = y - d;
+			for( k1 = 2; k1 < nXY; k1++ )
+				if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) ) { *prY += (_real)(0.25); break; };
+			return TRUE;
+	};
+	return FALSE;
+}
+
+// One thread: takes rows until none are left. Grid nodes of the block are all
+// different (checked before), so threads never write the same prYNode element.
+void CTmcRTHNodeDiel::EpsFastRun( sEpsFastJob *pJob )
+{
+	EXPR_THREAD_CTX sCtx;
+	char *szBuf = NULL, *szBuf1 = NULL;
+	BOOL bExpr = ( pJob->nKind != EPSFAST_CONST );
+	long long nCount = 0;
+	int i, j, j0, j1;
+	_real rY, rEps = pJob->rEpsConst;
+	TmcIdx nRow;
+	double y_line;
+
+	if( bExpr )
+	{
+		szBuf  = new char[CTMCRTH_INDANSBUF];
+		szBuf1 = new char[CTMCRTH_INDANSBUF];
+		expr_thread_ctx_begin( &sCtx );
+	};
+
+	while( ( pJob->nError == 0 )&&( pJob->nCancel == 0 ) )
+	{
+		j0 = pJob->nNextRow.fetch_add( EPSFAST_CHUNK );
+		if( j0 >= pJob->nY ) break;
+		j1 = j0 + EPSFAST_CHUNK;
+		if( j1 > pJob->nY ) j1 = pJob->nY;
+		for( j = j0; ( j < j1 )&&( pJob->nError == 0 ); j++ )
+		{
+			if( !pJob->pbIsStop[0] )
+			{
+				pJob->nCancel = 1;
+				break;
+			};
+			nRow = pJob->pnYRow[j];
+			for( i = 0; i < pJob->nX; i++ )
+			{
+				if( !EpsFastNode( pJob, i, j, &rY ) ) continue;
+				if( bExpr )
+				{
+					if( EpsFastEval( pJob->pszExpr, pJob->pdEpsX[i], pJob->pdEpsY[j], *(pJob->pParam), szBuf, szBuf1, &rEps ) != 0 )
+					{
+						pJob->nError = 1;
+						break;
+					};
+				};
+				y_line = rY *( rEps );
+				pJob->prYNode[ pJob->nStride*(pJob->pnXIdx[i] + nRow) + pJob->nOffset ] += (_real)(y_line);
+				nCount++;
+			};
+			pJob->nRowsDone++;
+		};
+	};
+
+	if( bExpr )
+	{
+		expr_thread_ctx_end();
+		delete []szBuf;
+		delete []szBuf1;
+	};
+	pJob->nCount += nCount;
+}
+
+// TRUE  - the block is built (or cError holds the reason it could not be);
+// FALSE - nothing was done, build the block the original way.
+BOOL CTmcRTHNodeDiel::SetStatEpsFast( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH_IndanParam &cParam, CString csCurrentPath, _real *prYNode, int nShape, int nStride, int nOffset )
+{
+	if( cError.IsError() ) return FALSE;
+	if( ( pcNextBlockList == NULL )||( prYNode == NULL ) ) return FALSE;
+	{
+		if( !EpsFastEnabled() ) return FALSE;
+	};
+
+	int nXmin, nXmax, nYmin, nYmax;
+	int i, j, nX, nY;
+	double dXmin, dXmax, dYmin, dYmax, r;
+	double dRmin = 0, dRmax = 0, dFImin = 0, dFImax = 0;
+	double *pX = NULL, *pY = NULL;
+	int nXY = 0;
+
+	////////////////////////// geometry: the same numbers as the original code
+	switch( nShape )
+	{
+		case EPSFAST_RECT:
+			dXmin = pcNextBlockList->GetXmin() + pcNextBlockList->GetX0();
+			if( dXmin < cParam.rXmin ) dXmin = cParam.rXmin;
+			dXmax = pcNextBlockList->GetXmax() + pcNextBlockList->GetX0();
+			if( dXmax > cParam.rXmax ) dXmax = cParam.rXmax;
+			dYmin = pcNextBlockList->GetYmin() + pcNextBlockList->GetY0();
+			if( dYmin < cParam.rYmin ) dYmin = cParam.rYmin;
+			dYmax = pcNextBlockList->GetYmax() + pcNextBlockList->GetY0();
+			if( dYmax > cParam.rYmax ) dYmax = cParam.rYmax;
+			break;
+
+		case EPSFAST_CIRC:
+			dRmin = pcNextBlockList->GetXmin();
+			dRmax = pcNextBlockList->GetXmax();
+			dFImin = pcNextBlockList->GetYmin();
+			if( dFImin < 0 )
+			{
+				i = (int)(dFImin/(2*3.141592653589) + 1);
+				dFImin += i*(2*3.141592653589);
+			};
+			if( dFImin >= (2*3.141592653589) )
+			{
+				i = (int)(dFImin/(2*3.141592653589));
+				dFImin -= i*(2*3.141592653589);
+			};
+			dFImax = pcNextBlockList->GetYmax();
+			if( dFImax <= 0 )
+			{
+				i = (int)(dFImax/(2*3.141592653589) + 1);
+				dFImax += i*(2*3.141592653589);
+			};
+			if( dFImax > (2*3.141592653589) )
+			{
+				i = (int)(dFImax/(2*3.141592653589));
+				dFImax -= i*(2*3.141592653589);
+			};
+			dXmin = - pcNextBlockList->GetXmax() + pcNextBlockList->GetX0();
+			if( dXmin < cParam.rXmin ) dXmin = cParam.rXmin;
+			dXmax = pcNextBlockList->GetXmax() + pcNextBlockList->GetX0();
+			if( dXmax > cParam.rXmax ) dXmax = cParam.rXmax;
+			dYmin = - pcNextBlockList->GetXmax() + pcNextBlockList->GetY0();
+			if( dYmin < cParam.rYmin ) dYmin = cParam.rYmin;
+			dYmax = pcNextBlockList->GetXmax() + pcNextBlockList->GetY0();
+			if( dYmax > cParam.rYmax ) dYmax = cParam.rYmax;
+			break;
+
+		case EPSFAST_POLY:
+			if( ( pX = pcNextBlockList->GetpX() ) == NULL ) return FALSE;
+			if( ( pY = pcNextBlockList->GetpY() ) == NULL ) return FALSE;
+			if( ( nXY = pcNextBlockList->GetnXY() ) < 3 ) return FALSE;
+			for( i = 0, dXmin = pX[0], dXmax = pX[0], dYmin = pY[0], dYmax = pY[0]; i < nXY; i++ )
+			{
+				if( pX[i] > dXmax ) dXmax = pX[i];
+				if( pX[i] < dXmin ) dXmin = pX[i];
+				if( pY[i] > dYmax ) dYmax = pY[i];
+				if( pY[i] < dYmin ) dYmin = pY[i];
+			}
+			dXmin += pcNextBlockList->GetX0();
+			if( dXmin < cParam.rXmin ) dXmin = cParam.rXmin;
+			dXmax += pcNextBlockList->GetX0();
+			if( dXmax > cParam.rXmax ) dXmax = cParam.rXmax;
+			dYmin += pcNextBlockList->GetY0();
+			if( dYmin < cParam.rYmin ) dYmin = cParam.rYmin;
+			dYmax += pcNextBlockList->GetY0();
+			if( dYmax > cParam.rYmax ) dYmax = cParam.rYmax;
+			break;
+
+		default:
+			return FALSE;
+	};
+
+	r = (dXmin - cParam.rXmin)/cParam.rDelta + 0.5;
+	if( fabs(r) >= INT_MAX ) return FALSE;
+	nXmin = (int)(r);
+	r = (dXmax - cParam.rXmin)/cParam.rDelta + 0.5;
+	if( fabs(r) >= INT_MAX ) return FALSE;
+	nXmax = (int)(r);
+	r = (dYmin - cParam.rYmin)/cParam.rDelta + 0.5;
+	if( fabs(r) >= INT_MAX ) return FALSE;
+	nYmin = (int)(r);
+	r = (dYmax - cParam.rYmin)/cParam.rDelta + 0.5;
+	if( fabs(r) >= INT_MAX ) return FALSE;
+	nYmax = (int)(r);
+	if( nXmax < nXmin ) return FALSE;
+	nX = nXmax - nXmin + 1;
+	if( nYmax < nYmin ) return FALSE;
+	nY = nYmax - nYmin + 1;
+	if( ( nShape == EPSFAST_RECT )&&( ((double)nX)*((double)nY) > ((double)TMC_IDX_MAX)/64. ) ) return FALSE;
+
+	////////////////////////// coordinates and grid nodes of the rows and columns
+	std::vector<double> vdX( nX ), vdY( nY ), vdEpsX( nX ), vdEpsY( nY );
+	std::vector<TmcIdx> vnXIdx( nX ), vnYRow( nY );
+	double x, y;
+
+	if( nShape == EPSFAST_RECT )
+	{
+		for( i = 0; i < nX; i++ ) vdX[i] = dXmin + (i*cParam.rDelta);
+		for( j = 0; j < nY; j++ ) vdY[j] = dYmin + (j*cParam.rDelta);
+		for( i = 0; i < nX; i++ ) vnXIdx[i] = cParam.CalcnNodeGlobal( (_real)vdX[i], (_real)cParam.rYmin );
+		for( j = 0; j < nY; j++ ) vnYRow[j] = cParam.CalcnNodeGlobal( (_real)cParam.rXmin, (_real)vdY[j] );
+	}
+	else
+	{
+		for( i = 0, x = dXmin - pcNextBlockList->GetX0(); i < nX; i++, x+=cParam.rDelta ) vdX[i] = x;
+		for( j = 0, y = dYmin - pcNextBlockList->GetY0(); j < nY; j++, y+=cParam.rDelta ) vdY[j] = y;
+		for( i = 0; i < nX; i++ ) vnXIdx[i] = cParam.CalcnNodeGlobal( (_real)(vdX[i]+pcNextBlockList->GetX0()), (_real)cParam.rYmin );
+		for( j = 0; j < nY; j++ ) vnYRow[j] = cParam.CalcnNodeGlobal( (_real)cParam.rXmin, (_real)(vdY[j]+pcNextBlockList->GetY0()) );
+	};
+	for( i = 1; i < nX; i++ ) if( vnXIdx[i] <= vnXIdx[i-1] ) return FALSE;	// a grid node would get eps twice
+	for( j = 1; j < nY; j++ ) if( vnYRow[j] <= vnYRow[j-1] ) return FALSE;
+	for( i = 0; i < nX; i++ ) vdEpsX[i] = cParam.CalcX( vnXIdx[i] ) - dX0;
+	for( j = 0; j < nY; j++ ) vdEpsY[j] = cParam.CalcY( vnYRow[j] ) - dY0;
+
+	////////////////////////// the job
+	sEpsFastJob sJob;
+	CString csExpr = csEpsExpr;
+	_real rY;
+	int iFirst = -1, jFirst = -1, iLast = -1, jLast = -1;
+
+	sJob.pParam  = &cParam;
+	sJob.prYNode = prYNode;
+	sJob.nStride = nStride;
+	sJob.nOffset = nOffset;
+	sJob.nShape  = nShape;
+	sJob.nKind   = EpsFastExprKind( csExpr );
+	sJob.nX = nX;
+	sJob.nY = nY;
+	sJob.pszExpr = (LPCTSTR)csExpr;
+	sJob.pdX = &vdX[0];
+	sJob.pdY = &vdY[0];
+	sJob.pnXIdx = &vnXIdx[0];
+	sJob.pnYRow = &vnYRow[0];
+	sJob.pdEpsX = &vdEpsX[0];
+	sJob.pdEpsY = &vdEpsY[0];
+	sJob.dRRmin = dRmin*dRmin;
+	sJob.dRRmax = dRmax*dRmax;
+	sJob.dFImin = dFImin;
+	sJob.dFImax = dFImax;
+	sJob.dDelta = cParam.rDelta;
+	sJob.pPX = pX;
+	sJob.pPY = pY;
+	sJob.nXY = nXY;
+	sJob.rEpsConst = (_real)(0.0);
+	sJob.pbIsStop = pbIsStop;
+	sJob.nNextRow  = 0;
+	sJob.nRowsDone = 0;
+	sJob.nError  = 0;
+	sJob.nCancel = 0;
+	sJob.nCount  = 0;
+
+	// first and last node in the order of the original code (x outer, y inner)
+	for( i = 0; ( i < nX )&&( iFirst < 0 ); i++ )
+		for( j = 0; j < nY; j++ )
+			if( EpsFastNode( &sJob, i, j, &rY ) ) { iFirst = i; jFirst = j; break; };
+	if( iFirst < 0 ) return FALSE;		// no nodes: the original code reports it
+	for( i = nX-1; ( i >= 0 )&&( iLast < 0 ); i-- )
+		for( j = nY-1; j >= 0; j-- )
+			if( EpsFastNode( &sJob, i, j, &rY ) ) { iLast = i; jLast = j; break; };
+
+	////////////////////////// from here on the block is ours
+	if( nShape == EPSFAST_RECT )
+	{
+		__int64 qTm = TmcTimingNow();	// TIMING
+		SaveFileRect( pcNextBlockList, cParam, csCurrentPath);
+		if( m_pqEpsFileTicks != NULL ) *m_pqEpsFileTicks += TmcTimingNow() - qTm;	// TIMING
+		if( ( m_pnEpsWritten != NULL )&&( strlen(csFileNameEps) != 0 )&&( !cError.IsError() ) ) (*m_pnEpsWritten)++;	// TIMING
+		if( cError.IsError() ) return TRUE;
+	};
+
+	CString csBuf;
+	double y_line;
+	TmcIdx nCount = 0;
+
+	csBuf.Format("Set block %d; eps = {%s}", nBlock, csEpsExpr);
+	PutTrace(csBuf);
+
+	if( sJob.nKind == EPSFAST_SERIAL )
+	{
+		// '=' in the expression: one thread, nodes in the original order
+		DWORD dwLast = GetTickCount();
+		for( i = 0; ( i < nX )&&( !cError.IsError() ); i++ )
+		{
+			if( !pbIsStop[0] )
+			{
+				csBuf.Format("User cancel calculated eps array thread in Block %d", nBlock);
+				cError.PutErrorMessage(csBuf);
+				return TRUE;
+			};
+			for( j = 0; j < nY; j++ )
+			{
+				if( !EpsFastNode( &sJob, i, j, &rY ) ) continue;
+				y_line = rY *( CalcEps( vdEpsX[i], vdEpsY[j], cParam) );
+				prYNode[ nStride*(vnXIdx[i] + vnYRow[j]) + nOffset ] += (_real)(y_line);
+				nCount++;
+				if( cError.IsError() ) break;
+			};
+			if( GetTickCount() - dwLast > 250 )
+			{
+				dwLast = GetTickCount();
+				csBuf.Format("n:%.0f", (double)nCount);
+				PutStatistics(csBuf);
+			};
+		};
+		nNumNode = nCount;
+		return TRUE;
+	};
+
+	if( sJob.nKind == EPSFAST_CONST )
+	{
+		sJob.rEpsConst = CalcEps( vdEpsX[iFirst], vdEpsY[jFirst], cParam );
+		if( cError.IsError() ) return TRUE;
+	};
+
+	unsigned nThreads = EpsFastThreads();
+	if( ((double)nX)*((double)nY) < EPSFAST_SMALL ) nThreads = 1;
+
+	if( nThreads == 1 )
+	{
+		EpsFastRun( &sJob );
+	}
+	else
+	{
+		std::vector<std::thread> vThreads;
+		std::vector<HANDLE> vHandles;
+		unsigned n;
+
+		for( n = 0; n < nThreads; n++ ) vThreads.push_back( std::thread( &CTmcRTHNodeDiel::EpsFastRun, this, &sJob ) );
+		for( n = 0; n < nThreads; n++ ) vHandles.push_back( (HANDLE)vThreads[n].native_handle() );
+		while( WaitForMultipleObjects( nThreads, &vHandles[0], TRUE, 250 ) == WAIT_TIMEOUT )
+		{
+			csBuf.Format("n:%.0f", ((double)sJob.nRowsDone)*nX );
+			PutStatistics(csBuf);
+		};
+		for( n = 0; n < nThreads; n++ ) vThreads[n].join();
+	};
+
+	if( sJob.nCancel != 0 )
+	{
+		csBuf.Format("User cancel calculated eps array thread in Block %d", nBlock);
+		cError.PutErrorMessage(csBuf);
+		return TRUE;
+	};
+	if( sJob.nError != 0 )
+	{
+		// the original code stops at the first bad node in its order: find it
+		// and let CalcEps give the original message
+		for( i = 0; ( i < nX )&&( !cError.IsError() ); i++ )
+			for( j = 0; j < nY; j++ )
+			{
+				if( !EpsFastNode( &sJob, i, j, &rY ) ) continue;
+				CalcEps( vdEpsX[i], vdEpsY[j], cParam );
+				if( cError.IsError() ) break;
+			};
+		if( !cError.IsError() )
+		{
+			csBuf.Format("Error in eps expression {%s} for block %d", csEpsExpr, nBlock);
+			cError.PutErrorMessage(csBuf);
+		};
+		return TRUE;
+	};
+
+	// the interpreter keeps x, y, r, f of the last node, as after the original code
+	CalcEps( vdEpsX[iLast], vdEpsY[jLast], cParam );
+
+	nNumNode = (TmcIdx)sJob.nCount;
+	return TRUE;
+}
+
+BOOL CTmcRTHNodeDiel::EpsFastEnabled( void )	// EPSFAST: TMC_EPS_FAST=0 - original code
+{
+	char *psz = getenv( "TMC_EPS_FAST" );
+	return !( ( psz != NULL )&&( psz[0] == '0' ) );
 }
 
 CTmcLibError &CTmcRTHNodeDiel::SetRect( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH_IndanParam &cParam, CString csCurrentPath )
@@ -1479,6 +2042,8 @@ void CTmcRTHNodeDiel::SetYLineForDiel( CTmcRTH_IndanParam &cParam, _real *prYNod
 	};
 
 	strcpy( szBuf, csEpsExpr );
+	BOOL bEpsConst = ( !bIsFile )&&EpsFastEnabled()&&( EpsFastExprKind( csEpsExpr ) == EPSFAST_CONST );	// EPSFAST
+	_real rEpsConst = (_real)(0.0);	// EPSFAST
 	
 	csBuf.Format("Set block %d; points:%.0f; eps = {%s}", nBlock, (double)nNumNode, csEpsExpr);
 	PutTrace(csBuf);
@@ -1514,7 +2079,8 @@ void CTmcRTHNodeDiel::SetYLineForDiel( CTmcRTH_IndanParam &cParam, _real *prYNod
 //		csBuf1.Format("pcNodeDielOne[%d]%d(%lg;%lg) = %lg*%lg", i, nNode, x, y, pcNodeDielOne[i].rY, CalcEps( x, y, cParam) );
 //		AfxMessageBox(csBuf1);
 //	};
-			y_line = pcNodeDielOne[i].rY *( CalcEps( x, y, cParam) );
+			if( ( !bEpsConst )||( i == 0 ) ) rEpsConst = CalcEps( x, y, cParam);	// EPSFAST: constant - once
+			y_line = pcNodeDielOne[i].rY *( rEpsConst );
 		};
 		pcNodeDielOne[i].nType = CTMCRTH_BLCKNTYPE_EPS;
 		prYNode[ 2*nNode ] += (_real)(y_line);
@@ -1525,6 +2091,8 @@ void CTmcRTHNodeDiel::SetYLineForDiel( CTmcRTH_IndanParam &cParam, _real *prYNod
 //	};
 
 	};
+	if( bEpsConst && ( nNumNode > 1 ) )	// EPSFAST: the interpreter keeps the last node, as before
+		CalcEps( cParam.CalcX( pcNodeDielOne[nNumNode-1].nNodeGlobal ) - dX0, cParam.CalcY( pcNodeDielOne[nNumNode-1].nNodeGlobal ) - dY0, cParam );
 
 	return;
 }

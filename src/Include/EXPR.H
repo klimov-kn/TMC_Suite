@@ -49,3 +49,16 @@ _real   inte_oper( char   *lex, int n );
 int     inte_select_blanck( char   *lex, int n );
 void    inte_set_inter_value( _real r );
 _real   inte_get_inter_value( void );
+
+// EPSFAST: per thread interpreter context. While a thread has a context bound,
+// the interpreter keeps its variables, error code and return value there
+// instead of in the common (static) ones, so several threads can evaluate
+// expressions at once. begin copies the common variables into the context.
+typedef struct {
+	_real rPer[256];
+	int   nErrorCod;
+	_real rInterValue;
+} EXPR_THREAD_CTX;
+EXPR_THREAD_CTX *expr_get_thread_ctx( void );
+void    expr_thread_ctx_begin( EXPR_THREAD_CTX *pCtx );
+void    expr_thread_ctx_end( void );

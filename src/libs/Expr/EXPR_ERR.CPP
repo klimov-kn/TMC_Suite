@@ -23,9 +23,16 @@
 
 static int error_cod = 0;
 
-void  expr_set_error_cod( int n ) {  error_cod =  n; }
+void  expr_set_error_cod( int n )
+ {
+  EXPR_THREAD_CTX *p = expr_get_thread_ctx();	// EPSFAST
+  if( p != NULL ) p->nErrorCod = n;
+  else error_cod =  n;
+  }
 int   expr_get_error_cod( void )
  {
+  EXPR_THREAD_CTX *p = expr_get_thread_ctx();	// EPSFAST
+  if( p != NULL ) return p->nErrorCod;
   return error_cod;
   }
 

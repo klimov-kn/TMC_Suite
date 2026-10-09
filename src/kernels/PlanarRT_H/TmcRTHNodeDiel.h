@@ -54,6 +54,8 @@ struct STMCRTH_DIELNODELIST
 } ;
 typedef struct STMCRTH_DIELNODELIST sTmcRTH_DielNodeList;
 
+struct sEpsFastJob;	// EPSFAST
+
 class CTmcRTHNodeDiel : public CWnd
 {
 // Construction						 
@@ -151,6 +153,14 @@ private:
 	void OutputUpUo( double dUp, double dUo, CTmcLibError &cError1);
 	void AddList( sTmcRTHNodeDielOne *pcNodeDielOne1, sTmcRTH_DielNodeList **pcNodeDielList1 );
 	_real CalcEps( double x, double y, CTmcRTH_IndanParam &cParam );
+	// EPSFAST: fast build of stationary eps blocks (TmcRTHNodeDiel.cpp)
+	BOOL SetStatEpsFast( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH_IndanParam &cParam, CString csCurrentPath, _real *prYNode, int nShape, int nStride, int nOffset );
+	void EpsFastRun( sEpsFastJob *pJob );
+	BOOL EpsFastNode( sEpsFastJob *pJob, int i, int j, _real *prY );
+	int  EpsFastEval( const char *pszExpr, double x, double y, CTmcRTH_IndanParam &cParam, char *szBuf, char *szBuf1, _real *pr );
+	static int EpsFastExprKind( const char *pszExpr );
+	static unsigned EpsFastThreads( void );
+	static BOOL EpsFastEnabled( void );
 	void SetnType( void );
 	void SetYLineForDiel( CTmcRTH_IndanParam &cParam, _real *prYNode );
 	void SetYForInput( CTmcRTH_IndanParam &cParam );

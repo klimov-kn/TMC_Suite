@@ -25,6 +25,7 @@
 */
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <float.h>
 #include <math.h>
@@ -34,11 +35,31 @@
 
 
 static _real rExpr_per[256];
+static __declspec(thread) EXPR_THREAD_CTX *s_pExprCtx = NULL;	// EPSFAST
+
+EXPR_THREAD_CTX *expr_get_thread_ctx( void )	// EPSFAST
+{
+	return s_pExprCtx;
+}
+
+void expr_thread_ctx_begin( EXPR_THREAD_CTX *pCtx )	// EPSFAST
+{
+	memcpy( pCtx->rPer, rExpr_per, sizeof(rExpr_per) );
+	pCtx->nErrorCod = 0;
+	pCtx->rInterValue = 0;
+	s_pExprCtx = pCtx;
+}
+
+void expr_thread_ctx_end( void )	// EPSFAST
+{
+	s_pExprCtx = NULL;
+}
 
 _real  expr_get_per( char   *lpszName, int nLenghtName )
 {
 	int i;
     i = lpszName[0];
+	if( s_pExprCtx != NULL ) return ( s_pExprCtx->rPer[i] );	// EPSFAST
 	return ( rExpr_per[i] );
 }
 
@@ -46,7 +67,8 @@ void  expr_set_per( char   *lpszName, int nLenghtName, _real rValue )
 {
 	int i;
     i = lpszName[0];
-    rExpr_per[i] = rValue;
+    if( s_pExprCtx != NULL ) s_pExprCtx->rPer[i] = rValue;	// EPSFAST
+    else rExpr_per[i] = rValue;
 }
 
 int  expr_is_per( char   *lpszName, int nLenghtName )
