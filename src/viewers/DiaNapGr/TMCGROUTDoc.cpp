@@ -296,7 +296,7 @@ void CTMCGROUTDoc::del_bl2( char *ch)
 		}
 		
 	};
-	if( i1 != 0 ) i1--;
+	if( ( i1 != 0 )&&( ch[i1-1] == ' ' ) ) i1--;	// A-29: otrezat tolko probel (byvshii \n)
 	ch[i1] = '\0';
 	return ;
 }

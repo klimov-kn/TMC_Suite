@@ -64,6 +64,16 @@ int _far _fortran save_S_matrix_element( int in1, char *filename, _complex *sss,
 
    if( read_S_matrix( filename, &si, &extrapol_flag, &sss1,  &frq, &id ) != 0 )
    {
+	   // A-24: an existing non-empty file that can't be read is not overwritten
+	   FILE *fpExist = fopen( filename, "rb" );
+	   if( fpExist != NULL )
+	   {
+		   long lExist;
+		   fseek( fpExist, 0L, SEEK_END );
+		   lExist = ftell( fpExist );
+		   fclose( fpExist );
+		   if( lExist > 0 ) return -2;
+	   }
 	   // can't read s-matrix file
 	   // create new s-matrix file
 	   set_frequency( f1*(1.e-9), 0.0, 1 );
