@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- Руководство пользователя (PDF): лист с загнутым углом и строками -->
+  <g fill="none" stroke="#e7eef7" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 2.8H7.2A2.2 2.2 0 0 0 5 5v14a2.2 2.2 0 0 0 2.2 2.2h9.6A2.2 2.2 0 0 0 19 19V7.8z"/>
+    <path d="M14 2.8v5h5"/>
+    <path d="M8.6 12.6h6.8M8.6 16h6.8M8.6 9.2h2.6"/>
+  </g>
+</svg>

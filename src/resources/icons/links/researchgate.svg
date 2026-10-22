@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- ResearchGate: «R» и маленькая «G», контурные -->
+  <g fill="none" stroke="#e7eef7" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke-width="2.2" d="M5 20V5h5a3.6 3.6 0 0 1 0 7.2H5M9.6 12.2L14 20"/>
+    <path stroke-width="1.6" d="M20.6 5.6A2.7 2.7 0 1 0 21 8.3h-2.3"/>
+  </g>
+</svg>

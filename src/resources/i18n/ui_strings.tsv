@@ -1,0 +1,1039 @@
+# Словарь интерфейса TMC Suite (Qt6-версия): en<TAB>ru<TAB>источник. Формат и правила — README.md рядом.
+# UTF-8 без BOM. Строки с «#» в начале — комментарии. «\n» в поле — перевод строки.
+# Ключи записаны без пробелов по краям (так их ищет механизм перевода). Одна пара на строку, en не повторяются.
+
+# --- Строки меню главных окон (общие для PlanarRT_H/X, TMCGROUT, TMCROS, TMC_DN; FieldView — свои ниже)
+&File	&Файл	planarrt_common+viewers/mainwindow.cpp; fieldview_rhi/ui/mainwindow.cpp
+&Edit	&Правка	planarrt_common+viewers/mainwindow.cpp; fieldview_rhi/ui/mainwindow.cpp
+&View	&Вид	planarrt_common+viewers/mainwindow.cpp; fieldview_rhi/ui/mainwindow.cpp
+&Run	&Расчёт	planarrt_common/mainwindow.cpp
+&Config	&Настройки	planarrt_common+viewers/mainwindow.cpp
+&Window	&Окно	planarrt_common+viewers/mainwindow.cpp; fieldview_rhi/ui/mainwindow.cpp
+&Help	&Справка	planarrt_common+viewers/mainwindow.cpp; fieldview_rhi/ui/mainwindow.cpp
+
+# File
+&New task (TPL Designer)...	&Новое задание (TPL Designer)...	planarrt_common/mainwindow.cpp
+&New	Созд&ать	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+&Open...	&Открыть...	planarrt_common+viewers/mainwindow.cpp
+&Close	&Закрыть	planarrt_common+viewers/mainwindow.cpp; fieldview_rhi/ui/mainwindow.cpp
+&Save	&Сохранить	planarrt_common+viewers/mainwindow.cpp
+Save &As...	Сохранить &как...	planarrt_common+viewers/mainwindow.cpp
+&Print...	&Печать...	planarrt_common+viewers/mainwindow.cpp
+Print Pre&view	Пре&дпросмотр печати	planarrt_common+viewers/mainwindow.cpp
+P&rint Setup...	Пара&метры печати...	planarrt_common+viewers/mainwindow.cpp
+E&xit	В&ыход	planarrt_common+viewers/mainwindow.cpp; fieldview_rhi/ui/mainwindow.cpp
+Recent File	Недавние файлы	gui_common/recentfiles.cpp
+
+# Edit (PlanarRT). Внимание: пункт «&Edit» совпадает с названием меню «&Edit» — см. README, конфликты
+&Undo	&Отменить	planarrt_common/mainwindow.cpp
+Cu&t	&Вырезать	planarrt_common/mainwindow.cpp
+&Copy	&Копировать	planarrt_common/mainwindow.cpp
+&Paste	Вст&авить	planarrt_common/mainwindow.cpp
+
+# Edit (вьюверы)
+&Characteristics	&Характеристики	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+&Add characteristics	&Добавить характеристику	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+&To S-matrix	&В S-матрицу	tmcros/mainwindow.cpp
+&Editor	&Редактор	planarrt_common+viewers/mainwindow.cpp
+
+# View (PlanarRT)
+Outp&ut	Вы&ходной сигнал	planarrt_common/mainwindow.cpp
+&Field and topology	&Поле и топология	planarrt_common/mainwindow.cpp
+St&atistics	С&татистика	planarrt_common/mainwindow.cpp
+S-&matrix	S-&матрица	planarrt_common/mainwindow.cpp
+&Directional Pattern	&Диаграмма направленности	planarrt_common/mainwindow.cpp
+&Toolbar	Панель &инструментов	planarrt_common+viewers/mainwindow.cpp
+&Status Bar	&Строка состояния	planarrt_common+viewers/mainwindow.cpp
+
+# View (вьюверы)
+&Viewport	&Параметры окна	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+Redra&w data	Перерисовать &данные	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+Zoom	Масштаб	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+&ReSize viewport	&Подогнать область	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+Zoom +	Увеличить	tmcgrout,tmcros,tmc_dn/mainwindow.cpp; fieldview_rhi/ui/mainwindow.cpp
+Zoom +X	Увеличить по X	tmcgrout,tmcros,tmc_dn/mainwindow.cpp; fieldview_rhi/ui/mainwindow.cpp
+Zoom +Y	Увеличить по Y	tmcgrout,tmcros,tmc_dn/mainwindow.cpp; fieldview_rhi/ui/mainwindow.cpp
+Zoom -	Уменьшить	tmcgrout,tmcros,tmc_dn/mainwindow.cpp; fieldview_rhi/ui/mainwindow.cpp
+Zoom -X	Уменьшить по X	tmcgrout,tmcros,tmc_dn/mainwindow.cpp; fieldview_rhi/ui/mainwindow.cpp
+Zoom -Y	Уменьшить по Y	tmcgrout,tmcros,tmc_dn/mainwindow.cpp; fieldview_rhi/ui/mainwindow.cpp
+R&esize window	Подогнать &окно данных	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+Auto X size	Авто-масштаб X	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+Auto Y size	Авто-масштаб Y	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+Translate	Сдвиг	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+Change Xmax, Xmin	Изменить Xmax, Xmin	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+Change Ymax, Ymin	Изменить Ymax, Ymin	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+Decrement	Уменьшить пределы	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+Increment	Увеличить пределы	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+Home	Начало	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+End	Конец	tmcgrout,tmcros,tmc_dn/mainwindow.cpp, planarrt dialogs/IDD_TMC_SOUND_MELODY1.ui
+
+# Run (PlanarRT)
+Run	Запуск	planarrt_common/mainwindow.cpp
+Load first step	Загрузить первый шаг	planarrt_common/mainwindow.cpp
+Run Step	Шаг расчёта	planarrt_common/mainwindow.cpp
+Load Step	Загрузить шаг	planarrt_common/mainwindow.cpp
+Skip Step	Пропустить шаг	planarrt_common/mainwindow.cpp
+Back Step	Шаг назад	planarrt_common/mainwindow.cpp, fieldview_rhi/ui/mainwindow.cpp
+&Stop	&Стоп	planarrt_common/mainwindow.cpp
+
+# Config (PlanarRT)
+Compute (&GPU)...	Расчёт на &видеокарте...	planarrt_common/mainwindow.cpp
+Viewer	Вьюверы	planarrt_common/mainwindow.cpp
+&Output signal	&Выходной сигнал	planarrt_common/mainwindow.cpp
+&Field	&Поле	planarrt_common/mainwindow.cpp
+&S-matrix	S-ма&трица	planarrt_common/mainwindow.cpp
+Directional Pattern	Диаграмма направленности	planarrt_common/mainwindow.cpp, tmc_dn dialogs
+&Color	&Цвет	planarrt_common+viewers/mainwindow.cpp
+&BackGround	&Фон	planarrt_common/mainwindow.cpp
+&Format	&Формат	planarrt_common/mainwindow.cpp
+&OutputDataFile	&Файл выходных данных	planarrt_common/mainwindow.cpp
+T&opology	Т&опология	planarrt_common/mainwindow.cpp
+&Synchronization	&Синхронизация	planarrt_common/mainwindow.cpp
+Sound	Звук	planarrt_common/mainwindow.cpp
+On/Off	Вкл./Выкл.	planarrt_common/mainwindow.cpp
+Melody	Мелодия	planarrt_common/mainwindow.cpp, dialogs/IDD_TMC_SOUND_MELODY1.ui
+Melody 1	Мелодия 1	compat/mfc_dialog.cpp (две страницы мелодий)
+Melody 2	Мелодия 2	compat/mfc_dialog.cpp (две страницы мелодий)
+&AutoRun	&Автозапуск	planarrt_common/mainwindow.cpp
+Setup	Настройка	planarrt_common/mainwindow.cpp
+
+# Config (вьюверы)
+&Background	&Фон	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+&Grid	&Сетка	tmcgrout,tmcros,tmc_dn/mainwindow.cpp, fieldview_rhi/ui/mainwindow.cpp
+&Axies	&Оси	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+&Point	&Точки	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+&Graphics	&Графики	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+&Font	&Шрифт	tmcgrout,tmcros,tmc_dn/mainwindow.cpp
+
+# Window, Help
+&New Window	&Новое окно	tmcgrout,tmcros,tmc_dn/mainwindow.cpp, fieldview_rhi/ui/mainwindow.cpp
+&Cascade	&Каскадом	planarrt_common+viewers/mainwindow.cpp, fieldview_rhi/ui/mainwindow.cpp
+&Tile	&Мозаикой	planarrt_common+viewers/mainwindow.cpp, fieldview_rhi/ui/mainwindow.cpp
+&Arrange Icons	&Упорядочить значки	planarrt_common/mainwindow.cpp
+&About PlanRT_H...	&О программе PlanRT_H...	planarrt_h/app_info.cpp
+&About PlanRT_X...	&О программе PlanRT_X...	planarrt_x/app_info.cpp
+&About TMCGROUT...	&О программе TMCGROUT...	tmcgrout/mainwindow.cpp
+&About TMCROS...	&О программе TMCROS...	tmcros/mainwindow.cpp
+&About TMC_DN...	&О программе TMC_DN...	tmc_dn/mainwindow.cpp
+
+# --- Панели инструментов: заголовки и подсказки
+Toolbar	Панель инструментов	planarrt_common+viewers/mainwindow.cpp
+New task (TPL Designer)	Новое задание (TPL Designer)	planarrt_common/mainwindow.cpp
+Open	Открыть	planarrt_common+viewers/mainwindow.cpp
+Extern edit	Правка во внешнем редакторе	planarrt_common/mainwindow.cpp
+View output	Показать выходной сигнал	planarrt_common/mainwindow.cpp
+View field and topology	Показать поле и топологию	planarrt_common/mainwindow.cpp
+View S-matrix	Показать S-матрицу	planarrt_common/mainwindow.cpp
+View Directional Pattern	Показать диаграмму направленности	planarrt_common/mainwindow.cpp
+View statistics dialog	Окно статистики	planarrt_common/mainwindow.cpp
+Run step	Шаг расчёта	planarrt_common/mainwindow.cpp
+Load step	Загрузить шаг	planarrt_common/mainwindow.cpp
+Skip step	Пропустить шаг	planarrt_common/mainwindow.cpp
+Back step	Шаг назад	planarrt_common/mainwindow.cpp
+Stop	Стоп	planarrt_common/mainwindow.cpp
+Output topology	Вывод топологии	planarrt_common/mainwindow.cpp
+Output fields	Вывод поля	planarrt_common/mainwindow.cpp
+Synchronization	Синхронизация	planarrt_common/mainwindow.cpp
+Export to directional Pattern file	Экспорт в файл диаграммы направленности	planarrt_common/mainwindow.cpp
+Sound effect	Звуковое сопровождение	planarrt_common/mainwindow.cpp
+Batch mode	Пакетный режим	planarrt_common/mainwindow.cpp
+Print	Печать	planarrt_common+viewers/mainwindow.cpp, gui_common/printsupport.cpp; fieldview_rhi/ui/mainwindow.cpp
+About	О программе	planarrt_common+viewers/mainwindow.cpp
+Add new S-matrix	Добавить S-матрицу	tmcgrout/mainwindow.cpp
+Edit parameters	Изменить параметры	tmcgrout/mainwindow.cpp
+Viewport	Параметры окна	tmcgrout,tmcros,tmc_dn/mainwindow.cpp, dialogs/IDD_DIALOG1.ui
+Update data	Обновить данные	tmcgrout/mainwindow.cpp
+Redraw data	Перерисовать данные	tmcros,tmc_dn/mainwindow.cpp
+Phase unwrapping: standard (threshold pi)	Разворот фазы: стандартный (порог π)	tmcgrout,tmcros/mainwindow.cpp
+Resize viewport	Подогнать область графика	tmcgrout/mainwindow.cpp
+ReSize viewport	Подогнать область графика	tmcros,tmc_dn/mainwindow.cpp
+Resize  window	Подогнать окно данных	tmcgrout/mainwindow.cpp
+Resize window	Подогнать окно данных	tmcros,tmc_dn/mainwindow.cpp
+Auto size along X axies	Авто-масштаб по оси X	tmcgrout/mainwindow.cpp
+Auto size along Y axies	Авто-масштаб по оси Y	tmcgrout/mainwindow.cpp
+Change Xmin auto	Xmin — автоматически	tmcgrout/mainwindow.cpp
+Change Xmax auto	Xmax — автоматически	tmcgrout/mainwindow.cpp
+Decrement Xmin and Xmax	Уменьшить Xmin и Xmax	tmcgrout/mainwindow.cpp
+Increment Xmin and Xmax	Увеличить Xmin и Xmax	tmcgrout/mainwindow.cpp
+Decrement Ymin and Ymax	Уменьшить Ymin и Ymax	tmcgrout/mainwindow.cpp
+Increment Ymin and Ymax	Увеличить Ymin и Ymax	tmcgrout/mainwindow.cpp
+Add characteristics	Добавить характеристику	tmcros,tmc_dn/mainwindow.cpp
+Characteristics	Характеристики	tmcros,tmc_dn/mainwindow.cpp, dialogs/IDD_DIALOG2.ui
+To S-matrix	В S-матрицу	tmcros/mainwindow.cpp
+Decrement X	Уменьшить пределы по X	tmcros,tmc_dn/mainwindow.cpp
+Increment X	Увеличить пределы по X	tmcros,tmc_dn/mainwindow.cpp
+Decrement Y	Уменьшить пределы по Y	tmcros,tmc_dn/mainwindow.cpp
+Increment Y	Увеличить пределы по Y	tmcros,tmc_dn/mainwindow.cpp
+About TMCGROUT	О программе TMCGROUT	tmcgrout/mainwindow.cpp, aboutbox.cpp
+About TMCROS	О программе TMCROS	tmcros/mainwindow.cpp, aboutbox.cpp
+About TMC_DN	О программе TMC_DN	tmc_dn/mainwindow.cpp, aboutbox.cpp
+
+# --- Заголовки главных окон, строка состояния, сообщения главных окон
+Planar RT H analyzer	Анализатор Planar RT H	planarrt_h/app_info.cpp, dialogs/IDD_ABOUTBOX.ui
+Planar RT X-mode analyzer	Анализатор Planar RT X-mode	planarrt_x/app_info.cpp
+Tamic S-matrix Output Characteristics Viewer	Tamic: просмотр выходных характеристик S-матриц	tmcgrout/mainwindow.cpp
+Tamic Rt Output Signal Viewer	Tamic Rt: просмотр выходных сигналов	tmcros/mainwindow.cpp, dialogs/IDD_ABOUTBOX.ui
+Tamic Directional Pattern Viewer	Tamic: просмотр диаграмм направленности	tmc_dn/mainwindow.cpp, dialogs/IDD_ABOUTBOX.ui
+Ready	Готово	planarrt_common+viewers/mainwindow.cpp
+Where is TPL Designer?	Где находится TPL Designer?	planarrt_common/mainwindow.cpp
+Computation in progress. Stop and close?	Идёт расчёт. Остановить и закрыть?	planarrt_common/mainwindow.cpp, win_src/kernels/*/childfrm.cpp, mainfrm.cpp
+Creating a new task will become available together with the characteristics dialog.	Создание нового задания появится вместе с диалогом характеристик.	tmc_dn/mainwindow.cpp
+
+# Ход расчёта (PlanarRT, правая часть строки состояния). Перед этапом обычно стоит «Step N · » — см. #TEMPLATES
+Preparing the grid	Подготовка сетки	planarrt_common/mainwindow.cpp
+Calculation	Расчёт	planarrt_common/mainwindow.cpp
+Building the blocks	Построение блоков	planarrt_common/mainwindow.cpp
+Preprocessor	Препроцессор	planarrt_common/mainwindow.cpp
+Reading the task	Чтение задания	planarrt_common/mainwindow.cpp
+Done	Готово	planarrt_common/mainwindow.cpp
+Starting	Запуск	planarrt_common/mainwindow.cpp
+Compute: CPU	Расчёт: CPU	gui_common/compute/tmccompute.cpp
+
+# Окна печати и свойств (общий слой)
+Print Preview	Предварительный просмотр	gui_common/printsupport.cpp, fieldview_rhi/ui/mainwindow.cpp
+Print Setup	Параметры печати	gui_common/printsupport.cpp
+Properties	Свойства	compat/mfc_dialog.cpp
+
+# --- Окно «О программе» (gui_common/aboutbox.cpp; исходно русское)
+AUTHOR	АВТОР	gui_common/aboutbox.cpp
+K. N. Klimov	К. Н. Климов	gui_common/aboutbox.cpp
+User Manual	Руководство пользователя	gui_common/aboutbox.cpp, fieldview_rhi/ui/mainwindow.cpp
+ONLINE	НА САЙТЕ	gui_common/aboutbox.cpp
+Computational kernel for electrodynamic analysis of H‑plane planar waveguide microwave devices by the Rt-grid method.	Счётное ядро для электродинамического анализа H‑плоскостных планарных волноводных СВЧ устройств на основе метода Rt сеток.	gui_common/aboutbox.cpp (kPrograms)
+Computational kernel implementing a four-parameter algorithm for scattering analysis of E‑polarized electromagnetic waves by inhomogeneous magnetized plasma.	Счётное ядро, реализующее 4‑параметрический алгоритм анализа рассеяния электромагнитных волн Е поляризации от неоднородной подмагниченной плазмы.	gui_common/aboutbox.cpp (kPrograms)
+Viewer for device S‑matrix files.	Программа просмотра файлов S‑матриц устройства.	gui_common/aboutbox.cpp (kPrograms)
+Viewer for signals, amplitudes and phases of incident and reflected waves at the device ports.	Программа для просмотра сигналов, амплитуд и фаз падающих и отражённых волн на входах устройства.	gui_common/aboutbox.cpp (kPrograms)
+Viewer for directional patterns.	Программа просмотра диаграмм направленности.	gui_common/aboutbox.cpp (kPrograms)
+Viewer for device geometry and field intensity distribution; can synchronize field display with the calculation.	Программа для просмотра геометрии устройства и распределения интенсивности поля; позволяет синхронизировать расчёт и просмотр полей.	gui_common/aboutbox.cpp (kPrograms)
+
+# Описания, которые передают сами вьюверы в tmcabout::show (показываются доп. строкой)
+TMC Suite viewer of S-matrix output characteristics.	Просмотр выходных характеристик S-матриц пакета TMC Suite.	tmcgrout/mainwindow.cpp
+TMC Suite S-matrix viewer.	Просмотр S-матриц пакета TMC Suite.	tmcros/mainwindow.cpp
+TMC Suite directional pattern viewer.	Просмотр диаграмм направленности пакета TMC Suite.	tmc_dn/mainwindow.cpp
+TMC Suite viewer of output signals (time responses).	Просмотр выходных сигналов (временных характеристик) пакета TMC Suite.	tmcros/mainwindow.cpp
+TMC Suite field viewer.	Просмотр полей пакета TMC Suite.	fieldview/mainwindow.cpp
+
+# Заголовки окна «О программе» — шаблон «About %1» с именем программы (раскрыт для всех шести)
+About PlanarRT_H	О программе PlanarRT_H	gui_common/aboutbox.cpp
+About PlanarRT_X	О программе PlanarRT_X	gui_common/aboutbox.cpp
+About FieldView	О программе FieldView	gui_common/aboutbox.cpp, fieldview_rhi/ui/mainwindow.cpp
+OK	ОК	dialogs/*.ui, aboutbox.cpp, colorpicker.cpp, fieldview_rhi; fieldview_rhi/ui/mainwindow.cpp, fieldview_rhi/ui/parametersdialog.cpp, fieldview_rhi/ui/autocolordialog.cpp
+Cancel	Отмена	dialogs/*.ui, colorpicker.cpp, fieldview_rhi; fieldview_rhi/ui/parametersdialog.cpp, fieldview_rhi/ui/autocolordialog.cpp, gui_common/colorpicker.cpp
+
+# --- Окно выбора цвета (gui_common/colorpicker.cpp; исходно русское)
+Select Color	Выбор цвета	gui_common/colorpicker.cpp
+Saturation horizontally, brightness vertically	Насыщенность — по горизонтали, яркость — по вертикали	gui_common/colorpicker.cpp
+BEFORE	БЫЛО	gui_common/colorpicker.cpp
+AFTER	СТАЛО	gui_common/colorpicker.cpp
+Restore the original color	Вернуть исходный цвет	gui_common/colorpicker.cpp
+Eyedropper: pick a color anywhere on the screen	Пипетка: взять цвет с любого места экрана	gui_common/colorpicker.cpp
+Hue	Оттенок	gui_common/colorpicker.cpp
+Color code: #RRGGBB or #RGB	Код цвета: #RRGGBB или #RGB	gui_common/colorpicker.cpp
+PROJECT PALETTE	ПАЛИТРА ПРОЕКТА	gui_common/colorpicker.cpp
+GRAPH COLORS	ЦВЕТА ГРАФИКОВ	gui_common/colorpicker.cpp
+RECENT	НЕДАВНИЕ	gui_common/colorpicker.cpp
+Selected colors will appear here	Здесь появятся выбранные цвета	gui_common/colorpicker.cpp
+Click anywhere on the screen · Esc to cancel	Щёлкните по любому месту экрана · Esc — отмена	gui_common/colorpicker.cpp
+
+# Названия цветов — фрагменты подсказки «%1  ·  %2» (имя · #код); целиком не совпадут
+black	чёрный	gui_common/colorpicker.cpp
+white	белый	gui_common/colorpicker.cpp
+red	красный	gui_common/colorpicker.cpp
+green	зелёный	gui_common/colorpicker.cpp
+blue	синий	gui_common/colorpicker.cpp
+cyan	голубой	gui_common/colorpicker.cpp
+magenta	пурпурный	gui_common/colorpicker.cpp
+yellow	жёлтый	gui_common/colorpicker.cpp
+brown	коричневый	gui_common/colorpicker.cpp
+gray	серый	gui_common/colorpicker.cpp
+teal	сине-зелёный	gui_common/colorpicker.cpp
+purple	фиолетовый	gui_common/colorpicker.cpp
+
+# --- Окно Config → Compute (GPU) (gui_common/compute/computedialog.cpp, tmccompute.cpp)
+Compute	Расчёт на GPU	gui_common/compute/computedialog.cpp
+Calculation on the video card	Расчёт на видеокарте	gui_common/compute/computedialog.cpp
+Video card	Видеокарта	gui_common/compute/computedialog.cpp
+Memory	Память	gui_common/compute/computedialog.cpp
+Double precision	Двойная точность	gui_common/compute/computedialog.cpp
+Self-test	Самопроверка	gui_common/compute/computedialog.cpp
+Driver	Драйвер	gui_common/compute/computedialog.cpp
+Use the video card for calculations	Использовать видеокарту для расчётов	gui_common/compute/computedialog.cpp
+Video card:	Видеокарта:	gui_common/compute/computedialog.cpp
+The program decides for each task by itself: small grids and tasks that do not fit into the video card memory are calculated on the processor. The self-test checks that the video card gives the same numbers as the processor, bit for bit. Command line keys /GPU and /CPU override this setting.	Программа решает сама для каждого задания: небольшие сетки и задания, которые не помещаются в память видеокарты, считаются на процессоре. Самопроверка убеждается, что видеокарта даёт те же числа, что и процессор, бит в бит. Ключи командной строки /GPU и /CPU отменяют эту настройку.	gui_common/compute/computedialog.cpp
+Check again	Проверить снова	gui_common/compute/computedialog.cpp
+Looking for video cards…	Поиск видеокарт…	gui_common/compute/computedialog.cpp
+Testing the video card…	Проверка видеокарты…	gui_common/compute/computedialog.cpp (раскрытый «Testing %1…»)
+Yes	Да	gui_common/compute/computedialog.cpp
+No	Нет	gui_common/compute/computedialog.cpp
+Running…	Выполняется…	gui_common/compute/computedialog.cpp
+Passed (no speed-up)	Пройдена (без ускорения)	gui_common/compute/computedialog.cpp
+Passed	Пройдена	gui_common/compute/computedialog.cpp
+Failed	Не пройдена	gui_common/compute/computedialog.cpp
+The self-test on the video card failed. Update the graphics driver from the video card maker (<a href="https://www.nvidia.com/Download/index.aspx">NVIDIA</a>, <a href="https://www.amd.com/en/support/download/drivers.html">AMD</a>) and press <b>Check again</b>.	Самопроверка на видеокарте не пройдена. Обновите графический драйвер с сайта производителя видеокарты (<a href="https://www.nvidia.com/Download/index.aspx">NVIDIA</a>, <a href="https://www.amd.com/en/support/download/drivers.html">AMD</a>) и нажмите <b>Проверить снова</b>.	gui_common/compute/computedialog.cpp
+
+# Диагноз (надпись над таблицей). Склеивается из частей, но набор вариантов конечен — здесь целиком
+Calculation on the video card is available only in the 64-bit Windows version of the program.	Расчёт на видеокарте доступен только в 64-битной версии программы для Windows.	gui_common/compute/tmccompute.cpp
+OpenCL is not installed on this computer (OpenCL.dll was not found). Install the latest graphics driver from the video card maker: <a href="https://www.nvidia.com/Download/index.aspx">NVIDIA drivers</a> or <a href="https://www.amd.com/en/support/download/drivers.html">AMD drivers</a>. The driver already contains OpenCL; CUDA or other toolkits are not needed. Restart the computer after installation and press <b>Check again</b>.	OpenCL на этом компьютере не установлен (OpenCL.dll не найден). Установите свежий графический драйвер с сайта производителя видеокарты: <a href="https://www.nvidia.com/Download/index.aspx">драйверы NVIDIA</a> или <a href="https://www.amd.com/en/support/download/drivers.html">драйверы AMD</a>. OpenCL уже входит в драйвер; CUDA и другие пакеты не нужны. После установки перезагрузите компьютер и нажмите <b>Проверить снова</b>.	gui_common/compute/tmccompute.cpp
+OpenCL.dll is too old: OpenCL 1.2 is required. Install the latest graphics driver from the video card maker: <a href="https://www.nvidia.com/Download/index.aspx">NVIDIA drivers</a> or <a href="https://www.amd.com/en/support/download/drivers.html">AMD drivers</a>. The driver already contains OpenCL; CUDA or other toolkits are not needed. Restart the computer after installation and press <b>Check again</b>.	OpenCL.dll слишком старый: нужен OpenCL 1.2. Установите свежий графический драйвер с сайта производителя видеокарты: <a href="https://www.nvidia.com/Download/index.aspx">драйверы NVIDIA</a> или <a href="https://www.amd.com/en/support/download/drivers.html">драйверы AMD</a>. OpenCL уже входит в драйвер; CUDA и другие пакеты не нужны. После установки перезагрузите компьютер и нажмите <b>Проверить снова</b>.	gui_common/compute/tmccompute.cpp
+OpenCL.dll is present, but no OpenCL driver is registered. Install the latest graphics driver from the video card maker: <a href="https://www.nvidia.com/Download/index.aspx">NVIDIA drivers</a> or <a href="https://www.amd.com/en/support/download/drivers.html">AMD drivers</a>. The driver already contains OpenCL; CUDA or other toolkits are not needed. Restart the computer after installation and press <b>Check again</b>. In a Remote Desktop session the video card may be hidden from programs; run the check at the computer itself.	OpenCL.dll есть, но ни один драйвер OpenCL не зарегистрирован. Установите свежий графический драйвер с сайта производителя видеокарты: <a href="https://www.nvidia.com/Download/index.aspx">драйверы NVIDIA</a> или <a href="https://www.amd.com/en/support/download/drivers.html">драйверы AMD</a>. OpenCL уже входит в драйвер; CUDA и другие пакеты не нужны. После установки перезагрузите компьютер и нажмите <b>Проверить снова</b>. В сеансе удалённого рабочего стола видеокарта может быть скрыта от программ; запустите проверку за самим компьютером.	gui_common/compute/tmccompute.cpp
+OpenCL works, but no video card was found among its devices. If the computer has an NVIDIA or AMD video card, its driver is missing or damaged. Install the latest graphics driver from the video card maker: <a href="https://www.nvidia.com/Download/index.aspx">NVIDIA drivers</a> or <a href="https://www.amd.com/en/support/download/drivers.html">AMD drivers</a>. The driver already contains OpenCL; CUDA or other toolkits are not needed. Restart the computer after installation and press <b>Check again</b>.	OpenCL работает, но среди его устройств нет видеокарты. Если в компьютере есть видеокарта NVIDIA или AMD, её драйвер отсутствует или повреждён. Установите свежий графический драйвер с сайта производителя видеокарты: <a href="https://www.nvidia.com/Download/index.aspx">драйверы NVIDIA</a> или <a href="https://www.amd.com/en/support/download/drivers.html">драйверы AMD</a>. OpenCL уже входит в драйвер; CUDA и другие пакеты не нужны. После установки перезагрузите компьютер и нажмите <b>Проверить снова</b>.	gui_common/compute/tmccompute.cpp
+Video cards were found, but none of them supports double precision (cl_khr_fp64), which the calculation needs. Integrated graphics usually lack it; a discrete NVIDIA or AMD card is required. If such a card is installed, update its driver: <a href="https://www.nvidia.com/Download/index.aspx">NVIDIA drivers</a>, <a href="https://www.amd.com/en/support/download/drivers.html">AMD drivers</a>.	Видеокарты найдены, но ни одна не поддерживает двойную точность (cl_khr_fp64), которая нужна для расчёта. У встроенной графики её обычно нет; нужна дискретная карта NVIDIA или AMD. Если такая карта установлена, обновите её драйвер: <a href="https://www.nvidia.com/Download/index.aspx">драйверы NVIDIA</a>, <a href="https://www.amd.com/en/support/download/drivers.html">драйверы AMD</a>.	gui_common/compute/tmccompute.cpp
+
+# Фрагменты подробностей о карте (вставляются в общий HTML панели подробностей — целиком не совпадут)
+OpenCL driver found	Драйвер OpenCL найден	gui_common/compute/computedialog.cpp
+Double precision supported	Двойная точность поддерживается	gui_common/compute/computedialog.cpp
+No double precision — this card cannot be used	Нет двойной точности — эту карту использовать нельзя	gui_common/compute/computedialog.cpp
+The video card accepts work (OpenCL context)	Видеокарта принимает задания (контекст OpenCL)	gui_common/compute/computedialog.cpp
+The driver compiled the calculation program	Драйвер скомпилировал расчётную программу	gui_common/compute/computedialog.cpp
+Test calculation matches the processor bit for bit	Тестовый расчёт совпадает с процессором бит в бит	gui_common/compute/computedialog.cpp
+No double precision.	Нет двойной точности.	gui_common/compute/computedialog.cpp, gui_common/compute/tmccompute.cpp
+Not available in this build.	Недоступно в этой сборке.	gui_common/compute/tmccompute.cpp
+OpenCL is not available.	OpenCL недоступен.	gui_common/compute/tmccompute.cpp
+no card	нет карты	gui_common/compute/computedialog.cpp
+
+# --- Сообщения ядра в строке состояния и окнах (win_src/kernels/planarrt_h, planarrt_x; целые строки)
+Output: Signal	Вывод: сигнал	win_src/kernels/planarrt_h+x/pl_glfun.cpp
+Output: Signal + Field	Вывод: сигнал + поле	win_src/kernels/planarrt_h+x/pl_glfun.cpp (склейка)
+Output: Signal + Field + Sinchronization	Вывод: сигнал + поле + синхронизация	win_src/kernels/planarrt_h+x/pl_glfun.cpp (склейка)
+Output: Signal + Topology + Field	Вывод: сигнал + топология + поле	win_src/kernels/planarrt_h+x/pl_glfun.cpp (склейка)
+Output: Signal + Topology + Field + Sinchronization	Вывод: сигнал + топология + поле + синхронизация	win_src/kernels/planarrt_h+x/pl_glfun.cpp (склейка)
+Model: Float	Модель: Float	win_src/kernels/planarrt_h+x/pl_glfun.cpp
+Model: Double	Модель: Double	win_src/kernels/planarrt_h+x/pl_glfun.cpp
+Read Data	Чтение данных	win_src/kernels/planarrt_h+x/planrt_hdoc.cpp
+Error: exception in calculation	Ошибка: исключение при расчёте	win_src/kernels/planarrt_h+x/planrt_hdoc.cpp
+Error: not enough memory	Ошибка: недостаточно памяти	win_src/kernels/planarrt_h+x/planrt_hdoc.cpp
+Can't open thread for read data	Не удалось запустить поток чтения данных	win_src/kernels/planarrt_h+x/planrt_hview.cpp
+Please enter a name of the external editor	Укажите внешний редактор	win_src/kernels/planarrt_h+x/planrt_hview.cpp
+Please enter a name of the external output signal viewer	Укажите внешнюю программу просмотра выходного сигнала	win_src/kernels/planarrt_h+x/planrt_hview.cpp
+Please enter a name of the external field viewer	Укажите внешнюю программу просмотра поля	win_src/kernels/planarrt_h+x/planrt_hview.cpp
+Please enter a name of the external S-matrix viewer	Укажите внешнюю программу просмотра S-матрицы	win_src/kernels/planarrt_h+x/planrt_hview.cpp
+Please enter a name of the external directional pattern viewer	Укажите внешнюю программу просмотра диаграммы направленности	win_src/kernels/planarrt_h+x/planrt_hview.cpp
+Sound Effects	Звуковые эффекты	win_src/kernels/planarrt_h+x/planrt_hview.cpp
+Step finish calculation	Окончание расчёта шага	win_src/kernels/planarrt_h+x/tmcsoundeffprop.cpp
+All finish calculation	Окончание всего расчёта	win_src/kernels/planarrt_h+x/tmcsoundeffprop.cpp
+No data	Нет данных	win_src/kernels/planarrt_h+x/tmcdialogcalctime.cpp, fieldview_rhi/app/fieldpane.cpp
+Set node admitance	Расчёт проводимостей узлов	win_src/kernels/planarrt_h+x/tmcrthrectnode.cpp
+Put Topology	Запись топологии	win_src/kernels/planarrt_h+x/tmcrthrectnode.cpp
+Delete Dublicated Data	Удаление повторяющихся данных	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Delete Stationary Data	Удаление стационарных данных	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+
+# Строки GPU-ядра (tmcgpuh.h / tmcgpux.h), уходят в строку состояния через PutTrace
+CPU (GPU needs the win64 build)	CPU (для GPU нужна сборка win64)	win_src/kernels/planarrt_h+x/tmcgpuh.h
+CPU (GPU requested, but OpenCL.dll was not found)	CPU (запрошен GPU, но OpenCL.dll не найден)	win_src/kernels/planarrt_h+x/tmcgpuh.h
+CPU (GPU requested, but no card with double precision)	CPU (запрошен GPU, но нет карты с двойной точностью)	win_src/kernels/planarrt_h+x/tmcgpuh.h
+CPU (a block has no nodes)	CPU (в блоке нет узлов)	win_src/kernels/planarrt_h+x/tmcgpuh.h
+CPU (a block node is outside the grid)	CPU (узел блока вне сетки)	win_src/kernels/planarrt_h+x/tmcgpuh.h
+CPU (a port node is outside the grid)	CPU (узел порта вне сетки)	win_src/kernels/planarrt_x/tmcgpux.h
+CPU (bad absorber node type - the CPU reports it)	CPU (неверный тип узла поглотителя — ошибку выдаст расчёт на CPU)	win_src/kernels/planarrt_h+x/tmcgpuh.h
+
+# Сообщения об ошибках (PutErrorMessage): видны в окне Statistics → Error message; в строке состояния идут внутри «Step:%d;%s»
+Error: very big step number	Ошибка: слишком большой номер шага	win_src/kernels/planarrt_h+x/tmcrthrectnode.cpp
+InitNodeArray Number of Node <= 1	InitNodeArray: число узлов <= 1	win_src/kernels/planarrt_h+x/tmcrthrectnode.cpp
+Not enough memory for space array	Недостаточно памяти для пространственного массива	win_src/kernels/planarrt_h+x/tmcrthrectnode.cpp
+InitDielArray Number of Block < 1	InitDielArray: число блоков < 1	win_src/kernels/planarrt_h+x/tmcrthrectnode.cpp
+InitDielArray isn't initial	InitDielArray: массив не инициализирован	win_src/kernels/planarrt_h+x/tmcrthrectnode.cpp
+InitDielArray isn't initial very big Delta*Frequence	InitDielArray: массив не инициализирован, слишком велико Delta*Frequence	win_src/kernels/planarrt_h+x/tmcrthrectnode.cpp
+Output file name is NULL	Не задано имя выходного файла (NULL)	win_src/kernels/planarrt_h+x/tmcrthrectnode.cpp
+Output field file name is NULL	Не задано имя файла поля (NULL)	win_src/kernels/planarrt_h+x/tmcrthrectnode.cpp
+Can't open output file for write data	Не удалось открыть выходной файл для записи	win_src/kernels/planarrt_h+x/tmcrthrectnode.cpp
+Error for this version: Educational there is no opportunity to analyze areas with values permittivity by smaller value permittivity for free space. This opportunity is in the version: Professional. For reception of this version you can address in Tamic_soft group under a management Boris Vasilievich Sestroretsky.	Ошибка для этой версии: в учебной версии (Educational) нельзя анализировать области с диэлектрической проницаемостью меньше проницаемости свободного пространства. Эта возможность есть в версии Professional. Чтобы получить эту версию, обратитесь в Tamic_soft group под руководством Бориса Васильевича Сестрорецкого.	win_src/kernels/planarrt_h+x/tmcrthrectnode.cpp
+nNumNode < 1 for Xmin border	nNumNode < 1 для границы Xmin	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Not enough memory for Xmin border	Недостаточно памяти для границы Xmin	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+nNumNode < 1 for Xmax border	nNumNode < 1 для границы Xmax	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Not enough memory for Xmax border	Недостаточно памяти для границы Xmax	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+nNumNode < 1 for Ymin border	nNumNode < 1 для границы Ymin	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Not enough memory for Ymin border	Недостаточно памяти для границы Ymin	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+nNumNode < 1 for Ymax border	nNumNode < 1 для границы Ymax	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Not enough memory for Ymax border	Недостаточно памяти для границы Ymax	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Init Diel Node pointer is NULL	Указатель на узлы диэлектрика не инициализирован (NULL)	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Init pointer pX is NULL for block	Указатель pX не инициализирован (NULL) для блока	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Init pointer pY is NULL for block	Указатель pY не инициализирован (NULL) для блока	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Init nXY < 3 for block	При инициализации nXY < 3 для блока	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Not enought memory for SetYLineForDiel	Недостаточно памяти для SetYLineForDiel	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Not enought memory for CalcEps	Недостаточно памяти для CalcEps	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Not enought memory for NodeDielList	Недостаточно памяти для NodeDielList	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Not enought memory for block DeleteDublicatedFunction	Недостаточно памяти для блока DeleteDublicatedFunction	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Dublicated inputs in AddList	Повторяющиеся входы в AddList	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Bad Absorber or Magnetic Type 0001	Неверный тип поглотителя или магнитной стенки 0001	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Bad Absorber or Magnetic Type 0010	Неверный тип поглотителя или магнитной стенки 0010	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Bad Absorber or Magnetic Type 0100	Неверный тип поглотителя или магнитной стенки 0100	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Bad Absorber or Magnetic Type 0101	Неверный тип поглотителя или магнитной стенки 0101	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Bad Absorber or Magnetic Type 1000	Неверный тип поглотителя или магнитной стенки 1000	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+Bad Absorber or Magnetic Type 1010	Неверный тип поглотителя или магнитной стенки 1010	win_src/kernels/planarrt_h+x/tmcrthnodediel.cpp
+
+# --- Диалоги (src/apps/*/dialogs/*.ui; исходно английские)
+
+# About-окна .ui (содержимое скрывается новым окном «О программе», заголовок заменяется на «About <программа>»)
+About Tamic RtM Output Field Viewer	О программе Tamic RtM Output Field Viewer	fieldview/dialogs/IDD_ABOUTBOX.ui
+About  Tamic Directional Pattern Viewer	О программе Tamic Directional Pattern Viewer	tmc_dn/dialogs/IDD_ABOUTBOX.ui
+About  Tamic S-matrix Viewer	О программе Tamic S-matrix Viewer	tmcgrout/dialogs/IDD_ABOUTBOX.ui
+About  Tamic Rt Output Signal Viewer	О программе Tamic Rt Output Signal Viewer	tmcros/dialogs/IDD_ABOUTBOX.ui
+for draw field	для отображения поля	fieldview/dialogs/IDD_ABOUTBOX.ui
+Tamic Rt Output Field Viewer Version 4.1	Tamic Rt Output Field Viewer, версия 4.1	fieldview/dialogs/IDD_ABOUTBOX.ui
+Planar RT H analyzer Version 4.1	Анализатор Planar RT H, версия 4.1	planarrt_h/dialogs/IDD_ABOUTBOX.ui, app_info.cpp
+Planar RT X analyzer Version 1.0	Анализатор Planar RT X, версия 1.0	planarrt_x/dialogs/IDD_ABOUTBOX.ui, app_info.cpp
+Version 4.1	Версия 4.1	tmc_dn,tmcros/dialogs/IDD_ABOUTBOX.ui
+Version 5.1	Версия 5.1	tmcgrout/dialogs/IDD_ABOUTBOX.ui
+for draw directional pattern Tamic program on graphics	для отображения диаграмм направленности программ Tamic в виде графиков	tmc_dn/dialogs/IDD_ABOUTBOX.ui
+for draw output data Tamic program on graphics	для отображения выходных данных программ Tamic в виде графиков	tmcros/dialogs/IDD_ABOUTBOX.ui
+S-matrix Output Characteristics Viewer	Просмотр выходных характеристик S-матриц	tmcgrout/dialogs/IDD_ABOUTBOX.ui
+
+# FieldView (старый, MFC-перенос): IDD_DIALOGBAR*
+Auto color	Автоцвет уровней	fieldview/dialogs/IDD_DIALOGBARCOLORH.ui
+Auto set	Автоподбор	fieldview/dialogs/IDD_DIALOGBARCOLORH.ui
+Auto set Red	Автоподбор: красный	fieldview/dialogs/IDD_DIALOGBARCOLORH.ui
+Auto set Green	Автоподбор: зелёный	fieldview/dialogs/IDD_DIALOGBARCOLORH.ui
+Auto set Blue	Автоподбор: синий	fieldview/dialogs/IDD_DIALOGBARCOLORH.ui
+Level1	Уровень 1	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level2	Уровень 2	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level3	Уровень 3	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level4	Уровень 4	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level5	Уровень 5	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level6	Уровень 6	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level7	Уровень 7	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level8	Уровень 8	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level9	Уровень 9	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level10	Уровень 10	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level11	Уровень 11	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level12	Уровень 12	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level13	Уровень 13	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level14	Уровень 14	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level15	Уровень 15	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level16	Уровень 16	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level17	Уровень 17	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level18	Уровень 18	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level19	Уровень 19	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Level20	Уровень 20	fieldview/dialogs/IDD_DIALOGBARCOLORH*.ui
+Value for color level	Значения уровней цвета	fieldview/dialogs/IDD_DIALOGBARCOLORH1.ui
+Draw size flag	Показывать шкалу размера	fieldview/dialogs/IDD_DIALOGBAR*.ui
+Z axies	Ось Z	fieldview/dialogs/IDD_DIALOGBAREPS.ui
+Set color	Задать цвета	fieldview/dialogs/IDD_DIALOGBAREPS.ui
+Auto size	Автомасштаб	fieldview/dialogs/IDD_DIALOGBAR*.ui
+Dimention	Размерность	fieldview/dialogs/IDD_DIALOGBAR*.ui
+Blend	Прозрачность	fieldview/dialogs/IDD_DIALOGBAR*.ui
+Draw flags	Что рисовать	fieldview/dialogs/IDD_DIALOGBAR*.ui
+Line	Линии	fieldview/dialogs/IDD_DIALOGBAR*.ui
+Surface	Заливка	fieldview/dialogs/IDD_DIALOGBAR*.ui
+Draw Modul	Рисовать модуль	fieldview/dialogs/IDD_DIALOGBARFIELD.ui
+256 Resolution	256 уровней	fieldview/dialogs/IDD_DIALOGBARFIELD.ui
+Place	Размещение	fieldview/dialogs/IDD_DIALOGBARPLACE.ui; fieldview_rhi/ui/parametersdialog.cpp
+Proportionally	Пропорционально	fieldview/dialogs/IDD_DIALOGBARPLACE.ui
+Text	Текст	fieldview/dialogs/IDD_DIALOGBARPLACE.ui
+Time Unit	Единица времени	fieldview/dialogs/IDD_DIALOGBARPLACE.ui
+Long Unit	Единица длины	fieldview/dialogs/IDD_DIALOGBARPLACE.ui
+Draw	Рисовать	fieldview/dialogs/IDD_DIALOGBARPLACE.ui
+trans	перенос	fieldview/dialogs/IDD_DIALOGBARPLACE.ui
+angl	угол	fieldview/dialogs/IDD_DIALOGBARPLACE.ui
+X axies	Ось X	fieldview/dialogs/IDD_DIALOGBARPLACE.ui; fieldview_rhi/ui/parametersdialog.cpp
+Y axies	Ось Y	fieldview/dialogs/IDD_DIALOGBARPLACE.ui; fieldview_rhi/ui/parametersdialog.cpp
+Absorber	Поглотитель	fieldview/dialogs/IDD_DIALOGBARTOPOLOGY.ui
+Link List	Список привязок	fieldview/dialogs/IDD_DIALOGBARTOPOLOGY.ui
+Magnetic	Магнитная стенка	fieldview/dialogs/IDD_DIALOGBARTOPOLOGY.ui
+Metal	Металл	fieldview/dialogs/IDD_DIALOGBARTOPOLOGY.ui
+Size	Размеры	fieldview/dialogs/IDD_DIALOGBARTOPOLOGY.ui
+
+# Общие для нескольких диалогов
+Change	Изменить	fieldview,tmc_dn,tmcgrout,tmcros/dialogs/
+Color	Цвет	fieldview,tmc_dn,tmcgrout,tmcros/dialogs/, fieldview_rhi/ui/mainwindow.cpp
+Default	По умолчанию	fieldview,tmc_dn,tmcgrout,tmcros/dialogs/
+Font	Шрифт	fieldview,tmc_dn,tmcgrout,tmcros/dialogs/
+Axies	Оси	fieldview,tmc_dn,tmcgrout,tmcros/dialogs/
+Field	Поле	fieldview,planarrt/dialogs/, fieldview_rhi/ui/parametersdialog.cpp
+Topology	Топология	fieldview,planarrt/dialogs/, fieldview_rhi/ui/parametersdialog.cpp
+Block	Блок	fieldview,planarrt/dialogs/
+Input	Вход	fieldview,tmcros/dialogs/
+Signal	Сигнал	planarrt,tmcros/dialogs/
+
+# PlanarRT_H/X: Statistics, Calculation time, формат файла, блок, мелодия
+Calculation time	Время расчёта	planarrt_h,planarrt_x/dialogs/IDD_TMC_CALCTIME.ui
+Close	Закрыть	planarrt_h,planarrt_x/dialogs/IDD_TMC_CALCTIME.ui
+Export to TXT...	Экспорт в TXT...	planarrt_h,planarrt_x/dialogs/IDD_TMC_CALCTIME.ui
+Refresh	Обновить	planarrt_h,planarrt_x/dialogs/IDD_TMC_CALCTIME.ui
+Set format for output data file	Формат файла выходных данных	planarrt_h,planarrt_x/dialogs/IDD_TMC_CONFIG_OUTFFORMAT.ui
+Set default	Значения по умолчанию	planarrt_h,planarrt_x/dialogs/IDD_TMC_CONFIG_OUTFFORMAT.ui
+Scattering - double	Рассеянная волна - double	planarrt_h,planarrt_x/dialogs/IDD_TMC_CONFIG_OUTFFORMAT.ui
+Falling - double	Падающая волна - double	planarrt_h,planarrt_x/dialogs/IDD_TMC_CONFIG_OUTFFORMAT.ui
+Block - int	Блок - int	planarrt_h,planarrt_x/dialogs/IDD_TMC_CONFIG_OUTFFORMAT.ui
+Current time - double	Текущее время - double	planarrt_h,planarrt_x/dialogs/IDD_TMC_CONFIG_OUTFFORMAT.ui
+Time discret - int	Номер отсчёта времени - int	planarrt_h,planarrt_x/dialogs/IDD_TMC_CONFIG_OUTFFORMAT.ui
+Memory MB	Память, МБ	planarrt_h,planarrt_x/dialogs/IDD_TMC_RTH_TOPBLOCK.ui
+Angular speed	Угловая скорость	planarrt_h,planarrt_x/dialogs/IDD_TMC_RTH_TOPBLOCK.ui
+Linear speed	Линейная скорость	planarrt_h,planarrt_x/dialogs/IDD_TMC_RTH_TOPBLOCK.ui
+Expression for eps	Выражение для eps	planarrt_h,planarrt_x/dialogs/IDD_TMC_RTH_TOPBLOCK.ui
+Type	Тип	planarrt_h,planarrt_x/dialogs/IDD_TMC_RTH_TOPBLOCK.ui
+Next	Следующий	planarrt_h,planarrt_x/dialogs/IDD_TMC_RTH_TOPBLOCK.ui, IDD_TMC_STATISTICS.ui
+Previous	Предыдущий	planarrt_h,planarrt_x/dialogs/IDD_TMC_RTH_TOPBLOCK.ui
+Displacement	Смещение	planarrt_h,planarrt_x/dialogs/IDD_TMC_RTH_TOPBLOCK.ui
+Number	Номер	planarrt_h,planarrt_x/dialogs/IDD_TMC_RTH_TOPBLOCK.ui
+LongUnit	Ед. длины	planarrt_h,planarrt_x/dialogs/IDD_TMC_RTH_TOPBLOCK.ui
+Note	Нота	planarrt_h,planarrt_x/dialogs/IDD_TMC_SOUND_MELODY1.ui
+Interval ms	Интервал, мс	planarrt_h,planarrt_x/dialogs/IDD_TMC_SOUND_MELODY1.ui
+Statistics	Статистика	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Accuracy  :	Точность  :	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Data Format	Формат данных	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Memory   MB	Память (МБ)	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Calculated value	Расчётные величины	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Time / T	Время / T	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Time / t0	Время / t0	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Ysize / Wavelenght	Размер Y / длина волны	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Xsize / Wavelenght	Размер X / длина волны	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Wavelenght / Delta	Длина волны / Delta	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Output	Вывод	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Wavelenght	Длина волны	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Angle	Угол	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Y size	Размер Y	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+X size	Размер X	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Time	Время	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Parameters	Параметры	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Delta - space discr	Delta - шаг по пространству	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Frequence	Частота	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Unit	Единицы	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui, tmcgrout/dialogs/IDD_DIALOG1.ui
+Long	Длина	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+t0 - time discr	t0 - шаг по времени	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Step	Шаг	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Error message	Сообщение об ошибке	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Calc. time...	Время расчёта...	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+View block list	Список блоков	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+Prev.	Пред.	planarrt_h,planarrt_x/dialogs/IDD_TMC_STATISTICS.ui
+
+# Вьюверы: Viewport, Characteristics, Graphics parameters, экспорт в S-матрицу, отклонения ДН
+Normirovka	Нормировка	tmc_dn/dialogs/IDD_DIALOG1.ui
+Reduct	Прореживать	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOG1.ui
+Graphics	Графики	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOG1.ui
+Point	Точки	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOG1.ui
+Point Size	Размер точки	tmc_dn,tmcros/dialogs/IDD_DIALOG1.ui
+PointSize	Размер точек	tmcgrout/dialogs/IDD_DIALOG1.ui
+Default Grid Format	Формат сетки по умолчанию	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOG1.ui
+Format	Формат	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOG1.ui, fieldview_rhi/ui/mainwindow.cpp
+Y-scale	Шкала Y	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOG1.ui
+X-scale	Шкала X	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOG1.ui
+Graphics type	Тип графика	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOG1.ui
+Graphics window size	Пределы окна графика	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOG1.ui
+Grid	Сетка	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOG1.ui
+Background	Фон	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOG1.ui
+Pattern dB	ДН, дБ	tmc_dn/dialogs/IDD_DIALOG1.ui
+Pattern	ДН	tmc_dn/dialogs/IDD_DIALOG1.ui
+DrawPoint	Рисовать точки	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOG1.ui
+Degree	Градусы	tmc_dn/dialogs/IDD_DIALOG1.ui
+Radian	Радианы	tmc_dn/dialogs/IDD_DIALOG1.ui
+Automatic YSize Flag	Автомасштаб Y	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOG1.ui
+Automatic XSize Flag	Автомасштаб X	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOG1.ui
+Phase S grad	Фаза S, град	tmcgrout/dialogs/IDD_DIALOG1.ui
+Phase S rad	Фаза S, рад	tmcgrout/dialogs/IDD_DIALOG1.ui
+L dB	Потери, дБ	tmcgrout,tmcros/dialogs/IDD_DIALOG1.ui
+WSVR	КСВН	tmcgrout,tmcros/dialogs/IDD_DIALOG1.ui
+User	Своя	tmcgrout/dialogs/IDD_DIALOG1.ui
+Hz	Гц	tmcgrout/dialogs/IDD_DIALOG1.ui
+KHz	кГц	tmcgrout/dialogs/IDD_DIALOG1.ui
+MHz	МГц	tmcgrout/dialogs/IDD_DIALOG1.ui
+GHz	ГГц	tmcgrout/dialogs/IDD_DIALOG1.ui
+Phase gradus	Фаза, град	tmcros/dialogs/IDD_DIALOG1.ui
+Phase rad	Фаза, рад	tmcros/dialogs/IDD_DIALOG1.ui
+Amplitude	Амплитуда	tmcros/dialogs/IDD_DIALOG1.ui
+sec	с	tmcros/dialogs/IDD_DIALOG1.ui
+msec	мс	tmcros/dialogs/IDD_DIALOG1.ui
+mksec	мкс	tmcros/dialogs/IDD_DIALOG1.ui
+nsec	нс	tmcros/dialogs/IDD_DIALOG1.ui
+psec	пс	tmcros/dialogs/IDD_DIALOG1.ui
+DiagrPattern characteristics file name	Имя файла характеристик диаграммы направленности	tmc_dn/dialogs/IDD_DIALOG2.ui
+S-matrix output characteristics file name	Имя файла выходных характеристик S-матрицы	tmcgrout,tmcros/dialogs/
+File name for draw Time Output Signal	Файл выходного временного сигнала	tmcros/dialogs/IDD_DIALOG2.ui
+Falling or Scattering	Падающая или рассеянная	tmcros/dialogs/IDD_DIALOG2.ui
+Name	Имя	tmcgrout/dialogs/IDD_DIALOG2.ui
+Mod 1	Мода 1	tmcgrout/dialogs/IDD_DIALOG2.ui
+Mod 2	Мода 2	tmcgrout/dialogs/IDD_DIALOG2.ui
+Input 1	Вход 1	tmcgrout/dialogs/IDD_DIALOG2.ui
+Input 2	Вход 2	tmcgrout/dialogs/IDD_DIALOG2.ui
+S FileName or expression	Файл S или выражение	tmcgrout/dialogs/IDD_DIALOG2.ui
+Reduce	Прореживание	tmc_dn/dialogs/IDD_DIALOG2.ui
+Calculate Directional      Pattern   Deviation	Рассчитать отклонение ДН	tmc_dn/dialogs/IDD_DIALOG2.ui
+Make Distribution   Deviation	Внести отклонения в распределение	tmc_dn/dialogs/IDD_DIALOG2.ui
+File name for draw Pattern	Файл для построения ДН	tmc_dn/dialogs/IDD_DIALOG2.ui
+Visible	Видимость	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOG2.ui
+Data FileName	Файл данных	tmc_dn/dialogs/IDD_DIALOG2.ui
+GraphName	Имя графика	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOG2.ui
+Add	Добавить	tmc_dn,tmcgrout,tmcros/dialogs/
+Time signal export to S-matrix	Экспорт временного сигнала в S-матрицу	tmc_dn,tmcros/dialogs/IDD_DIALOG3.ui
+Delete	Удалить	tmc_dn,tmcros/dialogs/IDD_DIALOG3.ui
+Fill X value	Заполнить значения X	tmc_dn,tmcros/dialogs/IDD_DIALOG3.ui
+Value for X axies	Значения по оси X	tmc_dn,tmcros/dialogs/IDD_DIALOG3.ui
+Time unit	Единица времени	tmc_dn,tmcros/dialogs/IDD_DIALOG3.ui
+Export to S	Экспорт в S	tmc_dn,tmcros/dialogs/IDD_DIALOG3.ui
+S-matrix file name	Имя файла S-матрицы	tmc_dn,tmcros/dialogs/IDD_DIALOG3.ui
+Export	Экспорт	tmc_dn,tmcros/dialogs/IDD_DIALOG3.ui
+S FileName	Имя S-файла	tmc_dn,tmcros/dialogs/IDD_DIALOG3.ui
+Graphics parameters	Параметры графиков	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOGGRPARALL.ui
+Width	Толщина	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOGBARCOLORH.ui
+Style	Стиль	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOGBARCOLORH.ui
+Solid	Сплошная	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOGBARCOLORH.ui
+Dash	Штриховая	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOGBARCOLORH.ui
+Dot	Пунктирная	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOGBARCOLORH.ui
+DashDot	Штрихпунктирная	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOGBARCOLORH.ui
+DashDotDot	Штрихпунктир, 2 точки	tmc_dn,tmcgrout,tmcros/dialogs/IDD_DIALOGBARCOLORH.ui
+Calculate deviation directional pattern	Расчёт отклонения диаграммы направленности	tmc_dn/dialogs/IDD_DIALOGCALCDEVIAT.ui
+File with Distribution Amplitude and Faza	Файл амплитудно-фазового распределения	tmc_dn/dialogs/IDD_DIALOGCALCDEVIAT.ui
+File name for save Deviation Directional Pattern	Файл для сохранения отклонения ДН	tmc_dn/dialogs/IDD_DIALOGCALCDEVIAT.ui
+File with requred Directional Pattern	Файл требуемой ДН	tmc_dn/dialogs/IDD_DIALOGCALCDEVIAT.ui
+Make deviation form source file	Отклонения по исходному файлу	tmc_dn/dialogs/IDD_DIALOGMAKEDEVIAT.ui
+Faza degree	Фаза, градусы	tmc_dn/dialogs/IDD_DIALOGMAKEDEVIAT.ui
+Amplitude %	Амплитуда, %	tmc_dn/dialogs/IDD_DIALOGMAKEDEVIAT.ui
+Y mm	Y, мм	tmc_dn/dialogs/IDD_DIALOGMAKEDEVIAT.ui
+X mm	X, мм	tmc_dn/dialogs/IDD_DIALOGMAKEDEVIAT.ui
+Deviation	Отклонение	tmc_dn/dialogs/IDD_DIALOGMAKEDEVIAT.ui
+To	Куда	tmc_dn/dialogs/IDD_DIALOGMAKEDEVIAT.ui
+From	Откуда	tmc_dn/dialogs/IDD_DIALOGMAKEDEVIAT.ui
+PLEASE WAIT : Calculate data for draw directional pattern	ПОДОЖДИТЕ: расчёт данных для построения ДН	tmc_dn/dialogs/IDD_READDATA_THREAD.ui
+Number of emitters	Число излучателей	tmc_dn/dialogs/IDD_READDATA_THREAD.ui
+Number of Directional Pattern	Число диаграмм направленности	tmc_dn/dialogs/IDD_READDATA_THREAD.ui
+Elaps. Time:	Прошло времени:	tmc_dn/dialogs/IDD_READDATA_THREAD.ui
+Already calculate:	Уже рассчитано:	tmc_dn/dialogs/IDD_READDATA_THREAD.ui
+Hide	Скрыть	tmc_dn/dialogs/IDD_READDATA_THREAD.ui
+
+# --- FieldView RHI (src/apps/fieldview_rhi; исходно русское)
+
+# Меню
+F&rames	&Такты	fieldview_rhi/ui/mainwindow.cpp
+&Open…	&Открыть…	fieldview_rhi/ui/mainwindow.cpp
+Save &Image…	Сохранить &изображение…	fieldview_rhi/ui/mainwindow.cpp
+Save &Frames as Series…	Сохранить &такты серией…	fieldview_rhi/ui/mainwindow.cpp
+&Export Animation (GIF / PNG)…	&Экспорт анимации (GIF / PNG)…	fieldview_rhi/ui/mainwindow.cpp
+&Print…	&Печать…	fieldview_rhi/ui/mainwindow.cpp
+Print Previe&w	Предварительный про&смотр	fieldview_rhi/ui/mainwindow.cpp
+Page Set&up…	Пара&метры страницы…	fieldview_rhi/ui/mainwindow.cpp
+Recent Files	Последние файлы	fieldview_rhi/ui/mainwindow.cpp
+&Copy Image	&Копировать изображение	fieldview_rhi/ui/mainwindow.cpp
+&Parameters…	&Параметры…	fieldview_rhi/ui/mainwindow.cpp
+&Topology	&Топология	fieldview_rhi/ui/mainwindow.cpp
+&Outline	&Контуры	fieldview_rhi/ui/mainwindow.cpp
+&Surface	&Заливка	fieldview_rhi/ui/mainwindow.cpp
+&3D Blocks (2D/3D)	&Объёмно (2D/3D)	fieldview_rhi/ui/mainwindow.cpp
+Axis Size Lines	Размер вдоль осей (Size)	fieldview_rhi/ui/mainwindow.cpp
+Size Along &X	Размер по оси &X	fieldview_rhi/ui/mainwindow.cpp
+Size Along &Y	Размер по оси &Y	fieldview_rhi/ui/mainwindow.cpp
+Block Dimensions	Размеры блоков (Dimensions)	fieldview_rhi/ui/mainwindow.cpp
+&Block Sizes	Размеры &блоков	fieldview_rhi/ui/mainwindow.cpp
+Block &Links	&Привязки блоков	fieldview_rhi/ui/mainwindow.cpp
+Boundaries	Границы (Boundary)	fieldview_rhi/ui/mainwindow.cpp
+&Dielectric (Eps)	&Диэлектрик (Eps)	fieldview_rhi/ui/mainwindow.cpp
+&Metal	&Металл	fieldview_rhi/ui/mainwindow.cpp
+Ma&gnetic Wall	Ма&гнитная стенка	fieldview_rhi/ui/mainwindow.cpp
+&Absorber	П&оглотитель	fieldview_rhi/ui/mainwindow.cpp
+&Inputs (Ports)	&Входы (порты)	fieldview_rhi/ui/mainwindow.cpp
+&Plasma (Outlines)	П&лазма (контуры)	fieldview_rhi/ui/mainwindow.cpp
+&Eps and Plasma	&ε и плазма (Eps)	fieldview_rhi/ui/mainwindow.cpp
+&Relief (2D/3D)	&Рельеф (2D/3D)	fieldview_rhi/ui/mainwindow.cpp
+Z Sc&ale	&Шкала Z	fieldview_rhi/ui/mainwindow.cpp
+Displayed Quantity (Type)	Величина (Type)	fieldview_rhi/ui/mainwindow.cpp, fieldview_rhi/ui/parametersdialog.cpp
+ε — permittivity (Eps+)	ε — проницаемость (Eps+)	fieldview_rhi/ui/mainwindow.cpp
+N — electron density	N — концентрация электронов	fieldview_rhi/ui/mainwindow.cpp
+Y — losses	Y — потери	fieldview_rhi/ui/mainwindow.cpp, fieldview_rhi/ui/parametersdialog.cpp
+B — magnetic field	B — магнитное поле	fieldview_rhi/ui/mainwindow.cpp
+F&ield	&Поле (Field)	fieldview_rhi/ui/mainwindow.cpp
+&Z Scale	Шкала &Z	fieldview_rhi/ui/mainwindow.cpp
+Color &Levels (Values)	&Уровни цвета (значения)	fieldview_rhi/ui/mainwindow.cpp
+&Value at Point	&Значение в точке	fieldview_rhi/ui/mainwindow.cpp
+&Modulus	&Модуль	fieldview_rhi/ui/mainwindow.cpp
+Color Scale	Цветовая шкала	fieldview_rhi/ui/mainwindow.cpp
+Scale: Auto	Шкала: авто	fieldview_rhi/ui/mainwindow.cpp
+“Wave” Scale	Шкала «Волна»	fieldview_rhi/ui/mainwindow.cpp
+“Glow” Scale	Шкала «Свечение»	fieldview_rhi/ui/mainwindow.cpp
+Scale: 20 Level Colors	Шкала: 20 цветов уровней	fieldview_rhi/ui/mainwindow.cpp
+Smooth Scale (256 Levels)	Плавная шкала (256 уровней)	fieldview_rhi/ui/mainwindow.cpp
+Limits by Current Frame	Пределы по текущему такту	fieldview_rhi/ui/mainwindow.cpp
+&Zoom	&Масштаб (Zoom)	fieldview_rhi/ui/mainwindow.cpp
+&Rotate	П&оворот (Rotate)	fieldview_rhi/ui/mainwindow.cpp
+Left	Влево	fieldview_rhi/ui/mainwindow.cpp
+Right	Вправо	fieldview_rhi/ui/mainwindow.cpp
+Up	Вверх	fieldview_rhi/ui/mainwindow.cpp
+Down	Вниз	fieldview_rhi/ui/mainwindow.cpp
+Counterclockwise (Z)	Против часовой (Z)	fieldview_rhi/ui/mainwindow.cpp
+Clockwise (Z)	По часовой (Z)	fieldview_rhi/ui/mainwindow.cpp
+Tr&anslate	С&двиг (Translate)	fieldview_rhi/ui/mainwindow.cpp
+X Right	X вправо	fieldview_rhi/ui/mainwindow.cpp
+X Left	X влево	fieldview_rhi/ui/mainwindow.cpp
+Closer	Ближе	fieldview_rhi/ui/mainwindow.cpp
+Farther	Дальше	fieldview_rhi/ui/mainwindow.cpp
+X Data Window	Окно данных по X (Change Xmax, Xmin)	fieldview_rhi/ui/mainwindow.cpp
+Y Data Window	Окно данных по Y (Change Ymax, Ymin)	fieldview_rhi/ui/mainwindow.cpp
+Data Window Left	Окно данных влево	fieldview_rhi/ui/mainwindow.cpp
+Data Window Right	Окно данных вправо	fieldview_rhi/ui/mainwindow.cpp
+Data Window Down	Окно данных вниз	fieldview_rhi/ui/mainwindow.cpp
+Data Window Up	Окно данных вверх	fieldview_rhi/ui/mainwindow.cpp
+&Default View	Вид по &умолчанию	fieldview_rhi/ui/mainwindow.cpp
+Reset &Camera	Сбросить &камеру	fieldview_rhi/ui/mainwindow.cpp
+Top &View	Вид &сверху	fieldview_rhi/ui/mainwindow.cpp
+Reload File	Перечитать файл	fieldview_rhi/ui/mainwindow.cpp
+Pr&oportionally	&Пропорционально	fieldview_rhi/ui/mainwindow.cpp
+Panels	Панели	fieldview_rhi/ui/mainwindow.cpp
+Play / Pause	Пуск / пауза	fieldview_rhi/ui/mainwindow.cpp
+Previous Frame	Предыдущий такт	fieldview_rhi/ui/mainwindow.cpp
+Next Frame	Следующий такт	fieldview_rhi/ui/mainwindow.cpp
+First Frame	Первый такт	fieldview_rhi/ui/mainwindow.cpp
+Last Frame	Последний такт	fieldview_rhi/ui/mainwindow.cpp
+Follow Calculation	Следить за расчётом	fieldview_rhi/ui/mainwindow.cpp
+Record Frames	Запоминать такты	fieldview_rhi/ui/mainwindow.cpp
+Clear Frames	Забыть такты	fieldview_rhi/ui/mainwindow.cpp
+Next Window	Следующее окно	fieldview_rhi/ui/mainwindow.cpp
+Previous Window	Предыдущее окно	fieldview_rhi/ui/mainwindow.cpp
+User &Manual	&Руководство пользователя	fieldview_rhi/ui/mainwindow.cpp
+&About FieldView…	&О программе FieldView…	fieldview_rhi/ui/mainwindow.cpp
+
+# Панели, строка состояния, док «Уровни цвета»
+Main Panel	Основная панель	fieldview_rhi/ui/mainwindow.cpp
+Frames	Такты	fieldview_rhi/ui/mainwindow.cpp
+Main Toolbar	Основная панель (Toolbar)	fieldview_rhi/ui/mainwindow.cpp
+Frames Toolbar	Панель тактов	fieldview_rhi/ui/mainwindow.cpp
+Status Bar	Строка состояния (Status Bar)	fieldview_rhi/ui/mainwindow.cpp
+Frame	Такт	fieldview_rhi/ui/mainwindow.cpp
+fps	кадр/с	fieldview_rhi/ui/mainwindow.cpp
+contrast ×	контраст ×	fieldview_rhi/ui/mainwindow.cpp
+Frame playback speed	Скорость проигрывания тактов	fieldview_rhi/ui/mainwindow.cpp
+Color and height contrast: auto scale limits are divided by this number (values beyond them get the end color)	Контраст раскраски и высоты: авто-пределы шкалы делятся на это число (значения за пределами — крайним цветом)	fieldview_rhi/ui/mainwindow.cpp
+Color Levels	Уровни цвета	fieldview_rhi/ui/mainwindow.cpp
+Value From	Значение от	fieldview_rhi/ui/mainwindow.cpp
+FieldView — Field Viewer	FieldView — просмотр полей	fieldview_rhi/ui/mainwindow.cpp
+Ready. Open a field file: File → Open (Ctrl+O)	Готово. Откройте файл поля: Файл → Открыть (Ctrl+O)	fieldview_rhi/ui/mainwindow.cpp
+<span style='color:#5ce08a'>●</span> following	<span style='color:#5ce08a'>●</span> слежение	fieldview_rhi/ui/mainwindow.cpp
+<span style='color:#ff6b6b'>●</span> following off	<span style='color:#ff6b6b'>●</span> слежение выкл.	fieldview_rhi/ui/mainwindow.cpp
+Image copied to the clipboard	Изображение скопировано в буфер обмена	fieldview_rhi/ui/mainwindow.cpp
+
+# Окна файлов и экспорта, печать, «О программе»
+Open Field File	Открыть файл поля	fieldview_rhi/ui/mainwindow.cpp
+Save Image	Сохранить изображение	fieldview_rhi/ui/mainwindow.cpp
+Save Frames as Series	Сохранить такты серией	fieldview_rhi/ui/mainwindow.cpp
+Frame series (*.frames)	Серия тактов (*.frames)	fieldview_rhi/ui/mainwindow.cpp
+Export Animation	Экспорт анимации	fieldview_rhi/ui/mainwindow.cpp
+GIF Animation	Анимация GIF	fieldview_rhi/ui/mainwindow.cpp
+PNG Frames to a Folder	Кадры PNG в папку	fieldview_rhi/ui/mainwindow.cpp
+From Frame	С такта	fieldview_rhi/ui/mainwindow.cpp
+To Frame	По такт	fieldview_rhi/ui/mainwindow.cpp
+Every k-th Frame	Каждый k-й такт	fieldview_rhi/ui/mainwindow.cpp
+Frames per Second (GIF)	Кадров в секунду (GIF)	fieldview_rhi/ui/mainwindow.cpp
+Width, pixels	Ширина, точек	fieldview_rhi/ui/mainwindow.cpp
+Save…	Записать…	fieldview_rhi/ui/mainwindow.cpp
+Folder for PNG Frames	Папка для кадров PNG	fieldview_rhi/ui/mainwindow.cpp
+Writing frames…	Запись тактов…	fieldview_rhi/ui/mainwindow.cpp
+Abort	Прервать	fieldview_rhi/ui/mainwindow.cpp
+aborted	прервано	fieldview_rhi/ui/mainwindow.cpp
+could not capture a frame	не удалось снять кадр	fieldview_rhi/ui/mainwindow.cpp
+
+# Подсказки строки состояния (statusTip). ВНИМАНИЕ: toolTip = тот же текст + «  (клавиша)», если у команды есть клавиша — см. README
+Open a field file (File → Open)	Открыть файл поля (File → Open)	fieldview_rhi/ui/mainwindow.cpp
+Close the document window (File → Close)	Закрыть окно документа (File → Close)	fieldview_rhi/ui/mainwindow.cpp
+Save the view image to a PNG/JPEG file (instead of File → Save)	Сохранить картинку вида в файл PNG/JPEG (вместо File → Save)	fieldview_rhi/ui/mainwindow.cpp
+Write all frames to an .ex.frames file (instead of File → Save As)	Записать все такты в файл .ex.frames (вместо File → Save As)	fieldview_rhi/ui/mainwindow.cpp
+Write the frames as a GIF animation or PNG images	Записать такты анимацией GIF или кадрами PNG	fieldview_rhi/ui/mainwindow.cpp
+Print the image (File → Print)	Напечатать изображение (File → Print)	fieldview_rhi/ui/mainwindow.cpp
+How the page will look (File → Print Preview)	Как будет выглядеть страница (File → Print Preview)	fieldview_rhi/ui/mainwindow.cpp
+Printer and page (File → Print Setup)	Принтер и страница (File → Print Setup)	fieldview_rhi/ui/mainwindow.cpp
+Close the program (File → Exit)	Закрыть программу (File → Exit)	fieldview_rhi/ui/mainwindow.cpp
+Copy the view image to the clipboard (Edit → Copy)	Картинка вида — в буфер обмена (Edit → Copy)	fieldview_rhi/ui/mainwindow.cpp
+View parameters (View → Parameters)	Параметры вида (View → Parameters)	fieldview_rhi/ui/mainwindow.cpp
+Topology: block outlines (Topology → Line)	Топология: контуры блоков (Topology → Line)	fieldview_rhi/ui/mainwindow.cpp
+Topology: block fill (Topology → Surface)	Топология: заливка блоков (Topology → Surface)	fieldview_rhi/ui/mainwindow.cpp
+Topology: flat or solid blocks (Topology → Dimension 2/3)	Топология: плоско или объёмными блоками (Topology → Dimension 2/3)	fieldview_rhi/ui/mainwindow.cpp
+Dimension line along the X axis (Topology → Size → along an X axies)	Размерная линия вдоль оси X (Topology → Size → along an X axies)	fieldview_rhi/ui/mainwindow.cpp
+Dimension line along the Y axis (Topology → Size → along an Y axies)	Размерная линия вдоль оси Y (Topology → Size → along an Y axies)	fieldview_rhi/ui/mainwindow.cpp
+Topology block sizes (Topology → Dimensions → Block)	Размеры блоков топологии (Topology → Dimensions → Block)	fieldview_rhi/ui/mainwindow.cpp
+Block anchors X0, Y0 (Topology → Dimensions → Link_List)	Привязка блоков X0, Y0 (Topology → Dimensions → Link_List)	fieldview_rhi/ui/mainwindow.cpp
+Show dielectric blocks (Boundary → Eps)	Показывать блоки диэлектрика (Boundary → Eps)	fieldview_rhi/ui/mainwindow.cpp
+Show metal (Boundary → Metal)	Показывать металл (Boundary → Metal)	fieldview_rhi/ui/mainwindow.cpp
+Show magnetic walls (Boundary → Magnetic)	Показывать магнитные стенки (Boundary → Magnetic)	fieldview_rhi/ui/mainwindow.cpp
+Show the absorber (Boundary → Absorber)	Показывать поглотитель (Boundary → Absorber)	fieldview_rhi/ui/mainwindow.cpp
+Show inputs and their numbers “Inp N” (Boundary → Input)	Показывать входы и их номера «Inp N» (Boundary → Input)	fieldview_rhi/ui/mainwindow.cpp
+New: outlines of X-mode plasma blocks (RECT_STAT_N/_B/_Y …)	Новое: контуры плазменных блоков X-моды (RECT_STAT_N/_B/_Y …)	fieldview_rhi/ui/mainwindow.cpp
+ε layer: grid (Eps → Line)	Слой ε: сетка (Eps → Line)	fieldview_rhi/ui/mainwindow.cpp
+ε layer: fill (Eps → Surface)	Слой ε: заливка (Eps → Surface)	fieldview_rhi/ui/mainwindow.cpp
+ε layer: flat or relief (Eps → Dimension 2/3)	Слой ε: плоско или рельефом (Eps → Dimension 2/3)	fieldview_rhi/ui/mainwindow.cpp
+ε layer: Z-axis scale in the scene (Eps → Size)	Слой ε: шкала по оси Z в сцене (Eps → Size)	fieldview_rhi/ui/mainwindow.cpp
+Field: grid (Field → Line)	Поле: сетка (Field → Line)	fieldview_rhi/ui/mainwindow.cpp
+Field: fill (Field → Surface)	Поле: заливка (Field → Surface)	fieldview_rhi/ui/mainwindow.cpp
+Field: flat or relief (Field → Dimension 2/3)	Поле: плоско или рельефом (Field → Dimension 2/3)	fieldview_rhi/ui/mainwindow.cpp
+Field: Z-axis scale in the scene (Field → Size)	Поле: шкала по оси Z в сцене (Field → Size)	fieldview_rhi/ui/mainwindow.cpp
+Values window for the color levels (Field → Level)	Окно значений для уровней цвета (Field → Level)	fieldview_rhi/ui/mainwindow.cpp
+Field marker and value at a point; arrows move the point, Shift+click places it (Field → Value)	Метка и значение поля в точке; стрелки двигают точку, Shift+щелчок ставит её (Field → Value)	fieldview_rhi/ui/mainwindow.cpp
+Field: show the modulus |E| (Field → Modul)	Поле: показывать модуль |E| (Field → Modul)	fieldview_rhi/ui/mainwindow.cpp
+New: field color scale	Новое: цветовая шкала поля	fieldview_rhi/ui/mainwindow.cpp
+Smooth scale or 20 color levels (256 Resolution)	Плавная шкала или 20 уровней цвета (256 Resolution)	fieldview_rhi/ui/mainwindow.cpp
+New: scale limits from the current frame (otherwise from all frames shown)	Новое: пределы шкалы по текущему такту (иначе — по всем показанным)	fieldview_rhi/ui/mainwindow.cpp
+Zoom in: the data window becomes half as large (Zoom +)	Увеличить: окно данных вдвое меньше (Zoom +)	fieldview_rhi/ui/mainwindow.cpp
+Zoom in along the X axis (Zoom +X)	Увеличить по оси X (Zoom +X)	fieldview_rhi/ui/mainwindow.cpp
+Zoom in along the Y axis (Zoom +Y)	Увеличить по оси Y (Zoom +Y)	fieldview_rhi/ui/mainwindow.cpp
+Zoom out: the data window becomes twice as large (Zoom −)	Уменьшить: окно данных вдвое больше (Zoom −)	fieldview_rhi/ui/mainwindow.cpp
+Zoom out along the X axis (Zoom −X)	Уменьшить по оси X (Zoom −X)	fieldview_rhi/ui/mainwindow.cpp
+Zoom out along the Y axis (Zoom −Y)	Уменьшить по оси Y (Zoom −Y)	fieldview_rhi/ui/mainwindow.cpp
+Rotate around Y by −2° (Rotate → Left)	Поворот вокруг Y на −2° (Rotate → Left)	fieldview_rhi/ui/mainwindow.cpp
+Rotate around Y by +2° (Rotate → Right)	Поворот вокруг Y на +2° (Rotate → Right)	fieldview_rhi/ui/mainwindow.cpp
+Rotate around X by −2° (Rotate → Top)	Поворот вокруг X на −2° (Rotate → Top)	fieldview_rhi/ui/mainwindow.cpp
+Rotate around X by +2° (Rotate → Bottom)	Поворот вокруг X на +2° (Rotate → Bottom)	fieldview_rhi/ui/mainwindow.cpp
+Rotate around Z by −2° (Rotate → Left_y)	Поворот вокруг Z на −2° (Rotate → Left_y)	fieldview_rhi/ui/mainwindow.cpp
+Rotate around Z by +2° (Rotate → Right_y)	Поворот вокруг Z на +2° (Rotate → Right_y)	fieldview_rhi/ui/mainwindow.cpp
+Move the scene along X + (Translate → X top)	Сдвиг сцены по X + (Translate → X top)	fieldview_rhi/ui/mainwindow.cpp
+Move the scene along X − (Translate → X bottom)	Сдвиг сцены по X − (Translate → X bottom)	fieldview_rhi/ui/mainwindow.cpp
+Scene closer to the viewer (Translate → Y top)	Сцена ближе к наблюдателю (Translate → Y top)	fieldview_rhi/ui/mainwindow.cpp
+Scene farther from the viewer (Translate → Y bottom)	Сцена дальше от наблюдателя (Translate → Y bottom)	fieldview_rhi/ui/mainwindow.cpp
+Move the scene up (Translate → Z top)	Сдвиг сцены вверх (Translate → Z top)	fieldview_rhi/ui/mainwindow.cpp
+Move the scene down (Translate → Z bottom)	Сдвиг сцены вниз (Translate → Z bottom)	fieldview_rhi/ui/mainwindow.cpp
+Xmin, Xmax − Δ (or the point to the left in Value mode)	Xmin, Xmax − Δ (или точка — влево в режиме Value)	fieldview_rhi/ui/mainwindow.cpp
+Xmin, Xmax + Δ (or the point to the right)	Xmin, Xmax + Δ (или точка — вправо)	fieldview_rhi/ui/mainwindow.cpp
+Ymin, Ymax − Δ (or the point down)	Ymin, Ymax − Δ (или точка — вниз)	fieldview_rhi/ui/mainwindow.cpp
+Ymin, Ymax + Δ (or the point up)	Ymin, Ymax + Δ (или точка — вверх)	fieldview_rhi/ui/mainwindow.cpp
+All view parameters to defaults (View → Default)	Все параметры вида — по умолчанию (View → Default)	fieldview_rhi/ui/mainwindow.cpp
+New: reset only rotation, shift and zoom	Новое: только поворот, сдвиг и масштаб — по умолчанию	fieldview_rhi/ui/mainwindow.cpp
+New: look at the field from above (zero rotation angles, the Windows version default)	Новое: смотреть на поле сверху (углы поворота 0, как в Windows-версии по умолчанию)	fieldview_rhi/ui/mainwindow.cpp
+Same scale on the X and Y axes (View → Proportionally)	Одинаковый масштаб осей X и Y (View → Proportionally)	fieldview_rhi/ui/mainwindow.cpp
+Reload the file and the scale limits (double-click the view)	Перечитать файл и пределы шкалы (двойной щелчок по виду)	fieldview_rhi/ui/mainwindow.cpp
+Play the frames	Проигрывать такты	fieldview_rhi/ui/mainwindow.cpp
+Step Forward	Шаг вперёд	fieldview_rhi/ui/mainwindow.cpp
+To the first frame	К первому такту	fieldview_rhi/ui/mainwindow.cpp
+To the last frame (and then follow the calculation)	К последнему такту (и дальше — за расчётом)	fieldview_rhi/ui/mainwindow.cpp
+Synchronize with the running kernel: read every new field frame (green means on)	Синхронизация с работающим ядром: читать каждый новый кадр поля (зелёный — включено)	fieldview_rhi/ui/mainwindow.cpp
+Keep every frame from the kernel in memory for later playback	Сохранять в памяти каждый кадр от ядра, чтобы потом проиграть	fieldview_rhi/ui/mainwindow.cpp
+Remove all frames except the last one from memory	Удалить из памяти все такты, кроме последнего	fieldview_rhi/ui/mainwindow.cpp
+Another window for the same document (Window → New Window)	Ещё одно окно того же документа (Window → New Window)	fieldview_rhi/ui/mainwindow.cpp
+Cascade the windows (Window → Cascade)	Окна каскадом (Window → Cascade)	fieldview_rhi/ui/mainwindow.cpp
+Tile the windows (Window → Tile)	Окна мозаикой (Window → Tile)	fieldview_rhi/ui/mainwindow.cpp
+Next window (F6)	Следующее окно (F6)	fieldview_rhi/ui/mainwindow.cpp
+Previous window (Shift+F6)	Предыдущее окно (Shift+F6)	fieldview_rhi/ui/mainwindow.cpp
+Version and program information (Help → About)	Версия и сведения о программе (Help → About)	fieldview_rhi/ui/mainwindow.cpp
+Open the user manual	Открыть руководство пользователя	fieldview_rhi/ui/mainwindow.cpp
+
+# Окно «Параметры вида» (parametersdialog.cpp)
+View Parameters	Параметры вида	fieldview_rhi/ui/parametersdialog.cpp
+ε and Plasma	ε и плазма	fieldview_rhi/ui/parametersdialog.cpp
+Apply	Применить	fieldview_rhi/ui/parametersdialog.cpp
+Whole Area (Auto size)	Вся область (Auto size)	fieldview_rhi/ui/parametersdialog.cpp
+Size Along Axis (Draw size flag)	Размер вдоль оси (Draw size flag)	fieldview_rhi/ui/parametersdialog.cpp
+rotation, °	поворот, °	fieldview_rhi/ui/parametersdialog.cpp
+shift	сдвиг	fieldview_rhi/ui/parametersdialog.cpp
+Axes and Labels	Оси и надписи	fieldview_rhi/ui/parametersdialog.cpp
+Draw X, Y, Z Axes (Draw)	Рисовать оси X, Y, Z (Draw)	fieldview_rhi/ui/parametersdialog.cpp
+Color…	Цвет…	fieldview_rhi/ui/parametersdialog.cpp
+Font…	Шрифт…	fieldview_rhi/ui/parametersdialog.cpp
+Label Color	Цвет надписей	fieldview_rhi/ui/parametersdialog.cpp
+Label Font	Шрифт надписей	fieldview_rhi/ui/parametersdialog.cpp
+Camera	Камера	fieldview_rhi/ui/parametersdialog.cpp
+Z rotation, °	поворот Z, °	fieldview_rhi/ui/parametersdialog.cpp
+Z shift (closer)	сдвиг Z (ближе)	fieldview_rhi/ui/parametersdialog.cpp
+scale	масштаб	fieldview_rhi/ui/parametersdialog.cpp
+File Units	Единицы файла	fieldview_rhi/ui/parametersdialog.cpp
+Length (Long Unit)	Длина (Long Unit)	fieldview_rhi/ui/parametersdialog.cpp
+Time (Time Unit)	Время (Time Unit)	fieldview_rhi/ui/parametersdialog.cpp
+Proportional X and Y (Proportionally)	Пропорционально X и Y (Proportionally)	fieldview_rhi/ui/parametersdialog.cpp
+Items and Colors (Draw flags)	Что показывать и цвета (Draw flags)	fieldview_rhi/ui/parametersdialog.cpp
+Change…	Изменить…	fieldview_rhi/ui/parametersdialog.cpp, fieldview_rhi/ui/autocolordialog.cpp
+Default Colors (Default)	Цвета по умолчанию (Default)	fieldview_rhi/ui/parametersdialog.cpp
+Display (Draw)	Рисовать (Draw)	fieldview_rhi/ui/parametersdialog.cpp
+Outlines (Line)	Контуры (Line)	fieldview_rhi/ui/parametersdialog.cpp
+Fill (Surface)	Заливка (Surface)	fieldview_rhi/ui/parametersdialog.cpp
+Mode (Dimention)	Вид (Dimention)	fieldview_rhi/ui/parametersdialog.cpp
+2D — flat	2D — плоско	fieldview_rhi/ui/parametersdialog.cpp
+3D — solid blocks	3D — объёмные блоки	fieldview_rhi/ui/parametersdialog.cpp
+Dimensions (Size)	Размеры (Size)	fieldview_rhi/ui/parametersdialog.cpp
+Blocks (Block)	Блоков (Block)	fieldview_rhi/ui/parametersdialog.cpp
+Links (Link List)	Привязки (Link List)	fieldview_rhi/ui/parametersdialog.cpp
+Opacity, % (Blend)	Непрозрачность, % (Blend)	fieldview_rhi/ui/parametersdialog.cpp
+Display (Draw flags)	Рисовать (Draw flags)	fieldview_rhi/ui/parametersdialog.cpp
+Grid (Line)	Сетка (Line)	fieldview_rhi/ui/parametersdialog.cpp
+3D — relief	3D — рельеф	fieldview_rhi/ui/parametersdialog.cpp
+3D — ε relief	3D — рельеф ε	fieldview_rhi/ui/parametersdialog.cpp
+Opacity, %	Непрозрачность, %	fieldview_rhi/ui/parametersdialog.cpp
+Field Modulus (Draw Modul)	Модуль поля (Draw Modul)	fieldview_rhi/ui/parametersdialog.cpp
+Relief Height	Высота рельефа	fieldview_rhi/ui/parametersdialog.cpp
+Coloring (Color)	Цвет (Color)	fieldview_rhi/ui/parametersdialog.cpp
+Auto: “Wave” or “Glow”	Авто: «Волна» или «Свечение»	fieldview_rhi/ui/parametersdialog.cpp
+Auto (“Glow”)	Авто («Свечение»)	fieldview_rhi/ui/parametersdialog.cpp
+“Wave” (−max … 0 … +max)	«Волна» (−max … 0 … +max)	fieldview_rhi/ui/parametersdialog.cpp
+“Glow” (0 … max)	«Свечение» (0 … max)	fieldview_rhi/ui/parametersdialog.cpp
+20 Level Colors (Custom)	20 цветов уровней (свои)	fieldview_rhi/ui/parametersdialog.cpp
+Smooth, 256 Levels (Otherwise 20)	Плавно, 256 уровней (иначе 20)	fieldview_rhi/ui/parametersdialog.cpp
+Level Colors… (Set color)	Цвета уровней… (Set color)	fieldview_rhi/ui/parametersdialog.cpp
+Reset (Default)	По умолчанию (Default)	fieldview_rhi/ui/parametersdialog.cpp
+Z Axis Limits (Z axies)	Пределы по оси Z (Z axies)	fieldview_rhi/ui/parametersdialog.cpp
+Auto (Auto size)	Авто (Auto size)	fieldview_rhi/ui/parametersdialog.cpp
+Auto — by Grid (Auto size)	Авто — по сетке (Auto size)	fieldview_rhi/ui/parametersdialog.cpp
+Z Scale in Scene (Draw size flag)	Шкала Z в сцене (Draw size flag)	fieldview_rhi/ui/parametersdialog.cpp
+Auto by Current Frame (Otherwise All)	Авто по текущему такту (иначе по всем)	fieldview_rhi/ui/parametersdialog.cpp
+N — density	N — концентрация	fieldview_rhi/ui/parametersdialog.cpp
+B — magn. field	B — магн. поле	fieldview_rhi/ui/parametersdialog.cpp
+Dielectric (Eps)	Диэлектрик (Eps)	fieldview_rhi/ui/parametersdialog.cpp
+Metal Walls	Металл (Metal)	fieldview_rhi/ui/parametersdialog.cpp
+Magnetic Wall	Магнитная стенка (Magnetic)	fieldview_rhi/ui/parametersdialog.cpp
+Input Port	Вход (Input)	fieldview_rhi/ui/parametersdialog.cpp
+Absorber Layer	Поглотитель (Absorber)	fieldview_rhi/ui/parametersdialog.cpp
+Plasma (New)	Плазма (новое)	fieldview_rhi/ui/parametersdialog.cpp
+
+# Окно «Цвета уровней» (autocolordialog.cpp)
+Level Colors (Auto color)	Цвета уровней (Auto color)	fieldview_rhi/ui/autocolordialog.cpp
+First Level	Первый уровень	fieldview_rhi/ui/autocolordialog.cpp
+Second Level	Второй уровень	fieldview_rhi/ui/autocolordialog.cpp
+Auto	Авто	fieldview_rhi/ui/autocolordialog.cpp
+Auto via Red	Авто через красный	fieldview_rhi/ui/autocolordialog.cpp
+Auto via Green	Авто через зелёный	fieldview_rhi/ui/autocolordialog.cpp
+Auto via Blue	Авто через синий	fieldview_rhi/ui/autocolordialog.cpp
+Fill from Scale:	Заполнить из шкалы:	fieldview_rhi/ui/autocolordialog.cpp
+“Wave”	«Волна»	fieldview_rhi/ui/autocolordialog.cpp
+“Glow”	«Свечение»	fieldview_rhi/ui/autocolordialog.cpp
+Original (FieldView 4.1)	Исходные (FieldView 4.1)	fieldview_rhi/ui/autocolordialog.cpp
+
+# Надписи, которые FieldView РИСУЕТ в области вида (QPainter) — фильтром виджетов не ловятся; для справки
+The field file has not been created yet	Файл поля ещё не создан	fieldview_rhi/app/fieldpane.cpp
+Error reading the field file	Ошибка чтения файла поля	fieldview_rhi/app/fieldpane.cpp
+All layers are off	Все слои выключены	fieldview_rhi/app/fieldpane.cpp
+Turn on a field layer: View → Field → Surface (S) or Line (L).	Включите слой поля: View → Field → Surface (S) или Line (L).	fieldview_rhi/app/fieldpane.cpp
+Zoom out (View → Zoom −) or press “Default View” (Ctrl+D).	Уменьшите масштаб (View → Zoom −) или нажмите «Вид по умолчанию» (Ctrl+D).	fieldview_rhi/app/fieldpane.cpp
+FieldView is watching the file and will show the field as soon as the kernel writes it.	FieldView следит за файлом и покажет поле, как только ядро его запишет.	fieldview_rhi/app/fieldpane.cpp
+number of point along X axies < 2	число точек по оси X < 2	fieldview_rhi/app/fieldpane.cpp
+number of point along Y axies < 2	число точек по оси Y < 2	fieldview_rhi/app/fieldpane.cpp
+when read data file	при чтении файла данных	fieldview_rhi/app/fielddocument.cpp
+OpenGL (not verified)	OpenGL (не проверен)	fieldview_rhi/app/startup.cpp (имя вывода в строке состояния и «О программе»)
+
+#TEMPLATES
+# Шаблоны: %1…%9 (Qt) и %d/%s/%lg/%.0f/%I64d (ядро). Порядок важен — берётся ПЕРВЫЙ подошедший,
+# поэтому строки отсортированы по длине постоянного текста: длинные (более точные) выше общих вроде «Error: %s».
+<div style='font-size:22px;font-weight:800'>FieldView</div><div style='color:#9fb0c8'>TMC Suite field viewer — version 5.0</div><br>The field computed by the PlanarRT_H and PlanarRT_X kernels, as relief and map by frames,<br>the model topology, the ε layer and plasma (N, Y, B).<br><br>Rendering — Qt RHI%1 (instead of OpenGL 1.x).<br>Successor of Tamic Rt Output Field Viewer 4.1, © 2004 Tamic_soft group.<br>Package author — K. N. Klimov.<br><br><a href='https://www.tamic.ru'>www.tamic.ru</a>	<div style='font-size:22px;font-weight:800'>FieldView</div><div style='color:#9fb0c8'>Просмотр полей пакета TMC Suite — версия 5.0</div><br>Поле, посчитанное ядрами PlanarRT_H и PlanarRT_X, рельефом и картой по тактам,<br>топология модели, слой ε и плазма (N, Y, B).<br><br>Вывод — Qt RHI%1 (вместо OpenGL 1.x).<br>Наследник Tamic Rt Output Field Viewer 4.1, © 2004 Tamic_soft group.<br>Автор пакета — К. Н. Климов.<br><br><a href='https://www.tamic.ru'>www.tamic.ru</a>	fieldview_rhi/ui/mainwindow.cpp
+Xmax < Xmin for block %d, or the rectangular is behind borders of a box, i.e. it is necessary to change X_min and X_max of a rectangular or displacement on an axis X in section #LINK_LIST	Xmax < Xmin для блока %d, или прямоугольник выходит за границы области: измените X_min и X_max прямоугольника или смещение по оси X в разделе #LINK_LIST	win_src/kernels/planarrt_h+x/
+Ymax < Ymin for block %d, or the rectangular is behind borders of a box, i.e. it is necessary to change Y_min and Y_max of a rectangular or displacement on an axis Y in section #LINK_LIST	Ymax < Ymin для блока %d, или прямоугольник выходит за границы области: измените Y_min и Y_max прямоугольника или смещение по оси Y в разделе #LINK_LIST	win_src/kernels/planarrt_h+x/
+<br><span style="color:%1">Test grid %2×%2: the video card is about <b style="color:%3">×%4</b> faster than the processor (%5 threads); memory bandwidth %6 GB/s.</span>	<br><span style="color:%1">Тестовая сетка %2×%2: видеокарта примерно в <b style="color:%3">×%4</b> быстрее процессора (%5 потоков); пропускная способность памяти %6 ГБ/с.</span>	gui_common/compute/computedialog.cpp (часть общего HTML подробностей)
+<span style="color:%1">%2 &middot; %3 &middot; %4 compute units &middot; %5 MHz<br>Memory %6, largest single buffer %7</span><br><br>	<span style="color:%1">%2 &middot; %3 &middot; %4 вычислительных блоков &middot; %5 МГц<br>Память %6, наибольший буфер %7</span><br><br>	gui_common/compute/computedialog.cpp (часть общего HTML подробностей)
+Saved: calculations on the video card. Last saved check %1: %2, driver %3 — <span style="color:%4">passed</span>	Сохранено: расчёт на видеокарте. Последняя сохранённая проверка %1: %2, драйвер %3 — <span style="color:%4">пройдена</span>	gui_common/compute/computedialog.cpp (раскрытый «Saved: … Last saved check …»)
+Saved: calculations on the video card. Last saved check %1: %2, driver %3 — <span style="color:%4">failed</span>	Сохранено: расчёт на видеокарте. Последняя сохранённая проверка %1: %2, драйвер %3 — <span style="color:%4">не пройдена</span>	gui_common/compute/computedialog.cpp (раскрытый «Saved: … Last saved check …»)
+Saved: calculations on the processor. Last saved check %1: %2, driver %3 — <span style="color:%4">passed</span>	Сохранено: расчёт на процессоре. Последняя сохранённая проверка %1: %2, драйвер %3 — <span style="color:%4">пройдена</span>	gui_common/compute/computedialog.cpp (раскрытый «Saved: … Last saved check …»)
+Saved: calculations on the processor. Last saved check %1: %2, driver %3 — <span style="color:%4">failed</span>	Сохранено: расчёт на процессоре. Последняя сохранённая проверка %1: %2, драйвер %3 — <span style="color:%4">не пройдена</span>	gui_common/compute/computedialog.cpp (раскрытый «Saved: … Last saved check …»)
+<span style="color:%1">No video card can be used — calculations will run on the processor.</span>	<span style="color:%1">Ни одну видеокарту использовать нельзя — расчёт пойдёт на процессоре.</span>	gui_common/compute/computedialog.cpp
+CPU (grid of %I64d nodes is below the GPU threshold %I64d; TMC_GPU_MIN_NODES=0 forces the card)	CPU (сетка из %I64d узлов меньше порога GPU %I64d; TMC_GPU_MIN_NODES=0 включает карту принудительно)	win_src/kernels/planarrt_h+x/tmcgpuh.h
+<span style="color:%1">Check passed: the video card is ready for calculations.</span>	<span style="color:%1">Проверка пройдена: видеокарта готова к расчётам.</span>	gui_common/compute/computedialog.cpp (раскрытый «Check passed: %2 …»)
+<span style="color:%1">Check passed: %2 video cards are ready for calculations.</span>	<span style="color:%1">Проверка пройдена: к расчётам готово видеокарт: %2.</span>	gui_common/compute/computedialog.cpp (раскрытый «Check passed: %2 …»)
+Error : very big X-size and Y-size or delta is very small in %s section	Ошибка : слишком большие размеры по X и Y или слишком малый шаг delta в разделе %s	win_src/kernels/planarrt_h+x/
+File %1 was not found next to the program; the online manual will open	Файл %1 рядом с программой не найден — откроется руководство на сайте	gui_common/aboutbox.cpp
+bad {#PARAM delta = %lg} != {delta = %lg} in diel.data file {%s} for block %d	не совпадают {#PARAM delta = %lg} != {delta = %lg} в файле diel.data {%s} для блока %d	win_src/kernels/planarrt_h+x/
+The video card result differs from the processor (max |diff| = %1).	Результат видеокарты отличается от процессора (max |diff| = %1).	gui_common/compute/tmccompute.cpp
+Unknow type block %d or for Block type %s the non-authorized link %s	Неизвестный тип блока %d, или для типа блока %s недопустима привязка %s	win_src/kernels/planarrt_h+x/
+<span style='color:#5ce08a'>●</span> слежение: %1 кадр. от ядра	<span style='color:#5ce08a'>●</span> following: %1 frames from the kernel	fieldview_rhi/ui/mainwindow.cpp (склейка «● слежение» + «: %1 кадр. от ядра»)
+Xmax - Xmin for block %d must be >= delta(%lg m) for type ABSORBER	Xmax - Xmin для блока %d должно быть >= delta(%lg м) для типа ABSORBER	win_src/kernels/planarrt_h+x/
+Ymax - Ymin for block %d must be >= delta(%lg m) for type ABSORBER	Ymax - Ymin для блока %d должно быть >= delta(%lg м) для типа ABSORBER	win_src/kernels/planarrt_h+x/
+Set Diel array in NodeList nNodeGlobal = %.0f > nNodeGlobalMax = %.0f	Массив диэлектрика в NodeList: nNodeGlobal = %.0f > nNodeGlobalMax = %.0f	win_src/kernels/planarrt_h+x/
+the topology file grid (%1×%2) does not match the field grid (%3×%4)	сетка файла топологии (%1×%2) не совпадает с сеткой поля (%3×%4)	fieldview_rhi/app/fieldpane.cpp
+Error : very long time interval ( Tmax-Tmin ) in %s section	Ошибка : слишком длинный интервал времени ( Tmax-Tmin ) в разделе %s	win_src/kernels/planarrt_h+x/
+Saved: calculations on the video card. Settings file: %1	Сохранено: расчёт на видеокарте. Файл настроек: %1	gui_common/compute/computedialog.cpp (раскрытый «Saved: … %1 …»)
+Saved: calculations on the processor. Settings file: %1	Сохранено: расчёт на процессоре. Файл настроек: %1	gui_common/compute/computedialog.cpp (раскрытый «Saved: … %1 …»)
+Xmax - Xmin for block %d must be >= delta(%lg m) for type %s	Xmax - Xmin для блока %d должно быть >= delta(%lg м) для типа %s	win_src/kernels/planarrt_h+x/
+Ymax - Ymin for block %d must be >= delta(%lg m) for type %s	Ymax - Ymin для блока %d должно быть >= delta(%lg м) для типа %s	win_src/kernels/planarrt_h+x/
+missing ] or bad [ in signal expression {%s} for block %d	нет ] или неверная [ в выражении сигнала {%s} для блока %d	win_src/kernels/planarrt_h+x/
+User cancel delete dublicated data thread in Block %d	Пользователь прервал удаление повторяющихся данных в блоке %d	win_src/kernels/planarrt_h+x/
+Error when read or bad diel.data file {%s} for block %d	Ошибка чтения или повреждён файл diel.data {%s} для блока %d	win_src/kernels/planarrt_h+x/
+bad data node array in diel.data file {%s} for block %d	неверный массив узлов в файле diel.data {%s} для блока %d	win_src/kernels/planarrt_h+x/
+<span style="color:%1">No video card to show.</span>	<span style="color:%1">Нет видеокарт для показа.</span>	gui_common/compute/computedialog.cpp
+Error : very long X-size ( Xmax-Xmin ) in %s section	Ошибка : слишком большой размер по X ( Xmax-Xmin ) в разделе %s	win_src/kernels/planarrt_h+x/
+Error : very long Y-size ( Ymax-Ymin ) in %s section	Ошибка : слишком большой размер по Y ( Ymax-Ymin ) в разделе %s	win_src/kernels/planarrt_h+x/
+Error : very dimension XY-size ( X*Y ) in %s section	Ошибка : слишком большая площадь ( X*Y ) в разделе %s	win_src/kernels/planarrt_h+x/
+Error : space discret dDelta(%lg) < 10*(X_max-X_min)	Ошибка : шаг по пространству dDelta(%lg) < 10*(X_max-X_min)	win_src/kernels/planarrt_h+x/
+Error : space discret dDelta(%lg) < 10*(Y_max-Y_min)	Ошибка : шаг по пространству dDelta(%lg) < 10*(Y_max-Y_min)	win_src/kernels/planarrt_h+x/
+User cancel calculated eps array thread in Block %d	Пользователь прервал расчёт массива eps в блоке %d	win_src/kernels/planarrt_h+x/
+time is not increasing in signal file {%s} at line %d	время не возрастает в файле сигнала {%s} в строке %d	win_src/kernels/planarrt_h+x/
+signal file {%s} for block %d has less than 2 points	в файле сигнала {%s} для блока %d меньше 2 точек	win_src/kernels/planarrt_h+x/
+missing ] or bad [ in expression {%s} for block %d	нет ] или неверная [ в выражении {%s} для блока %d	win_src/kernels/planarrt_h+x/
+bad data array in diel.data file {%s} for block %d	неверный массив данных в файле diel.data {%s} для блока %d	win_src/kernels/planarrt_h+x/
+bad type {%s} in diel.data file {%s} for block %d	неверный тип {%s} в файле diel.data {%s} для блока %d	win_src/kernels/planarrt_h+x/
+Can't open diel.data file {%s} for block %d	Не удалось открыть файл diel.data {%s} для блока %d	win_src/kernels/planarrt_h+x/
+CPU (the grid needs %.2f GB, card %s has %.2f GB)	CPU (сетке нужно %.2f ГБ, у карты %s — %.2f ГБ)	win_src/kernels/planarrt_h+x/tmcgpuh.h
+Block %d is too big for eps file: %.0f nodes	Блок %d слишком велик для файла eps: %.0f узлов	win_src/kernels/planarrt_h+x/
+bad {%s} in diel.data file {%s} for block %d	неверное {%s} в файле diel.data {%s} для блока %d	win_src/kernels/planarrt_h+x/
+can not open signal file {%s} for block %d	не удалось открыть файл сигнала {%s} для блока %d	win_src/kernels/planarrt_h+x/
+&nbsp;&nbsp;Self-test is running…<br>	&nbsp;&nbsp;Идёт самопроверка…<br>	gui_common/compute/computedialog.cpp (часть общего HTML подробностей)
+Set block %d; points:%.0f; Type or eps = {%s}	Блок %d; точек:%.0f; тип или eps = {%s}	win_src/kernels/planarrt_h+x/
+Error in eps expression {%s} for block %d	Ошибка в выражении eps {%s} для блока %d	win_src/kernels/planarrt_h+x/
+nAccuracy = %d != 4 and != 8 for block %d	nAccuracy = %d != 4 и != 8 для блока %d	win_src/kernels/planarrt_h+x/
+Export to Directional pattern error:%s	Ошибка экспорта в диаграмму направленности:%s	win_src/kernels/planarrt_h+x/
+not enough memory for signal file {%s}	недостаточно памяти для файла сигнала {%s}	win_src/kernels/planarrt_h+x/
+Error : space discret dDelta(%lg) <= 0	Ошибка : шаг по пространству dDelta(%lg) <= 0	win_src/kernels/planarrt_h+x/
+Very big x0 in %s section for block %d	Слишком большое x0 в разделе %s для блока %d	win_src/kernels/planarrt_h+x/
+Very big y0 in %s section for block %d	Слишком большое y0 в разделе %s для блока %d	win_src/kernels/planarrt_h+x/
+The ε layer shows: %1 (Eps → Type)	Слой ε показывает: %1 (Eps → Type)	fieldview_rhi/ui/mainwindow.cpp
+CPU (OpenCL start on %s failed: %s)	CPU (не удалось запустить OpenCL на %s: %s)	win_src/kernels/planarrt_h+x/tmcgpuh.h
+Error : time discret dT(%lg) <= 0	Ошибка : шаг по времени dT(%lg) <= 0	win_src/kernels/planarrt_h+x/
+Set block %d; points:%.0f; eps = {%s}	Блок %d; точек:%.0f; eps = {%s}	win_src/kernels/planarrt_h+x/
+Not enought memory for block %d	Недостаточно памяти для блока %d	win_src/kernels/planarrt_h+x/
+Cannot start TPL Designer:\n%1	Не удалось запустить TPL Designer:\n%1	planarrt_common/mainwindow.cpp
+Could not write the series: %1	Не удалось записать серию: %1	fieldview_rhi/ui/mainwindow.cpp
+User cancel run step %d thread	Пользователь прервал расчёт шага %d	win_src/kernels/planarrt_h+x/
+Unknow node type %d in AddList	Неизвестный тип узла %d в AddList	win_src/kernels/planarrt_h+x/
+Video card %1 was not found.	Видеокарта %1 не найдена.	gui_common/compute/tmccompute.cpp
+Kernel: unknow node type %d	Ядро: неизвестный тип узла %d	win_src/kernels/planarrt_h+x/
+Block %d is too big: %.0f nodes	Блок %d слишком велик: %.0f узлов	win_src/kernels/planarrt_h+x/
+read of absorber states: %s	чтение состояний поглотителя: %s	win_src/kernels/planarrt_h+x/tmcgpuh.h
+Run Step %d  ElapsTime: %d:%d:%d	Расчёт шага %d  Прошло: %d:%d:%d	win_src/kernels/planarrt_h+x/tmcrthrectnode.cpp (в исходнике %2d)
+Very big Xmin for block %d	Слишком большое Xmin для блока %d	win_src/kernels/planarrt_h+x/
+Very big Xmax for block %d	Слишком большое Xmax для блока %d	win_src/kernels/planarrt_h+x/
+Very big Ymin for block %d	Слишком большое Ymin для блока %d	win_src/kernels/planarrt_h+x/
+Very big Ymax for block %d	Слишком большое Ymax для блока %d	win_src/kernels/planarrt_h+x/
+Very big Rmax for block %d	Слишком большое Rmax для блока %d	win_src/kernels/planarrt_h+x/
+nNumNode <= 0 for block %d	nNumNode <= 0 для блока %d	win_src/kernels/planarrt_h+x/
+nPoint = %d < 1 for block %d	nPoint = %d < 1 для блока %d	win_src/kernels/planarrt_h+x/
+can't open data file {%1}	не удалось открыть файл данных {%1}	fieldview_rhi/app/fielddocument.cpp
+Run Step %d  ElapsTime: %d:%d	Расчёт шага %d  Прошло: %d:%d	win_src/kernels/planarrt_h+x/tmcrthrectnode.cpp (в исходнике %2d)
+Xmax <= Xmin for block %d	Xmax <= Xmin для блока %d	win_src/kernels/planarrt_h+x/
+Ymax <= Ymin for block %d	Ymax <= Ymin для блока %d	win_src/kernels/planarrt_h+x/
+nNumNode < 1 for block %d	nNumNode < 1 для блока %d	win_src/kernels/planarrt_h+x/
+GPU %d: %s (%s, driver %s, %.1f GB)	GPU %d: %s (%s, драйвер %s, %.1f ГБ)	win_src/kernels/planarrt_h+x/tmcgpuh.h
+Run Step %d  ElapsTime: %d	Расчёт шага %d  Прошло: %d	win_src/kernels/planarrt_h+x/tmcrthrectnode.cpp (в исходнике %2d)
+Xmax < Xmin for block %d	Xmax < Xmin для блока %d	win_src/kernels/planarrt_h+x/
+Ymax < Ymin for block %d	Ymax < Ymin для блока %d	win_src/kernels/planarrt_h+x/
+nPoint <= 0 for block %d	nPoint <= 0 для блока %d	win_src/kernels/planarrt_h+x/
+Testing %1 video cards…	Проверка видеокарт (%1)…	gui_common/compute/computedialog.cpp (раскрытый «Testing %1…»)
+Set block %d; eps = {%s}	Блок %d; eps = {%s}	win_src/kernels/planarrt_h+x/
+nX = %d < 1 for block %d	nX = %d < 1 для блока %d	win_src/kernels/planarrt_h+x/
+nY = %d < 1 for block %d	nY = %d < 1 для блока %d	win_src/kernels/planarrt_h+x/
+Слой ε недоступен: %1	The ε layer is unavailable: %1	fieldview_rhi/ui/parametersdialog.cpp (склейка: + причина)
+Init Block %d to diel	Инициализация блока %d (диэлектрик)	win_src/kernels/planarrt_h+x/
+Creation of a file %s	Создание файла %s	win_src/kernels/planarrt_h+x/
+Can't write file:\n%s	Не удалось записать файл:\n%s	win_src/kernels/planarrt_h+x/
+In{%s}%s; r=%lg;f=%lg; x=%lg; y=%lg	В{%s}%s; r=%lg;f=%lg; x=%lg; y=%lg	win_src/kernels/planarrt_h+x/
+CPU (memory on %s: %s)	CPU (память на %s: %s)	win_src/kernels/planarrt_h+x/tmcgpuh.h
+no topology file %1	нет файла топологии %1	fieldview_rhi/app/fielddocument.cpp
+Block %d read file %s	Блок %d: чтение файла %s	win_src/kernels/planarrt_h+x/
+Could not write %1	Не удалось записать %1	fieldview_rhi/ui/mainwindow.cpp
+Frames written: %1	Записано тактов: %1	fieldview_rhi/ui/mainwindow.cpp
+Export aborted: %1	Экспорт прерван: %1	fieldview_rhi/ui/mainwindow.cpp
+Error in prepr: %s	Ошибка препроцессора: %s	win_src/kernels/planarrt_h+x/
+In{%s}%s; t=(%lg);f=(%lg);	В{%s}%s; t=(%lg);f=(%lg);	win_src/kernels/planarrt_h+x/
+Compute: GPU — %1	Расчёт: GPU — %1	gui_common/compute/tmccompute.cpp (строка состояния: префикс + имя карты)
+%d point in file %s	%d точек в файле %s	win_src/kernels/planarrt_h+x/
+Report saved:\n%s	Отчёт сохранён:\n%s	win_src/kernels/planarrt_h+x/
+buffer of %.2f GB: %s	буфер %.2f ГБ: %s	win_src/kernels/planarrt_h+x/tmcgpuh.h
+Calculation %1%	Расчёт %1%	planarrt_common/mainwindow.cpp
+%1<br>Model : %2	%1<br>Модель : %2	planarrt_common/mainwindow.cpp (описание для «О программе»)
+%1 failed: %2 (%3)	%1: ошибка %2 (%3)	gui_common/compute/tmccompute.cpp
+Level %1 Color	Цвет уровня %1	fieldview_rhi/ui/autocolordialog.cpp
+%1\nin folder %2	%1\nв папке %2	fieldview_rhi/app/fieldpane.cpp (рисуется)
+Finish step %d	Шаг %d завершён	win_src/kernels/planarrt_h+x/
+video card %1	видеокарта %1	gui_common/compute/tmccompute.cpp
+·  window %1×%2	·  окно %1×%2	fieldview_rhi/app/fieldpane.cpp (рисуется)
+топология: %1	topology: %1	fieldview_rhi/app/fieldpane.cpp (склейка, рисуется)
+Start step %d	Начало шага %d	win_src/kernels/planarrt_h+x/
+frame %1 of %2	такт %1 из %2	fieldview_rhi/app/fieldpane.cpp (рисуется)
+Written: %1	Записано: %1	fieldview_rhi/ui/mainwindow.cpp
+Run Step %d	Расчёт шага %d	win_src/kernels/planarrt_h+x/
+nT:%d;Time:%lg%s	nT:%d;Время:%lg%s	win_src/kernels/planarrt_h+x/
+Version %1	Версия %1	gui_common/aboutbox.cpp
+слой ε: %1	ε layer: %1	fieldview_rhi/app/fieldpane.cpp (склейка, рисуется)
+Ошибка: %1	Error: %1	fieldview_rhi/app/fieldpane.cpp (склейка, рисуется)
+Load n:%.0f %.0f	Загрузка n:%.0f %.0f	win_src/kernels/planarrt_h+x/
+Model : %s	Модель : %s	win_src/kernels/planarrt_h+x/
+Error : %s	Ошибка : %s	win_src/kernels/planarrt_h+x/
+upload: %s	загрузка в карту: %s	win_src/kernels/planarrt_h+x/tmcgpuh.h
+Step %1 ·	Шаг %1 ·	planarrt_common/mainwindow.cpp (префикс этапа хода расчёта)
+%1 · %2 fps	%1 · %2 к/с	fieldview_rhi/ui/mainwindow.cpp
+Saved: %1	Сохранено: %1	fieldview_rhi/ui/mainwindow.cpp
+Save n:%d	Запись n:%d	win_src/kernels/planarrt_h+x/
+Read n:%.0f	Чтение n:%.0f	win_src/kernels/planarrt_h+x/
+Error: %s	Ошибка: %s	win_src/kernels/planarrt_h+x/
+About %1	О программе %1	gui_common/aboutbox.cpp
+Level %1	Уровень %1	fieldview_rhi/ui/autocolordialog.cpp
+Step:%d;%s	Шаг:%d;%s	win_src/kernels/planarrt_h+x/
+Page %1	Страница %1	compat/mfc_dialog.cpp
+%1 (%2 m)	%1 (%2 м)	fieldview_rhi/ui/parametersdialog.cpp
+In{%s}%s;	В{%s}%s;	win_src/kernels/planarrt_h+x/
+In{%s}%s	В{%s}%s	win_src/kernels/planarrt_h+x/
+GB	ГБ	gui_common/compute/tmccompute.cpp (размер памяти: число + « GB»)
+MB	МБ	gui_common/compute/tmccompute.cpp (размер памяти: число + « MB»)

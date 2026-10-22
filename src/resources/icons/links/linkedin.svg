@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- LinkedIn: буквы «in», одноцветные -->
+  <g fill="#e7eef7">
+    <circle cx="6.4" cy="5.6" r="2.1"/>
+    <rect x="4.6" y="9" width="3.6" height="11" rx="0.6"/>
+    <path d="M10.6 9H14v1.7c.7-1.1 2-1.9 3.6-1.9 2.8 0 3.8 1.8 3.8 4.6V20h-3.5v-5.9c0-1.3-.5-2.2-1.7-2.2-1.3 0-2.1.9-2.1 2.4V20h-3.5z"/>
+  </g>
+</svg>
