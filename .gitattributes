@@ -23,6 +23,11 @@
 *.ncb   binary
 *.sdf   binary
 
+*.ttf   binary
+*.step  binary
+*.stl   binary
+*.woff2 binary
+
 # --- Generated artefacts: keep out of diffs and language stats ---
 graphify-out/graph.json  linguist-generated=true -diff
 graphify-out/graph.html  linguist-generated=true -diff
