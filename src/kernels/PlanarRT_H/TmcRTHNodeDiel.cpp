@@ -467,12 +467,12 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 // Anything unusual (repeated grid nodes, geometry errors, no nodes in the block)
 // returns FALSE, and the original code then builds the block and gives the
 // original messages. Environment: TMC_EPS_FAST=0 - original code for every
-// block; TMC_EPS_THREADS=n - number of threads (default: all processors).
+// block; TMC_EPS_THREADS=n - number of threads (default: all processors but 1 of 8 - EPSFAST2).
 //////////////////////////////////////////////////////////////////////////////
 
 #define EPSFAST_CHUNK		8		// rows taken by a thread at once
 #define EPSFAST_MAXTHREADS	64		// WaitForMultipleObjects limit
-#define EPSFAST_SMALL		200000	// fewer nodes - one thread
+#define EPSFAST_SMALL		1000	// fewer nodes - one thread (EPSFAST2: measured 2026-10-22, threads win from ~1000 nodes)
 
 struct sEpsFastJob
 {
@@ -516,6 +516,7 @@ unsigned CTmcRTHNodeDiel::EpsFastThreads( void )
 	char *psz = getenv( "TMC_EPS_THREADS" );
 
 	if( ( psz != NULL )&&( atoi( psz ) > 0 ) ) n = (unsigned)atoi( psz );
+	else if( n > 1 ) n -= ( n + 7 )/8;	// EPSFAST2: leave processors to Windows (1 of 2..8, 2 of 9..16, ...)
 	if( n < 1 ) n = 1;
 	if( n > EPSFAST_MAXTHREADS ) n = EPSFAST_MAXTHREADS;
 	return n;
@@ -882,6 +883,9 @@ BOOL CTmcRTHNodeDiel::SetStatEpsFast( CTmcRTH_BlockList * pcNextBlockList, CTmcR
 		if( m_pqEpsFileTicks != NULL ) *m_pqEpsFileTicks += TmcTimingNow() - qTm;	// TIMING
 		if( ( m_pnEpsWritten != NULL )&&( strlen(csFileNameEps) != 0 )&&( !cError.IsError() ) ) (*m_pnEpsWritten)++;	// TIMING
 		if( cError.IsError() ) return TRUE;
+		csExpr = csEpsExpr;					// EPSFAST2: SaveFileRect took "[name]" off the expression
+		sJob.nKind   = EpsFastExprKind( csExpr );
+		sJob.pszExpr = (LPCTSTR)csExpr;
 	};
 
 	CString csBuf;
@@ -929,7 +933,11 @@ BOOL CTmcRTHNodeDiel::SetStatEpsFast( CTmcRTH_BlockList * pcNextBlockList, CTmcR
 	};
 
 	unsigned nThreads = EpsFastThreads();
-	if( ((double)nX)*((double)nY) < EPSFAST_SMALL ) nThreads = 1;
+	{
+		char *pszSmall = getenv( "TMC_EPS_SMALL" );	// EPSFAST2: nodes of a block below which one thread is used
+		double dSmall = ( pszSmall != NULL ) ? atof( pszSmall ) : (double)EPSFAST_SMALL;
+		if( ((double)nX)*((double)nY) < dSmall ) nThreads = 1;
+	};
 
 	if( nThreads == 1 )
 	{
@@ -943,6 +951,7 @@ BOOL CTmcRTHNodeDiel::SetStatEpsFast( CTmcRTH_BlockList * pcNextBlockList, CTmcR
 
 		for( n = 0; n < nThreads; n++ ) vThreads.push_back( std::thread( &CTmcRTHNodeDiel::EpsFastRun, this, &sJob ) );
 		for( n = 0; n < nThreads; n++ ) vHandles.push_back( (HANDLE)vThreads[n].native_handle() );
+		for( n = 0; n < nThreads; n++ ) SetThreadPriority( vHandles[n], THREAD_PRIORITY_BELOW_NORMAL );	// EPSFAST2: Windows stays responsive
 		while( WaitForMultipleObjects( nThreads, &vHandles[0], TRUE, 250 ) == WAIT_TIMEOUT )
 		{
 			csBuf.Format("n:%.0f", ((double)sJob.nRowsDone)*nX );
