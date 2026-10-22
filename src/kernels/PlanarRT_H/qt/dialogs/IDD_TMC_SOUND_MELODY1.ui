@@ -1,0 +1,2899 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Файл создан tools/rc2ui.py из ресурсов Windows-версии. Не править вручную. -->
+<ui version="4.0">
+ <class>IDD_TMC_SOUND_MELODY1</class>
+ <widget class="QDialog" name="IDD_TMC_SOUND_MELODY1">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>638</width>
+    <height>271</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>638</width>
+    <height>271</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>638</width>
+    <height>271</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Melody</string>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
+   <widget class="QLineEdit" name="IDC_TMCBLOCKDX9">
+    <property name="geometry">
+     <rect>
+      <x>531</x>
+      <y>11</y>
+      <width>96</width>
+      <height>182</height>
+     </rect>
+    </property>
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_13">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>5</y>
+      <width>45</width>
+      <height>263</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Note</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound240">
+    <property name="geometry">
+     <rect>
+      <x>488</x>
+      <y>244</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">End</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_23</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound239">
+    <property name="geometry">
+     <rect>
+      <x>488</x>
+      <y>226</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">B</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_23</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound238">
+    <property name="geometry">
+     <rect>
+      <x>488</x>
+      <y>208</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_23</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound237">
+    <property name="geometry">
+     <rect>
+      <x>488</x>
+      <y>190</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_23</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound236">
+    <property name="geometry">
+     <rect>
+      <x>488</x>
+      <y>172</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_23</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound235">
+    <property name="geometry">
+     <rect>
+      <x>488</x>
+      <y>154</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_23</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound234">
+    <property name="geometry">
+     <rect>
+      <x>488</x>
+      <y>137</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_23</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound233">
+    <property name="geometry">
+     <rect>
+      <x>488</x>
+      <y>119</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_23</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound232">
+    <property name="geometry">
+     <rect>
+      <x>488</x>
+      <y>101</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">E</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_23</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound231">
+    <property name="geometry">
+     <rect>
+      <x>488</x>
+      <y>83</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_23</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound230">
+    <property name="geometry">
+     <rect>
+      <x>488</x>
+      <y>65</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_23</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound229">
+    <property name="geometry">
+     <rect>
+      <x>488</x>
+      <y>47</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_23</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound228">
+    <property name="geometry">
+     <rect>
+      <x>488</x>
+      <y>29</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_23</string>
+   </attribute>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_12">
+    <property name="geometry">
+     <rect>
+      <x>437</x>
+      <y>5</y>
+      <width>45</width>
+      <height>263</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Note</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound227">
+    <property name="geometry">
+     <rect>
+      <x>444</x>
+      <y>244</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">End</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_21</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound226">
+    <property name="geometry">
+     <rect>
+      <x>444</x>
+      <y>226</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">B</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_21</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound225">
+    <property name="geometry">
+     <rect>
+      <x>444</x>
+      <y>208</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_21</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound224">
+    <property name="geometry">
+     <rect>
+      <x>444</x>
+      <y>190</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_21</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound223">
+    <property name="geometry">
+     <rect>
+      <x>444</x>
+      <y>172</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_21</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound222">
+    <property name="geometry">
+     <rect>
+      <x>444</x>
+      <y>154</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_21</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound221">
+    <property name="geometry">
+     <rect>
+      <x>444</x>
+      <y>137</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_21</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound220">
+    <property name="geometry">
+     <rect>
+      <x>444</x>
+      <y>119</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_21</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound219">
+    <property name="geometry">
+     <rect>
+      <x>444</x>
+      <y>101</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">E</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_21</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound218">
+    <property name="geometry">
+     <rect>
+      <x>444</x>
+      <y>83</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_21</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound217">
+    <property name="geometry">
+     <rect>
+      <x>444</x>
+      <y>65</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_21</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound216">
+    <property name="geometry">
+     <rect>
+      <x>444</x>
+      <y>47</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_21</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound215">
+    <property name="geometry">
+     <rect>
+      <x>444</x>
+      <y>29</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_21</string>
+   </attribute>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_11">
+    <property name="geometry">
+     <rect>
+      <x>392</x>
+      <y>5</y>
+      <width>45</width>
+      <height>263</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Note</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound214">
+    <property name="geometry">
+     <rect>
+      <x>399</x>
+      <y>244</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">End</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_19</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound213">
+    <property name="geometry">
+     <rect>
+      <x>399</x>
+      <y>226</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">B</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_19</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound212">
+    <property name="geometry">
+     <rect>
+      <x>399</x>
+      <y>208</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_19</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound211">
+    <property name="geometry">
+     <rect>
+      <x>399</x>
+      <y>190</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_19</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound210">
+    <property name="geometry">
+     <rect>
+      <x>399</x>
+      <y>172</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_19</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound209">
+    <property name="geometry">
+     <rect>
+      <x>399</x>
+      <y>154</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_19</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound208">
+    <property name="geometry">
+     <rect>
+      <x>399</x>
+      <y>137</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_19</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound207">
+    <property name="geometry">
+     <rect>
+      <x>399</x>
+      <y>119</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_19</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound206">
+    <property name="geometry">
+     <rect>
+      <x>399</x>
+      <y>101</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">E</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_19</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound205">
+    <property name="geometry">
+     <rect>
+      <x>399</x>
+      <y>83</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_19</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound204">
+    <property name="geometry">
+     <rect>
+      <x>399</x>
+      <y>65</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_19</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound203">
+    <property name="geometry">
+     <rect>
+      <x>399</x>
+      <y>47</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_19</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound202">
+    <property name="geometry">
+     <rect>
+      <x>399</x>
+      <y>29</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_19</string>
+   </attribute>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_10">
+    <property name="geometry">
+     <rect>
+      <x>348</x>
+      <y>5</y>
+      <width>45</width>
+      <height>263</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Note</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound201">
+    <property name="geometry">
+     <rect>
+      <x>356</x>
+      <y>244</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">End</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_17</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound200">
+    <property name="geometry">
+     <rect>
+      <x>356</x>
+      <y>226</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">B</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_17</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound199">
+    <property name="geometry">
+     <rect>
+      <x>356</x>
+      <y>208</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_17</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound198">
+    <property name="geometry">
+     <rect>
+      <x>356</x>
+      <y>190</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_17</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound197">
+    <property name="geometry">
+     <rect>
+      <x>356</x>
+      <y>172</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_17</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound196">
+    <property name="geometry">
+     <rect>
+      <x>356</x>
+      <y>154</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_17</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound195">
+    <property name="geometry">
+     <rect>
+      <x>356</x>
+      <y>137</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_17</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound194">
+    <property name="geometry">
+     <rect>
+      <x>356</x>
+      <y>119</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_17</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound193">
+    <property name="geometry">
+     <rect>
+      <x>356</x>
+      <y>101</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">E</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_17</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound192">
+    <property name="geometry">
+     <rect>
+      <x>356</x>
+      <y>83</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_17</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound191">
+    <property name="geometry">
+     <rect>
+      <x>356</x>
+      <y>65</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_17</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound190">
+    <property name="geometry">
+     <rect>
+      <x>356</x>
+      <y>47</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_17</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound189">
+    <property name="geometry">
+     <rect>
+      <x>356</x>
+      <y>29</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_17</string>
+   </attribute>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_9">
+    <property name="geometry">
+     <rect>
+      <x>305</x>
+      <y>5</y>
+      <width>45</width>
+      <height>263</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Note</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound188">
+    <property name="geometry">
+     <rect>
+      <x>312</x>
+      <y>244</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">End</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_15</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound187">
+    <property name="geometry">
+     <rect>
+      <x>312</x>
+      <y>226</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">B</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_15</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound186">
+    <property name="geometry">
+     <rect>
+      <x>312</x>
+      <y>208</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_15</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound185">
+    <property name="geometry">
+     <rect>
+      <x>312</x>
+      <y>190</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_15</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound184">
+    <property name="geometry">
+     <rect>
+      <x>312</x>
+      <y>172</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_15</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound183">
+    <property name="geometry">
+     <rect>
+      <x>312</x>
+      <y>154</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_15</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound182">
+    <property name="geometry">
+     <rect>
+      <x>312</x>
+      <y>137</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_15</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound181">
+    <property name="geometry">
+     <rect>
+      <x>312</x>
+      <y>119</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_15</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound180">
+    <property name="geometry">
+     <rect>
+      <x>312</x>
+      <y>101</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">E</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_15</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound179">
+    <property name="geometry">
+     <rect>
+      <x>312</x>
+      <y>83</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_15</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound178">
+    <property name="geometry">
+     <rect>
+      <x>312</x>
+      <y>65</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_15</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound177">
+    <property name="geometry">
+     <rect>
+      <x>312</x>
+      <y>47</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_15</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound176">
+    <property name="geometry">
+     <rect>
+      <x>312</x>
+      <y>29</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_15</string>
+   </attribute>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_8">
+    <property name="geometry">
+     <rect>
+      <x>261</x>
+      <y>5</y>
+      <width>45</width>
+      <height>263</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Note</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound175">
+    <property name="geometry">
+     <rect>
+      <x>269</x>
+      <y>244</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">End</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_13</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound174">
+    <property name="geometry">
+     <rect>
+      <x>269</x>
+      <y>226</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">B</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_13</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound173">
+    <property name="geometry">
+     <rect>
+      <x>269</x>
+      <y>208</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_13</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound172">
+    <property name="geometry">
+     <rect>
+      <x>269</x>
+      <y>190</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_13</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound171">
+    <property name="geometry">
+     <rect>
+      <x>269</x>
+      <y>172</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_13</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound170">
+    <property name="geometry">
+     <rect>
+      <x>269</x>
+      <y>154</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_13</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound169">
+    <property name="geometry">
+     <rect>
+      <x>269</x>
+      <y>137</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_13</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound168">
+    <property name="geometry">
+     <rect>
+      <x>269</x>
+      <y>119</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_13</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound167">
+    <property name="geometry">
+     <rect>
+      <x>269</x>
+      <y>101</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">E</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_13</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound166">
+    <property name="geometry">
+     <rect>
+      <x>269</x>
+      <y>83</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_13</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound165">
+    <property name="geometry">
+     <rect>
+      <x>269</x>
+      <y>65</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_13</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound164">
+    <property name="geometry">
+     <rect>
+      <x>269</x>
+      <y>47</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_13</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound163">
+    <property name="geometry">
+     <rect>
+      <x>269</x>
+      <y>29</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_13</string>
+   </attribute>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_7">
+    <property name="geometry">
+     <rect>
+      <x>218</x>
+      <y>5</y>
+      <width>45</width>
+      <height>263</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Note</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound162">
+    <property name="geometry">
+     <rect>
+      <x>225</x>
+      <y>244</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">End</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_11</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound161">
+    <property name="geometry">
+     <rect>
+      <x>225</x>
+      <y>226</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">B</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_11</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound160">
+    <property name="geometry">
+     <rect>
+      <x>225</x>
+      <y>208</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_11</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound159">
+    <property name="geometry">
+     <rect>
+      <x>225</x>
+      <y>190</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_11</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound158">
+    <property name="geometry">
+     <rect>
+      <x>225</x>
+      <y>172</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_11</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound157">
+    <property name="geometry">
+     <rect>
+      <x>225</x>
+      <y>154</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_11</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound156">
+    <property name="geometry">
+     <rect>
+      <x>225</x>
+      <y>137</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_11</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound155">
+    <property name="geometry">
+     <rect>
+      <x>225</x>
+      <y>119</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_11</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound154">
+    <property name="geometry">
+     <rect>
+      <x>225</x>
+      <y>101</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">E</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_11</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound153">
+    <property name="geometry">
+     <rect>
+      <x>225</x>
+      <y>83</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_11</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound152">
+    <property name="geometry">
+     <rect>
+      <x>225</x>
+      <y>65</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_11</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound151">
+    <property name="geometry">
+     <rect>
+      <x>225</x>
+      <y>47</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_11</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound150">
+    <property name="geometry">
+     <rect>
+      <x>225</x>
+      <y>29</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_11</string>
+   </attribute>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_6">
+    <property name="geometry">
+     <rect>
+      <x>174</x>
+      <y>5</y>
+      <width>45</width>
+      <height>263</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Note</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound149">
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>244</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">End</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_9</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound148">
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>226</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">B</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_9</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound147">
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>208</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_9</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound146">
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>190</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_9</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound145">
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>172</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_9</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound144">
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>154</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_9</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound143">
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>137</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_9</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound142">
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>119</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_9</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound141">
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>101</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">E</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_9</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound140">
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>83</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_9</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound139">
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>65</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_9</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound138">
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>47</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_9</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound137">
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>29</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_9</string>
+   </attribute>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_5">
+    <property name="geometry">
+     <rect>
+      <x>131</x>
+      <y>5</y>
+      <width>45</width>
+      <height>263</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Note</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound136">
+    <property name="geometry">
+     <rect>
+      <x>138</x>
+      <y>244</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">End</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_7</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound135">
+    <property name="geometry">
+     <rect>
+      <x>138</x>
+      <y>226</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">B</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_7</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound134">
+    <property name="geometry">
+     <rect>
+      <x>138</x>
+      <y>208</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_7</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound133">
+    <property name="geometry">
+     <rect>
+      <x>138</x>
+      <y>190</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_7</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound132">
+    <property name="geometry">
+     <rect>
+      <x>138</x>
+      <y>172</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_7</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound131">
+    <property name="geometry">
+     <rect>
+      <x>138</x>
+      <y>154</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_7</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound130">
+    <property name="geometry">
+     <rect>
+      <x>138</x>
+      <y>137</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_7</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound129">
+    <property name="geometry">
+     <rect>
+      <x>138</x>
+      <y>119</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_7</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound128">
+    <property name="geometry">
+     <rect>
+      <x>138</x>
+      <y>101</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">E</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_7</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound127">
+    <property name="geometry">
+     <rect>
+      <x>138</x>
+      <y>83</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_7</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound126">
+    <property name="geometry">
+     <rect>
+      <x>138</x>
+      <y>65</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_7</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound125">
+    <property name="geometry">
+     <rect>
+      <x>138</x>
+      <y>47</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_7</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound124">
+    <property name="geometry">
+     <rect>
+      <x>138</x>
+      <y>29</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_7</string>
+   </attribute>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_4">
+    <property name="geometry">
+     <rect>
+      <x>87</x>
+      <y>5</y>
+      <width>45</width>
+      <height>263</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Note</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound123">
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>244</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">End</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_5</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound122">
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>226</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">B</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_5</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound121">
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>208</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_5</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound120">
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>190</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_5</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound119">
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>172</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_5</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound118">
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>154</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_5</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound117">
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>137</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_5</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound116">
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>119</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_5</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound115">
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>101</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">E</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_5</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound114">
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>83</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_5</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound113">
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>65</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_5</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound112">
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>47</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_5</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound111">
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>29</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_5</string>
+   </attribute>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_3">
+    <property name="geometry">
+     <rect>
+      <x>44</x>
+      <y>5</y>
+      <width>45</width>
+      <height>263</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Note</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound110">
+    <property name="geometry">
+     <rect>
+      <x>51</x>
+      <y>244</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">End</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_3</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound109">
+    <property name="geometry">
+     <rect>
+      <x>51</x>
+      <y>226</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">B</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_3</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound108">
+    <property name="geometry">
+     <rect>
+      <x>51</x>
+      <y>208</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_3</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound107">
+    <property name="geometry">
+     <rect>
+      <x>51</x>
+      <y>190</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_3</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound106">
+    <property name="geometry">
+     <rect>
+      <x>51</x>
+      <y>172</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_3</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound105">
+    <property name="geometry">
+     <rect>
+      <x>51</x>
+      <y>154</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_3</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound104">
+    <property name="geometry">
+     <rect>
+      <x>51</x>
+      <y>137</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_3</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound103">
+    <property name="geometry">
+     <rect>
+      <x>51</x>
+      <y>119</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_3</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound102">
+    <property name="geometry">
+     <rect>
+      <x>51</x>
+      <y>101</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">E</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_3</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound101">
+    <property name="geometry">
+     <rect>
+      <x>51</x>
+      <y>83</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_3</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound100">
+    <property name="geometry">
+     <rect>
+      <x>51</x>
+      <y>65</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_3</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound99">
+    <property name="geometry">
+     <rect>
+      <x>51</x>
+      <y>47</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_3</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound98">
+    <property name="geometry">
+     <rect>
+      <x>51</x>
+      <y>29</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_3</string>
+   </attribute>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_2">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>5</y>
+      <width>45</width>
+      <height>263</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Note</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TmcSoundEffects_Sound97">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>245</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">End</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TMCBLOCKNPOINTXY">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>228</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">B</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TMCBLOCKDY10">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>210</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TMCBLOCKDY9">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>192</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">A</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TMCBLOCKDY8">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>174</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TMCBLOCKDY7">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>156</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">G</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TMCBLOCKDY6">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>138</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TMCBLOCKDY5">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>120</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">F</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TMCBLOCKDY4">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>102</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">E</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TMCBLOCKDY3">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>85</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TMCBLOCKDY2">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>67</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">D</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TMCBLOCKXMINBTEXT">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>49</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C#</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_TMCBLOCKDX8">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>31</y>
+      <width>32</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">C</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC">
+    <property name="geometry">
+     <rect>
+      <x>525</x>
+      <y>219</y>
+      <width>71</width>
+      <height>49</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Interval ms</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCBLOCKDX7">
+    <property name="geometry">
+     <rect>
+      <x>533</x>
+      <y>239</y>
+      <width>53</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+ </widget>
+ <resources/>
+ <connections/>
+ <tabstops>
+  <tabstop>IDC_TMCBLOCKDX7</tabstop>
+  <tabstop>IDC_TMCBLOCKDX8</tabstop>
+  <tabstop>IDC_TMCBLOCKXMINBTEXT</tabstop>
+  <tabstop>IDC_TMCBLOCKDY2</tabstop>
+  <tabstop>IDC_TMCBLOCKDY3</tabstop>
+  <tabstop>IDC_TMCBLOCKDY4</tabstop>
+  <tabstop>IDC_TMCBLOCKDY5</tabstop>
+  <tabstop>IDC_TMCBLOCKDY6</tabstop>
+  <tabstop>IDC_TMCBLOCKDY7</tabstop>
+  <tabstop>IDC_TMCBLOCKDY8</tabstop>
+  <tabstop>IDC_TMCBLOCKDY9</tabstop>
+  <tabstop>IDC_TMCBLOCKDY10</tabstop>
+  <tabstop>IDC_TMCBLOCKNPOINTXY</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound97</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound98</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound99</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound100</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound101</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound102</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound103</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound104</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound105</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound106</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound107</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound108</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound109</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound110</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound111</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound112</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound113</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound114</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound115</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound116</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound117</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound118</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound119</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound120</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound121</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound122</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound123</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound124</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound125</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound126</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound127</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound128</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound129</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound130</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound131</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound132</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound133</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound134</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound135</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound136</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound137</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound138</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound139</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound140</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound141</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound142</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound143</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound144</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound145</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound146</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound147</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound148</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound149</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound150</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound151</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound152</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound153</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound154</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound155</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound156</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound157</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound158</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound159</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound160</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound161</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound162</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound163</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound164</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound165</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound166</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound167</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound168</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound169</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound170</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound171</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound172</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound173</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound174</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound175</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound176</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound177</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound178</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound179</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound180</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound181</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound182</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound183</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound184</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound185</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound186</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound187</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound188</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound189</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound190</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound191</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound192</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound193</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound194</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound195</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound196</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound197</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound198</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound199</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound200</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound201</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound202</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound203</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound204</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound205</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound206</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound207</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound208</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound209</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound210</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound211</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound212</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound213</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound214</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound215</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound216</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound217</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound218</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound219</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound220</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound221</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound222</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound223</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound224</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound225</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound226</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound227</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound228</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound229</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound230</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound231</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound232</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound233</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound234</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound235</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound236</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound237</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound238</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound239</tabstop>
+  <tabstop>IDC_TmcSoundEffects_Sound240</tabstop>
+  <tabstop>IDC_TMCBLOCKDX9</tabstop>
+ </tabstops>
+ <buttongroups>
+  <buttongroup name="buttonGroup_1"/>
+  <buttongroup name="buttonGroup_11"/>
+  <buttongroup name="buttonGroup_13"/>
+  <buttongroup name="buttonGroup_15"/>
+  <buttongroup name="buttonGroup_17"/>
+  <buttongroup name="buttonGroup_19"/>
+  <buttongroup name="buttonGroup_21"/>
+  <buttongroup name="buttonGroup_23"/>
+  <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup_5"/>
+  <buttongroup name="buttonGroup_7"/>
+  <buttongroup name="buttonGroup_9"/>
+ </buttongroups>
+</ui>

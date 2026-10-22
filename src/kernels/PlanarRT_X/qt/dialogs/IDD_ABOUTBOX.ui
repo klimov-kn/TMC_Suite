@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Файл создан tools/rc2ui.py из ресурсов Windows-версии. Не править вручную. -->
+<ui version="4.0">
+ <class>IDD_ABOUTBOX</class>
+ <widget class="QDialog" name="IDD_ABOUTBOX">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>326</width>
+    <height>137</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>326</width>
+    <height>137</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>326</width>
+    <height>137</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Planar RT H analyzer</string>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
+   <widget class="QLabel" name="IDC_STATIC_4">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>16</y>
+      <width>179</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Planar RT X analyzer Version 1.0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_TMC_DOCLINK">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>112</y>
+      <width>240</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_3">
+    <property name="geometry">
+     <rect>
+      <x>77</x>
+      <y>81</y>
+      <width>159</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">www.tamic.ru</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCBLOCKDX10">
+    <property name="geometry">
+     <rect>
+      <x>62</x>
+      <y>39</y>
+      <width>243</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDOK">
+    <property name="geometry">
+     <rect>
+      <x>267</x>
+      <y>81</y>
+      <width>48</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="default">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string notr="true">OK</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_2">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>63</y>
+      <width>179</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Copyright © 2005 Tamic_soft group</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC">
+    <property name="geometry">
+     <rect>
+      <x>17</x>
+      <y>28</y>
+      <width>30</width>
+      <height>33</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+ </widget>
+ <resources/>
+ <connections/>
+ <tabstops>
+  <tabstop>IDOK</tabstop>
+  <tabstop>IDC_TMCBLOCKDX10</tabstop>
+ </tabstops>
+</ui>

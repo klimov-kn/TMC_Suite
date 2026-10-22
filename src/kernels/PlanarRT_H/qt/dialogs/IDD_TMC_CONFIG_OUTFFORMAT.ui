@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Файл создан tools/rc2ui.py из ресурсов Windows-версии. Не править вручную. -->
+<ui version="4.0">
+ <class>IDD_TMC_CONFIG_OUTFFORMAT</class>
+ <widget class="QDialog" name="IDD_TMC_CONFIG_OUTFFORMAT">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>554</width>
+    <height>141</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>554</width>
+    <height>141</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>554</width>
+    <height>141</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Set format for output data file</string>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
+   <widget class="QLineEdit" name="IDC_TMCBLOCKDX9">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>96</y>
+      <width>96</width>
+      <height>24</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_7">
+    <property name="geometry">
+     <rect>
+      <x>2</x>
+      <y>83</y>
+      <width>114</width>
+      <height>47</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Field</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_6">
+    <property name="geometry">
+     <rect>
+      <x>2</x>
+      <y>2</y>
+      <width>536</width>
+      <height>75</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Signal</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDCANCEL">
+    <property name="geometry">
+     <rect>
+      <x>338</x>
+      <y>107</y>
+      <width>93</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Set default</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_5">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>18</y>
+      <width>113</width>
+      <height>49</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Scattering - double</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_4">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>18</y>
+      <width>113</width>
+      <height>49</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Falling - double</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_3">
+    <property name="geometry">
+     <rect>
+      <x>218</x>
+      <y>18</y>
+      <width>75</width>
+      <height>49</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Block - int</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_2">
+    <property name="geometry">
+     <rect>
+      <x>105</x>
+      <y>18</y>
+      <width>105</width>
+      <height>49</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Current time - double</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>18</y>
+      <width>90</width>
+      <height>49</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Time discret - int</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDOK">
+    <property name="geometry">
+     <rect>
+      <x>443</x>
+      <y>107</y>
+      <width>90</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="default">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string notr="true">OK</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCBLOCKDX8">
+    <property name="geometry">
+     <rect>
+      <x>428</x>
+      <y>34</y>
+      <width>98</width>
+      <height>24</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCBLOCKDX7">
+    <property name="geometry">
+     <rect>
+      <x>308</x>
+      <y>34</y>
+      <width>98</width>
+      <height>24</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICSWAVELENGHTDELT">
+    <property name="geometry">
+     <rect>
+      <x>225</x>
+      <y>34</y>
+      <width>60</width>
+      <height>24</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICST2">
+    <property name="geometry">
+     <rect>
+      <x>113</x>
+      <y>34</y>
+      <width>90</width>
+      <height>24</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICSTOPOLOGYOUT">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>34</y>
+      <width>75</width>
+      <height>24</height>
+     </rect>
+    </property>
+   </widget>
+ </widget>
+ <resources/>
+ <connections/>
+ <tabstops>
+  <tabstop>IDC_TMCSTATISTICSTOPOLOGYOUT</tabstop>
+  <tabstop>IDC_TMCSTATISTICST2</tabstop>
+  <tabstop>IDC_TMCSTATISTICSWAVELENGHTDELT</tabstop>
+  <tabstop>IDC_TMCBLOCKDX7</tabstop>
+  <tabstop>IDC_TMCBLOCKDX8</tabstop>
+  <tabstop>IDOK</tabstop>
+  <tabstop>IDCANCEL</tabstop>
+  <tabstop>IDC_TMCBLOCKDX9</tabstop>
+ </tabstops>
+</ui>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Файл создан tools/rc2ui.py из ресурсов Windows-версии. Не править вручную. -->
+<ui version="4.0">
+ <class>IDD_TMC_CALCTIME</class>
+ <widget class="QDialog" name="IDD_TMC_CALCTIME">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>810</width>
+    <height>553</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>810</width>
+    <height>553</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>810</width>
+    <height>553</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Calculation time</string>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
+   <widget class="QPushButton" name="IDOK">
+    <property name="geometry">
+     <rect>
+      <x>713</x>
+      <y>520</y>
+      <width>90</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="default">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string notr="true">Close</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_TMCCALCTIMEEXPORT">
+    <property name="geometry">
+     <rect>
+      <x>105</x>
+      <y>520</y>
+      <width>113</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Export to TXT...</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_TMCCALCTIMEREFRESH">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>520</y>
+      <width>90</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Refresh</string>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="IDC_TMCCALCTIMETEXT">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>8</y>
+      <width>795</width>
+      <height>501</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+    <property name="lineWrapMode">
+     <enum>QPlainTextEdit::NoWrap</enum>
+    </property>
+   </widget>
+ </widget>
+ <resources/>
+ <connections/>
+ <tabstops>
+  <tabstop>IDC_TMCCALCTIMETEXT</tabstop>
+  <tabstop>IDC_TMCCALCTIMEREFRESH</tabstop>
+  <tabstop>IDC_TMCCALCTIMEEXPORT</tabstop>
+  <tabstop>IDOK</tabstop>
+ </tabstops>
+</ui>

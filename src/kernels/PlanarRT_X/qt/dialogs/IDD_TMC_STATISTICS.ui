@@ -1,0 +1,1153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Файл создан tools/rc2ui.py из ресурсов Windows-версии. Не править вручную. -->
+<ui version="4.0">
+ <class>IDD_TMC_STATISTICS</class>
+ <widget class="QDialog" name="IDD_TMC_STATISTICS">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>606</width>
+    <height>444</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>606</width>
+    <height>444</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>606</width>
+    <height>444</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Statistics</string>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
+   <widget class="QGroupBox" name="IDC_STATIC_39">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>228</y>
+      <width>150</width>
+      <height>33</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_38">
+    <property name="geometry">
+     <rect>
+      <x>114</x>
+      <y>239</y>
+      <width>54</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Accuracy  :</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCBLOCKDY6">
+    <property name="geometry">
+     <rect>
+      <x>177</x>
+      <y>241</y>
+      <width>62</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCBLOCKDY5">
+    <property name="geometry">
+     <rect>
+      <x>69</x>
+      <y>406</y>
+      <width>338</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_37">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>410</y>
+      <width>53</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Topology</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCBLOCKDY4">
+    <property name="geometry">
+     <rect>
+      <x>434</x>
+      <y>410</y>
+      <width>68</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_36">
+    <property name="geometry">
+     <rect>
+      <x>425</x>
+      <y>395</y>
+      <width>86</width>
+      <height>37</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Data Format</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCBLOCKDY3">
+    <property name="geometry">
+     <rect>
+      <x>69</x>
+      <y>379</y>
+      <width>338</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_35">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>384</y>
+      <width>42</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Field</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_34">
+    <property name="geometry">
+     <rect>
+      <x>173</x>
+      <y>185</y>
+      <width>75</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Memory   MB</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCBLOCKDY2">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>202</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCBLOCKXMINBTEXT">
+    <property name="geometry">
+     <rect>
+      <x>105</x>
+      <y>202</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_33">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>185</y>
+      <width>75</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">NumNode</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_32">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>252</y>
+      <width>390</width>
+      <height>73</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Calculated value</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCBLOCKDX10">
+    <property name="geometry">
+     <rect>
+      <x>284</x>
+      <y>304</y>
+      <width>92</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_31">
+    <property name="geometry">
+     <rect>
+      <x>225</x>
+      <y>309</y>
+      <width>57</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Time / T</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_30">
+    <property name="geometry">
+     <rect>
+      <x>225</x>
+      <y>288</y>
+      <width>56</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Time / t0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_29">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>307</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Ysize / Wavelenght</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_28">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>289</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Xsize / Wavelenght</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCBLOCKDX9">
+    <property name="geometry">
+     <rect>
+      <x>284</x>
+      <y>284</y>
+      <width>92</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCBLOCKDX8">
+    <property name="geometry">
+     <rect>
+      <x>122</x>
+      <y>306</y>
+      <width>96</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCBLOCKDX7">
+    <property name="geometry">
+     <rect>
+      <x>122</x>
+      <y>286</y>
+      <width>96</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_27">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>270</y>
+      <width>41</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">T / t0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_26">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>270</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Wavelenght / Delta</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_25">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>358</y>
+      <width>42</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Signal</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_24">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>335</y>
+      <width>510</width>
+      <height>98</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Output</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_23">
+    <property name="geometry">
+     <rect>
+      <x>405</x>
+      <y>281</y>
+      <width>30</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Block</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_22">
+    <property name="geometry">
+     <rect>
+      <x>398</x>
+      <y>260</y>
+      <width>203</width>
+      <height>49</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Topology</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_21">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>146</y>
+      <width>150</width>
+      <height>39</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Wavelenght</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_20">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>192</y>
+      <width>75</width>
+      <height>49</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Angle</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_19">
+    <property name="geometry">
+     <rect>
+      <x>263</x>
+      <y>221</y>
+      <width>23</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">max</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_18">
+    <property name="geometry">
+     <rect>
+      <x>263</x>
+      <y>198</y>
+      <width>23</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">min</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_17">
+    <property name="geometry">
+     <rect>
+      <x>255</x>
+      <y>179</y>
+      <width>128</width>
+      <height>68</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Y size</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_16">
+    <property name="geometry">
+     <rect>
+      <x>263</x>
+      <y>141</y>
+      <width>23</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">max</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_15">
+    <property name="geometry">
+     <rect>
+      <x>263</x>
+      <y>117</y>
+      <width>23</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">min</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_14">
+    <property name="geometry">
+     <rect>
+      <x>255</x>
+      <y>98</y>
+      <width>128</width>
+      <height>73</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">X size</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_13">
+    <property name="geometry">
+     <rect>
+      <x>263</x>
+      <y>60</y>
+      <width>23</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">max</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_12">
+    <property name="geometry">
+     <rect>
+      <x>263</x>
+      <y>34</y>
+      <width>23</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">min</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_11">
+    <property name="geometry">
+     <rect>
+      <x>255</x>
+      <y>16</y>
+      <width>128</width>
+      <height>73</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Time</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_10">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>390</width>
+      <height>325</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Parameters</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_9">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>16</y>
+      <width>150</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Delta - space discr</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_8">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>98</y>
+      <width>150</width>
+      <height>42</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Frequence</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_7">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>85</y>
+      <width>75</width>
+      <height>49</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Time</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_6">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>138</y>
+      <width>75</width>
+      <height>49</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Frequence</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_5">
+    <property name="geometry">
+     <rect>
+      <x>6</x>
+      <y>16</y>
+      <width>83</width>
+      <height>229</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Unit</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_4">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>31</y>
+      <width>75</width>
+      <height>49</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Long</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_3">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>57</y>
+      <width>150</width>
+      <height>37</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">t0 - time discr</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_2">
+    <property name="geometry">
+     <rect>
+      <x>398</x>
+      <y>0</y>
+      <width>203</width>
+      <height>49</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Step</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC">
+    <property name="geometry">
+     <rect>
+      <x>398</x>
+      <y>55</y>
+      <width>203</width>
+      <height>197</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Error message</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_TMCSTATISTICSTOPOLOGYOUT">
+    <property name="geometry">
+     <rect>
+      <x>428</x>
+      <y>379</y>
+      <width>68</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Topology</string>
+    </property>
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_TMCSTATISTICSFIELDOUT">
+    <property name="geometry">
+     <rect>
+      <x>428</x>
+      <y>359</y>
+      <width>53</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Field</string>
+    </property>
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICSNBLOCK">
+    <property name="geometry">
+     <rect>
+      <x>438</x>
+      <y>280</y>
+      <width>60</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="IDC_TMCSTATISTICSERRORMESSAGE">
+    <property name="geometry">
+     <rect>
+      <x>405</x>
+      <y>73</y>
+      <width>188</width>
+      <height>171</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+    <property name="lineWrapMode">
+     <enum>QPlainTextEdit::NoWrap</enum>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICSNSTEP">
+    <property name="geometry">
+     <rect>
+      <x>405</x>
+      <y>18</y>
+      <width>90</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICSFILEOUT">
+    <property name="geometry">
+     <rect>
+      <x>69</x>
+      <y>351</y>
+      <width>338</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICST2">
+    <property name="geometry">
+     <rect>
+      <x>284</x>
+      <y>265</y>
+      <width>92</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICSWAVELENGHTDELT">
+    <property name="geometry">
+     <rect>
+      <x>122</x>
+      <y>267</y>
+      <width>96</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICSYMAX">
+    <property name="geometry">
+     <rect>
+      <x>285</x>
+      <y>219</y>
+      <width>90</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICSYMIN">
+    <property name="geometry">
+     <rect>
+      <x>285</x>
+      <y>195</y>
+      <width>90</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICSXMAX">
+    <property name="geometry">
+     <rect>
+      <x>285</x>
+      <y>138</y>
+      <width>90</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICSXMIN">
+    <property name="geometry">
+     <rect>
+      <x>285</x>
+      <y>114</y>
+      <width>90</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICSTMAX">
+    <property name="geometry">
+     <rect>
+      <x>285</x>
+      <y>57</y>
+      <width>90</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICSTMIN">
+    <property name="geometry">
+     <rect>
+      <x>285</x>
+      <y>33</y>
+      <width>90</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICSWAVELENGHT">
+    <property name="geometry">
+     <rect>
+      <x>105</x>
+      <y>163</y>
+      <width>135</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICSFREQ">
+    <property name="geometry">
+     <rect>
+      <x>105</x>
+      <y>114</y>
+      <width>135</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICST0">
+    <property name="geometry">
+     <rect>
+      <x>105</x>
+      <y>73</y>
+      <width>135</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_TMCSTATISTICSDELTA">
+    <property name="geometry">
+     <rect>
+      <x>105</x>
+      <y>33</y>
+      <width>135</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="IDC_TMCSTATISTICSANGLEUNIT">
+    <property name="geometry">
+     <rect>
+      <x>17</x>
+      <y>208</y>
+      <width>60</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+    <property name="lineWrapMode">
+     <enum>QPlainTextEdit::NoWrap</enum>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="IDC_TMCSTATISTICSFREQUNIT">
+    <property name="geometry">
+     <rect>
+      <x>17</x>
+      <y>154</y>
+      <width>60</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+    <property name="lineWrapMode">
+     <enum>QPlainTextEdit::NoWrap</enum>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="IDC_TMCSTATISTICSTIMEUNIT">
+    <property name="geometry">
+     <rect>
+      <x>17</x>
+      <y>101</y>
+      <width>60</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+    <property name="lineWrapMode">
+     <enum>QPlainTextEdit::NoWrap</enum>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="IDC_TMCSTATISTICSLONGUNIT">
+    <property name="geometry">
+     <rect>
+      <x>17</x>
+      <y>47</y>
+      <width>60</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+    <property name="lineWrapMode">
+     <enum>QPlainTextEdit::NoWrap</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_TMCSTATISTICSCALCTIME">
+    <property name="geometry">
+     <rect>
+      <x>518</x>
+      <y>346</y>
+      <width>78</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Calc. time...</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_TMCSTATISTICSVIEWBLOCKLIST2">
+    <property name="geometry">
+     <rect>
+      <x>509</x>
+      <y>280</y>
+      <width>86</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">View block list</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_TMCSTATISTICSNEXTSTEP">
+    <property name="geometry">
+     <rect>
+      <x>555</x>
+      <y>16</y>
+      <width>38</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Next</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_TMCSTATISTICSPREVSTEP">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>16</y>
+      <width>38</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Prev.</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDCANCEL">
+    <property name="geometry">
+     <rect>
+      <x>525</x>
+      <y>382</y>
+      <width>71</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Cancel</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDOK">
+    <property name="geometry">
+     <rect>
+      <x>525</x>
+      <y>410</y>
+      <width>71</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="default">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string notr="true">OK</string>
+    </property>
+   </widget>
+ </widget>
+ <resources/>
+ <connections/>
+ <tabstops>
+  <tabstop>IDOK</tabstop>
+  <tabstop>IDCANCEL</tabstop>
+  <tabstop>IDC_TMCSTATISTICSPREVSTEP</tabstop>
+  <tabstop>IDC_TMCSTATISTICSNEXTSTEP</tabstop>
+  <tabstop>IDC_TMCSTATISTICSVIEWBLOCKLIST2</tabstop>
+  <tabstop>IDC_TMCSTATISTICSCALCTIME</tabstop>
+  <tabstop>IDC_TMCSTATISTICSLONGUNIT</tabstop>
+  <tabstop>IDC_TMCSTATISTICSTIMEUNIT</tabstop>
+  <tabstop>IDC_TMCSTATISTICSFREQUNIT</tabstop>
+  <tabstop>IDC_TMCSTATISTICSANGLEUNIT</tabstop>
+  <tabstop>IDC_TMCSTATISTICSDELTA</tabstop>
+  <tabstop>IDC_TMCSTATISTICST0</tabstop>
+  <tabstop>IDC_TMCSTATISTICSFREQ</tabstop>
+  <tabstop>IDC_TMCSTATISTICSWAVELENGHT</tabstop>
+  <tabstop>IDC_TMCSTATISTICSTMIN</tabstop>
+  <tabstop>IDC_TMCSTATISTICSTMAX</tabstop>
+  <tabstop>IDC_TMCSTATISTICSXMIN</tabstop>
+  <tabstop>IDC_TMCSTATISTICSXMAX</tabstop>
+  <tabstop>IDC_TMCSTATISTICSYMIN</tabstop>
+  <tabstop>IDC_TMCSTATISTICSYMAX</tabstop>
+  <tabstop>IDC_TMCSTATISTICSWAVELENGHTDELT</tabstop>
+  <tabstop>IDC_TMCSTATISTICST2</tabstop>
+  <tabstop>IDC_TMCSTATISTICSFILEOUT</tabstop>
+  <tabstop>IDC_TMCSTATISTICSNSTEP</tabstop>
+  <tabstop>IDC_TMCSTATISTICSERRORMESSAGE</tabstop>
+  <tabstop>IDC_TMCSTATISTICSNBLOCK</tabstop>
+  <tabstop>IDC_TMCSTATISTICSFIELDOUT</tabstop>
+  <tabstop>IDC_TMCSTATISTICSTOPOLOGYOUT</tabstop>
+  <tabstop>IDC_TMCBLOCKDX7</tabstop>
+  <tabstop>IDC_TMCBLOCKDX8</tabstop>
+  <tabstop>IDC_TMCBLOCKDX9</tabstop>
+  <tabstop>IDC_TMCBLOCKDX10</tabstop>
+  <tabstop>IDC_TMCBLOCKXMINBTEXT</tabstop>
+  <tabstop>IDC_TMCBLOCKDY2</tabstop>
+  <tabstop>IDC_TMCBLOCKDY3</tabstop>
+  <tabstop>IDC_TMCBLOCKDY4</tabstop>
+  <tabstop>IDC_TMCBLOCKDY5</tabstop>
+  <tabstop>IDC_TMCBLOCKDY6</tabstop>
+ </tabstops>
+</ui>
