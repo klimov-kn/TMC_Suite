@@ -184,7 +184,27 @@ void CTmcRTHRectNode::RunStep( void )
 	bIsRunStep1Run = TRUE;
 	__int64 qTmStep = TmcTimingNow();			// TIMING
 	m_cTiming.BeginRunStep();					// TIMING
-	RunStep1();
+	try	// A-37: isklyuchenie ne dolzhno ostavlyat obekt "v schete"
+	{
+		RunStep1();
+	}
+	catch( CException *e )
+	{
+		char szErr[512] = "";
+		e->GetErrorMessage( szErr, sizeof(szErr) );
+		e->Delete();
+		CString csErr;
+		csErr.Format( "Exception in calculation: %s", szErr[0] ? szErr : "not enough memory" );
+		cError.PutErrorMessage( csErr );
+	}
+	catch( std::bad_alloc & )
+	{
+		cError.PutErrorMessage( "Not enough memory" );
+	}
+	catch( ... )
+	{
+		cError.PutErrorMessage( "Exception in calculation" );
+	};
 	m_cTiming.cur.nTDone = nTCurrent;			// TIMING
 	m_cTiming.EndRunStep( ( cError.IsError() || cIndan.IsError() ) ? 4 :
 		( ( ( nTMax > 0 )&&( nTCurrent >= nTMax ) ) ? 2 : 3 ), qTmStep );	// TIMING
@@ -560,6 +580,15 @@ void CTmcRTHRectNode::RunKernel( void )
 		((double)ltime_current - ltime_start)/nTCurrent);
 	PutStatistics(csBuf);
 	
+	if( ( !IsError() )&&( bIsReadData )&&( nTCurrent >= nTMax )&&	// A-14: faily DN ne zapisany
+		( cIndan.GetOutput()->GetFieldIntegrated().bIsFieldDistr() )&&
+		( cIndan.GetOutput()->GetFieldIntegrated().IsWindowOpen() ) )
+	{
+		csBuf.Format("Directional pattern window ends at %lg %s, after the calculation time: DN files are not written",
+			cIndan.GetOutput()->GetFieldIntegrated().GetTmax()/cParam.rTimeUnit, (LPCTSTR)cParam.csTimeUnit );
+		cError.PutErrorMessage( csBuf );
+	};
+
 	__int64 qTmPost = TmcTimingNow();			// TIMING
 	PutSmatrix();
 	m_cTiming.Add( TMCT_SMATRIX, qTmPost );		// TIMING
@@ -927,6 +956,24 @@ void CTmcRTHRectNode::SetDielTopology( void )
 			return;
 		};
 	}
+
+//  A-20: spisok tonov signala peredaetsya v FieldIntegrated, kak v H-yadre	// BORDER
+	for( i = 0; i < nDiel; i++ )
+	{
+		CString csFL = pcNodeDiel[i].GetSigFreqList();
+		if( csFL.GetLength() < 1 ) continue;
+		cIndan.GetOutput()->GetFieldIntegrated().SetFreqList( csFL, cParam.rFreqUnit );
+		if( ( cIndan.GetOutput()->GetFieldIntegrated().GetFreqNum() > 1 )&&	// A-5
+			( cIndan.GetOutput()->GetFieldIntegrated().bIsFieldDistr() )&&
+			( !cIndan.GetOutput()->GetFieldIntegrated().bIsItegratedInMemory() ) )
+		{
+			cError.PutErrorMessage("Multi-frequency directional pattern needs FIELD_DISTRIBUTION_M (not FIELD_DISTRIBUTION)");
+			return;
+		};
+		if( cIndan.GetOutput()->GetFieldIntegrated().GetFreqNum() > 1 )
+			cIndan.GetOutput()->GetFieldIntegrated().InitArrayForIntegrate();
+		break;					// one list describes the excitation
+	};
 
 	return;
 }
@@ -1371,8 +1418,16 @@ void CTmcRTHRectNode::OutputnT( void )
 	char *psForm;
 	__int64 qTm = TmcTimingNow();				// TIMING
 
-	for( ; ( fp = fopen( cOut->csFileName , "a") ) == NULL;  ) 
+	int nOpenTry;	// A-8: ne zhdat vechno
+	for( nOpenTry = 0; ( fp = fopen( cOut->csFileName , "a") ) == NULL; nOpenTry++ )
 	{
+		if( nOpenTry > 2000 )
+		{
+			CString csOpen;
+			csOpen.Format("Can't open file %s", (LPCSTR)(cOut->csFileName));
+			cError.PutErrorMessage( csOpen );
+			return;
+		};
 		Sleep( 10 );
 	};
 	
@@ -2031,14 +2086,17 @@ void CTmcRTHRectNode::PutField( TmcIdx ii )	// INT64
 	
 	if( !cOut->bOutField ) return;
 
-	if( cOut->bOutFieldSinchronization )
+	static BOOL bFieldReaderLost = FALSE;	// A-17: FieldView ne chitaet fail polya
+	if( cOut->bOutFieldSinchronization && !IsAutoRun() )
 	{
-		for( i = 0; (IsFieldFileRead())&&(cOut->bOutFieldSinchronization)&&(cOut->bOutField)&&(bIsReadData)&&( i < 500 ) ; i++)	
+		if( bFieldReaderLost && !IsFieldFileRead() ) bFieldReaderLost = FALSE;	// FieldView snova chitaet
+		for( i = 0; (!bFieldReaderLost)&&(IsFieldFileRead())&&(cOut->bOutFieldSinchronization)&&(cOut->bOutField)&&(bIsReadData)&&( i < 500 ) ; i++)
 		{
 			Sleep(50);
 			cOut = cIndan.GetOutput();
 //			if( i == 50) return;
 		};
+		if( i >= 500 ) bFieldReaderLost = TRUE;
 	};
 
 	for( i = 0; ( fp = fopen( cOut->csFileNameField , "wb") ) == NULL; i++ ) 
@@ -2398,6 +2456,8 @@ BOOL CTmcRTHRectNode::IsFieldFileRead()
 void CTmcRTHRectNode::PutSmatrix()
 {
 	cIndan.GetOutput()->PutSmatrix();
+	if( ( !cError.IsError() )&&( cIndan.GetOutput()->csSMatrixError.GetLength() > 0 ) )	// A-21
+		cError.PutErrorMessage( cIndan.GetOutput()->csSMatrixError );
 	return;
 }
 
@@ -2410,7 +2470,8 @@ void CTmcRTHRectNode::DistributionIntegrated( int ii )
 			cIndan.GetOutput()->GetFieldIntegrated().GetTmin(),
 			cIndan.GetOutput()->GetFieldIntegrated().GetTmax() );	// TIMING
 	cIndan.GetOutput()->GetFieldIntegrated().Integrate( dTCurrent, nTCurrent, &(prUNode1[ii]) );
-	cError = cIndan.GetOutput()->GetFieldIntegrated().GetError();
+	if( cIndan.GetOutput()->GetFieldIntegrated().GetError().IsError() )	// A-1: ne zatirat oshibku podtakta
+		cError = cIndan.GetOutput()->GetFieldIntegrated().GetError();
 	m_cTiming.Add( bTmFinal ? TMCT_DISTRFINAL : TMCT_DISTRINTEGR, qTm );	// TIMING
 	return;
 }
@@ -2418,9 +2479,9 @@ void CTmcRTHRectNode::DistributionIntegrated( int ii )
 void CTmcRTHRectNode::ExportToDirectionalPatter()
 {
 	cIndan.GetOutput()->GetFieldIntegrated().ExportToDirectionalPattern(cParam);
-	cError = cIndan.GetOutput()->GetFieldIntegrated().GetError();
-	if( cError.IsError() )
+	if( cIndan.GetOutput()->GetFieldIntegrated().GetError().IsError() )	// A-1: ne zatirat oshibku rascheta
 	{
+		cError = cIndan.GetOutput()->GetFieldIntegrated().GetError();
 		CString csBuf;
 		csBuf.Format("Export to Directional pattern error:%s", cError.GetErrorMessage());
 		PutTrace(csBuf);
@@ -2453,8 +2514,16 @@ void CTmcRTHRectNode::PutPortInfo( void )
 	if( nPort < 1 ) return;
 
 	FILE *fp;
-	for( ; ( fp = fopen( cOut->csFileName, "a" ) ) == NULL ; )
+	int nOpenTry;	// A-8: ne zhdat vechno
+	for( nOpenTry = 0; ( fp = fopen( cOut->csFileName, "a" ) ) == NULL; nOpenTry++ )
 	{
+		if( nOpenTry > 2000 )
+		{
+			CString csOpen;
+			csOpen.Format("Can't open file %s", (LPCSTR)(cOut->csFileName));
+			cError.PutErrorMessage( csOpen );
+			return;
+		};
 		Sleep( 10 );
 	};
 

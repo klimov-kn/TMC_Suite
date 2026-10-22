@@ -85,7 +85,11 @@ int _far fortran load_vr_file( BUFFER _far *buf )
 
   char _far *str1;
                       /*  open time file*/
-  if( (vr_mac = fopen( name_vr_mac_file, "w")) == NULL)
+  char szVrName[512];	/* A-19: v papke zadaniya, kak v #include i dest_prep */
+  if( GetCurrentPath()[0] != '\0' ) _snprintf( szVrName, sizeof(szVrName), "%s\\%s", GetCurrentPath(), name_vr_mac_file );
+  else                              _snprintf( szVrName, sizeof(szVrName), "%s", name_vr_mac_file );
+  szVrName[sizeof(szVrName)-1] = '\0';
+  if( (vr_mac = fopen( szVrName, "w")) == NULL)
    {
 	sprintf( str, "Can't open file", (char _far *)name_vr_mac_file);
     put_error_messege( str );

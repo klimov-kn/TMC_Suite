@@ -56,6 +56,7 @@ int _far _fortran save_S_matrix_element( int in1, char *filename, _complex *sss,
    char filename1[1000];
    int ret_code = 0;
 
+   if( ( nInput < 1 )||( nInput > MAX_INPUT_NUM ) ) return -1;	/* A-22: ne bolshe MAX_INPUT_NUM portov */
    sprintf( filename1, "%s$", filename );
 
 //   getch();
@@ -211,7 +212,7 @@ int _far _fortran save_S_matrix_element( int in1, char *filename, _complex *sss,
             {
              set_current_frq_num( i );
              set_frq_element( frq.f[i], i );
-             if( ret_code == 0 ) ret_code = save_S_matrix( sss1[i], id, filename, si, extrapol_flag );
+             if( ret_code == 0 ) ret_code = save_S_matrix( sss1[i], &id[i], filename, si, extrapol_flag );	// A-3: id[i]
             }
 		};
 	};

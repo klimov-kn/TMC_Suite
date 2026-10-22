@@ -197,7 +197,7 @@ void CTmcRTH_DialogBlock::PrepareData( void )
 	pY = m_pcBlockList->GetpY();
 	if( pX == NULL ) return;
 	if( pY == NULL ) return;
-	for( i = 0; i < m_nXY; i++ )
+	for( i = 0; ( i < m_nXY )&&( i < 10 ); i++ )	// A-18: v okne 10 polei
 	{
 //		CString csBuf1;
 		dX[i].Format("%lg", pX[i]/m_pcParam->rGetLongUnit());

@@ -366,6 +366,8 @@ static int _near _fortran Read_GRID( S_INDEX _far **si, int _far *extrapol_flag 
    INT_1 length, sBuff;
    int i;
 
+   *si = NULL;	// A-25: pri oshibke chteniya nichego ne osvobozhdat zrya
+
    // reading length of the GRID string ( useless here )
    ret_code = read_S( &length, (size_t)sizeof(INT_1) );
    // extrapolation flag 0 - no, 1 - two grids, 2 - three grids 
@@ -395,7 +397,8 @@ static int _near _fortran Read_GRID( S_INDEX _far **si, int _far *extrapol_flag 
 
      if( ret_code != 0 )
        {
-        free_mem( *si );
+        if( *si != NULL ) free_mem( *si );	// A-25
+        *si = NULL;
         return -1;
        }
 

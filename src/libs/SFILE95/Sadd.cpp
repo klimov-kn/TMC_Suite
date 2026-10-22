@@ -103,7 +103,7 @@ int _far _fortran S_add( char *filename, char *filename1 )
             {
              set_current_frq_num( i );
              set_frq_element( frq_out.f[i], i );
-             if( ret_code == 0 ) ret_code = save_S_matrix( sss[i], id, szFile, si, extrapol_flag );
+             if( ret_code == 0 ) ret_code = save_S_matrix( sss[i], &id[i], szFile, si, extrapol_flag );	// A-3: id[i]
             }
 
           /* write united matrix to the listing */

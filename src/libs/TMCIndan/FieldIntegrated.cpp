@@ -100,6 +100,9 @@ void CFieldIntegrated::DeleteData()
 	bIsBeginIntegreted = FALSE;
 	bIsFieldDistribution = FALSE;
 	dT = 0.0;
+	nFreqNum = 0;			// A-41: toni i rezhim granicy ne nasleduyutsya sleduyushchim shagom
+	nFreqCur = 0;
+	bBorderOnly = FALSE;
 	dTmin = 0.0;
 	dTmax = 0.0;
 	dFreq = 0.0;

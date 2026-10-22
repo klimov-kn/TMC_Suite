@@ -29,6 +29,7 @@ public:
 	BOOL IsError( void );
 	void InitAllFile( int nX1, int nY1, double dDelta1, double dXmin1, double dYmin1, CTmcRTH_IndanParam& cParam1, double dT1  );
 	BOOL bIsFieldDistr( void );
+	BOOL IsWindowOpen( void ) { return bIsBeginIntegreted; }	// A-14: okno DN nachato, no ne zakoncheno
 	void SetTmin( double dTmin1 );
 	double GetTmin( void );
 	void SetTmax( double dTmax1 );

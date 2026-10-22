@@ -188,7 +188,7 @@ int CTmcSMatrix::CalcNPoint()
 	if( (fp = fopen( csTFileName, "r")) == NULL ) 
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf("Can't open file {%s}", csTFileName);
+		sprintf( szBuf, "Can't open file {%s}", csTFileName);	// A-26
 		PutErrorMessage(szBuf);
 		return 0;
 	};
@@ -232,7 +232,7 @@ int CTmcSMatrix::CalcNInput()
 	if( (fp = fopen( csTFileName, "r")) == NULL ) 
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf("Can't open file {%s}", csTFileName);
+		sprintf( szBuf, "Can't open file {%s}", csTFileName);	// A-26
 		PutErrorMessage(szBuf);
 		return 0;
 	};

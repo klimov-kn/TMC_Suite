@@ -90,6 +90,16 @@ void CFldViewDoc::Serialize(CArchive& ar)
 	}
 }
 
+#ifdef _MSC_VER
+// A-32: FieldView only shows field files. The empty Serialize used to truncate
+// the field file to 0 bytes on Ctrl+S, so saving is refused and the file is kept.
+BOOL CFldViewDoc::DoSave(LPCTSTR /*lpszPathName*/, BOOL /*bReplace*/)
+{
+	AfxMessageBox("FieldView only shows field files. Saving is not supported; the file is not changed.");
+	return FALSE;
+}
+#endif
+
 /////////////////////////////////////////////////////////////////////////////
 // CFldViewDoc diagnostics
 

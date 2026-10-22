@@ -52,6 +52,7 @@ void CTmcWideband::DeleteData()
 	nPoint = 0;
 	nInput = 0;
 	nFreq = 0;
+	nFreqNamed = 0;		// A-4: bez #FREQ v .sig chastoty ishchutsya po spektru
 	nPort = 0;
 	dFitT1 = 0.0;
 	dTmin = 0.0;

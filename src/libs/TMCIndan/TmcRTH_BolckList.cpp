@@ -825,6 +825,12 @@ void CTmcRTH_BlockList::ReadRectStat_1( CTmcLibError &cError, CTmcRTH_IndanParam
 	double r;
 	int n;
 
+	if( csBlock.GetLength() >= CTMCRTH_INDAN_LINELEN )	// A-12: ne perepolnyat bufer v steke
+	{
+		csBuf.Format("Block %d is too long: %d characters (max %d)", nBlock, csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
+		cError.PutErrorMessage( csBuf );
+		return;
+	};
 	strcpy( szBuf, csBlock );
 	n = (int)(strlen( szBuf ));
 	expr_del_Blanks2( szBuf+i );
@@ -1105,6 +1111,12 @@ void CTmcRTH_BlockList::ReadCircleStat_1( CTmcLibError &cError, CTmcRTH_IndanPar
 	double r;
 	int n;
 
+	if( csBlock.GetLength() >= CTMCRTH_INDAN_LINELEN )	// A-12: ne perepolnyat bufer v steke
+	{
+		csBuf.Format("Block %d is too long: %d characters (max %d)", nBlock, csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
+		cError.PutErrorMessage( csBuf );
+		return;
+	};
 	strcpy( szBuf, csBlock );
 	n = (int)(strlen( szBuf ));
 	expr_del_Blanks2( szBuf+i );
@@ -1633,6 +1645,12 @@ void CTmcRTH_BlockList::ReadRectMove( CTmcLibError &cError, CTmcRTH_IndanParam *
 	double r;
 	int i, n;
 
+	if( csBlock.GetLength() >= CTMCRTH_INDAN_LINELEN )	// A-12: ne perepolnyat bufer v steke
+	{
+		csBuf.Format("Block %d is too long: %d characters (max %d)", nBlock, csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
+		cError.PutErrorMessage( csBuf );
+		return;
+	};
 	strcpy( szBuf, csBlock );
 	i = (int)(strlen( CTMCRTH_INDANBLCK_RECTMOVE ));
 	n = (int)(strlen( szBuf ));
@@ -1868,6 +1886,12 @@ void CTmcRTH_BlockList::ReadCircleMove( CTmcLibError &cError, CTmcRTH_IndanParam
 	double r;
 	int i, n;
 
+	if( csBlock.GetLength() >= CTMCRTH_INDAN_LINELEN )	// A-12: ne perepolnyat bufer v steke
+	{
+		csBuf.Format("Block %d is too long: %d characters (max %d)", nBlock, csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
+		cError.PutErrorMessage( csBuf );
+		return;
+	};
 	strcpy( szBuf, csBlock );
 	i = (int)(strlen( CTMCRTH_INDANBLCK_CIRCMOVE ));
 	n = (int)(strlen( szBuf ));
@@ -2163,6 +2187,12 @@ void CTmcRTH_BlockList::ReadPolygonMove( CTmcLibError &cError, CTmcRTH_IndanPara
 	char szBuf1[CTMCRTH_INDAN_LINELEN];
 	int i, n, i1, n1;
 
+	if( csBlock.GetLength() >= CTMCRTH_INDAN_LINELEN )	// A-12: ne perepolnyat bufer v steke
+	{
+		csBuf.Format("Block %d is too long: %d characters (max %d)", nBlock, csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
+		cError.PutErrorMessage( csBuf );
+		return;
+	};
 	strcpy( szBuf, csBlock );
 	i = (int)(strlen( CTMCRTH_INDANBLCK_POLYGMOV ));
 	n = (int)(strlen( szBuf ));
@@ -2317,6 +2347,12 @@ void CTmcRTH_BlockList::ReadInputX( CTmcLibError &cError, CTmcRTH_IndanParam * p
 	double r;
 	int i, n;
 
+	if( csBlock.GetLength() >= CTMCRTH_INDAN_LINELEN )	// A-12: ne perepolnyat bufer v steke
+	{
+		csBuf.Format("Block %d is too long: %d characters (max %d)", nBlock, csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
+		cError.PutErrorMessage( csBuf );
+		return;
+	};
 	strcpy( szBuf, csBlock );
 	i = (int)(strlen( CTMCRTH_INDANBLCK_INPUT_X ));
 	n = (int)(strlen( szBuf ));
@@ -2508,6 +2544,12 @@ void CTmcRTH_BlockList::ReadInputY( CTmcLibError &cError, CTmcRTH_IndanParam * p
 	double r;
 	int i, n;
 
+	if( csBlock.GetLength() >= CTMCRTH_INDAN_LINELEN )	// A-12: ne perepolnyat bufer v steke
+	{
+		csBuf.Format("Block %d is too long: %d characters (max %d)", nBlock, csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
+		cError.PutErrorMessage( csBuf );
+		return;
+	};
 	strcpy( szBuf, csBlock );
 	i = (int)(strlen( CTMCRTH_INDANBLCK_INPUT_Y ));
 	n = (int)(strlen( szBuf ));
@@ -2915,6 +2957,12 @@ void CTmcRTH_BlockList::ReadFileStat_1( CTmcLibError &cError, CTmcRTH_IndanParam
 	char szBuf[CTMCRTH_INDAN_LINELEN];
 	int n;
 
+	if( csBlock.GetLength() >= CTMCRTH_INDAN_LINELEN )	// A-12: ne perepolnyat bufer v steke
+	{
+		csBuf.Format("Block %d is too long: %d characters (max %d)", nBlock, csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
+		cError.PutErrorMessage( csBuf );
+		return;
+	};
 	strcpy( szBuf, csBlock );
 	n = (int)(strlen( szBuf ));
 	expr_del_Blanks2( szBuf+i );

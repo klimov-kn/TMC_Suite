@@ -68,6 +68,7 @@ public:
 	CFieldIntegrated& GetFieldIntegrated( void );
 	BOOL bIsFieldDistribution( void );
 	void PutSmatrix( void );
+	CString csSMatrixError;		// A-21: oshibka poslednego PutSmatrix ("" - net oshibki)
 	void SetFreqAndTimeUnit( double dFr, double dTim );
 	void OnOffSoundEffects( void );
 	BOOL bSoundEffect;

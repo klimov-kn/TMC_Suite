@@ -34,6 +34,9 @@ public:
 	virtual BOOL OnNewDocument();
 	virtual void Serialize(CArchive& ar);
 	//}}AFX_VIRTUAL
+#ifdef _MSC_VER
+	virtual BOOL DoSave(LPCTSTR lpszPathName, BOOL bReplace = TRUE);	// A-32: ne zatirat fail polya
+#endif
 
 // Implementation
 public:

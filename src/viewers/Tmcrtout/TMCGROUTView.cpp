@@ -3017,7 +3017,7 @@ void CTMCGROUTView::OnViewTranslateChangexmaxxminEnd()
 	{
 		for( i = 0; i < pDoc->grdoc.nGraph; i++ )
 		{
-			if( pDoc->grdoc.psGraph[i].OutFlag )
+			if( ( pDoc->grdoc.psGraph[i].OutFlag )&&( pDoc->grdoc.psGraph[i].nPoint > 0 )&&( pDoc->grdoc.psGraph[i].pFreq != NULL ) )	// A-27
 			{
 				if( j == 0 )
 				{
@@ -3038,7 +3038,7 @@ void CTMCGROUTView::OnViewTranslateChangexmaxxminEnd()
 	{
 		for( i = 0; i < pDoc->grdoc.nGraph; i++ )
 		{
-			if( pDoc->grdoc.psGraph[i].OutFlag )
+			if( ( pDoc->grdoc.psGraph[i].OutFlag )&&( pDoc->grdoc.psGraph[i].nPoint > 0 )&&( pDoc->grdoc.psGraph[i].pFreq != NULL ) )	// A-27
 			{
 				if( j == 0 )
 				{
@@ -3099,7 +3099,7 @@ void CTMCGROUTView::OnViewTranslateChangexmaxxminHome()
 	{
 		for( i = 0; i < pDoc->grdoc.nGraph; i++ )
 		{
-			if( pDoc->grdoc.psGraph[i].OutFlag )
+			if( ( pDoc->grdoc.psGraph[i].OutFlag )&&( pDoc->grdoc.psGraph[i].nPoint > 0 )&&( pDoc->grdoc.psGraph[i].pFreq != NULL ) )	// A-27
 			{
 				if( j == 0 )
 				{

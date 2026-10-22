@@ -520,6 +520,7 @@ void CTmcRTH_IndanOutput::SetFreqAndTimeUnit(double dFr, double dTim)
 
 void CTmcRTH_IndanOutput::PutSmatrix()
 {
+	csSMatrixError.Format("");	// A-21
 	if( !bOutSMatrix ) return;
 
 //  A run excited by a multi-frequency incident wave carries the whole sweep.
@@ -536,6 +537,7 @@ void CTmcRTH_IndanOutput::PutSmatrix()
 			CString csBuf1;
 			csBuf1.Format("S-matrix (wideband): %s", (LPCTSTR)cWide.GetErrorMessage() );
 			cError.PutErrorMessage( csBuf1 );
+			csSMatrixError = csBuf1;	// A-21
 		};
 		return;
 	};
@@ -547,6 +549,10 @@ void CTmcRTH_IndanOutput::PutSmatrix()
 //		AfxMessageBox(csBuf1);
 //	};
 	cTtoS.TtoS( csFileName, csFileNameSMatrix, dTmin, dTmax, dFreq);
+	if( cTtoS.IsError() )	// A-21: ne teryat oshibku
+	{
+		csSMatrixError.Format("S-matrix: %s", (LPCTSTR)cTtoS.GetErrorMessage() );
+	};
 //	if( cTtoS.IsError )
 //	{
 //		CString csBuf1;

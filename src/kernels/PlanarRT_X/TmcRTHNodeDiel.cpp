@@ -2625,7 +2625,13 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 	i = 0;
 	dBuf = (_ELEM_VAL_RTH)0.0;
 	
-	if( nNumNode < 3 ) return;
+	if( nNumNode < 3 )	// A-36: ne molchat
+	{
+		CString csFew;
+		csFew.Format("Port block %d has %d nodes, need at least 3", nBlock, (int)nNumNode);
+		cError1.PutErrorMessage( csFew );
+		return;
+	};
 
 	for( i = 0, n1 = nNumNode; i < n1; i++)
 	{
@@ -2952,7 +2958,13 @@ void CTmcRTHNodeDiel::ExciteInputs1( CTmcLibError &cError1, double dWT, double d
 	i = 0;
 	dBuf = (_ELEM_VAL_RTH)0.0;
 	
-	if( nNumNode < 3 ) return;
+	if( nNumNode < 3 )	// A-36: ne molchat
+	{
+		CString csFew;
+		csFew.Format("Port block %d has %d nodes, need at least 3", nBlock, (int)nNumNode);
+		cError1.PutErrorMessage( csFew );
+		return;
+	};
 
 	for( i = 0, n1 = nNumNode; i < n1; i++)
 	{
@@ -3279,7 +3291,13 @@ void CTmcRTHNodeDiel::ExciteInputs2( CTmcLibError &cError1, double dWT, double d
 	i = 0;
 	dBuf = (_ELEM_VAL_RTH)0.0;
 	
-	if( nNumNode < 3 ) return;
+	if( nNumNode < 3 )	// A-36: ne molchat
+	{
+		CString csFew;
+		csFew.Format("Port block %d has %d nodes, need at least 3", nBlock, (int)nNumNode);
+		cError1.PutErrorMessage( csFew );
+		return;
+	};
 
 	for( i = 0, n1 = nNumNode; i < n1; i++)
 	{
@@ -3606,7 +3624,13 @@ void CTmcRTHNodeDiel::ExciteInputs3( CTmcLibError &cError1, double dWT, double d
 	i = 0;
 	dBuf = (_ELEM_VAL_RTH)0.0;
 	
-	if( nNumNode < 3 ) return;
+	if( nNumNode < 3 )	// A-36: ne molchat
+	{
+		CString csFew;
+		csFew.Format("Port block %d has %d nodes, need at least 3", nBlock, (int)nNumNode);
+		cError1.PutErrorMessage( csFew );
+		return;
+	};
 
 	for( i = 0, n1 = nNumNode; i < n1; i++)
 	{
@@ -3899,8 +3923,16 @@ void CTmcRTHNodeDiel::OutputUpUo( double dUp, double dUo, CTmcLibError &cError1)
 	char *psForm;
 	__int64 qTm = TmcTimingNow();	// TIMING
 
-	for( ; (fp = fopen( csBlock, "a")) == NULL ; )
+	int nOpenTry;	// A-8: ne zhdat vechno
+	for( nOpenTry = 0; (fp = fopen( csBlock, "a")) == NULL; nOpenTry++ )
 	{
+		if( nOpenTry > 2000 )
+		{
+			CString csOpen;
+			csOpen.Format("Can't open file %s", (LPCSTR)(csBlock));
+			cError1.PutErrorMessage( csOpen );
+			return;
+		};
 		Sleep(10);
 	};
 
@@ -3938,7 +3970,14 @@ double CTmcRTHNodeDiel::SetInputAdmitance( double dFreq, double dDelta )
 
 	dA_111 = sqrt(2.)*PI___*dDelta*dFreq/C0___;
 //	dY1 = 1/(1+2*PI___*PI___/3.*(dDelta*dFreq/C0___)*(dDelta*dFreq/C0___))*acos( 2*cos(dA_111) - cos(PI___*dDelta/dWidthWaveg) )/dA_111;
-	dY1 = sin(acos( (2+fabs(dYInput)/2.)*cos(dA_111) - dYInput/2. - cos(PI___/(dWidthWaveg/dDelta)) ))/sin(dA_111);
+	double dArgCutoff = (2+fabs(dYInput)/2.)*cos(dA_111) - dYInput/2. - cos(PI___/(dWidthWaveg/dDelta));	// A-7
+	if( !( dArgCutoff >= -1. && dArgCutoff <= 1. ) )
+	{
+		CString csCutoff;
+		csCutoff.Format("Frequency %lg is below cutoff of port (width %lg)", dFreq, dWidthWaveg);
+		cError.PutErrorMessage( csCutoff );
+	};
+	dY1 = sin(acos( dArgCutoff ))/sin(dA_111);
 
 //	t0 = dDelta*sqrt( MU0___*EPS0___/2. );
 //	dY1 = acos( 2*cos(2*PI___*dFreq*t0) - cos(PI___*dDelta/dWidthWaveg) );
@@ -8668,8 +8707,16 @@ void CTmcRTHNodeDiel::SaveFileRect( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH
 		return;
 	};
 	
-	for( i = 0; ( fp = fopen( csFileNameEps , "wb") ) == NULL; i++ ) 
+	int nOpenTry;	// A-8: ne zhdat vechno
+	for( nOpenTry = 0; ( fp = fopen( csFileNameEps , "wb") ) == NULL; nOpenTry++ )
 	{
+		if( nOpenTry > 2000 )
+		{
+			CString csOpen;
+			csOpen.Format("Can't open file %s", (LPCSTR)(csFileNameEps));
+			cError.PutErrorMessage( csOpen );
+			return;
+		};
 		Sleep( 10 );
 	};
 	

@@ -331,56 +331,34 @@ void Set_CommandLine_Flags( char *lpszCmdLine )
 	SetTimeReportOff();											// TIMING
 	if( IsKeyTimeInCommandLine( lpszCmdLine ) ) SetTimeReportOn();	// TIMING: key /Time
 	
+	// A-15: klyuch - otdelnoe slovo vne kavychek: /Ar, /Arb, /d (takzhe -Ar, \Ar ...)
+	BOOL bQuote = FALSE;
+	const char *k;
 	for( i = 0; lpszCmdLine[i] != '\0'; i++ )
 	{
-		switch( lpszCmdLine[i] )
+		if( lpszCmdLine[i] == '"' )
 		{
-			case '-': ;
-			case '/': ;
-			case '\\': ;
-				i--;
-			case ' ': ;
-				switch( lpszCmdLine[i+1] )
-				{
-					case '-': ;
-					case '/': ;
-					case '\\': ;
-						switch( lpszCmdLine[i+2] )
-						{
-							case 'A':
-								switch( lpszCmdLine[i+3] )
-								{
-									case 'r':
-										SetAutoRunOn();
-										switch( lpszCmdLine[i+4] )
-										{
-											case 'b':
-												SetBatchRunOn();
-												break;
-											default:
-												break;
-										};
-										break;
-									default:
-										break;
-								};
-								break;
-							case 'd':
-								SetAutoRunOn();
-								SetBatchRunOn();
-								SetDemoRunOn();
-								break;
-							default:
-								break;
-						};
-						i++;
-						break;
-					default:
-						break;
-				};
-				break;
-			default:
-				break;
+			bQuote = !bQuote;
+			continue;
+		};
+		if( bQuote ) continue;
+		if( ( lpszCmdLine[i] != '/' )&&( lpszCmdLine[i] != '-' )&&( lpszCmdLine[i] != '\\' ) ) continue;
+		if( ( i > 0 )&&( lpszCmdLine[i-1] != ' ' )&&( lpszCmdLine[i-1] != '\t' ) ) continue;
+		k = lpszCmdLine + i + 1;
+		if( ( k[0] == 'A' )&&( k[1] == 'r' )&&( ( k[2] == '\0' )||( k[2] == ' ' )||( k[2] == '\t' ) ) )
+		{
+			SetAutoRunOn();
+		}
+		else if( ( k[0] == 'A' )&&( k[1] == 'r' )&&( k[2] == 'b' )&&( ( k[3] == '\0' )||( k[3] == ' ' )||( k[3] == '\t' ) ) )
+		{
+			SetAutoRunOn();
+			SetBatchRunOn();
+		}
+		else if( ( k[0] == 'd' )&&( ( k[1] == '\0' )||( k[1] == ' ' )||( k[1] == '\t' ) ) )
+		{
+			SetAutoRunOn();
+			SetBatchRunOn();
+			SetDemoRunOn();
 		};
 	};
 	// RUN STATUS: in the auto run the code "stopped" until the run is finished

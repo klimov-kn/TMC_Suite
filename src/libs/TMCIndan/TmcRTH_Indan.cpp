@@ -109,9 +109,10 @@ void CTmcRTH_Indan::SetCurrentPath( void )
 		return;
 	};
 
-	strcpy( szBuf, csTplFileName );
+	DWORD dwFull = GetFullPathNameA( csTplFileName, CTMCRTH_INDANSBUF, szBuf, NULL );	// A-16
+	if( ( dwFull == 0 )||( dwFull >= CTMCRTH_INDANSBUF ) ) strcpy( szBuf, csTplFileName );
 	n = (int)(strlen(szBuf));
-	if( n < 1 ) 
+	if( n < 1 )
 	{
 		csCurrentPath.Format( "" );
 		return;
@@ -272,6 +273,8 @@ int CTmcRTH_Indan::GetLine( CString &csCh )
 	char szBuf[CTMCRTH_INDAN_LINELEN];
 	CString csBuf;
 
+	for( ;; )	// A-2: cikl vmesto rekursii - pustye stroki i kommentarii propuskayutsya
+	{
 	if( fgets( szBuf, CTMCRTH_INDAN_LINELEN, pfPrepr ) == NULL )
 	{
 		csBuf.Format("Missing %s", CTMCRTH_INDANMET_EOF);
@@ -279,12 +282,13 @@ int CTmcRTH_Indan::GetLine( CString &csCh )
 		ClosePreprFile();
 		return EOF;
 	};
-	
+
 	del_blanks( szBuf );
-	
+
 	if( (szBuf[0] == '!')||(szBuf[0] == '\n') ) szBuf[0] = '\0';
-	
-	if( strlen( szBuf ) == 0 ) return GetLine( csCh );
+
+	if( strlen( szBuf ) != 0 ) break;
+	}
 
 	csCh.Format("%s", szBuf);
 
