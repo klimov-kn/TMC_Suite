@@ -1,0 +1,1882 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Файл создан tools/rc2ui.py из ресурсов Windows-версии. Не править вручную. -->
+<ui version="4.0">
+ <class>IDD_DIALOG2</class>
+ <widget class="QDialog" name="IDD_DIALOG2">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>459</width>
+    <height>418</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>459</width>
+    <height>418</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>459</width>
+    <height>418</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Characteristics</string>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
+   <widget class="QGroupBox" name="IDC_STATIC_10">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>106</y>
+      <width>96</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true"></string>
+    </property>
+    <property name="visible">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_9">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>91</y>
+      <width>96</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true"></string>
+    </property>
+    <property name="visible">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_8">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>76</y>
+      <width>96</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true"></string>
+    </property>
+    <property name="visible">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_7">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>62</y>
+      <width>96</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true"></string>
+    </property>
+    <property name="visible">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_6">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>0</y>
+      <width>437</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">File name for draw Time Output Signal </string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_DOCFILENAME">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>16</y>
+      <width>423</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_5">
+    <property name="geometry">
+     <rect>
+      <x>324</x>
+      <y>52</y>
+      <width>51</width>
+      <height>346</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Visible</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_4">
+    <property name="geometry">
+     <rect>
+      <x>135</x>
+      <y>52</y>
+      <width>110</width>
+      <height>346</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Falling or Scattering</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_3">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>52</y>
+      <width>38</width>
+      <height>346</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Input</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_2">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>52</y>
+      <width>74</width>
+      <height>346</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">S FileName</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG20">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>377</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME20">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>377</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_18">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>377</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_19</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_17">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>377</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_19</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_20">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>377</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME20">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>377</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG19">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>361</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME19">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>361</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_16">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>361</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_18</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_15">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>361</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_18</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_19">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>361</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME19">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>361</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG18">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>345</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC">
+    <property name="geometry">
+     <rect>
+      <x>249</x>
+      <y>52</y>
+      <width>74</width>
+      <height>346</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">GraphName</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME18">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>345</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_14">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>345</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_17</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_13">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>345</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_17</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_18">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>345</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME18">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>345</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG17">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>328</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME17">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>328</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_12">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>330</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_16</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_11">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>330</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_16</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_17">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>328</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME17">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>328</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG16">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>312</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME16">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>312</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_10">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>314</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_15</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_9">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>314</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_15</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_16">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>312</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME16">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>312</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG15">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>296</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME15">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>296</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_8">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>299</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_14</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_7">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>299</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_14</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_15">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>296</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME15">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>296</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG14">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>280</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME14">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>280</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_6">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>283</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_13</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_5">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>283</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_13</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_14">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>280</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME14">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>280</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG13">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>263</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME13">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>263</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_4">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>267</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_12</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_3">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>267</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_12</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_13">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>263</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME13">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>263</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG12">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>247</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME12">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>247</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_2">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>250</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_11</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_1">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>250</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_11</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_12">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>247</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME12">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>247</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG11">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>231</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME11">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>231</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_OUT11">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>232</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_10</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_20">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>232</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_10</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_11">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>231</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME11">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>231</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG10">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>215</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME10">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>215</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_19">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>216</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_9</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_18">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>216</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_9</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_10">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>215</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME10">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>215</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG9">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>198</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME9">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>198</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_17">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>198</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_8</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_16">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>198</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_8</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_9">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>198</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME9">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>198</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG8">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>182</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME8">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>182</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_15">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>182</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_7</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_14">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>182</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_7</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_8">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>182</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME8">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>182</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG7">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>166</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME7">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>166</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_13">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>166</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_6</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_12">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>166</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_6</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_7">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>166</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME7">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>166</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG6">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>150</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME6">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>150</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_11">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>150</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_5</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_10">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>150</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_5</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_6">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>150</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME6">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>150</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG5">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>133</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME5">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>133</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_9">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>133</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_4</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_8">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>133</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_4</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_5">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>133</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME5">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>133</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG4">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>117</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME4">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>117</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_7">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>117</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_3</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_6">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>117</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_3</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_4">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>117</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME4">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>117</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG3">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>101</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME3">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>101</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_5">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>101</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_2</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_4">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>101</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_2</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_3">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>101</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME3">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>101</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG2">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>85</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME2">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>85</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_3">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>86</y>
+      <width>20</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_2">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>86</y>
+      <width>18</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_2">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>85</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME2">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>85</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GREDIT_OUTFLAG1">
+    <property name="geometry">
+     <rect>
+      <x>332</x>
+      <y>68</y>
+      <width>15</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_GRAPHNAME1">
+    <property name="geometry">
+     <rect>
+      <x>257</x>
+      <y>68</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD1_1">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>70</y>
+      <width>15</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_0</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_INP1">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>70</y>
+      <width>17</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_0</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_INP1_1">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>68</y>
+      <width>23</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_SFILENAME1">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>68</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_ADD_CHARACTERISTICS">
+    <property name="geometry">
+     <rect>
+      <x>386</x>
+      <y>120</y>
+      <width>59</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Add</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDCANCEL">
+    <property name="geometry">
+     <rect>
+      <x>386</x>
+      <y>91</y>
+      <width>59</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Cancel</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDOK">
+    <property name="geometry">
+     <rect>
+      <x>386</x>
+      <y>62</y>
+      <width>59</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="default">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string notr="true">OK</string>
+    </property>
+   </widget>
+ </widget>
+ <resources/>
+ <connections/>
+ <tabstops>
+  <tabstop>IDOK</tabstop>
+  <tabstop>IDCANCEL</tabstop>
+  <tabstop>IDC_ADD_CHARACTERISTICS</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME1</tabstop>
+  <tabstop>IDC_GREDIT_INP1_1</tabstop>
+  <tabstop>IDC_INP1</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_1</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME1</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG1</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME2</tabstop>
+  <tabstop>IDC_GREDIT_INP1_2</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_2</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_3</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME2</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG2</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME3</tabstop>
+  <tabstop>IDC_GREDIT_INP1_3</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_4</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_5</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME3</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG3</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME4</tabstop>
+  <tabstop>IDC_GREDIT_INP1_4</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_6</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_7</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME4</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG4</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME5</tabstop>
+  <tabstop>IDC_GREDIT_INP1_5</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_8</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_9</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME5</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG5</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME6</tabstop>
+  <tabstop>IDC_GREDIT_INP1_6</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_10</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_11</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME6</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG6</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME7</tabstop>
+  <tabstop>IDC_GREDIT_INP1_7</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_12</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_13</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME7</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG7</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME8</tabstop>
+  <tabstop>IDC_GREDIT_INP1_8</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_14</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_15</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME8</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG8</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME9</tabstop>
+  <tabstop>IDC_GREDIT_INP1_9</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_16</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_17</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME9</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG9</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME10</tabstop>
+  <tabstop>IDC_GREDIT_INP1_10</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_18</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_19</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME10</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG10</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME11</tabstop>
+  <tabstop>IDC_GREDIT_INP1_11</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_20</tabstop>
+  <tabstop>IDC_OUT11</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME11</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG11</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME12</tabstop>
+  <tabstop>IDC_GREDIT_INP1_12</tabstop>
+  <tabstop>IDC_GREDIT_INP2_1</tabstop>
+  <tabstop>IDC_GREDIT_INP2_2</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME12</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG12</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME13</tabstop>
+  <tabstop>IDC_GREDIT_INP1_13</tabstop>
+  <tabstop>IDC_GREDIT_INP2_3</tabstop>
+  <tabstop>IDC_GREDIT_INP2_4</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME13</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG13</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME14</tabstop>
+  <tabstop>IDC_GREDIT_INP1_14</tabstop>
+  <tabstop>IDC_GREDIT_INP2_5</tabstop>
+  <tabstop>IDC_GREDIT_INP2_6</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME14</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG14</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME15</tabstop>
+  <tabstop>IDC_GREDIT_INP1_15</tabstop>
+  <tabstop>IDC_GREDIT_INP2_7</tabstop>
+  <tabstop>IDC_GREDIT_INP2_8</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME15</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG15</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME16</tabstop>
+  <tabstop>IDC_GREDIT_INP1_16</tabstop>
+  <tabstop>IDC_GREDIT_INP2_9</tabstop>
+  <tabstop>IDC_GREDIT_INP2_10</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME16</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG16</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME17</tabstop>
+  <tabstop>IDC_GREDIT_INP1_17</tabstop>
+  <tabstop>IDC_GREDIT_INP2_11</tabstop>
+  <tabstop>IDC_GREDIT_INP2_12</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME17</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG17</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME18</tabstop>
+  <tabstop>IDC_GREDIT_INP1_18</tabstop>
+  <tabstop>IDC_GREDIT_INP2_13</tabstop>
+  <tabstop>IDC_GREDIT_INP2_14</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME18</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG18</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME19</tabstop>
+  <tabstop>IDC_GREDIT_INP1_19</tabstop>
+  <tabstop>IDC_GREDIT_INP2_15</tabstop>
+  <tabstop>IDC_GREDIT_INP2_16</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME19</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG19</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME20</tabstop>
+  <tabstop>IDC_GREDIT_INP1_20</tabstop>
+  <tabstop>IDC_GREDIT_INP2_17</tabstop>
+  <tabstop>IDC_GREDIT_INP2_18</tabstop>
+  <tabstop>IDC_GREDIT_GRAPHNAME20</tabstop>
+  <tabstop>IDC_GREDIT_OUTFLAG20</tabstop>
+  <tabstop>IDC_GREDIT_DOCFILENAME</tabstop>
+ </tabstops>
+ <buttongroups>
+  <buttongroup name="buttonGroup_0"/>
+  <buttongroup name="buttonGroup_1"/>
+  <buttongroup name="buttonGroup_10"/>
+  <buttongroup name="buttonGroup_11"/>
+  <buttongroup name="buttonGroup_12"/>
+  <buttongroup name="buttonGroup_13"/>
+  <buttongroup name="buttonGroup_14"/>
+  <buttongroup name="buttonGroup_15"/>
+  <buttongroup name="buttonGroup_16"/>
+  <buttongroup name="buttonGroup_17"/>
+  <buttongroup name="buttonGroup_18"/>
+  <buttongroup name="buttonGroup_19"/>
+  <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup_4"/>
+  <buttongroup name="buttonGroup_5"/>
+  <buttongroup name="buttonGroup_6"/>
+  <buttongroup name="buttonGroup_7"/>
+  <buttongroup name="buttonGroup_8"/>
+  <buttongroup name="buttonGroup_9"/>
+ </buttongroups>
+</ui>

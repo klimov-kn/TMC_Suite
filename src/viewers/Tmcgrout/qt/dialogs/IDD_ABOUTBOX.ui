@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Файл создан tools/rc2ui.py из ресурсов Windows-версии. Не править вручную. -->
+<ui version="4.0">
+ <class>IDD_ABOUTBOX</class>
+ <widget class="QDialog" name="IDD_ABOUTBOX">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>351</width>
+    <height>115</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>351</width>
+    <height>115</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>351</width>
+    <height>115</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">About  Tamic S-matrix Viewer</string>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
+   <widget class="QLabel" name="IDC_TMC_DOCLINK">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>91</y>
+      <width>255</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_5">
+    <property name="geometry">
+     <rect>
+      <x>77</x>
+      <y>62</y>
+      <width>159</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">www.tamic.ru</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_4">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>26</y>
+      <width>60</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Version 5.1</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDOK">
+    <property name="geometry">
+     <rect>
+      <x>269</x>
+      <y>52</y>
+      <width>68</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="default">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string notr="true">OK</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_3">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>44</y>
+      <width>188</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Copyright © 2001-2005 Tamic_soft group</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_2">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>8</y>
+      <width>270</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">S-matrix Output Characteristics Viewer </string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC">
+    <property name="geometry">
+     <rect>
+      <x>17</x>
+      <y>28</y>
+      <width>30</width>
+      <height>33</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+ </widget>
+ <resources/>
+ <connections/>
+ <tabstops>
+  <tabstop>IDOK</tabstop>
+ </tabstops>
+</ui>

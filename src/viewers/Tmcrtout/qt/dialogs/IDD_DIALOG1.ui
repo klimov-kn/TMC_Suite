@@ -1,0 +1,729 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Файл создан tools/rc2ui.py из ресурсов Windows-версии. Не править вручную. -->
+<ui version="4.0">
+ <class>IDD_DIALOG1</class>
+ <widget class="QDialog" name="IDD_DIALOG1">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>425</width>
+    <height>297</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>425</width>
+    <height>297</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>425</width>
+    <height>297</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Viewport</string>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
+   <widget class="QCheckBox" name="IDC_GRPAR_POINTFLAG2">
+    <property name="geometry">
+     <rect>
+      <x>278</x>
+      <y>200</y>
+      <width>54</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Reduct</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDOK7">
+    <property name="geometry">
+     <rect>
+      <x>348</x>
+      <y>119</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Graphics</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_14">
+    <property name="geometry">
+     <rect>
+      <x>198</x>
+      <y>180</y>
+      <width>138</width>
+      <height>75</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Point</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_13">
+    <property name="geometry">
+     <rect>
+      <x>216</x>
+      <y>231</y>
+      <width>47</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Point Size</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GRPAR_POINTSIZE">
+    <property name="geometry">
+     <rect>
+      <x>267</x>
+      <y>229</y>
+      <width>47</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ID_FORMATDEFAULTBUTTON">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>198</y>
+      <width>119</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Default Grid Format</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_12">
+    <property name="geometry">
+     <rect>
+      <x>14</x>
+      <y>172</y>
+      <width>41</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Format</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GRPAR_YFORMAT">
+    <property name="geometry">
+     <rect>
+      <x>54</x>
+      <y>171</y>
+      <width>75</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_11">
+    <property name="geometry">
+     <rect>
+      <x>14</x>
+      <y>83</y>
+      <width>41</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Format</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GRPAR_XFORMAT">
+    <property name="geometry">
+     <rect>
+      <x>54</x>
+      <y>81</y>
+      <width>75</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_10">
+    <property name="geometry">
+     <rect>
+      <x>344</x>
+      <y>2</y>
+      <width>74</width>
+      <height>143</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Color</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_9">
+    <property name="geometry">
+     <rect>
+      <x>221</x>
+      <y>24</y>
+      <width>98</width>
+      <height>122</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Y-scale</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_8">
+    <property name="geometry">
+     <rect>
+      <x>155</x>
+      <y>24</y>
+      <width>68</width>
+      <height>122</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">X-scale</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_7">
+    <property name="geometry">
+     <rect>
+      <x>138</x>
+      <y>2</y>
+      <width>194</width>
+      <height>167</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Graphics type</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_6">
+    <property name="geometry">
+     <rect>
+      <x>48</x>
+      <y>150</y>
+      <width>33</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Y min</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_5">
+    <property name="geometry">
+     <rect>
+      <x>47</x>
+      <y>132</y>
+      <width>33</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Y max</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_4">
+    <property name="geometry">
+     <rect>
+      <x>48</x>
+      <y>60</y>
+      <width>33</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">X min</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_3">
+    <property name="geometry">
+     <rect>
+      <x>48</x>
+      <y>42</y>
+      <width>33</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">X max</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_2">
+    <property name="geometry">
+     <rect>
+      <x>5</x>
+      <y>3</y>
+      <width>129</width>
+      <height>223</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Graphics window size</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC">
+    <property name="geometry">
+     <rect>
+      <x>6</x>
+      <y>247</y>
+      <width>330</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">S-matrix output characteristics file name</string>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="IDC_GRPAR_DATFILENAME">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>263</y>
+      <width>321</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="lineWrapMode">
+     <enum>QPlainTextEdit::NoWrap</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDCANCEL">
+    <property name="geometry">
+     <rect>
+      <x>342</x>
+      <y>273</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Cancel</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDOK">
+    <property name="geometry">
+     <rect>
+      <x>342</x>
+      <y>242</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="default">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string notr="true">OK</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDOK2">
+    <property name="geometry">
+     <rect>
+      <x>348</x>
+      <y>151</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Font</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDOK3">
+    <property name="geometry">
+     <rect>
+      <x>348</x>
+      <y>94</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Point</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDOK5">
+    <property name="geometry">
+     <rect>
+      <x>348</x>
+      <y>70</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Axies</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDOK4">
+    <property name="geometry">
+     <rect>
+      <x>348</x>
+      <y>46</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Grid</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDOK6">
+    <property name="geometry">
+     <rect>
+      <x>348</x>
+      <y>23</y>
+      <width>66</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Background</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_SFILENAME6">
+    <property name="geometry">
+     <rect>
+      <x>227</x>
+      <y>127</y>
+      <width>66</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">L dB</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_2</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_SFILENAME4">
+    <property name="geometry">
+     <rect>
+      <x>227</x>
+      <y>111</y>
+      <width>66</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">WSVR</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_2</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_SFILENAME3">
+    <property name="geometry">
+     <rect>
+      <x>227</x>
+      <y>93</y>
+      <width>86</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Phase gradus</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_2</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_SFILENAME5">
+    <property name="geometry">
+     <rect>
+      <x>227</x>
+      <y>75</y>
+      <width>83</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Phase rad</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_2</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_SFILENAME2">
+    <property name="geometry">
+     <rect>
+      <x>227</x>
+      <y>57</y>
+      <width>72</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Amplitude </string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_2</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GRPAR_YSKSV1">
+    <property name="geometry">
+     <rect>
+      <x>227</x>
+      <y>41</y>
+      <width>53</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Signal</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_2</string>
+   </attribute>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GRPAR_POINTFLAG">
+    <property name="geometry">
+     <rect>
+      <x>203</x>
+      <y>200</y>
+      <width>68</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">DrawPoint </string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GRPAR_XINHZ3">
+    <property name="geometry">
+     <rect>
+      <x>161</x>
+      <y>122</y>
+      <width>45</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">sec</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GRPAR_XINHZ2">
+    <property name="geometry">
+     <rect>
+      <x>161</x>
+      <y>106</y>
+      <width>45</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">msec</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GRPAR_XINHZ">
+    <property name="geometry">
+     <rect>
+      <x>161</x>
+      <y>91</y>
+      <width>45</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">mksec</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GRPAR_XINKHZ">
+    <property name="geometry">
+     <rect>
+      <x>161</x>
+      <y>75</y>
+      <width>45</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">nsec</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GRPAR_XINMHZ">
+    <property name="geometry">
+     <rect>
+      <x>161</x>
+      <y>59</y>
+      <width>47</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">psec</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GRPAR_XINGHZ">
+    <property name="geometry">
+     <rect>
+      <x>161</x>
+      <y>42</y>
+      <width>45</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">nT</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_1</string>
+   </attribute>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GRPAR_YMIN">
+    <property name="geometry">
+     <rect>
+      <x>83</x>
+      <y>148</y>
+      <width>47</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GRPAR_YMAX">
+    <property name="geometry">
+     <rect>
+      <x>83</x>
+      <y>128</y>
+      <width>47</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GRPAR_AYSFLAG">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>109</y>
+      <width>120</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Automatic YSize Flag </string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GRPAR_XMIN">
+    <property name="geometry">
+     <rect>
+      <x>83</x>
+      <y>59</y>
+      <width>47</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GRPAR_XMAX">
+    <property name="geometry">
+     <rect>
+      <x>83</x>
+      <y>39</y>
+      <width>47</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="IDC_GRPAR_AXSFLAG">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>20</y>
+      <width>120</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Automatic XSize Flag </string>
+    </property>
+   </widget>
+ </widget>
+ <resources/>
+ <connections/>
+ <tabstops>
+  <tabstop>IDC_GRPAR_AXSFLAG</tabstop>
+  <tabstop>IDC_GRPAR_XMAX</tabstop>
+  <tabstop>IDC_GRPAR_XMIN</tabstop>
+  <tabstop>IDC_GRPAR_AYSFLAG</tabstop>
+  <tabstop>IDC_GRPAR_YMAX</tabstop>
+  <tabstop>IDC_GRPAR_YMIN</tabstop>
+  <tabstop>IDC_GRPAR_XINGHZ</tabstop>
+  <tabstop>IDC_GRPAR_XINMHZ</tabstop>
+  <tabstop>IDC_GRPAR_XINKHZ</tabstop>
+  <tabstop>IDC_GRPAR_XINHZ</tabstop>
+  <tabstop>IDC_GRPAR_XINHZ2</tabstop>
+  <tabstop>IDC_GRPAR_XINHZ3</tabstop>
+  <tabstop>IDC_GRPAR_POINTFLAG</tabstop>
+  <tabstop>IDC_GRPAR_YSKSV1</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME2</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME5</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME3</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME4</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME6</tabstop>
+  <tabstop>IDOK6</tabstop>
+  <tabstop>IDOK4</tabstop>
+  <tabstop>IDOK5</tabstop>
+  <tabstop>IDOK3</tabstop>
+  <tabstop>IDOK2</tabstop>
+  <tabstop>IDOK</tabstop>
+  <tabstop>IDCANCEL</tabstop>
+  <tabstop>IDC_GRPAR_DATFILENAME</tabstop>
+  <tabstop>IDC_GRPAR_XFORMAT</tabstop>
+  <tabstop>IDC_GRPAR_YFORMAT</tabstop>
+  <tabstop>ID_FORMATDEFAULTBUTTON</tabstop>
+  <tabstop>IDC_GRPAR_POINTSIZE</tabstop>
+  <tabstop>IDOK7</tabstop>
+  <tabstop>IDC_GRPAR_POINTFLAG2</tabstop>
+ </tabstops>
+ <buttongroups>
+  <buttongroup name="buttonGroup_1"/>
+  <buttongroup name="buttonGroup_2"/>
+ </buttongroups>
+</ui>

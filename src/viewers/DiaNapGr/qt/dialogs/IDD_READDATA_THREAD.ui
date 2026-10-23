@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Файл создан tools/rc2ui.py из ресурсов Windows-версии. Не править вручную. -->
+<ui version="4.0">
+ <class>IDD_READDATA_THREAD</class>
+ <widget class="QDialog" name="IDD_READDATA_THREAD">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>605</width>
+    <height>146</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>605</width>
+    <height>146</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>605</width>
+    <height>146</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">PLEASE WAIT : Calculate data for draw directional pattern</string>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
+   <widget class="QLineEdit" name="IDC_EDIT_NUMBEMITTERS">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>16</y>
+      <width>51</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_7">
+    <property name="geometry">
+     <rect>
+      <x>153</x>
+      <y>16</y>
+      <width>66</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Number of emitters</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_6">
+    <property name="geometry">
+     <rect>
+      <x>17</x>
+      <y>16</y>
+      <width>68</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Directional Pattern</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GRPAR_DATFILENAME">
+    <property name="geometry">
+     <rect>
+      <x>138</x>
+      <y>67</y>
+      <width>36</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_EDIT_CURDIRPAT">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>16</y>
+      <width>42</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_5">
+    <property name="geometry">
+     <rect>
+      <x>17</x>
+      <y>67</y>
+      <width>108</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Number of Directional Pattern</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_EDIT_TIMEELAPS">
+    <property name="geometry">
+     <rect>
+      <x>128</x>
+      <y>114</y>
+      <width>116</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_4">
+    <property name="geometry">
+     <rect>
+      <x>17</x>
+      <y>114</y>
+      <width>89</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Elaps. Time:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATIC_3">
+    <property name="geometry">
+     <rect>
+      <x>198</x>
+      <y>67</y>
+      <width>72</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true">Already calculate:</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_2">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>93</y>
+      <width>582</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>41</y>
+      <width>582</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_EDIT2">
+    <property name="geometry">
+     <rect>
+      <x>296</x>
+      <y>67</y>
+      <width>54</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QProgressBar" name="IDC_PROGRESS2">
+    <property name="geometry">
+     <rect>
+      <x>356</x>
+      <y>68</y>
+      <width>237</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_EDIT1">
+    <property name="geometry">
+     <rect>
+      <x>296</x>
+      <y>16</y>
+      <width>54</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QProgressBar" name="IDC_PROGRESS1">
+    <property name="geometry">
+     <rect>
+      <x>356</x>
+      <y>18</y>
+      <width>237</width>
+      <height>15</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDCANCEL">
+    <property name="geometry">
+     <rect>
+      <x>518</x>
+      <y>117</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Hide</string>
+    </property>
+   </widget>
+ </widget>
+ <resources/>
+ <connections/>
+ <tabstops>
+  <tabstop>IDCANCEL</tabstop>
+  <tabstop>IDC_EDIT1</tabstop>
+  <tabstop>IDC_EDIT2</tabstop>
+  <tabstop>IDC_EDIT_TIMEELAPS</tabstop>
+  <tabstop>IDC_EDIT_CURDIRPAT</tabstop>
+  <tabstop>IDC_GRPAR_DATFILENAME</tabstop>
+  <tabstop>IDC_EDIT_NUMBEMITTERS</tabstop>
+ </tabstops>
+</ui>

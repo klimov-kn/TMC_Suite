@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Файл создан tools/rc2ui.py из ресурсов Windows-версии. Не править вручную. -->
+<ui version="4.0">
+ <class>IDD_DIALOGCALCDEVIAT</class>
+ <widget class="QDialog" name="IDD_DIALOGCALCDEVIAT">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>440</width>
+    <height>218</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>440</width>
+    <height>218</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>440</width>
+    <height>218</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Calculate deviation directional pattern</string>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
+   <widget class="QPushButton" name="IDC_GREDIT_MOD2_5">
+    <property name="geometry">
+     <rect>
+      <x>374</x>
+      <y>21</y>
+      <width>54</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_MOD2_4">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>21</y>
+      <width>363</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_3">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>429</width>
+      <height>55</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">File with Distribution Amplitude and Faza</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_MOD2_9">
+    <property name="geometry">
+     <rect>
+      <x>374</x>
+      <y>138</y>
+      <width>54</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_MOD2_8">
+    <property name="geometry">
+     <rect>
+      <x>374</x>
+      <y>80</y>
+      <width>54</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_MOD2_7">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>138</y>
+      <width>363</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC_2">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>117</y>
+      <width>429</width>
+      <height>55</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">File name for save Deviation Directional Pattern</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="IDC_GREDIT_MOD2_6">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>80</y>
+      <width>363</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>59</y>
+      <width>429</width>
+      <height>55</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">File with requred Directional Pattern</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDCANCEL">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>182</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Cancel</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDOK">
+    <property name="geometry">
+     <rect>
+      <x>147</x>
+      <y>182</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="default">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string notr="true">OK</string>
+    </property>
+   </widget>
+ </widget>
+ <resources/>
+ <connections/>
+ <tabstops>
+  <tabstop>IDOK</tabstop>
+  <tabstop>IDCANCEL</tabstop>
+  <tabstop>IDC_GREDIT_MOD2_6</tabstop>
+  <tabstop>IDC_GREDIT_MOD2_7</tabstop>
+  <tabstop>IDC_GREDIT_MOD2_8</tabstop>
+  <tabstop>IDC_GREDIT_MOD2_9</tabstop>
+  <tabstop>IDC_GREDIT_MOD2_4</tabstop>
+  <tabstop>IDC_GREDIT_MOD2_5</tabstop>
+ </tabstops>
+</ui>

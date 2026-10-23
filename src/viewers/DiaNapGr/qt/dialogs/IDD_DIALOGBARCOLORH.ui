@@ -1,0 +1,564 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Файл создан tools/rc2ui.py из ресурсов Windows-версии. Не править вручную. -->
+<ui version="4.0">
+ <class>IDD_DIALOGBARCOLORH</class>
+ <widget class="QDialog" name="IDD_DIALOGBARCOLORH">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>123</width>
+    <height>449</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>123</width>
+    <height>449</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>123</width>
+    <height>449</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Graphics parameters</string>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
+   <widget class="QPushButton" name="IDOK2">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>362</y>
+      <width>65</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Default</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_INP2_8">
+    <property name="geometry">
+     <rect>
+      <x>57</x>
+      <y>333</y>
+      <width>51</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_INP2_7">
+    <property name="geometry">
+     <rect>
+      <x>57</x>
+      <y>312</y>
+      <width>51</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_INP2_6">
+    <property name="geometry">
+     <rect>
+      <x>57</x>
+      <y>289</y>
+      <width>51</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_INP2_5">
+    <property name="geometry">
+     <rect>
+      <x>57</x>
+      <y>268</y>
+      <width>51</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_INP2_4">
+    <property name="geometry">
+     <rect>
+      <x>57</x>
+      <y>247</y>
+      <width>51</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_INP2_3">
+    <property name="geometry">
+     <rect>
+      <x>57</x>
+      <y>226</y>
+      <width>51</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_INP2_2">
+    <property name="geometry">
+     <rect>
+      <x>57</x>
+      <y>206</y>
+      <width>51</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_INP2_1">
+    <property name="geometry">
+     <rect>
+      <x>57</x>
+      <y>187</y>
+      <width>51</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_OUT11">
+    <property name="geometry">
+     <rect>
+      <x>57</x>
+      <y>166</y>
+      <width>51</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_MOD1_20">
+    <property name="geometry">
+     <rect>
+      <x>57</x>
+      <y>145</y>
+      <width>51</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_MOD1_19">
+    <property name="geometry">
+     <rect>
+      <x>57</x>
+      <y>124</y>
+      <width>51</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_MOD1_18">
+    <property name="geometry">
+     <rect>
+      <x>57</x>
+      <y>102</y>
+      <width>51</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_MOD1_17">
+    <property name="geometry">
+     <rect>
+      <x>57</x>
+      <y>80</y>
+      <width>51</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_MOD1_15">
+    <property name="geometry">
+     <rect>
+      <x>57</x>
+      <y>59</y>
+      <width>51</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_MOD1_14">
+    <property name="geometry">
+     <rect>
+      <x>57</x>
+      <y>37</y>
+      <width>51</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDOK">
+    <property name="geometry">
+     <rect>
+      <x>24</x>
+      <y>392</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="default">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string notr="true">OK</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_MOD1_13">
+    <property name="geometry">
+     <rect>
+      <x>57</x>
+      <y>16</y>
+      <width>51</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Change</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDCANCEL">
+    <property name="geometry">
+     <rect>
+      <x>24</x>
+      <y>418</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Cancel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GREDIT_SFILENAME3">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>335</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GRPAR_YSKSV1">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>314</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GREDIT_XVALUE11">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>291</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GRPAR_XINHZ3">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>270</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GRPAR_XINHZ">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>249</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GRPAR_XINKHZ">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>228</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GRPAR_XINMHZ">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>208</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GRPAR_XINGHZ">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>189</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GREDIT_XVALUE3">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>167</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GREDIT_XVALUE2">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>146</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_EXPORT_CHARACTERISTICS">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>125</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_ADD_CHARACTERISTICS">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>104</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GREDIT_DOCFILENAME">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>81</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GREDIT_OUTFLAG1">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>60</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GREDIT_SFILENAME1">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>39</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_STATICLEVEL1">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>18</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+ </widget>
+ <resources/>
+ <connections/>
+ <tabstops>
+  <tabstop>IDCANCEL</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_13</tabstop>
+  <tabstop>IDOK</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_14</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_15</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_17</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_18</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_19</tabstop>
+  <tabstop>IDC_GREDIT_MOD1_20</tabstop>
+  <tabstop>IDC_OUT11</tabstop>
+  <tabstop>IDC_GREDIT_INP2_1</tabstop>
+  <tabstop>IDC_GREDIT_INP2_2</tabstop>
+  <tabstop>IDC_GREDIT_INP2_3</tabstop>
+  <tabstop>IDC_GREDIT_INP2_4</tabstop>
+  <tabstop>IDC_GREDIT_INP2_5</tabstop>
+  <tabstop>IDC_GREDIT_INP2_6</tabstop>
+  <tabstop>IDC_GREDIT_INP2_7</tabstop>
+  <tabstop>IDC_GREDIT_INP2_8</tabstop>
+  <tabstop>IDOK2</tabstop>
+ </tabstops>
+</ui>

@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Файл создан tools/rc2ui.py из ресурсов Windows-версии. Не править вручную. -->
+<ui version="4.0">
+ <class>IDD_DIALOGGRPARALL</class>
+ <widget class="QDialog" name="IDD_DIALOGGRPARALL">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>390</width>
+    <height>141</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>390</width>
+    <height>141</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>390</width>
+    <height>141</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Graphics parameters</string>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
+   <widget class="QGroupBox" name="IDC_STATIC_2">
+    <property name="geometry">
+     <rect>
+      <x>168</x>
+      <y>5</y>
+      <width>129</width>
+      <height>125</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Width</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_SFILENAME14">
+    <property name="geometry">
+     <rect>
+      <x>239</x>
+      <y>111</y>
+      <width>50</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_6</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_SFILENAME13">
+    <property name="geometry">
+     <rect>
+      <x>239</x>
+      <y>88</y>
+      <width>50</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_6</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_SFILENAME12">
+    <property name="geometry">
+     <rect>
+      <x>239</x>
+      <y>65</y>
+      <width>50</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_6</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_SFILENAME11">
+    <property name="geometry">
+     <rect>
+      <x>239</x>
+      <y>44</y>
+      <width>50</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_6</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_SFILENAME10">
+    <property name="geometry">
+     <rect>
+      <x>239</x>
+      <y>24</y>
+      <width>50</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_6</string>
+   </attribute>
+   </widget>
+   <widget class="QLabel" name="IDC_GRPAR_XINKHZ">
+    <property name="geometry">
+     <rect>
+      <x>174</x>
+      <y>112</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GRPAR_XINMHZ">
+    <property name="geometry">
+     <rect>
+      <x>174</x>
+      <y>89</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GRPAR_XINGHZ">
+    <property name="geometry">
+     <rect>
+      <x>174</x>
+      <y>68</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GREDIT_XVALUE3">
+    <property name="geometry">
+     <rect>
+      <x>174</x>
+      <y>47</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GREDIT_XVALUE2">
+    <property name="geometry">
+     <rect>
+      <x>174</x>
+      <y>26</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="IDC_STATIC">
+    <property name="geometry">
+     <rect>
+      <x>2</x>
+      <y>5</y>
+      <width>159</width>
+      <height>125</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string notr="true">Style</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_SFILENAME9">
+    <property name="geometry">
+     <rect>
+      <x>72</x>
+      <y>111</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">DashDotDot</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_4</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD2_2">
+    <property name="geometry">
+     <rect>
+      <x>72</x>
+      <y>88</y>
+      <width>80</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">DashDot</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_4</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_MOD2_1">
+    <property name="geometry">
+     <rect>
+      <x>72</x>
+      <y>65</y>
+      <width>77</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Dot</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_4</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_RADIO2">
+    <property name="geometry">
+     <rect>
+      <x>72</x>
+      <y>44</y>
+      <width>78</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Dash</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_4</string>
+   </attribute>
+   </widget>
+   <widget class="QRadioButton" name="IDC_GREDIT_INP2_20">
+    <property name="geometry">
+     <rect>
+      <x>72</x>
+      <y>24</y>
+      <width>80</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Solid</string>
+    </property>
+   <attribute name="buttonGroup">
+    <string>buttonGroup_4</string>
+   </attribute>
+   </widget>
+   <widget class="QLabel" name="IDC_EXPORT_CHARACTERISTICS">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>112</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_ADD_CHARACTERISTICS">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>89</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GREDIT_DOCFILENAME">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>68</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GREDIT_OUTFLAG1">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>47</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IDC_GREDIT_SFILENAME1">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>26</y>
+      <width>26</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="text">
+     <string notr="true"></string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDC_GREDIT_SFILENAME2">
+    <property name="geometry">
+     <rect>
+      <x>317</x>
+      <y>29</y>
+      <width>51</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Color</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDCANCEL">
+    <property name="geometry">
+     <rect>
+      <x>305</x>
+      <y>83</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Cancel</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IDOK">
+    <property name="geometry">
+     <rect>
+      <x>305</x>
+      <y>57</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="default">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string notr="true">OK</string>
+    </property>
+   </widget>
+ </widget>
+ <resources/>
+ <connections/>
+ <tabstops>
+  <tabstop>IDOK</tabstop>
+  <tabstop>IDCANCEL</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME2</tabstop>
+  <tabstop>IDC_GREDIT_INP2_20</tabstop>
+  <tabstop>IDC_RADIO2</tabstop>
+  <tabstop>IDC_GREDIT_MOD2_1</tabstop>
+  <tabstop>IDC_GREDIT_MOD2_2</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME9</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME10</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME11</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME12</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME13</tabstop>
+  <tabstop>IDC_GREDIT_SFILENAME14</tabstop>
+ </tabstops>
+ <buttongroups>
+  <buttongroup name="buttonGroup_4"/>
+  <buttongroup name="buttonGroup_6"/>
+ </buttongroups>
+</ui>
