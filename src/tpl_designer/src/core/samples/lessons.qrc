@@ -1,0 +1,13 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <!-- Авторские учебные задания: лежат байт в байт как в TMC_Suite/samples (CP1251). -->
+    <qresource prefix="/lessons">
+        <file alias="LR1_wg.tpl">lessons/LR1_wg.tpl</file>
+        <file alias="LR1_rupor.tpl">lessons/LR1_rupor.tpl</file>
+        <file alias="LR2_plasma.tpl">lessons/LR2_plasma.tpl</file>
+        <file alias="LR2_rupor.tpl">lessons/LR2_rupor.tpl</file>
+        <file alias="demo_h.tpl">lessons/demo_h.tpl</file>
+        <file alias="demo_x.tpl">lessons/demo_x.tpl</file>
+        <file alias="horn_demo.tpl">lessons/horn_demo.tpl</file>
+    </qresource>
+</RCC>

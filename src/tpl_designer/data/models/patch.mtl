@@ -1,0 +1,12 @@
+newmtl Copper
+Kd 0.784 0.459 0.200
+
+newmtl FR-4
+Kd 0.243 0.490 0.227
+
+newmtl Copper
+Kd 0.851 0.627 0.400
+
+newmtl Copper
+Kd 0.851 0.627 0.400
+

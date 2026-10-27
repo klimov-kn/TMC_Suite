@@ -1,0 +1,37 @@
+// Ресурсы исполняемого файла для Windows.
+//
+// Иконку с наименьшим числовым идентификатором проводник показывает как значок .exe,
+// поэтому номер здесь именно 1 — иначе значок в списке файлов останется системным.
+// Сам файл рисует tools/make_icon.
+
+1 ICON "resources/app.ico"
+
+// Манифест приложения (RT_MANIFEST = 24, CREATEPROCESS_MANIFEST_RESOURCE_ID = 1).
+// Числами, а не именами: заголовков Windows здесь нет — windres в этом проекте
+// собирается без каталогов включения, см. пояснение в src/gui/CMakeLists.txt.
+1 24 "app.manifest"
+
+1 VERSIONINFO
+FILEVERSION    1,0,0,0
+PRODUCTVERSION 1,0,0,0
+FILEOS         0x40004L
+FILETYPE       0x1L
+{
+    BLOCK "StringFileInfo"
+    {
+        // 0419 — русский, 04b0 — кодовая страница Unicode.
+        BLOCK "041904b0"
+        {
+            VALUE "FileDescription", "TPL Designer - generator zadaniy .tpl dlya TMC Suite"
+            VALUE "FileVersion",     "1.0.0.0"
+            VALUE "InternalName",    "TplDesigner"
+            VALUE "OriginalFilename","TplDesigner.exe"
+            VALUE "ProductName",     "TPL Designer"
+            VALUE "ProductVersion",  "1.0.0.0"
+        }
+    }
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x419, 1200
+    }
+}

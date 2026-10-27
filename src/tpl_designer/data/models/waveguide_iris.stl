@@ -1,0 +1,686 @@
+solid Узкая стенка 1 (Медь)
+  facet normal 0 0 0
+    outer loop
+      vertex 0 -2 -2
+      vertex 0 0 -2
+      vertex 200 0 -2
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 -2 -2
+      vertex 200 0 -2
+      vertex 200 -2 -2
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 -2 32
+      vertex 200 -2 32
+      vertex 200 0 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 -2 32
+      vertex 200 0 32
+      vertex 0 0 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 -2 -2
+      vertex 200 -2 -2
+      vertex 200 -2 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 -2 -2
+      vertex 200 -2 32
+      vertex 0 -2 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 200 -2 -2
+      vertex 200 0 -2
+      vertex 200 0 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 200 -2 -2
+      vertex 200 0 32
+      vertex 200 -2 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 200 0 -2
+      vertex 0 0 -2
+      vertex 0 0 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 200 0 -2
+      vertex 0 0 32
+      vertex 200 0 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 0 -2
+      vertex 0 -2 -2
+      vertex 0 -2 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 0 -2
+      vertex 0 -2 32
+      vertex 0 0 32
+    endloop
+  endfacet
+endsolid Узкая стенка 1 (Медь)
+solid Узкая стенка 2 (Медь)
+  facet normal 0 0 0
+    outer loop
+      vertex 0 60 -2
+      vertex 0 62 -2
+      vertex 200 62 -2
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 60 -2
+      vertex 200 62 -2
+      vertex 200 60 -2
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 60 32
+      vertex 200 60 32
+      vertex 200 62 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 60 32
+      vertex 200 62 32
+      vertex 0 62 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 60 -2
+      vertex 200 60 -2
+      vertex 200 60 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 60 -2
+      vertex 200 60 32
+      vertex 0 60 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 200 60 -2
+      vertex 200 62 -2
+      vertex 200 62 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 200 60 -2
+      vertex 200 62 32
+      vertex 200 60 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 200 62 -2
+      vertex 0 62 -2
+      vertex 0 62 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 200 62 -2
+      vertex 0 62 32
+      vertex 200 62 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 62 -2
+      vertex 0 60 -2
+      vertex 0 60 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 62 -2
+      vertex 0 60 32
+      vertex 0 62 32
+    endloop
+  endfacet
+endsolid Узкая стенка 2 (Медь)
+solid Широкая стенка низ (Медь)
+  facet normal 0 0 0
+    outer loop
+      vertex 0 0 -2
+      vertex 0 60 -2
+      vertex 200 60 -2
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 0 -2
+      vertex 200 60 -2
+      vertex 200 0 -2
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 0 0
+      vertex 200 0 0
+      vertex 200 60 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 0 0
+      vertex 200 60 0
+      vertex 0 60 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 0 -2
+      vertex 200 0 -2
+      vertex 200 0 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 0 -2
+      vertex 200 0 0
+      vertex 0 0 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 200 0 -2
+      vertex 200 60 -2
+      vertex 200 60 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 200 0 -2
+      vertex 200 60 0
+      vertex 200 0 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 200 60 -2
+      vertex 0 60 -2
+      vertex 0 60 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 200 60 -2
+      vertex 0 60 0
+      vertex 200 60 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 60 -2
+      vertex 0 0 -2
+      vertex 0 0 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 60 -2
+      vertex 0 0 0
+      vertex 0 60 0
+    endloop
+  endfacet
+endsolid Широкая стенка низ (Медь)
+solid Широкая стенка верх (Медь)
+  facet normal 0 0 0
+    outer loop
+      vertex 0 0 30
+      vertex 0 60 30
+      vertex 200 60 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 0 30
+      vertex 200 60 30
+      vertex 200 0 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 0 32
+      vertex 200 0 32
+      vertex 200 60 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 0 32
+      vertex 200 60 32
+      vertex 0 60 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 0 30
+      vertex 200 0 30
+      vertex 200 0 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 0 30
+      vertex 200 0 32
+      vertex 0 0 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 200 0 30
+      vertex 200 60 30
+      vertex 200 60 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 200 0 30
+      vertex 200 60 32
+      vertex 200 0 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 200 60 30
+      vertex 0 60 30
+      vertex 0 60 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 200 60 30
+      vertex 0 60 32
+      vertex 200 60 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 60 30
+      vertex 0 0 30
+      vertex 0 0 32
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 0 60 30
+      vertex 0 0 32
+      vertex 0 60 32
+    endloop
+  endfacet
+endsolid Широкая стенка верх (Медь)
+solid Диафрагма левая (Медь)
+  facet normal 0 0 0
+    outer loop
+      vertex 98 0 0
+      vertex 98 20 0
+      vertex 102 20 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 98 0 0
+      vertex 102 20 0
+      vertex 102 0 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 98 0 30
+      vertex 102 0 30
+      vertex 102 20 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 98 0 30
+      vertex 102 20 30
+      vertex 98 20 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 98 0 0
+      vertex 102 0 0
+      vertex 102 0 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 98 0 0
+      vertex 102 0 30
+      vertex 98 0 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 102 0 0
+      vertex 102 20 0
+      vertex 102 20 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 102 0 0
+      vertex 102 20 30
+      vertex 102 0 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 102 20 0
+      vertex 98 20 0
+      vertex 98 20 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 102 20 0
+      vertex 98 20 30
+      vertex 102 20 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 98 20 0
+      vertex 98 0 0
+      vertex 98 0 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 98 20 0
+      vertex 98 0 30
+      vertex 98 20 30
+    endloop
+  endfacet
+endsolid Диафрагма левая (Медь)
+solid Диафрагма правая (Медь)
+  facet normal 0 0 0
+    outer loop
+      vertex 98 40 0
+      vertex 98 60 0
+      vertex 102 60 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 98 40 0
+      vertex 102 60 0
+      vertex 102 40 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 98 40 30
+      vertex 102 40 30
+      vertex 102 60 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 98 40 30
+      vertex 102 60 30
+      vertex 98 60 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 98 40 0
+      vertex 102 40 0
+      vertex 102 40 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 98 40 0
+      vertex 102 40 30
+      vertex 98 40 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 102 40 0
+      vertex 102 60 0
+      vertex 102 60 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 102 40 0
+      vertex 102 60 30
+      vertex 102 40 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 102 60 0
+      vertex 98 60 0
+      vertex 98 60 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 102 60 0
+      vertex 98 60 30
+      vertex 102 60 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 98 60 0
+      vertex 98 40 0
+      vertex 98 40 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 98 60 0
+      vertex 98 40 30
+      vertex 98 60 30
+    endloop
+  endfacet
+endsolid Диафрагма правая (Медь)
+solid Вставка (PTFE)
+  facet normal 0 0 0
+    outer loop
+      vertex 130 10 0
+      vertex 170 10 0
+      vertex 170 10 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 130 10 0
+      vertex 170 10 30
+      vertex 130 10 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 148.333333333 28.3333333333 0
+      vertex 170 10 0
+      vertex 130 10 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 148.333333333 28.3333333333 30
+      vertex 130 10 30
+      vertex 170 10 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 170 10 0
+      vertex 170 25 0
+      vertex 170 25 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 170 10 0
+      vertex 170 25 30
+      vertex 170 10 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 148.333333333 28.3333333333 0
+      vertex 170 25 0
+      vertex 170 10 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 148.333333333 28.3333333333 30
+      vertex 170 10 30
+      vertex 170 25 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 170 25 0
+      vertex 145 25 0
+      vertex 145 25 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 170 25 0
+      vertex 145 25 30
+      vertex 170 25 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 148.333333333 28.3333333333 0
+      vertex 145 25 0
+      vertex 170 25 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 148.333333333 28.3333333333 30
+      vertex 170 25 30
+      vertex 145 25 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 145 25 0
+      vertex 145 50 0
+      vertex 145 50 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 145 25 0
+      vertex 145 50 30
+      vertex 145 25 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 148.333333333 28.3333333333 0
+      vertex 145 50 0
+      vertex 145 25 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 148.333333333 28.3333333333 30
+      vertex 145 25 30
+      vertex 145 50 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 145 50 0
+      vertex 130 50 0
+      vertex 130 50 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 145 50 0
+      vertex 130 50 30
+      vertex 145 50 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 148.333333333 28.3333333333 0
+      vertex 130 50 0
+      vertex 145 50 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 148.333333333 28.3333333333 30
+      vertex 145 50 30
+      vertex 130 50 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 130 50 0
+      vertex 130 10 0
+      vertex 130 10 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 130 50 0
+      vertex 130 10 30
+      vertex 130 50 30
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 148.333333333 28.3333333333 0
+      vertex 130 10 0
+      vertex 130 50 0
+    endloop
+  endfacet
+  facet normal 0 0 0
+    outer loop
+      vertex 148.333333333 28.3333333333 30
+      vertex 130 50 30
+      vertex 130 10 30
+    endloop
+  endfacet
+endsolid Вставка (PTFE)
