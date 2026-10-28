@@ -30,28 +30,19 @@
 #include <s_file.h>
 
 
-static FILE _far *sf = NULL;
-#ifndef _NDP2
-static char _far *FopenBuff;
-#endif
+static FILE *sf = NULL;
 static int nPS_Number;
 
 
-FILE   _far * _fortran Get_S_FILE( void ) { return( sf ); }
+FILE   * Get_S_FILE( void ) { return( sf ); }
 
-void   _far   _fortran Set_PS_Number( int nNum ) { nPS_Number = nNum; }
-int    _far   _fortran Get_PS_Number( void ) { return nPS_Number; }
+void   Set_PS_Number( int nNum ) { nPS_Number = nNum; }
+int    Get_PS_Number( void ) { return nPS_Number; }
 
-int _far _fortran Open_S_file( char _far *szFile, int nOpenMode )
+int Open_S_file( char *szFile, int nOpenMode )
  {
   if( (sf = fopen( szFile, (nOpenMode == S_RD)?"rb":( (get_current_frq_num() == 0)?"wb+":"rb+" ) )) != NULL )
    {
-#ifndef _NDP2
-    if( (FopenBuff = (char _far *)alloc_mem_err( (long)sizeof(char)*BUFSIZ )) != NULL )
-     {
-      setbuf( sf, FopenBuff );
-     }
-#endif
 
    }
   else
@@ -65,18 +56,15 @@ int _far _fortran Open_S_file( char _far *szFile, int nOpenMode )
 
 
 
-void _far _fortran Close_S_file( void )
+void Close_S_file( void )
  {
   fclose( sf );
   sf = NULL;
-#ifndef _NDP2
-  free_mem_null( &FopenBuff );
-#endif
  } /*end of Close_S_file routine*/
 
 
 
-int _far _fortran skip_string( void )
+int skip_string( void )
  {
   INT_1 length;                 /* string length*/
 
@@ -89,13 +77,13 @@ int _far _fortran skip_string( void )
 
 
 
-int _far _fortran write_S( void _far *ptr, size_t size )
+int write_S( void *ptr, size_t size )
  {
   return( (fwrite( ptr, size, 1, sf ) == 1)? 0:-1 );
   }
 
 
-int _far _fortran read_S( void _far *string, size_t size )
+int read_S( void *string, size_t size )
  {
   return( (fread( string, size, 1, sf ) == 1)? 0:-1);  /* reading string of given length*/
   }

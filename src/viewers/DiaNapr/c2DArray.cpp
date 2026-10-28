@@ -285,13 +285,6 @@ void c2DArray::ReadData()
 				return;
 			};
 		};
-//		if( (i+1) != j ) 
-//		{
-//			bIsError = TRUE;
-//			sprintf( szError, "Error when read emitter N %d from input data file %s", i, szFileName);
-//			fclose( fp );
-//			return;
-//		};
 		if( !_finite( x )||!_finite( y )||!_finite( a )||!_finite( f )||!_finite( dFiMin )||!_finite( dFiMax ) )	// S-53
 		{
 			bIsError = TRUE;
@@ -830,98 +823,6 @@ void c2DArray::NormirovkaDiagrNapr()
 	return;
 }
 
-#if 0	// B-12, old (the power squared once more for N <= 400; the coarse grid of the plot for N > 400)
-void c2DArray::NormirovkaDiagrNapr_Old()
-{
-	if( bIsError ) return;
-	if( (nAngle < 2)||( pdRealDN == NULL )||( pdImageDN == NULL ) ) return;
-
-	int i;
-	double x, y, r, r1, dAng, dStep;
-	double xKip, yKip, rKip, dMaxKip;
-	char szBuf1[TMC_C2DARRAY_MAX_STRING];
-	
-	if( !IsNormirovka )
-	{
-		IsNormirovka = TRUE;
-		if( IsCalculateKip() )
-		{
-			for( i = 0, dKip = dKnd = dMax = 0.0, dStep = 2*3.141592653589/(nAngle-1); i < nAngle; i++)
-			{
-				if( pdRealDN[ i ] > dMax ) dMax = pdRealDN[ i ];
-				if( !_finite( pdRealDN[ i ] ) ) dMax = -1.;	// S-53
-			};
-			if( !( dMax > DBL_MIN )||!_finite( dMax ) )	// S-53
-			{
-				bIsError = TRUE;
-				sprintf( szError, "Directional pattern is identically zero or not a finite number");
-				return;
-			};
-			for( i = 0; i < nAngle; i++)
-			{
-				dKnd += pdRealDN[ i ]*pdRealDN[ i ]*dStep;
-//				dKip += pdRealDN[ i ]*dStep;
-				pdRealDN[ i ] /= dMax;
-			};
-//			dKip = dKnd/2/(2*3.141592653589);
-			dKip = dKnd;
-			dKnd = (2*3.141592653589)*dMax*dMax/dKnd;
-			return;
-		};
-
-		for( i = 0, dAng = 0.0, dStep = 2*3.141592653589/(nPointForNormir-1), dMax = 0.0, dMaxKip = 0.0, dKnd = 0.0, dKip = 0.0; i < nPointForNormir; i++, dAng += dStep)
-		{
-			sprintf( szBuf1, "f=(%lg);", dAng);
-			if( i1nte_atof_1( szBuf1, &r1 ) != 0 )
-			{
-				bIsError = TRUE;
-				sprintf( szError, "Error when calculate expression for one Directional Pattern {%s}", expr_get_error());
-				return;
-			};
-			if( i1nte_atof_1( szOneExpression, &r1 ) != 0 )
-			{
-				bIsError = TRUE;
-				sprintf( szError, "Error when calculate expression for one Directional Pattern {%s}", expr_get_error());
-				return;
-			};
-			x = r1*CalculateRealDN( dAng );
-			y = r1*CalculateImageDN( dAng );
-			r = x*x + y*y;
-			dKnd += dStep*r;
-			if( r > dMax ) dMax = r;
-			
-			xKip = CalculateRealDN_ForKip( dAng );
-			yKip = CalculateImageDN_ForKip( dAng );
-			rKip = xKip*xKip + yKip*yKip;
-			dKip += dStep*rKip;
-			if( rKip > dMaxKip ) dMaxKip = rKip;
-		};
-
-		dKnd = 2*3.141592653589*dMax*dMax/dKnd;
-		
-		dKip = 2*3.141592653589*dMaxKip*dMaxKip/dKip;
-		dKip = dKnd/dKip;
-		
-		dMax = sqrt( dMax );
-		dMax *= 1.001;
-
-		if( !( dMax >= DBL_MIN )||!_finite( dMax ) )	// S-53: bylo molcha - Knd = nan
-		{
-			bIsError = TRUE;
-			sprintf( szError, "Directional pattern is identically zero or not a finite number");
-			return;
-		};
-	};
-
-	for( i = 0; i < nAngle; i++)
-	{
-		pdRealDN[ i ] /= dMax;
-	}
-
-	return;
-}
-
-#endif
 
 double c2DArray::GetdAngle(int i)
 {
@@ -994,51 +895,13 @@ int c2DArray::GetnIzl()
 	return nIzl;
 }
 
-void c2DArray::SetOneExpression(char *ch)
-{
-	if( bIsError ) return;
-	if( strlen(ch) >= TMC_C2DARRAY_MAX_STRING )
-	{
-		bIsError = TRUE;
-		sprintf( szError, "Error Lenght of expression >= %d", TMC_C2DARRAY_MAX_STRING);
-		return;
-	};
-
-	strcpy( szOneExpression, ch );
-
-	return;
-}
 
 char * c2DArray::GetOneExpression()
 {
 	return szOneExpression;
 }
 
-double c2DArray::GetRealIzl(int i)
-{
-	if( bIsError ) return 0.;
-	if( i < 0 ) return 0.;
-	if( nIzl <= i ) return 0.;
-	if( (nIzl < 1)||( pcIzl == NULL ) ) return 0.;
 
-	double a, f;
-	a = pcIzl[i].GetdAmplituda();
-	f = pcIzl[i].GetdFaza();
-	return a*cos(f);
-}
-
-double c2DArray::GetImageIzl(int i)
-{
-	if( bIsError ) return 0.;
-	if( i < 0 ) return 0.;
-	if( nIzl <= i ) return 0.;
-	if( (nIzl < 1)||( pcIzl == NULL ) ) return 0.;
-
-	double a, f;
-	a = pcIzl[i].GetdAmplituda();
-	f = pcIzl[i].GetdFaza();
-	return a*sin(f);
-}
 
 void c2DArray::OptimizationInit(char *szFileRequiDirPat, int nIzl1)
 {
@@ -1129,24 +992,6 @@ void c2DArray::SetIzl(int i, double dXcoord_mm, double dYcoord_mm, double dAmpli
 	return;
 }
 
-double c2DArray::GetOptimPurposeFunction()
-{
-	if( bIsError ) return 0.;
-
-	double d;
-	int i;
-
-	IsNormirovka = FALSE;
-	CalculateDiagrNapr();
-	if( bIsError ) return 0.;
-
-	for( i = 0, d = 0.; i < nAngle; i++)
-	{
-		d += fabs( pdRealDN[i] - pdRequiredDN[i] );
-	};
-
-	return d;
-}
 
 void c2DArray::SetszOneExpression(char *ch)
 {
@@ -1161,12 +1006,6 @@ void c2DArray::SetdFrequence( double dFrequenceGHz )
 	return;
 }
 
-void c2DArray::SetNPointForNormirovka(int nPoint)
-{
-	if( nPoint <= 0 ) return;
-	nPointForNormir = nPoint;
-	return;
-}
 
 void c2DArray::MakeDeviation(char *szSourceFile, char *szDistinationFile, double dXmm, double dYmm, double dAmplProcent, double dFazaDegree)
 {
@@ -1198,7 +1037,6 @@ void c2DArray::MakeDeviation(char *szSourceFile, char *szDistinationFile, double
 double c2DArray::GetRnd(double dMedium, double dDelta)
 {
 
-//   srand( (unsigned)time( NULL ) );
 
    double d;
 

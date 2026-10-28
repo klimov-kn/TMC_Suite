@@ -478,10 +478,6 @@ void Set_CommandLine_Flags( char *lpszCmdLine )
 	return;
 };
 
-CMainFrame* GetMainFramePointer__( void )
-{
-	return HwndMainFrame;
-};
 
 void SetMainFramePointer__( CMainFrame* HwndMainFrame1 )
 {
@@ -495,17 +491,7 @@ void SetBatchRunOn( void )
 	return;
 }
 
-void SetBatchRunOff( void )
-{
-	bBatchRunFlag = FALSE;
-	return;
-}
 
-void SwitchBatchRunFlag( void )
-{
-	bBatchRunFlag = !bBatchRunFlag;
-	return;
-}
 
 BOOL IsBatchRun( void )
 {

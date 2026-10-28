@@ -262,28 +262,6 @@ CFldViewView::CFldViewView()
 	if( nEpsType < 0 || nEpsType > 3 ) nEpsType = 0;
 	bReadBusy = FALSE;
 
-/*
-	pscSurfaceColor[  0 ] = RGB( 25,125, 225);
-	pscSurfaceColor[  1 ] = RGB( 50,100, 200);
-	pscSurfaceColor[  2 ] = RGB( 75, 75, 175);
-	pscSurfaceColor[  3 ] = RGB(100, 55, 150);
-	pscSurfaceColor[  4 ] = RGB(125, 25, 125);
-	pscSurfaceColor[  5 ] = RGB(150, 25, 125);
-	pscSurfaceColor[  6 ] = RGB(200, 25, 100);
-	pscSurfaceColor[  7 ] = RGB(225, 50, 100);
-	pscSurfaceColor[  8 ] = RGB(250, 75, 100);
-	pscSurfaceColor[  9 ] = RGB(225,100, 100);
-	pscSurfaceColor[ 10 ] = RGB(200,125,  75);
-	pscSurfaceColor[ 11 ] = RGB(175,150, 100);
-	pscSurfaceColor[ 12 ] = RGB(150,175, 125);
-	pscSurfaceColor[ 13 ] = RGB(125,200, 150);
-	pscSurfaceColor[ 14 ] = RGB(100,225, 175);
-	pscSurfaceColor[ 15 ] = RGB(100,250, 100);
-	pscSurfaceColor[ 16 ] = RGB(125,225, 125);
-	pscSurfaceColor[ 17 ] = RGB(225,225,  50);
-	pscSurfaceColor[ 18 ] = RGB(255,255,   0);
-	pscSurfaceColor[ 19 ] = RGB(255,255, 255);
-*/
 	for( i = 0; i < 7; i++ )
 	{
 		pscSurfaceColor[ i ] = RGB( 100, i*35, 255-i*35 );
@@ -350,7 +328,6 @@ void CFldViewView::OnDraw(CDC* pDC)
 		CString text;
 		text.Format( "Error : %s" , cError.GetErrorMessage() );
 		VTextOut( pDC, 10, 0,text);
-//		pDC->TextOut( 10,00,text);
 		return;
 	};
 
@@ -687,10 +664,7 @@ void CFldViewView::OnInitialUpdate()
 
 
 	GL_Init();
-//	LastWriteTime1 = pDoc->GetLastWriteFile();
 	SetTimer( 1, 50, NULL);
-//	if( !pDoc->IsFileRead() ) ReadData();
-//	else PrepareData();
 	ReadData();
 
 	return;
@@ -741,7 +715,6 @@ CFldViewDoc* CFldViewView::GetDocument() // non-debug version is inline
 
 void CFldViewView::GL_Init( void )
 {
-//	if( !(pDoc->GetDrawFlag()) ) return;
 	
 	GL_Close();
 
@@ -770,9 +743,6 @@ void CFldViewView::GL_Init( void )
 	fMaxObjSize = 3.0f;
 	m_fRadius = fNearPlane + fMaxObjSize / 2.0f;
 
-//	wTranslateX = (float)(-0.25);
-//	wTranslateY = (float)(-0.25);
-//	wTranslateZ = -m_fRadius;
 
 
     hrc = wglCreateContext(m_pDC->GetSafeHdc());
@@ -881,19 +851,16 @@ void CFldViewView::DrawScene( void )
 	if( bReadBusy ) return; // skip paint while ReadData rebuilds arrays (prevents use-after-free crash during live compute) (prevents use-after-free crash during live compute)
 	if( cError.IsError() ) 
 	{
-//		RedrawWindow();
 		return;
 	};
 
 	GL_Resize();
 
     wglMakeCurrent(m_pDC->GetSafeHdc(), hrc);
-//	glAlphaFunc( GL_GREATER , 0.5f );
 	glBlendFunc( GL_SRC_ALPHA , GL_ONE_MINUS_SRC_ALPHA );
 
 
 	glEnable( GL_POLYGON_STIPPLE );
-//	glEnable( GL_ALPHA_TEST );
 	glEnable( GL_BLEND );
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -920,7 +887,6 @@ void CFldViewView::DrawScene( void )
     SwapBuffers(wglGetCurrentDC());
 
 	glDisable( GL_BLEND );
-//	glDisable( GL_ALPHA_TEST );
 	glDisable( GL_POLYGON_STIPPLE );
 
 	return;
@@ -1213,7 +1179,6 @@ void CFldViewView::ReadData()
 		ASSERT_VALID(pDoc);
 		pDoc->ReadData();
 		cError = pDoc->cError;
-//		ReadTpl();
 		PrepareData();
 		PutStatistics1();
 		if( !cError.IsError() ) bIsDataAlredyRead = TRUE;
@@ -1396,9 +1361,6 @@ void CFldViewView::PrepareData()
 	{
 		for( j = 0; j < nX; j++, ii++ )
 		{
-//			pdSurface[ii]   = 2*((pdBuf[jj+j] - dZmin)/( dZmax - dZmin)-0.5);
-//			pdSurfaceX[ii]  = 2.5*((j*dDelta)/( dXmax - dXmin) - 0.4);
-//			pdSurfaceY[ii]  = 2.5*((i*dDelta)/( dYmax - dYmin) - 0.4);
 			pdSurface[ii]  = ZtoGLWinCoord( pdBuf[jj+j] );
 			pdSurfaceX[ii] = XtoGLWinCoord( j );
 			pdSurfaceY[ii] = YtoGLWinCoord( i );
@@ -1665,15 +1627,9 @@ void CFldViewView::SetColor( double z )
 	if( !bDrawFieldModulFlag )
 	{
 //		double z1, z2;
-//		if( fabs( dZmax ) > fabs( dZmin ) ) z1 = fabs( dZmax );
-//		else z1 = fabs( dZmin );
-//		if( fabs( dZmax ) < fabs( dZmin ) ) z2 = fabs( dZmax );
-//		else z2 = fabs( dZmin );
-//		z = (z - dZmin/z1)/(z2/z1 + 1);
 		z = (z + 1.)/2.;
 	};
 
-//	i = (int)(( fabs( z - (dZmax+dZmin)/2 )/((dZmax-dZmin)/2)*20 -0.5));
 
 	if( bHightColorRezolution )
 	{
@@ -1800,7 +1756,6 @@ void CFldViewView::OnViewParameters()
 	cDlg->cEps.m_DrawSizeFlag     = bDrawFlagAxiesZFieldSize_Eps;
 
 	cDlg->nPropertyPageInd = nPropertyPageInd;
-//	cDlg->SetActivePage( nPropertyPageInd );
 
 	if( cDlg->DoModal() == 1  )
 	{
@@ -1851,9 +1806,6 @@ void CFldViewView::OnViewParameters()
 		bZsizeFlag       = cDlg->cField.m_bAutoSizeFlag;
 		dZmax            = cDlg->cField.m_dZAxiesMax;
 		dZmin            = cDlg->cField.m_dZAxiesMin;
-//		if( fabs(dZmax) < fabs(dZmin) )	dZmax = fabs(dZmin);
-//		else dZmax = fabs(dZmax);
-//		dZmin = -dZmax;
 		if( dZmax < dZmin )	
 		{
 			double rrrr;
@@ -3552,7 +3504,6 @@ void CFldViewView::SetColor_Eps( double z )
 	if( z >  1. ) z =  1.0001;
 	if( z < -1. ) z = -1.0001;
 
-//	i = (int)(( fabs( z - (dZmax+dZmin)/2 )/((dZmax-dZmin)/2)*20 -0.5));
 	i = (int)( 10 + z*10 ); if( i < 0 ) i = 0; if( i > 19 ) i = 19;
 
 	glColor4f( ((float)(GetRValue(pscSurfaceColor_Eps[i])))/256,
@@ -4916,7 +4867,6 @@ void CFldViewView::OnUpdateFieldValue(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->SetCheck( bDrawFieldValueFlag );	
-//	pCmdUI->Enable(bDrawSurfaceFlag||bDrawLineFlag);
 	return;
 }
 
@@ -5068,7 +5018,6 @@ void CFldViewView::SetColor_Cursor( double z )
 	if( z >  1. ) z =  1.0001;
 	if( z < -1. ) z = -1.0001;
 
-//	i = (int)(( fabs( z - (dZmax+dZmin)/2 )/((dZmax-dZmin)/2)*20 -0.5));
 
 	if( bHightColorRezolution )
 	{

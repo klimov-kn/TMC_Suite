@@ -2,12 +2,9 @@
 #ifndef TMCINDANPREPR_H__
 #define TMCINDANPREPR_H__
 
-//#include <windows.h>
-//#include <TmcLibError.h>
 
 
 #define NMAX             30000000
-//#define NMAX             8000000
 
 #define BUF_STR_I        str[i]
 #define BUF_LEX          buf->lsplex[ buf->inp_p ]
@@ -20,7 +17,6 @@
 
 #define VR_MAC_FILE_NAME "$$vr$$s.prc"
 const char *vr_mac_file_name( void );   // S-16: "$$vr$$s<PID>.prc" - svoj u kazhdogo processa
-#define VR_MAC_INCLUDE   "#include $$vr$$s.prc"
 
 typedef struct
  {
@@ -44,8 +40,6 @@ typedef struct
 #define BUF_NULL                    0
 #define BUF_EOF                    -1
 #define BUF_ABN                    -2
-#define DEF_ER_BRACKET             -3
-#define BUF_ERROR_MACR             -4
 #define BUF_ERROR_FACT_PARAM       -5
 #define BUF_ERROR_NO_SEP           -6
 #define DEF_ERROR_INFILE           -7
@@ -55,9 +49,6 @@ typedef struct
 #define ERROR_INIT                -11
 
 int  buf_gets( char  *str, int n, BUFFER  *buf);
-int  read_buf( char  *str, int n, BUFFER  *buf);
-int  buf_puts( char  *str,  BUFFER *buf);
-int  buf_puts1( char  *str, BUFFER *buf );
 int  buf_puts2( char  *str, BUFFER *buf);
 int  buf_puts3( char  *str, BUFFER *buf);
 int  buf_dels( BUFFER  *buf, int n);
@@ -84,12 +75,8 @@ int  def_subst_mac( BUFFER  *buf, MACROS  *mac);
 int  def_set_formal_param( BUFFER  *buf, MACROS  *mac, int i);
 int  def_separ_mac_name( BUFFER  *buf, MACROS  *mac);
 int  def_err_dec( BUFFER  *buf );
-
-char  *DefineIncludeName( char  *str, char  *str1 );
 char *GetCurrentPath( void );
 void DeleteComment( char *pszStr );
-int InitCharArray( char **ch, int n );
-int FreeCharArray( char **ch );
 void MainPrepr1( char *csTplFileNamePrepr,	char *csTplFileName, char *csCurrentPath, char *csError );
 
 #endif

@@ -24,7 +24,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
-#include <conio.h>
 
 #include <typedef.h>
 #include <tmc_lib.h>
@@ -65,7 +64,6 @@ int  i1nte_atof_1( char *string, double *r )
 {
 	expr_del_Blanks1( string  );
 	*r  =  (double)(inte_atof( string ));
-//	printf("\n{%s};r = %lg;\nError = %d", string, *r, expr_get_error_cod());
 	return expr_get_error_cod();
 
 }
@@ -73,7 +71,6 @@ int  i1nte_atof_1( char *string, double *r )
 _real  inte_atof( char  *string )
  {
 	_real d;
- // del_blanks( string );
   expr_set_error_cod( 0 );
 
   d = inte_inter( string, strlen( string ));
@@ -95,8 +92,6 @@ _real  inte_inter( char   *lex, int n )
 //  int i1;
   double d;
 
-//  printf("\n1lex={%s}, n={%d}", lex, n);
-//  getch();
   if( expr_get_error_cod() != 0  ) return 0;
   if( ( n == 1 )&&( lex[0] == INTER_BLANCK ) ) return 0;
   if( n == 0 ) return 0;

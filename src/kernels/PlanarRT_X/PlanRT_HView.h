@@ -36,7 +36,6 @@ public:
 // Implementation
 public:
 	void OnViewField11( void );
-	void Stop( void );
 	virtual ~CPlanRT_HView();
 #ifdef _DEBUG
 	virtual void AssertValid() const;
@@ -61,7 +60,6 @@ protected:
 	afx_msg void OnFileSaveAs();
 	afx_msg void OnRunStop();
 	afx_msg void OnRunAll();
-	afx_msg void OnClose();
 	afx_msg void OnDestroy();
 	afx_msg void OnConfigViewerOutputsignal();
 	afx_msg void OnViewOutput();
@@ -100,7 +98,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 private:
 	CTmcSoundEffProp cSoundDialog;
-//	CTmcSoundEffProp cSoundDialog("Sound Effects");
 	COLORREF scBackgoundColor;
 	void OnDrawBackground(CDC* pDC);
 	volatile BOOL bIsReadData;

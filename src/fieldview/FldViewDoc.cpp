@@ -170,8 +170,6 @@ void CFldViewDoc::ReadData()
 	ReadDataArray( &pfData );
 	CloseFileData();
 
-//	nViewsSinchroniz = nViews;
-//	SetSynchronizationFlag();
 	return;
 }
 
@@ -510,11 +508,8 @@ void CFldViewDoc::CloseFileData()
 
 void CFldViewDoc::SetSynchronizationFlag()
 {
-//	_chmod( GetPathName(), _S_IREAD );
 	nViewsSinchroniz--;
 //	CString csBuf;
-//	csBuf.Format("nViewsSinchroniz = %d; nViews = %d", nViewsSinchroniz, nViews);
-//	PutTrace(csBuf);
 	if( nViewsSinchroniz < 0 ) nViewsSinchroniz = 0;
 	if( nViewsSinchroniz == 0 )	
 	{
@@ -565,8 +560,6 @@ CString CFldViewDoc::GetcsTimeUnit()
 void CFldViewDoc::AddViews__()
 {
 	nViews++;
-//	if( nViews != 1 ) nViewsSinchroniz = nViews-1;
-//	else nViewsSinchroniz = nViews;
 	nViewsSinchroniz = nViews;
 	return;
 
@@ -579,10 +572,6 @@ void CFldViewDoc::DelViews__()
 	return;
 }
 
-FILETIME CFldViewDoc::GetLastWriteFile()
-{
-	return ftLastWriteTime;
-}
 
 FILETIME CFldViewDoc::LastWriteTime(char *szFileName)
 {
@@ -632,22 +621,8 @@ FILETIME CFldViewDoc::LastWriteTime(CString csFileName)
 	return LastWriteTime1;
 }
 
-void CFldViewDoc::SetBusyOn()
-{
-    bBusy = TRUE;
-	return;
-}
 
-void CFldViewDoc::SetBusyOff()
-{
-    bBusy = FALSE;
-	return;
-}
 
-BOOL CFldViewDoc::IsBusy()
-{
-    return bBusy;
-}
 
 double CFldViewDoc::GetdZ(double dX, double dY)
 {

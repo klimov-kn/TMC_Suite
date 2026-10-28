@@ -29,7 +29,6 @@ CTMCDialogField::CTMCDialogField() : CPropertyPage(CTMCDialogField::IDD)
 	for( i = 0; i < 20; i++ )	
 	{
 		c20Color[i] = RGB( 255-i*10, 255, i*10);
-//		c20ColorBuf[i] = c20Color[i];
 	};
 	//{{AFX_DATA_INIT(CTMCDialogField)
 	m_bAutoSizeFlag = FALSE;
@@ -122,9 +121,6 @@ void CTMCDialogField::OnPaint()
 		n_r = n1_r;
 		n_g = n1_g;
 		n_b = n1_b;
-//		n_r = n1_r + n_dr;
-//		n_g = n1_g + n_dg;
-//		n_b = n1_b + n_db;
 	
 		for( i = 0, ii = 0; i < 20*nY ; i++, ii++, n_r += n_dr, n_g += n_dg, n_b += n_db )
 		{
@@ -142,28 +138,6 @@ void CTMCDialogField::OnPaint()
 void CTMCDialogField::OnDefaultTrxyzAngxyz() 
 {
 	// TODO: Add your control notification handler code here
-/*
-	c20Color[  0 ] = RGB( 25,125, 225);
-	c20Color[  1 ] = RGB( 50,100, 200);
-	c20Color[  2 ] = RGB( 75, 75, 175);
-	c20Color[  3 ] = RGB(100, 55, 150);
-	c20Color[  4 ] = RGB(125, 25, 125);
-	c20Color[  5 ] = RGB(150, 25, 125);
-	c20Color[  6 ] = RGB(200, 25, 100);
-	c20Color[  7 ] = RGB(225, 50, 100);
-	c20Color[  8 ] = RGB(250, 75, 100);
-	c20Color[  9 ] = RGB(225,100, 100);
-	c20Color[ 10 ] = RGB(200,125,  75);
-	c20Color[ 11 ] = RGB(175,150, 100);
-	c20Color[ 12 ] = RGB(150,175, 125);
-	c20Color[ 13 ] = RGB(125,200, 150);
-	c20Color[ 14 ] = RGB(100,225, 175);
-	c20Color[ 15 ] = RGB(100,250, 100);
-	c20Color[ 16 ] = RGB(125,225, 125);
-	c20Color[ 17 ] = RGB(225,225,  50);
-	c20Color[ 18 ] = RGB(255,255,   0);
-	c20Color[ 19 ] = RGB(255,255, 255);
-*/
 	int i;
 	for( i = 0; i < 7; i++ )
 	{
@@ -200,20 +174,6 @@ BOOL CTMCDialogField::OnApply()
 }
 
 
-void CTMCDialogField::ChangeColorLevel(int n)
-{
-	if( n < 0 ) return;
-	if( n > 19 ) return;
-
-	CColorDialog dlg;
-	dlg.m_cc.rgbResult = c20Color[ n ];
-	if( dlg.DoModal() == IDOK )
-	{
-		c20Color[ n ] = dlg.GetColor();
-		RedrawWindow();	
-	};
-	return;
-}
 
 
 BOOL CTMCDialogField::OnCommand(WPARAM wParam, LPARAM lParam) 
@@ -227,7 +187,6 @@ void CTMCDialogField::OnColorLevelChangeAuto()
 {
 	// TODO: Add your control notification handler code here
 	CTmcASetColor dlg;
-//	dlg.m_cc.rgbResult = c20Color[ n ];
 	dlg.DoModal(c20Color);
 	RedrawWindow();	
 	return;
@@ -263,30 +222,6 @@ void CTMCDialogField::OnBnClickedAutodrawsizeflagz2()
 	// TODO: Add your control notification handler code here
  	UpdateData();
 
-/*
-	int i;
-	COLORREF cBuf;
-
-	if( bHightColorResolution )
-	{
-		for( i = 0; i < 20; i++ )	
-		{
-			cBuf = c20Color[i];
-			c20Color[i] = c20ColorBuf[i];
-			c20ColorBuf[i] = cBuf;
-		};
-	}
-	else
-	{
-		for( i = 0; i < 20; i++ )	
-		{
-			cBuf = c20ColorBuf[i];
-			c20ColorBuf[i] = c20Color[i];
-			c20Color[i] = cBuf;
-		};
-	};
-
-*/
 	RedrawWindow();	
 
 	return;

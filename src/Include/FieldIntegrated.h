@@ -34,7 +34,6 @@ public:
 	double GetTmin( void );
 	void SetTmax( double dTmax1 );
 	double GetTmax( void );
-	double GetFreq( void );
 	void SetFreq( double dF );
 	void SetFile(char* szFile_ft);
 	void SetnXnY( int nX1, int nY1 );

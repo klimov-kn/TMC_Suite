@@ -21,7 +21,6 @@
 #include <tmclimit.h>
 #include <mainwndw.h>
 #include <tmc_lib.h>
-#include <run_flag.h>
 #include <error1.h>
 #include <tpl_file.h>
 
@@ -30,7 +29,7 @@
 
 
 
-int  buf_init( BUFFER _far *buf, int n)
+int  buf_init( BUFFER *buf, int n)
  {
   int i;
 

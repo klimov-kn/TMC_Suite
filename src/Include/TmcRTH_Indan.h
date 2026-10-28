@@ -16,7 +16,6 @@
 #define CTMCRTH_INDANPREPRFNA "~$Prepr$~"
 #define CTMCRTH_INDAN_LINELEN     20000
 
-#define CTMCRTH_INDANMET_PROGRAM     "#TMC_RT_H"
 #define CTMCRTH_INDANMET_EOF         "#EOF"
 #define CTMCRTH_INDANMET_STEP	     "#STEP"
 #define CTMCRTH_INDANMET_ENDSTEP     "#END_STEP"
@@ -83,8 +82,6 @@ public:
 	void GetnXnY( int &nX11, int &nY11 );
 	void OnOffSinchronizationFieldOutput( void );
 	void OnOffFieldOutput( void );
-	void OnOffFieldOutput1( void );
-	void OnOffFieldOutputU( void );
 	virtual ~CTmcRTH_Indan();
 
 	// Generated message map functions
@@ -121,8 +118,6 @@ private:
 	CString csTplFileNamePrepr;
 public:
 	CString GetTopologyFileName(void);
-	CTmcLibError WriteFileForMaple(CString csFileName, CString csFileNameData, double dHeight, double dRolikR1, double dRolikR2, double dStatorR1, double dStatorR2, double dMagnMomP);
-	CTmcLibError WriteFileForMaple(char *szFileName, char *szFileNameData, double dHeight, double dRolikR1, double dRolikR2, double dStatorR1, double dStatorR2, double dMagnMomP);
 };
 
 

@@ -367,7 +367,6 @@ void CDialogTtoS::OnChangeSfilename()
 
 	CFileDialog dlg( TRUE, "", csBuf, OFN_ENABLESIZING, "Tamic S-matrix");
 	dlg.m_ofn.lpstrTitle = "Change *.s file name";
-//	strcpy( dlg.m_ofn.lpstrFile, m_SFileName );
 	if( dlg.DoModal() == IDOK )
 	{
 		m_SFileName.Format( "%s", dlg.GetPathName() );

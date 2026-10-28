@@ -74,8 +74,6 @@ _real  expr_comp( int cod, char   *oper1, int n1, char   *oper2, int n2 )
 		 expr_set_per( oper1, n1, op2);
 		 return(  (_real)(op2) );
      case '^'  : 
-//		 printf("\nop1 = %lg; op2 = %lg;", op1, op2);
-//		 getch();
 		 if( op1 <= (_real)0 )         /*if cod := op1^op2*/
 		  {
 		   // A-10: a base <= 0 with an integer exponent is computed ((-2)^3 = -8, 0^2 = 0);

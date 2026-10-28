@@ -159,7 +159,6 @@
     <ClCompile Include="DEFMIS.CPP" />
     <ClCompile Include="PREP_LD.CPP" />
     <ClCompile Include="PREP_MN.CPP" />
-    <ClCompile Include="READ_BUF.CPP" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\INCLUDE\Prepr1.h" />

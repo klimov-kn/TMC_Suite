@@ -32,10 +32,6 @@ CTmcBlockTpl::~CTmcBlockTpl()
 }
 
 
-CTmcLibError & CTmcBlockTpl::GetError()
-{
-	return cError;
-}
 
 void CTmcBlockTpl::SetTplFileName(CString &csTplFileName1)
 {
@@ -409,10 +405,6 @@ void CTmcBlockTpl::InitAllocationArray()
 	return;
 }
 
-double * CTmcBlockTpl::GetpdSurface()
-{
-	return pdSurface;
-}
 
 int CTmcBlockTpl::GetnX()
 {

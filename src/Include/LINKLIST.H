@@ -26,19 +26,9 @@ typedef struct
 struct tagLinkList
 	 {
 	  LINK                     Link;
-	  struct tagLinkList _far *lpNext;
+	  struct tagLinkList *lpNext;
 	  };
 
 typedef struct tagLinkList LINK_LIST;
-
-LINK_LIST _far * fortran get_link_first_ptr( void );
-void      _far   fortran set_link_first_ptr( LINK_LIST _far *ptr );
-LINK_LIST _far * fortran get_link_last_ptr( void );
-void      _far   fortran set_link_last_ptr( LINK_LIST _far *ptr );
-
-LINK_LIST _far * fortran alloc_LINK( void );
-int       _far   fortran SetLink( LINK _far *lplnkBuffer );
-int       _far   fortran CheckLink( void );
-
-int       _far   fortran copy_link_list( LINK_LIST _far **ll_buff );
+int       SetLink( LINK *lplnkBuffer );
 #endif

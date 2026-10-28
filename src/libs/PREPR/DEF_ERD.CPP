@@ -30,7 +30,7 @@
 #include "prepr1.h"
 
 
-static int _near fortran def_get_mac_name( MACROS *mac, BUFFER _far *buf);
+static int def_get_mac_name( MACROS *mac, BUFFER *buf);
 
 extern char *szError;       // Prep_mn.cpp: the text of the error
 
@@ -59,7 +59,7 @@ static int def_err_redec( const char *pszName )   // BUG-002: the name can be lo
   return( BUF_ERROR_REDEC );
 }
 
-int _far fortran def_err_dec( BUFFER _far *buf )
+int def_err_dec( BUFFER *buf )
  {
   // BUG-002, BUG-004: one pass over the #define with one MACROS buffer (see the head of the file)
   MACROS       *mac;
@@ -148,9 +148,9 @@ const char *vr_mac_file_name( void )   // S-16: the name with the process number
 static char szDefine[] = "#define ";
 
                      /*  load preprocessor time file ( save macro define )*/
-int _far fortran load_vr_file( BUFFER _far *buf )
+int load_vr_file( BUFFER *buf )
  {
-  FILE _far *vr_mac;
+  FILE *vr_mac;
   char       FgetsBuff[BUFSIZ];
   char       *str;
 
@@ -163,7 +163,7 @@ int _far fortran load_vr_file( BUFFER _far *buf )
 	  return -1;
   };
 
-  char _far *str1;
+  char *str1;
                       /*  open time file*/
   char szVrName[512];	/* A-19: v papke zadaniya, kak v #include i dest_prep */
   vr_mac_file_name();   // S-16
@@ -226,7 +226,7 @@ int _far fortran load_vr_file( BUFFER _far *buf )
  }
 
                            /*  get macros name BUFFER _far *buf -> char _far name*/
-static int _near fortran def_get_mac_name( MACROS *mac, BUFFER _far *buf)
+static int def_get_mac_name( MACROS *mac, BUFFER *buf)
  {                         // BUG-004: the buffer MACROS is given by the caller; the name is mac->m[0]
   int p;
   char szLine[160];

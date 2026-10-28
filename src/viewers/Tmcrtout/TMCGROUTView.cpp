@@ -293,7 +293,6 @@ void CTMCGROUTView::OnInitialUpdate()
 	SetTimer( 1, 10000, NULL);
 
 
-	//	InitTmcGrWin(pDoc, &tmcgrwin);
 
 }
 
@@ -418,7 +417,6 @@ void CTMCGROUTView::onDrawGrid( CDC *pDC )
    {
 	  pDC->MoveTo( i, -tmcgrwin.sGrView.nYmin );
 	  pDC->LineTo( i, -tmcgrwin.sGrView.nYmax );
-//	  text.Format("%4.3lg", x );
 	  text.Format( (const char *)TmcSafeAxisFormat( csXAxiesFormat ), x );	// S-42
 	  VTextOut( pDC, i, -tmcgrwin.sGrView.nYmax,text);
 
@@ -426,31 +424,14 @@ void CTMCGROUTView::onDrawGrid( CDC *pDC )
 
    for( j = 0, x = tmcgrwin.sGrWin.Ymax, xstep = (tmcgrwin.sGrWin.Ymax - tmcgrwin.sGrWin.Ymin)/(NumY), i = tmcgrwin.sGrView.nYmin, step = (tmcgrwin.sGrView.nYmax - tmcgrwin.sGrView.nYmin)/(NumY); j <= NumY ; i += step, x -= xstep, j++)
    {
-//	  pDC->MoveTo( tmcgrwin.sGrView.nXmin, -i );
 	  pDC->MoveTo( 100, -i );
 	  pDC->LineTo( tmcgrwin.sGrView.nXmax, -i );
-//	  text.Format("%4.3lg", x );
 	  text.Format( (const char *)TmcSafeAxisFormat( csYAxiesFormat ), x );	// S-42
-//	  VTextOut( pDC, tmcgrwin.sGrView.nXmin - 1000, -i + 500,text);
 	  VTextOut( pDC,  100, -i + 500,text);
    };
 
    pDC->SelectObject(pOldPen);
 
-   /*
-
-	GetClientRect(rectClient);
-	text.Format("Error cod = %d", pDoc->nErrorCod );
-	VTextOut( pDC, 10,50,text);
-	text.Format("x = {%s}; y = {%s}", pDoc->pszNameX, pDoc->pszNameY );
-	VTextOut( pDC, 10,100,text);
-	if(pDoc->ppPointArray == NULL) return;
-	pDC->MoveTo((int)(pDoc->ppPointArray[0].x), (int)(pDoc->ppPointArray[0].y));
-	for( i = 1; i < pDoc->nSizePoints; i++)
-	{
-	pDC->LineTo((int)(pDoc->ppPointArray[i].x), (int)(pDoc->ppPointArray[i].y));
-	};
-  */
 	// TODO: add draw code for native data here
 
 
@@ -512,7 +493,6 @@ void CTMCGROUTView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		FlagDrawMouseCoord = FALSE;
 	};
-//	IvalidateRectView( rectOutXY );
 	CScrollView::OnLButtonDown(nFlags, point);
 }
 
@@ -525,30 +505,6 @@ void CTMCGROUTView::SetRectOutXY()
 
 void CTMCGROUTView::OnDrawMouseScrol(CDC* pDC)
 {
-/*	int i, j;
-	CString text;
-
-	if( FlagDrawMouseCoord )
-	{
-		for( i = 0, j = 0; (gr_typX[i].nType != -1) ; i++) 
-		{
-		   if(tmcgrwin.nXType == gr_typX[i].nType ) j = i;
-		};
-	   text.Format("%s = %lg", gr_typX[j].pszXname, MouseXCoord );
-	   VTextOut( pDC,  rectOutXY.TopLeft().x, rectOutXY.BottomRight().y,text);
-
-	   for( i = 0, j = 0; (gr_typY[i].nType != -1) ; i++) 
-	   {
-		   if(tmcgrwin.nYType == gr_typY[i].nType ) j = i;
-	   };
-	   text.Format("%s = %lg", gr_typY[j].pszYname, MouseYCoord );
-	   VTextOut( pDC, rectOutXY.TopLeft().x, rectOutXY.BottomRight().y - 700,text);
-	}
-	else
-	{
-		pDC->FillSolidRect( &rectOutXY, pDC->GetBkColor() );
-	};
-*/
 }
 
 
@@ -982,11 +938,9 @@ void CTMCGROUTView::PrepareLogGraph()
 				tmcgrwin.psGraph[i].piPoint[j].nX = DoublXCordToLX( x );
 				y = tmcgrwin.psGraph[i].pPoint[j].y;
 				tmcgrwin.psGraph[i].piPoint[j].nY = DoublYCordToLY( y );
-//				tmcgrwin.psGraph[i].nPointDraw++;
 	
 				if( x < tmcgrwin.sGrWin.Xmin )
 				{
-//					tmcgrwin.psGraph[i].nPointDraw--;
 					if( j > 0 )
 					{
 						tmcgrwin.psGraph[i].piPoint[j].nX = tmcgrwin.psGraph[i].piPoint[j-1].nX;
@@ -1009,7 +963,6 @@ void CTMCGROUTView::PrepareLogGraph()
 				{
 					if( x > tmcgrwin.sGrWin.Xmax )
 					{
-//						tmcgrwin.psGraph[i].nPointDraw--;
 						if( j > 0 )
 						{
 							tmcgrwin.psGraph[i].piPoint[j].nX = tmcgrwin.psGraph[i].piPoint[j-1].nX;
@@ -1024,10 +977,8 @@ void CTMCGROUTView::PrepareLogGraph()
 							{
 								if( tmcgrwin.psGraph[i].pPoint[j+1].x < tmcgrwin.sGrWin.Xmax )
 								{
-//									if( ((tmcgrwin.psGraph[i].piPoint[j].nY-tmcgrwin.psGraph[i].piPoint[j-1].nY) == 0) && ((tmcgrwin.psGraph[i].piPoint[j].nY-tmcgrwin.psGraph[i].piPoint[j+1].nY) == 0) )
 									if( ((tmcgrwin.psGraph[i].piPoint[j].nY-tmcgrwin.psGraph[i].piPoint[j-1].nY) == 0) && ((tmcgrwin.psGraph[i].piPoint[j].nY-DoublYCordToLY( tmcgrwin.psGraph[i].pPoint[j+1].y )) == 0) )
 									{
-//										tmcgrwin.psGraph[i].nPointDraw--;
 										;
 									}
 									else
@@ -1092,7 +1043,6 @@ void CTMCGROUTView::PrepareLogGraph()
 	{
 		if(pDoc->grdoc.psGraph[i].OutFlag)
 		{
-//			for( j = 0, j1 = 0; (j < tmcgrwin.psGraph[i].nPoint)&&(j1 < tmcgrwin1.psGraph[i].nPoint); j++)
 			for( j = 0, j1 = 0; j < tmcgrwin.psGraph[i].nPoint; j++)
 			{
 				if( tmcgrwin.psGraph[i].pPoint[j].x < tmcgrwin.sGrWin.Xmin )
@@ -1443,9 +1393,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_1.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName1.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_1 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_1 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_1 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_1 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_1 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1455,9 +1403,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_2.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName2.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_2 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_2 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_2 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_2 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_2 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1467,9 +1413,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_3.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName3.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_3 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_3 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_3 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_3 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_3 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1479,9 +1423,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_4.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName4.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_4 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_4 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_4 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_4 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_4 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1491,9 +1433,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_5.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName5.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_5 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_5 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_5 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_5 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_5 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1503,9 +1443,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_6.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName6.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_6 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_6 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_6 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_6 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_6 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1515,9 +1453,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_7.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName7.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_7 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_7 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_7 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_7 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_7 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1527,9 +1463,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_8.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName8.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_8 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_8 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_8 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_8 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_8 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1539,9 +1473,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_9.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName9.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_9 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_9 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_9 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_9 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_9 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1551,9 +1483,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_10.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName10.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_10 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_10 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_10 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_10 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_10 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1563,9 +1493,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_11.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName11.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_11 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_11 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_11 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_11 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_11 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1575,9 +1503,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_12.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName12.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_12 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_12 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_12 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_12 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_12 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1587,9 +1513,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_13.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName13.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_13 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_13 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_13 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_13 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_13 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1599,9 +1523,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_14.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName14.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_14 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_14 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_14 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_14 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_14 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1611,9 +1533,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_15.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName15.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_15 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_15 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_15 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_15 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_15 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1623,9 +1543,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_16.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName16.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_16 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_16 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_16 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_16 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_16 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1635,9 +1553,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_17.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName17.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_17 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_17 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_17 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_17 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_17 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1647,9 +1563,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_18.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName18.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_18 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_18 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_18 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_18 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_18 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1659,9 +1573,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_19.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName19.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_19 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_19 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_19 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_19 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_19 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1671,9 +1583,7 @@ void CTMCGROUTView::OnEditDocument()
 				dlg.m_SFileName_20.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_GraphName20.Format("%s", pDoc->grdoc.psGraph[i].szGrapPodp );
 				dlg.m_np1_20 = pDoc->grdoc.psGraph[i].nInp1;
-//				dlg.m_np2_20 = pDoc->grdoc.psGraph[i].nInp2;
 				dlg.m_mod1_20 = pDoc->grdoc.psGraph[i].nMod1;
-//				dlg.m_mod2_20 = pDoc->grdoc.psGraph[i].nMod2;
 				dlg.m_OutGrFlag_20 = pDoc->grdoc.psGraph[i].OutFlag;
 			}
 			break;
@@ -1729,9 +1639,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_1);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName1 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_1;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_1;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_1;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_1;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_1;
 				i++;
 			}
@@ -1740,9 +1648,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_2);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName2 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_2;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_2;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_2;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_2;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_2;
 				i++;
 			}
@@ -1751,9 +1657,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_3);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName3 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_3;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_3;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_3;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_3;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_3;
 				i++;
 			}
@@ -1762,9 +1666,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_4);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName4 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_4;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_4;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_4;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_4;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_4;
 				i++;
 			}
@@ -1773,9 +1675,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_5);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName5 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_5;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_5;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_5;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_5;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_5;
 				i++;
 			}
@@ -1784,9 +1684,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_6);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName6 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_6;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_6;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_6;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_6;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_6;
 				i++;
 			}
@@ -1795,9 +1693,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_7);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName7 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_7;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_7;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_7;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_7;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_7;
 				i++;
 			}
@@ -1806,9 +1702,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_8);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName8 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_8;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_8;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_8;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_8;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_8;
 				i++;
 			}
@@ -1817,9 +1711,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_9);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName9 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_9;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_9;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_9;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_9;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_9;
 				i++;
 			}
@@ -1828,9 +1720,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_10);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName10 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_10;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_10;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_10;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_10;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_10;
 				i++;
 			}
@@ -1839,9 +1729,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_11);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName11 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_11;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_11;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_11;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_11;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_11;
 				i++;
 			}
@@ -1850,9 +1738,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_12);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName12 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_12;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_12;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_12;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_12;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_12;
 				i++;
 			}
@@ -1861,9 +1747,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_13);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName13 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_13;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_13;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_13;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_13;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_13;
 				i++;
 			}
@@ -1872,9 +1756,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_14);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName14 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_14;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_14;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_14;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_14;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_14;
 				i++;
 			}
@@ -1883,9 +1765,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_15);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName15 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_15;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_15;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_15;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_15;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_15;
 				i++;
 			}
@@ -1894,9 +1774,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_16);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName16 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_16;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_16;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_16;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_16;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_16;
 				i++;
 			}
@@ -1905,9 +1783,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_17);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName17 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_17;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_17;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_17;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_17;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_17;
 				i++;
 			}
@@ -1916,9 +1792,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_18);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName18 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_18;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_18;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_18;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_18;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_18;
 				i++;
 			}
@@ -1927,9 +1801,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_19);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName19 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_19;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_19;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_19;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_19;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_19;
 				i++;
 			}
@@ -1938,9 +1810,7 @@ void CTMCGROUTView::OnEditDocument()
 				strcpy( pDoc->grdoc.psGraph[i].szGrapName,  dlg.m_SFileName_20);
 				strcpy( pDoc->grdoc.psGraph[i].szGrapPodp, dlg.m_GraphName20 );
 				pDoc->grdoc.psGraph[i].nInp1 = dlg.m_np1_20;
-//				pDoc->grdoc.psGraph[i].nInp2 = dlg.m_np2_20;
 				pDoc->grdoc.psGraph[i].nMod1 = dlg.m_mod1_20;
-//				pDoc->grdoc.psGraph[i].nMod2 = dlg.m_mod2_20;
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_20;
 				i++;
 			}
@@ -2019,7 +1889,6 @@ void CTMCGROUTView::OnEditAddcharacteristics()
 
 	CFileDialog dlg( TRUE, "", csBuf, OFN_ENABLESIZING, "Tamic Rt-Signal");
 	dlg.m_ofn.lpstrTitle = "Add *.t characteristics";
-//	strcpy( dlg.m_ofn.lpstrFile, m_SFileName );
 	if( dlg.DoModal() == IDOK )
 	{
 		strcpy( ch, dlg.GetPathName() );
@@ -2098,7 +1967,6 @@ void CTMCGROUTView::OnLButtonUp(UINT nFlags, CPoint point)
 		return ;
 
 	tmcgrwin.sGrWin.nAFlagY = TRUE;
-//	tmcgrwin.sGrWin.nAFlagX = TRUE;	
 
 	if( (Ymax-Ymin) >= 0.1*(tmcgrwin.sGrWin.Ymax-tmcgrwin.sGrWin.Ymin) )
 	{
@@ -2152,7 +2020,6 @@ void CTMCGROUTView::OnMouseMove(UINT nFlags, CPoint point)
 	MouseYCoord = LYCordToDoublY( point.y );
 	PutStatistics1();
 	PutTrace1();
-//	IvalidateRectView( rectOutXY );
 
 	CScrollView::OnMouseMove(nFlags, point);
 }
@@ -2347,21 +2214,7 @@ void CTMCGROUTView::OnConfigColorBackground()
 
 void CTMCGROUTView::OnDrawBackground(CDC* pDC)
 {
-//	CTMCGROUTDoc* pDoc = GetDocument();
-//	ASSERT_VALID(pDoc);
 //	CRect rectClient;
-//	GetClientRect( &rectClient );
-//	CClientDC dc(this);
-//	OnPrepareDC(&dc);
-//	dc.DPtoLP(&rectClient);  
-//	rectClient.left = 0;
-//	rectClient.top = 0;
-//	rectClient.right  = (int)(tmcgrwin.sGrView.nXmax/0.7);
-//	rectClient.bottom = -(int)(tmcgrwin.sGrView.nYmax/0.9);
-//	rectClient.right  = (int)(TMC_VIEW_XSIZE*1.35);
-//	rectClient.bottom = -(int)(TMC_VIEW_YSIZE*1.05);
-//	rectClient.NormalizeRect();
-//	pDC->FillSolidRect( &rectClient, pDoc->scBackgoundColor );
 	return;
 }
 
@@ -2434,14 +2287,12 @@ void CTMCGROUTView::PutTrace1()
 	{
 		if(tmcgrwin.nXType == gr_typX[i].nType ) j = i;
 	};
-//	text.Format("%s=%lg", gr_typX[j].pszXname, MouseXCoord );
 	text.Format("%s=%lg", gr_typX[j].pszXname, MouseXCoord );
 
 	for( i = 0, j = 0; (gr_typY[i].nType != -1) ; i++) 
 	{
 		if(tmcgrwin.nYType == gr_typY[i].nType ) j = i;
 	};
-//	text1.Format("%s=%lg", gr_typY[j].pszYname, MouseYCoord );
 	text1.Format("%s=%lg", gr_typY[j].pszYname, MouseYCoord );
 	
 	csBuf.Format("%s; %s", text, text1);
@@ -3031,7 +2882,6 @@ BOOL CTMCGROUTView::OnEraseBkgnd(CDC* pDC)
 	pDC->PatBlt( rect.left, rect.top, rect.Width(), rect.Height(), PATCOPY);
 	pDC->SelectObject(pOldBrush);
 	return TRUE;
-//	return CScrollView::OnEraseBkgnd(pDC);
 }
 
 void CTMCGROUTView::OnPrepareDC(CDC* pDC, CPrintInfo* pInfo) 
@@ -3041,7 +2891,6 @@ void CTMCGROUTView::OnPrepareDC(CDC* pDC, CPrintInfo* pInfo)
 	ASSERT_VALID(pDoc);
 	if( pDC->IsPrinting() ) 
 	{
-//		pDC->SetBkColor( pDoc->scBackgoundColor );
 	}
 	else 
 	{

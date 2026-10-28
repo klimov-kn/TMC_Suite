@@ -7,7 +7,6 @@
 #include "PlanRT_H.h"
 #include <limits.h>
 #include <math.h>
-#include <conio.h>
 
 #include "PlanRT_HDoc.h"
 #include "PlanRT_HView.h"
@@ -17,17 +16,6 @@
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 
-UINT ReadDataGlobal( LPVOID pParam )
-//__fastcall *ReadDataGlobal( LPVOID pParam )
-{
-	CPlanRT_HDoc* pDoc = (CPlanRT_HDoc *)(pParam);
-	CString csBuf;
-
-	if(	pDoc->IsReadData() ) return 0;
-	pDoc->ReadData();
-	
-	return 0;
-}
 			  
 UINT RunStepGlobal( LPVOID pParam )
 //__fastcall *RunStepGlobal( LPVOID pParam )
@@ -79,8 +67,6 @@ void PutSinchronizFlag( BOOL bTopologyFlag, BOOL bFieldFlag1, BOOL bSinchFlag1 )
 	CString csTrace, csTrace0, csTrace1, csTrace2, csTrace3;
 	
 	csTrace1.Format("Output: Signal");
-//	if( sizeof(_real) == 4 ) csTrace1.Format("Float; Output: Signal");
-//	if( sizeof(_real) == 8 ) csTrace1.Format("Double; Output: Signal");
 
 
 	if( bFieldFlag1 ) 
@@ -150,28 +136,16 @@ BOOL IsPointInTr( double x1, double y1, double x2, double y2, double x3, double 
 	s230 = fabs( (x2-x0)*(y3-y0) - (x3-x0)*(y2-y0) );
 	s310 = fabs( (x3-x0)*(y1-y0) - (x1-x0)*(y3-y0) );
 
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("s120 = %lg; s230 = %lg; s310 = %lg; s123 = %lg;", s120, s230, s310, s123 );
-//		AfxMessageBox(csBuf1);
-//	};
 
 	eps = s123*(1.e-10);
 	if( (s120 + s230 + s310) > (s123 + eps) ) 
 	{
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("FALSE x1 = %lg; y1 = %lg; x2 = %lg; y2 = %lg; x3 = %lg; y3 = %lg; x0 = %lg; y0 = %lg;", x1, y1, x2, y2, x3, y3, x0, y0 );
-//		AfxMessageBox(csBuf1);
-//	};
 		return FALSE;
 	};
 	
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("TRUE x1 = %lg; y1 = %lg; x2 = %lg; y2 = %lg; x3 = %lg; y3 = %lg; x0 = %lg; y0 = %lg;", x1, y1, x2, y2, x3, y3, x0, y0 );
-//		AfxMessageBox(csBuf1);
-//	};
 	return TRUE;
 }
 
@@ -209,15 +183,7 @@ CString GetModel( void )
 {
 	CString csTrace1;
 	CString csTrace2;
-#ifdef _VERSION_PROF___
 	csTrace2.Format("Professional");
-#endif
-#ifdef _VERSION_DEMO___
-	csTrace2.Format("Demonstration");
-#endif
-#ifdef _VERSION_EDUC___
-	csTrace2.Format("Educational");
-#endif
 	
 	if( sizeof(_real) == 4 ) csTrace1.Format("Float %s", csTrace2);
 	if( sizeof(_real) == 8 ) csTrace1.Format("Double %s", csTrace2);
@@ -527,10 +493,10 @@ void s_alarm( int code )
   }
 
 
-void s_play( int far *ptr )
+void s_play( int *ptr )
  {
   if( !bIsSound ) return;
-  register int wait = 0;
+  int wait = 0;
 
   while( *ptr )
    {

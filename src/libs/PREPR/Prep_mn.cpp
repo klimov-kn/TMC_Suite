@@ -25,7 +25,6 @@
 #include <mainwndw.h>
 #include <tpl_file.h>
 #include <tmc_lib.h>
-#include <run_flag.h>
 #include <error1.h>
 
 #include "prepr1.h"
@@ -37,43 +36,6 @@ char *szError;
 char *szPathName;
 
                                           /*  worker definer/includer*/
-/*
-void MainPrepr( CString csTplFileNamePrepr,	CString csTplFileName, CString csCurrentPath, CTmcLibError &cError )
-{
-	if( cError.IsError() ) return;
-	
-	if( (szError = (char *)alloc_mem_err( sizeof(char)*BUF_STR_N_MAX )) == NULL )
-	{
-		cError.PutErrorMessage("Memory allocation");
-		return;
-	};
-	if( (szPathName = (char *)alloc_mem_err( sizeof(char)*BUF_STR_N_MAX )) == NULL )
-	{
-		free_mem( szError );
-		cError.PutErrorMessage("Memory allocation");
-		return;
-	};
-
-	char *ch;
-	char szSourceFileName[512];
-	char szTargetFileName[512];
-	
-	strcpy( szSourceFileName, csTplFileName);
-	strcpy( szTargetFileName, csTplFileNamePrepr);
-	strcpy( szPathName, csCurrentPath);
-	
-	ch = main_preproc( szTargetFileName, szSourceFileName );
-	unload_prep_buf();
-	dest_prep();
-
-	if( strlen(ch) != 0 ) cError.PutErrorMessage(ch);
-	
-	free_mem( szPathName );
-	free_mem( szError );
-
-	return;
-}
-*/
 
                                           /*  worker definer/includer*/
 
@@ -186,7 +148,6 @@ char * main_preproc( char *szTargetFileName, char *szSourceFileName )
 		delete []str;
 		return szError;             /*  put string in buffer*/
 	};
-//    if( strstr( str, str1 ) != NULL ) return 0;
     }
   fclose( pfIn );
 
@@ -252,18 +213,6 @@ int    put_error_messege( char *szError1 )
 	return 0;
 }
 
-/*
-int  far free_mem( void far *mem_ptr )
-{
-	free(mem_ptr);
-	return 0;
-}
-
-void far *alloc_mem_err( long size )
-{
-	return malloc( size );
-}
-*/
 
 char *GetCurrentPath( void )
 {
@@ -279,12 +228,7 @@ void DeleteComment( char *pszStr )
 	  switch( pszStr[i] )
 	  {
 		case '!':
-//			pszStr[i] = '\n';
-//			pszStr[i+1] = '\0';
 			strcpy( (pszStr + i) , " \n");
-//			pszStr[i] = 13;
-//			pszStr[i+1] = 10;
-//			pszStr[i+2] = '\0';
 			return;
 			break;
 		case '\0':
@@ -296,23 +240,4 @@ void DeleteComment( char *pszStr )
 }
 
 
-int InitCharArray( char **ch, int n )
-{
-	if( *ch != NULL )
-	{
-		free( *ch );
-		*ch = NULL;
-	};
-	if( ((*ch) = ( char *)malloc( n )) == NULL ) return -1;
-	return 0;
-}
 
-int FreeCharArray( char **ch )
-{
-	if( *ch != NULL )
-	{
-		free( *ch );
-		*ch = NULL;
-	};
-	return 0;
-}

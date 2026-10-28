@@ -34,7 +34,7 @@ static FREQUENCY frq = { 0,                    /* current frequency point  */
                            "MHz",              /* unit items string for MHz*/
                            "GHz"} };           /* unit items string for GHz*/
 
-int _far _fortran set_frequency( _real f0, _real df, int nf )
+int set_frequency( _real f0, _real df, int nf )
  {
   int num;
 
@@ -49,36 +49,12 @@ int _far _fortran set_frequency( _real f0, _real df, int nf )
  }
 
 
-int _far _fortran set_frequency_arr( _real _far *ftmp, int nf )
- {
-  int  num;
-
-  frq.max = nf;
-
-  for( num = 0; num < frq.max; num++ )
-   frq.f[num] = ftmp[num]*frq.unit[frq.code];
-
-  return 0;
-  }
 
 
-_real _far _fortran get_frq_f0( int unit_flag )  /* if unit_flag == 1  then return frequency in current units */
- {
-  _real f0 = frq.f[0];
 
-   return( (unit_flag != 1)? f0:(f0/frq.unit[frq.code]) );
-  }
 
-_real _far _fortran get_frq_df( int unit_flag )  /* if unit_flag == 1  then return frequency in current units */
- {
-  _real df;
-
-  df = ( frq.max == 1 )? (_real)0.0: frq.f[1] - frq.f[0];
-  return( ( unit_flag == 1 )? (df /= frq.unit[frq.code]):df );
-  }
-
-int   _far   _fortran get_frq_nf( void ) { return( frq.max ); }
-int   _far   _fortran set_frq_nf( int nMax )
+int   get_frq_nf( void ) { return( frq.max ); }
+int   set_frq_nf( int nMax )
   {
    if( ( nMax <= 0 )||( nMax > FREQ_MAX_NUM ) )
     {
@@ -89,17 +65,11 @@ int   _far   _fortran set_frq_nf( int nMax )
    return 0;
   }
 
-char  _far * _fortran get_frq_item( int num ) { return( frq.item[num] ); }
-char  _far * _fortran get_current_frq_item( void ) { return( frq.item[frq.code] ); }
-_real _far   _fortran get_frq_unit( int num ) { return frq.unit[num]; }
-void  _far   _fortran set_frq_item_num( int num ) { frq.code = num; }
-int   _far   _fortran get_frq_item_code( void ) { return frq.code; }
-_real _far   _fortran get_frq_element( int index ) { return frq.f[index]; }
-void  _far   _fortran set_frq_element( _real fValue, int index ) { frq.f[index] = fValue; }
-void  _far   _fortran set_frq_element_unit( _real fValue, int index ) { frq.f[index] = fValue*frq.unit[frq.code]; }
-_real _far   _fortran get_current_frq( void ) { return frq.f[frq.num]; }
-double _far  _fortran get_current_dbl_frq( void ) { return( (double)frq.f[frq.num] ); } /* dummy for writing */
-int   _far   _fortran get_current_frq_num( void ) { return frq.num; }
-void  _far   _fortran set_current_frq_num( int num ) { frq.num = num; }
-FREQUENCY _far  * _fortran GetPointerToFrq( void ) { return &frq; }
+char  * get_frq_item( int num ) { return( frq.item[num] ); }
+_real get_frq_unit( int num ) { return frq.unit[num]; }
+int   get_frq_item_code( void ) { return frq.code; }
+void  set_frq_element( _real fValue, int index ) { frq.f[index] = fValue; }
+double get_current_dbl_frq( void ) { return( (double)frq.f[frq.num] ); } /* dummy for writing */
+int   get_current_frq_num( void ) { return frq.num; }
+void  set_current_frq_num( int num ) { frq.num = num; }
 

@@ -45,14 +45,11 @@
 #define TMC_GR_TYPE_FHz  3
 #define TMC_GR_TYPE_F_USER  4
 
-#define TMC_GR_TYPE_PRad    0
-#define TMC_GR_TYPE_PGradus 1
 
 #define TMC_GROTS_DOCFILE_ID				"#TMCGROTS"
 #define TMC_GROTS_DOCFILE_XAXIESFORMAT		"#TMCGROTS_X_AXIES_FORMAT"
 #define TMC_GROTS_DOCFILE_YAXIESFORMAT		"#TMCGROTS_Y_AXIES_FORMAT"
 #define TMC_GROTS_DOCFILE_POINTSIZE			"#TMCGROTS_POINTSIZE"
-#define TMC_GROTS_DOCFILE_ANGLE_TETA			"#TMCGROTS_ANGLE_TETA"
 			//type graphics - X-axies
 #define TMC_GROTS_TYPE_nT   0
 #define TMC_GROTS_TYPE_s    5
@@ -84,8 +81,6 @@
 #define TMCFIELDVIEW_3DDraw 1
 
 #define TMC_GROUT_DOCFILE_ID				"#TMCGROUT"
-#define TMC_GROUT_DOCFILE_IDP				"#TMC_PHAZEPORTRATE_VIEWER_AND_SOLVER"
-#define TMC_GROUT_DOCFILE_IDPar				"#PhazePortrateParameters"
 #define TMC_GROUT_DOCFILE_ID_PointDrawFlag	"#PointDrawFlag"
 #define TMC_GROUT_DOCFILE_ID_nXType			"#nXType"
 #define TMC_GROUT_DOCFILE_ID_nYType			"#nYType"
@@ -99,7 +94,6 @@
 #define TMC_GROUT_DOCFILE_ID_INIWNDVWPRT	"#INIWNDVIEWPORT"
 #define TMC_GROUT_DOCFILE_ID_dXAxiesUnit	"#dXAxiesUnit"
 #define TMC_GROUT_DOCFILE_ID_dXAxiesName	"#dXAxiesName"
-#define TMC_GROUT_DOCFILE_ID_nPointForNorm	"#nPointForNormirovka"
 
 #define TMC_GROFLD_DOCFILE_ID				"#TMC_GraphicsOutputFieldFile FormVer2.0 2000 "
 #define TMC_GROFLD_DOCFILE_ID_nT			"#TMCGROFLD_nT "
@@ -113,22 +107,7 @@
 #define TMC_GROFLD_DOCFILE_ID_nX			"#TMCGROFLD_nX "
 #define TMC_GROFLD_DOCFILE_ID_nY			"#TMCGROFLD_nY "
 
-#define TMC_TOPVIEW_DOCFILE_ID					"#TMCTOPVIEW"
 #define TMC_TOPVIEW_DOCFILE_ID_EDITORFLNM		"#EditorFileName"
-#define TMC_TOPVIEW_DOCFILE_ID_TPLFILENAME		"#TplFileName"
-#define TMC_TOPVIEW_DOCFILE_ID_NSTEP			"#nStep"
-#define TMC_TOPVIEW_DOCFILE_ID_NSTEPCTRL		"#nStepControlFlag"
-#define TMC_TOPVIEW_DOCFILE_ID_DrawTopFlag		"#DrawTopologyFlag"
-#define TMC_TOPVIEW_DOCFILE_ID_nDrawSurfBlend	"#nDrawSurfBlend"
-#define TMC_TOPVIEW_DOCFILE_ID_bDrawLineFlag	"#bDrawLineFlag"
-#define TMC_TOPVIEW_DOCFILE_ID_bDrawSurfInFlag	"#bDrawSurfInFlag"
-#define TMC_TOPVIEW_DOCFILE_ID_bDrawSurfXXFlag	"#bDrawSurfXXFlag"
-#define TMC_TOPVIEW_DOCFILE_ID_bDrawSurfKZFlag	"#bDrawSurfKZFlag"
-#define TMC_TOPVIEW_DOCFILE_ID_nDrawSurfBlendInp "#nDrawSurfBlendInp"
-#define TMC_TOPVIEW_DOCFILE_ID_nDrawSurfBlendKz	"#nDrawSurfBlendKz"
-#define TMC_TOPVIEW_DOCFILE_ID_nDrawSurfBlendXx	"#nDrawSurfBlendXx"
-#define TMC_TOPVIEW_DOCFILE_ID_bDrawTextInpFlag	"#bDrawTextInpFlag"
-#define TMC_TOPVIEW_DOCFILE_ID_bDrawTextSzFlag	"#bDrawTextSzFlag"
 #define TMC_TOPVIEW_DOCFILE_ID_sDrawTextFont	"#sDrawTextFont"
 #define TMC_TOPVIEW_DOCFILE_ID_sDrawTextColor	"#sDrawTextColor"
 #define TMC_TOPVIEW_DOCFILE_ID_sDrawPointColor	"#sDrawPointColor"
@@ -161,17 +140,10 @@
 #define CTMCRTH_INDANBLCK_FILEN		  "FILE_N "
 #define CTMCRTH_INDANBLCK_FILEB		  "FILE_B "
 #define CTMCRTH_INDANBLCK_FILEY		  "FILE_Y "
-#ifdef _MODEL_RTE__
-	#define CTMCRTH_INDANBLCK_TYPEMET	  "MAGNETIC"
-	#define CTMCRTH_INDANBLCK_TYPEMAG	  "METAL"
-#else
 	#define CTMCRTH_INDANBLCK_TYPEMET	  "METAL"
 	#define CTMCRTH_INDANBLCK_TYPEMAG	  "MAGNETIC"
-#endif
 #define CTMCRTH_INDANBLCK_TYPEABS	  "ABSORBER"
 
-//#define CTMCRTH_BLCKNTYPE_EPSLE0	   0
-//#define CTMCRTH_BLCKNTYPE_EPSGT0	   0
 #define CTMCRTH_BLCKNTYPE_EPS		   0
 #define CTMCRTH_BLCKNTYPE_MAGNETIC	 107
 #define CTMCRTH_BLCKNTYPE_METAL		 101
@@ -201,40 +173,16 @@
 #define CTMCRTH_BLCKNTYPE_ABSR_1111_3 23
 #define CTMCRTH_BLCKNTYPE_ABSR_1111_4 24
 
-#define TMC_DNOUT_DOCFILE_ID		"#TMCDNOUT"
 
-#define TMC_TMCE_ID		"#TMC_E"
-#define TMC_TMCH_ID		"#TMC_H"
-#define TMC_TMCW_ID		"#TMC_W"
-#define TMC_TMCM_ID		"#TMC_M"
-#define TMC_TMCI_ID		"#TMC_I"
 
-#define TMC_STEP_ID		"#STEP"
-#define TMC_END_STEP_ID	"#END_STEP"
 
-#define TMC_EOF_ID		"#EOF"
 
-#define TMC_BLOCK_ID		"BLOCK"	 
-#define TMC_END_BLOCK_ID	"END_B"
-#define TMC_END_GP_ID		"END_GP"
 
-#define TMC_TOPOLOGY_ID		"#TOPOLOGY"
-#define TMC_END_TOPOLOGY_ID	"#END_TOPOLOGY"
 
-#define TMC_LINK_LIST_ID	"#LINK_LIST"
-#define TMC_LINK_LIST_DSC	"T "
-#define TMC_END_LINK_ID		"#END_LINK"
 
-#define TMC_OUTPUT_ID		"#OUTPUT"
-#define TMC_END_OUTPUT_ID	"#END_OUTPUT"
 
-#define TMC_COMMENT_ID		"#COMMENT"
-#define TMC_END_COMMENT_ID	"#END_COMMENT"
 				   // surface type for kz or xx
-#define TMC_SURF_MET 0
-#define TMC_SURF_MUG 1
 				   // input type 
-#define TMC_INPUT_E 0
 
 
 typedef struct
@@ -343,9 +291,6 @@ typedef struct
 		int				 nType;		//graphics type
 		char 	 pszXname[100];		//Y name of graphics
 	} TMC_GR_TYPE_X;
-
-void RunExeFileG( char *lpszNameExe, char *lpszArgv );
-void CreatProcG(char * lpszComLine, char *lpszDirectory);
 void MakeRelatPathFile( char *szFileName, char *szWorkDir );
 void MakeRelatPathFile( char *szFileName, CString szWorkDir );
 int SelectDirName( char *ch );

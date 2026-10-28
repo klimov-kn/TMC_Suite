@@ -154,17 +154,12 @@ CTmcRTHRectNode::CTmcRTHRectNode()
 	nNumNode = 0;
 	
 //	prUNode = NULL;			// array falling voltage 1 = V; 2 = ^; 3 = <; 4 = >
-//	prUyNodeBottom = NULL;
-//	prUyNodeTop  = NULL;
-//	prUxNodeRight = NULL;
-//	prUxNodeLeft  = NULL;
 	prUNode1   = NULL;					// array voltage on unit with 1 takt 
 //	prUNode2   = NULL;					// array voltage on unit with 2 takt  
 	prYNode    = NULL;					// node admitance array
 //	prYMulNode = NULL;					// node multiple admitance array
 //	pnTypeNode = NULL;					// node type array
 
-//	pcNodeDielList = NULL;
 	nDiel = 0;
 	pcNodeDiel = NULL;
 	dXmin = 0.0;				// global parameter Xmin for rectangle
@@ -213,7 +208,6 @@ void CTmcRTHRectNode::DeleteData( void )
 	
 	DeleteNodeArray();
 	DeleteDielArray();
-	_heapmin();
 
 	return;
 }
@@ -839,82 +833,12 @@ void CTmcRTHRectNode::InitNodeArray( void )
 	prYNode = (_real *) pTemp1;
 
 //	CString csBuf1;
-//	csBuf1.Format("{prUNode1(%p), prYNode(%p)}", prUNode1, prYNode );
-//	AfxMessageBox(csBuf1);
-/*	if( (prYMulNode	= new _real[ nNumNode ]) == NULL )
-	{			 
-		cError.PutErrorMessage("Not enough memory for space array");
-		DeleteNodeArray();
-		return;
-	};
-*/
-/*	if( (pnTypeNode	= new int[ nNumNode ]) == NULL )
-	{			 
-		cError.PutErrorMessage("Not enough memory for space array");
-		DeleteNodeArray();
-		return;
-	};
-*/
-/*
-	if( (prUyNodeBottom	= new _ELEM_VAL_RTH[ nNumNode ]) == NULL )
-	{			 
-		cError.PutErrorMessage("Not enough memory for space array");
-		DeleteNodeArray();
-		return;
-	};
-
-	if( (prUyNodeTop	= new _ELEM_VAL_RTH[ nNumNode ]) == NULL )
-	{
-		cError.PutErrorMessage("Not enough memory for space array");
-		DeleteNodeArray();
-		return;
-	};
-
-	if( (prUxNodeRight	= new _ELEM_VAL_RTH[ nNumNode ]) == NULL )
-	{
-		cError.PutErrorMessage("Not enough memory for space array");
-		DeleteNodeArray();
-		return;
-	};
-
-	if( (prUxNodeLeft	= new _ELEM_VAL_RTH[ nNumNode ]) == NULL )
-	{
-		cError.PutErrorMessage("Not enough memory for space array");
-		DeleteNodeArray();
-		return;
-	};
-*/
-/*	if( (pcNodeDielList	= new sTmcRTH_DielNodeList *[ nNumNode ] ) == NULL ) 
-	{
-		cError.PutErrorMessage("Not enough memory for space array");
-		DeleteNodeArray();
-		return;
-	};
-*/
 	for( i = 0, ii = 0; i < nNumNode; i++ )	
 	{
-//		pcNodeDielList[i] = NULL;
-/*
-		prUyNodeBottom[i] = (_ELEM_VAL_RTH)(0.0);
-		prUyNodeTop[i]    = (_ELEM_VAL_RTH)(0.0);
-		prUxNodeRight[i]  = (_ELEM_VAL_RTH)(0.0);
-		prUxNodeLeft[i]   = (_ELEM_VAL_RTH)(0.0);
-*/
 		prUNode1[ii]   = (_ELEM_VAL_RTH)(0.0);
 		prYNode[ii++]  = (_real)(0.0);
 		prUNode1[ii]   = (_ELEM_VAL_RTH)(0.0);
 		prYNode[ii++]  = (_real)(0.5);
-//		prUNode1[ii++]   = (_ELEM_VAL_RTH)(0.0);
-//		prUNode1[ii++]   = (_ELEM_VAL_RTH)(0.5);
-//		prUNode2[i]   = (_ELEM_VAL_RTH)(0.0);
-//		prYNode[i]    = (_real)(0.0);
-//		prYMulNode[i] = (_real)(0.5);
-//		pnTypeNode[i] = CTMCRTH_BLCKNTYPE_EPS;
-//		prUNode2[i]   = (_ELEM_VAL_RTH)(0.0);
-//		prYNode[i]    = (_real)(0.0);
-//		prYMulNode[i] = (_real)(0.5);
-//		prUNode1[ii]  = (_ELEM_VAL_RTH)(0.0);
-//		prYNode[ii++] = (_real)(0.5);
   };
 
 	return;
@@ -922,84 +846,17 @@ void CTmcRTHRectNode::InitNodeArray( void )
 
 void CTmcRTHRectNode::DeleteNodeArray( void )
 {
-/*
-	// array falling voltage 1 = V; 2 = ^; 3 = <; 4 = >
-	if( prUNode != NULL )
-	{
-		delete []prUNode;
-		prUNode = NULL;
-	};
-*/
-/*	if( pcNodeDielList != NULL )
-	{
-		TmcIdx i;	// BIGBLOCK3
-		for( i = 0; i < nNumNode; i++ )
-		{
-			if( pcNodeDielList[i] != NULL ) 
-			{
-				DeleteDielList( &(pcNodeDielList[i]) );
-			};
-		};	
-		delete []pcNodeDielList;
-		pcNodeDielList = NULL;
-	};
-*/	
 	if( prUNode1 != NULL )
 	{
 		delete []prUNode1Temp;
 		prUNode1 = NULL;
 	};
-/*
-	if( prUNode2 != NULL )
-	{
-		delete []prUNode2;
-		prUNode2 = NULL;
-	};
-*/
 	if( prYNode != NULL )
 	{
 		delete []prYNodeTemp;
 		prYNode = NULL;
 	};
-/*
-	if( prYMulNode != NULL )
-	{
-		delete []prYMulNode;
-		prYMulNode = NULL;
-	};
-*/
-/*	if( pnTypeNode != NULL )
-	{
-		delete []pnTypeNode;
-		pnTypeNode = NULL;
-	};
-*/
 
-/*
-	if( prUyNodeBottom != NULL )
-	{
-		delete []prUyNodeBottom;
-		prUyNodeBottom = NULL;
-	};
-
-	if( prUyNodeTop != NULL )
-	{
-		delete []prUyNodeTop;
-		prUyNodeTop = NULL;
-	};
-	
-	if( prUxNodeRight != NULL )
-	{
-		delete []prUxNodeRight;
-		prUxNodeRight = NULL;
-	};
-	
-	if( prUxNodeLeft != NULL )
-	{
-		delete []prUxNodeLeft;
-		prUxNodeLeft = NULL;
-	};
-*/
 	return;
 }
 
@@ -1194,7 +1051,6 @@ BOOL CTmcRTHRectNode::IsReadData( void )
 	return bIsReadData;
 }
 
-//#pragma optimize( "f", on )
 
 void CTmcRTHRectNode::RunScatteringNode( void )
 {
@@ -1268,20 +1124,7 @@ void CTmcRTHRectNode::RunScatteringNode1( void )
 	return;
 }
 
-//#pragma optimize( "f", off )
 
-void CTmcRTHRectNode::DeleteDielList( sTmcRTH_DielNodeList ** pcNodeDielList1 )
-{
-	if( pcNodeDielList1 == NULL ) return;
-	if( pcNodeDielList1[ 0 ]->pcDielNodeNextList != NULL )
-	{
-		DeleteDielList( &(pcNodeDielList1[0]->pcDielNodeNextList) );
-	};
-	delete pcNodeDielList1[0];
-	pcNodeDielList1[0] = NULL;
-
-	return;
-}
 
 void CTmcRTHRectNode::SetDielInNodeList( void )
 {
@@ -1332,12 +1175,7 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 		csBuf.Format("Set node admitance");
 		PutTrace(csBuf);
 	};
-//	{ 
 //		CString csBuf1;
-//		csBuf1.Format("koef1 = %lg", koef1 );
-////		csBuf1.Format("pcNodeDielOne");
-//		AfxMessageBox(csBuf1);
-//	};
 
 	for( i = 0, ii = 0, jj = 0; i < nNumNode; i++, ii+=2, jj++ )	
 	{
@@ -1345,19 +1183,9 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 
 		if( y_line < 0.0 )
 		{
-#ifdef _VERSION_EDUC___
-			{
-				CString csBuf1;
-				csBuf1.Format("Error for this version: Educational there is no opportunity to analyze areas with values permittivity by smaller value permittivity for free space. This opportunity is in the version: Professional. For reception of this version you can address in Tamic_soft group under a management Boris Vasilievich Sestroretsky." );
-				AfxMessageBox(csBuf1);
-				cError.PutErrorMessage(csBuf1);
-				return;
-			};
-#else
 			prYNode[ii] = (_real)( y_line*koef/(koef1) );
 			a = (4. + fabs( prYNode[ii] ));
 			prYNode[ ii + 1 ] =  (_real)(2./a);
-#endif
 		}
 		else
 		{
@@ -1369,13 +1197,7 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 			prYNode[ii] = (_real)( 4*y_line/koef1 );
 			a = (4. + fabs( prYNode[ii] ));
 			prYNode[ ii + 1 ] =  (_real)(2./a);
-//			if( prYNode[ii] > (FLT_MIN + 2) )
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("eps[%d] = %lg", ii, y_line );
-////		csBuf1.Format("pcNodeDielOne");
-//		AfxMessageBox(csBuf1);
-//	};
 		};
 		if( jj == 100000 )
 		{
@@ -1472,8 +1294,6 @@ void CTmcRTHRectNode::DeleteOutputFile( void )
 		TMC_GROTS_FLOUTInpNum_ID, -2);
 	fflush( fp );
 
-//	if( ( fp = fopen( cOut.csFileNameField , "w") ) == NULL ) return;
-//	fclose( fp );
 
 	return;
 }
@@ -1940,99 +1760,8 @@ metka1:
 	}
 }
 */
-/*
-near void CTmcRTHRectNode::RunScatteringNode1line1( _ELEM_VAL_RTH *pr1, _ELEM_VAL_RTH *pr2, float *prY, int *pnType1, int nx1, int nX11)
-{
-	int i;
-	_ELEM_VAL_RTH ddd, *pr3, *pr4;
 
-	for( i = 0, pr3 = pr2 - nX11, pr4 = pr2 + nX11; i < nx1; i++, pr3++, pr4++ )
-	{
-//		pr1[0] = 2/(4+prY[0])*( pr1[-1] + pr1[1] + pr1[-nX11] + pr1[nX11] + prY[0]*pr1[0] ) - pr1[0];
-		pr1[i] = prY[i]*(pr2[i-1] + pr2[i+1] + pr3[0] + pr4[0] + prY[i]*pr2[i]) - pr1[i];
-	};
-
-//	for( i = 0; i < nx1; i++ )
-//	{
-//		pr1[0] = 2/(4+prY[0])*( pr1[-1] + pr1[1] + pr1[-nX11] + pr1[nX11] + prY[0]*pr1[0] ) - pr1[0];
-//		pr1[i] += pr2[i-1];
-//	};
-}
-
-near void CTmcRTHRectNode::RunScatteringNode1line( _ELEM_VAL_RTH *pr1, _ELEM_VAL_RTH *pr2, float *prY, int *pnType1, int nx1, int nX11)
-{
-	RunScatteringNode1line1( pr1, pr2, prY, pnType1, nx1, nX11);
-//									{
-//	csBuf1.Format("{nType(%p)=%d}", pnType1, pnType1[0] );
-//	AfxMessageBox(csBuf1);
-//									};
-		switch( pnType1[i] )
-		{
-											// if node is metal
-			case CTMCRTH_BLCKNTYPE_METAL :
-//								rrr = 0.0;
-								pr1[0] = 0.0;
-//								pr1[1] = 0.0;
-								break;
-											// if node is absorber
-			case CTMCRTH_BLCKNTYPE_ABSORBER :
-								break;
-//								{
-//csBuf1.Format("{r1=%lg;r2=%lg;r3=%lg;r4=%lg}", r1[0], r2[0], r3[0], r4[0] );
-//AfxMessageBox(csBuf1);
-//								};
-											// if dielectric
-//			case CTMCRTH_BLCKNTYPE_EPSLE0   : ;
-//			case CTMCRTH_BLCKNTYPE_EPSGT0   : ;
-			case CTMCRTH_BLCKNTYPE_EPS      : ;
-//								rrr = pr1[3]*( pr1[-4+1] + pr1[4+1] + pr1[-nX1+1] + pr1[nX1+1] + pr1[2]*pr1[1] ) - pr1[0];
-								pr1[0] = pr1[3]*( pr1[-4+1] + pr1[4+1] + pr1[-nX1+1] + pr1[nX1+1] + pr1[2]*pr1[1] ) - pr1[0];
-								break;
-											// if one dielectric
-			default:
-				cError.PutErrorMessage("Kernel: unknow node type %d", pnType1[0]);
-				return;
-				break;
-		};
-		pnType1++;
-//		pr1[0] = rrr;
-		pr1+=4;
-		j++;
-
-//		pr1[i] = 2./(4.+prY[i])*( pr2[i-1] + pr2[i+1] + pr2[i-nX11] + pr2[i+nX11] + prY[i]*pr2[i] ) - pr1[i];
-//		ddd = 2./(4.+prY[i])*( pr2[i-1] + pr2[i+1]);
-}
-//		pr1[ 0] = pr1[ 3]*(pr1[-3]+pr1[ 5]+pr1[ 1-nX_111]+pr1[ 1+nX_111]+pr1[ 1]*pr1[ 2])-pr1[ 0];
-//		pr1[ 4] = pr1[ 7]*(pr1[ 1]+pr1[ 9]+pr1[ 5-nX_111]+pr1[ 5+nX_111]+pr1[ 5]*pr1[ 6])-pr1[ 4];
-//		pr1[ 8] = pr1[11]*(pr1[ 5]+pr1[13]+pr1[ 9-nX_111]+pr1[ 9+nX_111]+pr1[ 9]*pr1[10])-pr1[ 8];
-//		pr1[12] = pr1[15]*(pr1[ 9]+pr1[17]+pr1[13-nX_111]+pr1[13+nX_111]+pr1[13]*pr1[14])-pr1[12];
-//		pr1[16] = pr1[19]*(pr1[13]+pr1[21]+pr1[17-nX_111]+pr1[17+nX_111]+pr1[17]*pr1[18])-pr1[16];
-//		pr1[20] = pr1[23]*(pr1[17]+pr1[25]+pr1[21-nX_111]+pr1[21+nX_111]+pr1[21]*pr1[22])-pr1[20];
-//		pr1[24] = pr1[27]*(pr1[21]+pr1[29]+pr1[25-nX_111]+pr1[25+nX_111]+pr1[25]*pr1[26])-pr1[24];
-//		pr1[28] = pr1[31]*(pr1[25]+pr1[33]+pr1[29-nX_111]+pr1[29+nX_111]+pr1[29]*pr1[30])-pr1[28];
-//		pr1[32] = pr1[35]*(pr1[29]+pr1[37]+pr1[33-nX_111]+pr1[33+nX_111]+pr1[33]*pr1[34])-pr1[32];
-//		pr1[36] = pr1[39]*(pr1[33]+pr1[41]+pr1[37-nX_111]+pr1[37+nX_111]+pr1[37]*pr1[38])-pr1[36];
-//		
-//		pr1[1] = prY2[1]*(pr2[0]+ pr2[2]+pr2[1-nX_111]+pr2[1+nX_111]+pr2[1]*prY1[1])-pr1[1];
-//		pr1[2] = prY2[2]*(pr2[1]+ pr2[3]+pr2[2-nX_111]+pr2[2+nX_111]+pr2[2]*prY1[2])-pr1[2];
-//		pr1[3] = prY2[3]*(pr2[2]+ pr2[4]+pr2[3-nX_111]+pr2[3+nX_111]+pr2[3]*prY1[3])-pr1[3];
-//		pr1[4] = prY2[4]*(pr2[3]+ pr2[5]+pr2[4-nX_111]+pr2[4+nX_111]+pr2[4]*prY1[4])-pr1[4];
-//		pr1[5] = prY2[5]*(pr2[4]+ pr2[6]+pr2[5-nX_111]+pr2[5+nX_111]+pr2[5]*prY1[5])-pr1[5];
-//		pr1[6] = prY2[6]*(pr2[5]+ pr2[7]+pr2[6-nX_111]+pr2[6+nX_111]+pr2[6]*prY1[6])-pr1[6];
-//		pr1[7] = prY2[7]*(pr2[6]+ pr2[8]+pr2[7-nX_111]+pr2[7+nX_111]+pr2[7]*prY1[7])-pr1[7];
-//		pr1[8] = prY2[8]*(pr2[7]+ pr2[9]+pr2[8-nX_111]+pr2[8+nX_111]+pr2[8]*prY1[8])-pr1[8];
-//		pr1[9] = prY2[9]*(pr2[8]+pr2[10]+pr2[9-nX_111]+pr2[9+nX_111]+pr2[9]*prY1[9])-pr1[9];
-//
-//		pr1[ 4] = prY1[ 5]*(pr1[-2+ 5]+ pr1[2+ 5]+pr1[-nX_111+ 5]+pr1[nX_111+ 5]+pr1[ 5]*prY1[ 4])-pr1[ 4];
-//		pr1[ 6] = prY1[ 7]*(pr1[-2+ 7]+ pr1[2+ 7]+pr1[-nX_111+ 7]+pr1[nX_111+ 7]+pr1[ 7]*prY1[ 6])-pr1[ 6];
-//		pr1[ 8] = prY1[ 9]*(pr1[-2+ 9]+ pr1[2+ 9]+pr1[-nX_111+ 9]+pr1[nX_111+ 9]+pr1[ 9]*prY1[ 8])-pr1[ 8];
-//		pr1[10] = prY1[11]*(pr1[-2+11]+ pr1[2+11]+pr1[-nX_111+11]+pr1[nX_111+11]+pr1[11]*prY1[10])-pr1[10];
-//		pr1[12] = prY1[13]*(pr1[-2+13]+ pr1[2+13]+pr1[-nX_111+13]+pr1[nX_111+13]+pr1[13]*prY1[12])-pr1[12];
-//		pr1[14] = prY1[15]*(pr1[-2+15]+ pr1[2+15]+pr1[-nX_111+15]+pr1[nX_111+15]+pr1[15]*prY1[14])-pr1[14];
-
-*/
-
-near void CTmcRTHRectNode::RunScatteringNode1line( _ELEM_VAL_RTH *pr1, _real *prY1, int nx_10, int nX_111)
+void CTmcRTHRectNode::RunScatteringNode1line( _ELEM_VAL_RTH *pr1, _real *prY1, int nx_10, int nX_111)
 {
 	int i, ii;
 	ii = nx_10/2;
@@ -2049,7 +1778,7 @@ near void CTmcRTHRectNode::RunScatteringNode1line( _ELEM_VAL_RTH *pr1, _real *pr
 	return;
 }
 
-near void CTmcRTHRectNode::RunScatteringNode1line1( _ELEM_VAL_RTH *pr1, _real *prY1, int nx_10, int nX_111)
+void CTmcRTHRectNode::RunScatteringNode1line1( _ELEM_VAL_RTH *pr1, _real *prY1, int nx_10, int nX_111)
 {
 	int i, ii;
 	
@@ -2084,7 +1813,6 @@ void CTmcRTHRectNode::PutField( TmcIdx ii )	// INT64
 		{
 			Sleep(50);
 			cOut = cIndan.GetOutput();
-//			if( i == 50) return;
 		};
 		if( i >= 500 ) bFieldReaderLost = TRUE;
 	};
@@ -2111,7 +1839,6 @@ void CTmcRTHRectNode::PutField( TmcIdx ii )	// INT64
 		fprintf( fp, "%c%c", 13, 10);
 		for( j = 0; j < nX; j++ )
 		{
-//			fprintf( fp, GetdFieldOutFormat(), prUNode1[ii]);
 			if( strcmp( GetdFieldOutFormat(), "") == 0 )
 			{
 				fwrite( &(prUNode1[ii]), sizeof(_real), 1, fp );
@@ -2248,7 +1975,6 @@ void CTmcRTHRectNode::PutTopology()
 		fprintf( fp, "%c%c", 13, 10);
 		for( j = 0; j < nX; j++ )
 		{
-//			fprintf( fp, GetdFieldOutFormat(), prYNode1[0]);
 			dBuf = prYNode[ii];
 			if( dBuf >= 0. ) dBuf /= 4.;
 			else dBuf /= koef;

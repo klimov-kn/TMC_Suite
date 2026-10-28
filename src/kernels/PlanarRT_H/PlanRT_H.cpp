@@ -74,11 +74,6 @@ BOOL CPlanRT_HApp::InitInstance()
 	//  of your final executable, you should remove from the following
 	//  the specific initialization routines you do not need.
 
-#ifdef _AFXDLL
-	Enable3dControls();			// Call this when using MFC in a shared DLL
-#else
-//	Enable3dControlsStatic();	// Call this when linking to MFC statically
-#endif
 
 	LoadStdProfileSettings(7);  // Load standard INI file options (including MRU)
 
@@ -167,8 +162,6 @@ BOOL CPlanRT_HApp::InitInstance()
 		WINDOWPLACEMENT sWndPl;
 			// read main frame size and place
 		csBuffer = AfxGetApp()->GetProfileString( PLANRT_H_RAZDEL_INI, PLANRT_H_MNWNDSIZEPLACE_INI );
-//		csBuf1.Format("{%s};", csBuffer );
-//		AfxMessageBox(csBuf1);
 		if( csBuffer.GetLength() != 0 )
 		{
 			if( sscanf( csBuffer, "%d %d %d %d", &(rect.left), &(rect.right), &(rect.top), &(rect.bottom)  ) == 4 )
@@ -187,7 +180,6 @@ BOOL CPlanRT_HApp::InitInstance()
 	};
 
 	pMainFrame->ShowWindow(SW_RESTORE);
-//	pMainFrame->ShowWindow(SW_SHOWMAXIMIZED);
 	pMainFrame->UpdateWindow();
 
 	return TRUE;

@@ -211,8 +211,6 @@
     <ClInclude Include="TMCGROUTDoc.h" />
     <ClInclude Include="TMCGROUTView.h" />
     <ClInclude Include="TmcGrParColTypWid.h" />
-    <ClInclude Include="TmcSMatrix.h" />
-    <ClInclude Include="TmcTtoS.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

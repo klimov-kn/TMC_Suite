@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <conio.h>
 
 
 #include <typedef.h>
@@ -21,19 +20,17 @@
 #include <tmc_lib.h>
 #include <frqdata.h>
 #include <s_file.h>
-#include <matrix.h>
 #include <Error1.h>	/* was <error.h>: error.h missing, error codes live in Error1.h */
 #include <mainwndw.h>
 #include <proc_s.h>
 
-//int  _far _fortran write_S_to_listing( S_INDEX _far *si, int extrapol_flag, _complex _far **sss,  FREQUENCY _far *frq_out, INPUT_DATA _far *id );
-int  _far _fortran Compare_S_ind( S_INDEX _far *si1, int extrapol_flag1, S_INDEX _far *si2, int extrapol_flag2 );
-int  _far _fortran Unite_two_S( FREQUENCY _far *frq_out1, INPUT_DATA _far *id1, _complex _far **sss1,
-				FREQUENCY _far *frq_out2, INPUT_DATA _far *id2, _complex _far **sss2,
-				FREQUENCY _far *frq_out,  INPUT_DATA _far **id, _complex _far ***sss );
-void _far _fortran Free_S( INPUT_DATA _far *id, S_INDEX _far **si, _real _far *f,
-                           _complex _far ***sss, int max, int extrapol_flag );
-int _far _fortran Interpolate_S_matrix( char _far *szFile );
+int  Compare_S_ind( S_INDEX *si1, int extrapol_flag1, S_INDEX *si2, int extrapol_flag2 );
+int  Unite_two_S( FREQUENCY *frq_out1, INPUT_DATA *id1, _complex **sss1,
+				FREQUENCY *frq_out2, INPUT_DATA *id2, _complex **sss2,
+				FREQUENCY *frq_out,  INPUT_DATA **id, _complex ***sss );
+void Free_S( INPUT_DATA *id, S_INDEX **si, _real *f,
+                           _complex ***sss, int max, int extrapol_flag );
+int Interpolate_S_matrix( char *szFile );
 
 
 static char szTrace1[] = "Reading first matrix ...";
@@ -43,29 +40,29 @@ static char szTrace4[] = "Interpolating S-matrix ...";
 static char szFin1[] = "S-matrices have been united normally.";
 static char szFin2[] = "S-matrix have been read normally.";
 
-int _far _fortran S_add( char *filename, char *filename1 )
+int S_add( char *filename, char *filename1 )
   {
    int ret_code = 0, i;
 
    int extrapol_flag;
-   char _far *szFile = filename;
-   _complex   _far **sss;
-   INPUT_DATA _far *id;
-   S_INDEX    _far *si;
+   char *szFile = filename;
+   _complex   **sss;
+   INPUT_DATA *id;
+   S_INDEX    *si;
    FREQUENCY  frq_out;
 
    int extrapol_flag1;
-   char _far *szFile1 = filename;
-   _complex   _far **sss1;
-   INPUT_DATA _far *id1;
-   S_INDEX    _far *si1;
+   char *szFile1 = filename;
+   _complex   **sss1;
+   INPUT_DATA *id1;
+   S_INDEX    *si1;
    FREQUENCY  frq_out1;
 
    int extrapol_flag2;
-   char _far *szFile2 = filename1;
-   _complex   _far **sss2;
-   INPUT_DATA _far *id2;
-   S_INDEX    _far *si2;
+   char *szFile2 = filename1;
+   _complex   **sss2;
+   INPUT_DATA *id2;
+   S_INDEX    *si2;
    FREQUENCY  frq_out2;
 
    /* reading first scattering matrix */
@@ -93,8 +90,6 @@ int _far _fortran S_add( char *filename, char *filename1 )
           /* rename first file if there is not third parameter in the string */
           if( strcmp( szFile1, szFile ) == 0 )
             {
-//             change_file_extension( szFile1, szFile, "~s" );
-//             rename( szFile, szFile1 );
             }
 
           /* write united matrix to the file */
@@ -107,7 +102,6 @@ int _far _fortran S_add( char *filename, char *filename1 )
             }
 
           /* write united matrix to the listing */
-//         if(  ret_code == 0  ) ret_code = write_S_to_listing( si, extrapol_flag, sss,  &frq_out, id );
           free_mem( frq_out.f );
           free_mem( id );
           free_mem( sss );
@@ -124,7 +118,6 @@ int _far _fortran S_add( char *filename, char *filename1 )
      {
       if( ret_code == 0 )
        {
-//        ret_code = write_S_to_listing( si1, extrapol_flag1, sss1,  &frq_out1, id1 );
 		Free_S( id1, &si1, frq_out1.f, &sss1, frq_out1.max, extrapol_flag1 );
        }
      }
@@ -132,8 +125,8 @@ int _far _fortran S_add( char *filename, char *filename1 )
    return ret_code;
   }
 
-void _far _fortran Free_S( INPUT_DATA _far *id, S_INDEX _far **si, _real _far *f,
-                           _complex _far ***sss, int max, int extrapol_flag )
+void Free_S( INPUT_DATA *id, S_INDEX **si, _real *f,
+                           _complex ***sss, int max, int extrapol_flag )
   {
    free_mem( id );
    free_mem( f );
@@ -141,7 +134,7 @@ void _far _fortran Free_S( INPUT_DATA _far *id, S_INDEX _far **si, _real _far *f
    Free_GRID_Index( si, extrapol_flag );
   }
 
-int _far    _fortran Compare_S_ind( S_INDEX _far *si1, int extrapol_flag1, S_INDEX _far *si2, int extrapol_flag2 )
+int Compare_S_ind( S_INDEX *si1, int extrapol_flag1, S_INDEX *si2, int extrapol_flag2 )
  {
   if( extrapol_flag1 != extrapol_flag2 )
     {

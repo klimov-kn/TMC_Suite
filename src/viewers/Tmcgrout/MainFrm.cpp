@@ -129,8 +129,6 @@ void CMainFrame::OnDestroy()
 			char szBuffer[300];
 //			CString csBuf1;
 			sprintf( szBuffer, "%d %d %d %d", sWndPl.rcNormalPosition.left, sWndPl.rcNormalPosition.right, sWndPl.rcNormalPosition.top, sWndPl.rcNormalPosition.bottom  );
-//			csBuf1.Format("{%s};", szBuffer );
-//			AfxMessageBox(csBuf1);
 			AfxGetApp()->WriteProfileString( TMC_GROTS_DOCFILE_ID, TMC_GROUT_DOCFILE_ID_INIWND, szBuffer);
 		};
 	};

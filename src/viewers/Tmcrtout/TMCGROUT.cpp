@@ -65,11 +65,6 @@ BOOL CTMCGROUTApp::InitInstance()
 	//  of your final executable, you should remove from the following
 	//  the specific initialization routines you do not need.
 
-#ifdef _AFXDLL
-	Enable3dControls();			// Call this when using MFC in a shared DLL
-#else
-	Enable3dControlsStatic();	// Call this when linking to MFC statically
-#endif
 
 	LoadStdProfileSettings(9);  // Load standard INI file options (including MRU)
 
@@ -126,8 +121,6 @@ BOOL CTMCGROUTApp::InitInstance()
 		WINDOWPLACEMENT sWndPl;
 			// read main frame size and place
 		csBuffer = AfxGetApp()->GetProfileString( TMC_GROTS_DOCFILE_ID, TMC_GROUT_DOCFILE_ID_INIWND );
-//		csBuf1.Format("{%s};", csBuffer );
-//		AfxMessageBox(csBuf1);
 		if( csBuffer.GetLength() != 0 )
 		{
 			if( sscanf( csBuffer, "%d %d %d %d", &(rect.left), &(rect.right), &(rect.top), &(rect.bottom)  ) == 4 )
@@ -146,7 +139,6 @@ BOOL CTMCGROUTApp::InitInstance()
 	};
 
 	pMainFrame->ShowWindow(SW_RESTORE);
-//	pMainFrame->ShowWindow(m_nCmdShow);
 	pMainFrame->UpdateWindow();
 
 	return TRUE;

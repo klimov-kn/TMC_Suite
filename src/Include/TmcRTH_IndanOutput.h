@@ -68,7 +68,6 @@ public:
 // Implementation
 public:
 	CFieldIntegrated& GetFieldIntegrated( void );
-	BOOL bIsFieldDistribution( void );
 	void PutSmatrix( void );
 	int PutSmatrixZero( CTmcRTH_BlockList *pcBl );	// D-1: zeros at the frequency of SMATRIX (1 - written, 0 - not needed, -1 - error)
 	CString csSMatrixError;		// A-21: oshibka poslednego PutSmatrix ("" - net oshibki)
@@ -78,8 +77,6 @@ public:
 	BOOL bSoundEffect;
 	void OnOffSinchronizationFieldOutput( void );
 	void OnOffFieldOutput( void );
-	void OnOffFieldOutput1( void );
-	void OnOffFieldOutputU( void );
 	virtual ~CTmcRTH_IndanOutput();
 
 	// Generated message map functions

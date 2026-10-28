@@ -65,12 +65,6 @@ static char   *fun[15] = {
                   szLOG10 };
 
 
-_real  expr_atof( char  *string )
- {
- // del_blanks( string );
-  expr_set_error_cod( 0 );
-  return( expr_inter( string, strlen( string )) );
-  }
 
 
 char  arif[] = "=+-*/^";

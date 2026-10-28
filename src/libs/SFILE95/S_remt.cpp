@@ -22,7 +22,6 @@
 
 #include <io.h>
 #include <stdio.h>
-#include <conio.h>
 #include <string.h>
 #include <math.h>
 
@@ -33,25 +32,23 @@
 #include <tmclimit.h>
 #include <s_file.h>
 #include <error1.h>
-#include "error2.h"
 #include <proc_s.h>
 #include <ys_proc.h>
 
-int _far _fortran read_S_matrix_element_TMC( int *in1, int *mod1, int *in2, int *mod2, char *filename, _complex **sss, double **f1, int *nPoint)
+int read_S_matrix_element_TMC( int *in1, int *mod1, int *in2, int *mod2, char *filename, _complex **sss, double **f1, int *nPoint)
   {
 //
-   S_INDEX    _far *si;
+   S_INDEX    *si;
    FREQUENCY  frq;
    int extrapol_flag;
-   _complex   _far **sss1;
-   INPUT_DATA _far *id;
+   _complex   **sss1;
+   INPUT_DATA *id;
    _complex *lpxS1;
    _complex *s;
    double *f;
    int i, j, i1, j1, ii, k, kol1, kol;
    int nP;
 
-//   getch();
    *nPoint = -1;
    sss1 = NULL;
 
@@ -134,7 +131,6 @@ int _far _fortran read_S_matrix_element_TMC( int *in1, int *mod1, int *in2, int 
 	  };
      }; /* end frequency loop */
 
-//  getch();
   Free_GRID_Index( &si, extrapol_flag );
   free_mem( frq.f );
   free_mem( id );
@@ -149,7 +145,7 @@ int _far _fortran read_S_matrix_element_TMC( int *in1, int *mod1, int *in2, int 
 
 
 
-int _far _fortran read_S_matrix_element( int *in1, int *mod1, int *in2, int *mod2, char *filename, _complex **sss, double **f1, int *nPoint)
+int read_S_matrix_element( int *in1, int *mod1, int *in2, int *mod2, char *filename, _complex **sss, double **f1, int *nPoint)
   {
 	read_S_matrix_element_TMC( in1, mod1, in2, mod2, filename, sss, f1, nPoint);
 	if( *nPoint <= 0 )
@@ -164,7 +160,7 @@ int _far _fortran read_S_matrix_element( int *in1, int *mod1, int *in2, int *mod
   } 
 
 
-int _far _fortran read_S_matrix_element_HFSS( int *in1, int *mod1, int *in2, int *mod2, char *filename, _complex **sss, double **f1, int *nPoint)
+int read_S_matrix_element_HFSS( int *in1, int *mod1, int *in2, int *mod2, char *filename, _complex **sss, double **f1, int *nPoint)
 {
 	int nMatrixSize;
 	*nPoint = -1;
@@ -179,7 +175,7 @@ int _far _fortran read_S_matrix_element_HFSS( int *in1, int *mod1, int *in2, int
 	return 0;
 } 
 
-int _far _fortran SMatrixElementHFSS_InpMod( int *in1, int *mod1, int *in2, int *mod2, char *filename )
+int SMatrixElementHFSS_InpMod( int *in1, int *mod1, int *in2, int *mod2, char *filename )
 {
 	int nInpMax, nModMax;
 
@@ -201,7 +197,7 @@ int _far _fortran SMatrixElementHFSS_InpMod( int *in1, int *mod1, int *in2, int 
 	return 0;
 } 
 
-int _far _fortran SMatrixElementHFSS_ModMax( char *filename, int *pnInp )
+int SMatrixElementHFSS_ModMax( char *filename, int *pnInp )
 {
 	FILE *fp;
 	int nSize;
@@ -231,7 +227,7 @@ int _far _fortran SMatrixElementHFSS_ModMax( char *filename, int *pnInp )
 	return nModInp;
 } 
 
-int _far _fortran SMatrixElementHFSS_InpMax( char *filename )
+int SMatrixElementHFSS_InpMax( char *filename )
 {
 	FILE *fp;
 	int nSize;
@@ -261,7 +257,7 @@ int _far _fortran SMatrixElementHFSS_InpMax( char *filename )
 } 
 
 
-int _far _fortran ChooseString( char *pszBuf, char *pszIdentifInput, char *pszIdentifMode, int *pnInp, int *pnMod )
+int ChooseString( char *pszBuf, char *pszIdentifInput, char *pszIdentifMode, int *pnInp, int *pnMod )
 {
 	int i, j;
 
@@ -269,15 +265,12 @@ int _far _fortran ChooseString( char *pszBuf, char *pszIdentifInput, char *pszId
 	{
 		if( strncmp( pszBuf + i, pszIdentifInput, strlen(pszIdentifInput) ) == 0)
 		{
-//			PutStatistics111(pszBuf + i);
 			for( j = 0; pszBuf[ j ] != '\0'; j++ )
 			{
 				if( strncmp( pszBuf + j, pszIdentifMode, strlen(pszIdentifMode) ) == 0)
 				{
 					pszBuf[ j ] = '\0';
-//					PutStatistics111(pszBuf + i + strlen(pszIdentifInput));
 					sscanf( pszBuf + i + strlen(pszIdentifInput), "%d", pnInp );
-//					PutStatistics111(pszBuf + j + strlen(pszIdentifMode));
 					sscanf( pszBuf + j + strlen(pszIdentifMode), "%d", pnMod );
 					return 1;
 				};
@@ -289,7 +282,7 @@ int _far _fortran ChooseString( char *pszBuf, char *pszIdentifInput, char *pszId
 }
 
 
-int _far _fortran ChooseString1( char *pszBuf, char *pszIdentifInput, char *pszIdentifMode, int *pnInp, int *pnMod )
+int ChooseString1( char *pszBuf, char *pszIdentifInput, char *pszIdentifMode, int *pnInp, int *pnMod )
 {
 	int i, j;
 
@@ -297,15 +290,12 @@ int _far _fortran ChooseString1( char *pszBuf, char *pszIdentifInput, char *pszI
 	{
 		if( strncmp( pszBuf + i, pszIdentifInput, strlen(pszIdentifInput) ) == 0)
 		{
-//			PutStatistics111(pszBuf + i);
 			for( j = 0; pszBuf[ j ] != '\0'; j++ )
 			{
 				if( strncmp( pszBuf + j, pszIdentifMode, strlen(pszIdentifMode) ) == 0)
 				{
 					pszBuf[ j ] = '\0';
-//					PutStatistics111(pszBuf + i + strlen(pszIdentifInput));
 					sscanf( pszBuf + i + strlen(pszIdentifInput), "%d", pnInp );
-//					PutStatistics111(pszBuf + j + strlen(pszIdentifMode));
 					sscanf( pszBuf + j + strlen(pszIdentifMode), "%d", pnMod );
 					return j + strlen(pszIdentifMode);
 				};
@@ -318,7 +308,7 @@ int _far _fortran ChooseString1( char *pszBuf, char *pszIdentifInput, char *pszI
 
 
 // allocation memory and read frequence array
-int _far _fortran SMatrixElementHFSS_FreqArray( int *in1, int *mod1, int *in2, int *mod2, char *filename, double **f1, _complex **sss, int *nPoint, int *nMatrixSize)
+int SMatrixElementHFSS_FreqArray( int *in1, int *mod1, int *in2, int *mod2, char *filename, double **f1, _complex **sss, int *nPoint, int *nMatrixSize)
 {
 // calculation point in frequence array
 	SMatrixElementHFSS_FreqArrayCalculation( filename, f1, nPoint, nMatrixSize);
@@ -331,7 +321,7 @@ int _far _fortran SMatrixElementHFSS_FreqArray( int *in1, int *mod1, int *in2, i
 } 
 
 // calculation point in frequence array
-void _far _fortran SMatrixElementHFSS_FreqArrayCalculation( char *filename, double **f1, int *nPoint, int *nMatrixSize)
+void SMatrixElementHFSS_FreqArrayCalculation( char *filename, double **f1, int *nPoint, int *nMatrixSize)
 {
 	*nPoint = -1;
 
@@ -388,8 +378,6 @@ void _far _fortran SMatrixElementHFSS_FreqArrayCalculation( char *filename, doub
 		};
 	};
 
-//	sprintf( ch, "nMatrixSize = %d; nPoint = %d", i, j );
-//	PutStatistics111( ch );
 
 	delete []ch;
 	fclose( fp );
@@ -401,7 +389,7 @@ void _far _fortran SMatrixElementHFSS_FreqArrayCalculation( char *filename, doub
 } 
 
 // allocation memory for frequence array
-void _far _fortran SMatrixElementHFSS_FreqArrayAllocation( double **f1, _complex **sss, int *nPoint)
+void SMatrixElementHFSS_FreqArrayAllocation( double **f1, _complex **sss, int *nPoint)
 {
 	if( (*nPoint) < 1 ) return;
 
@@ -422,7 +410,7 @@ void _far _fortran SMatrixElementHFSS_FreqArrayAllocation( double **f1, _complex
 } 
 
 // read data in frequence array
-void _far _fortran SMatrixElementHFSS_FreqArrayRead( int *in1, int *mod1, int *in2, int *mod2, char *filename, double **f1, _complex **sss, int *nPoint, int *nMatrixSize)
+void SMatrixElementHFSS_FreqArrayRead( int *in1, int *mod1, int *in2, int *mod2, char *filename, double **f1, _complex **sss, int *nPoint, int *nMatrixSize)
 {
 	if( (*nPoint) < 1 ) return;
 	if( strlen( filename ) < 1 ) return;
@@ -485,8 +473,6 @@ void _far _fortran SMatrixElementHFSS_FreqArrayRead( int *in1, int *mod1, int *i
 			return;
 		};
 		f[ i ] *= 1000000000.;
-//		sprintf( ch, "Frequence [ %d ] = %lg; nMatrixSize = %d", i, f[ i ], *nMatrixSize );
-//		PutStatistics111( ch );
 		for( j = 0; j < ( *nMatrixSize )*( *nMatrixSize ); j++ )
 		{
 			if( fscanf( fp, "%lg%lg", &dBuf, &dBuf1 ) != 2)
@@ -513,7 +499,7 @@ void _far _fortran SMatrixElementHFSS_FreqArrayRead( int *in1, int *mod1, int *i
 	return;
 } 
 
-int _far _fortran read_S_matrix_element_CST( int *in1, int *mod1, int *in2, int *mod2, char *filename, _complex **sss, double **f1, int *nPoint)
+int read_S_matrix_element_CST( int *in1, int *mod1, int *in2, int *mod2, char *filename, _complex **sss, double **f1, int *nPoint)
 {
 	int nMatrixSize;
 	*nPoint = -1;
@@ -528,7 +514,7 @@ int _far _fortran read_S_matrix_element_CST( int *in1, int *mod1, int *in2, int 
 	return 0;
 } 
 
-int _far _fortran SMatrixElementCST_InpMod( int *in1, int *mod1, int *in2, int *mod2, char *filename )
+int SMatrixElementCST_InpMod( int *in1, int *mod1, int *in2, int *mod2, char *filename )
 {
 	int nInpMax, nModMax;
 
@@ -550,7 +536,7 @@ int _far _fortran SMatrixElementCST_InpMod( int *in1, int *mod1, int *in2, int *
 	return 0;
 } 
 
-int _far _fortran SMatrixElementCST_InpMax( char *filename )
+int SMatrixElementCST_InpMax( char *filename )
 {
 	FILE *fp;
 	int i, j;
@@ -569,8 +555,6 @@ int _far _fortran SMatrixElementCST_InpMax( char *filename )
 		return -1;
 	};
 
-//	for( ; fgets( ch, nSize, fp )!= NULL; )
-//	{
 		fgets( ch, nSize, fp );
 		for( i = 0, j = 0; (j = ChooseString1( ch + i, "WavePort", "):Mode(", &nInp, &nMod )) > 0; i += j ) ;
 //		;
@@ -582,7 +566,7 @@ int _far _fortran SMatrixElementCST_InpMax( char *filename )
 	return nInp;
 } 
 
-int _far _fortran SMatrixElementCST_ModMax( char *filename, int *pnInp )
+int SMatrixElementCST_ModMax( char *filename, int *pnInp )
 {
 	FILE *fp;
 	int nSize;
@@ -601,11 +585,6 @@ int _far _fortran SMatrixElementCST_ModMax( char *filename, int *pnInp )
 		return -1;
 	};
 
-//	for( ; fgets( ch, nSize, fp )!= NULL; )
-//	{
-//		ChooseString( ch, "WavePort", "):Mode(", &nInp, &nMod );
-//		if( (*pnInp) == nInp ) nModInp = nMod;
-//	};
 
 	fgets( ch, nSize, fp );
 	for( i = 0, j = 0; (j = ChooseString1( ch + i, "WavePort", "):Mode(", &nInp, &nMod )) > 0; i += j )
@@ -623,7 +602,7 @@ int _far _fortran SMatrixElementCST_ModMax( char *filename, int *pnInp )
 
 
 // allocation memory and read frequence array
-int _far _fortran SMatrixElementCST_FreqArray( int *in1, int *mod1, int *in2, int *mod2, char *filename, double **f1, _complex **sss, int *nPoint, int *nMatrixSize)
+int SMatrixElementCST_FreqArray( int *in1, int *mod1, int *in2, int *mod2, char *filename, double **f1, _complex **sss, int *nPoint, int *nMatrixSize)
 {
 // calculation point in frequence array
 	SMatrixElementCST_FreqArrayCalculation( filename, f1, nPoint, nMatrixSize);
@@ -637,7 +616,7 @@ int _far _fortran SMatrixElementCST_FreqArray( int *in1, int *mod1, int *in2, in
 
 
 // calculation point in frequence array
-void _far _fortran SMatrixElementCST_FreqArrayCalculation( char *filename, double **f1, int *nPoint, int *nMatrixSize)
+void SMatrixElementCST_FreqArrayCalculation( char *filename, double **f1, int *nPoint, int *nMatrixSize)
 {
 	*nPoint = -1;
 
@@ -688,8 +667,6 @@ void _far _fortran SMatrixElementCST_FreqArrayCalculation( char *filename, doubl
 		};
 	};
 
-//	sprintf( ch, "nMatrixSize = %d; nPoint = %d", i, j );
-//	PutStatistics111( ch );
 
 	delete []ch;
 	fclose( fp );
@@ -702,7 +679,7 @@ void _far _fortran SMatrixElementCST_FreqArrayCalculation( char *filename, doubl
 
 
 // allocation memory for frequence array
-void _far _fortran SMatrixElementCST_FreqArrayAllocation( double **f1, _complex **sss, int *nPoint)
+void SMatrixElementCST_FreqArrayAllocation( double **f1, _complex **sss, int *nPoint)
 {
 	if( (*nPoint) < 1 ) return;
 
@@ -724,7 +701,7 @@ void _far _fortran SMatrixElementCST_FreqArrayAllocation( double **f1, _complex 
 
 
 // read data in frequence array
-void _far _fortran SMatrixElementCST_FreqArrayRead( int *in1, int *mod1, int *in2, int *mod2, char *filename, double **f1, _complex **sss, int *nPoint, int *nMatrixSize)
+void SMatrixElementCST_FreqArrayRead( int *in1, int *mod1, int *in2, int *mod2, char *filename, double **f1, _complex **sss, int *nPoint, int *nMatrixSize)
 {
 	FILE *fp;
 	int nSize;
@@ -804,8 +781,6 @@ void _far _fortran SMatrixElementCST_FreqArrayRead( int *in1, int *mod1, int *in
 		fgets( ch, nSize, fp );
 	};
 
-//	sprintf( ch, "nMatrixSize = %d; nPoint = %d", i, j );
-//	PutStatistics111( ch );
 
 	delete []ch;
 	fclose( fp );

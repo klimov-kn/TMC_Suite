@@ -75,10 +75,10 @@ private:
 	void RunBlockNode1( void );
 	void RunBlockNode( void );
 	void PutField( TmcIdx ii );	// INT64
-	near void RunScatteringNode1line( _ELEM_VAL_RTH *pr_111, _real *prY_111, int nx_111, int nX_111);
-	near void RunScatteringNode1line1( _ELEM_VAL_RTH *pr_111, _real *prY_111, int nx_111, int nX_111);
-	near void RunScatteringNode1line2( _ELEM_VAL_RTH *pr_111, _real *prY_111, int nx_111, int nX_111);
-	near void RunScatteringNode1line3( _ELEM_VAL_RTH *pr_111, _real *prY_111, int nx_111, int nX_111);
+	void RunScatteringNode1line( _ELEM_VAL_RTH *pr_111, _real *prY_111, int nx_111, int nX_111);
+	void RunScatteringNode1line1( _ELEM_VAL_RTH *pr_111, _real *prY_111, int nx_111, int nX_111);
+	void RunScatteringNode1line2( _ELEM_VAL_RTH *pr_111, _real *prY_111, int nx_111, int nX_111);
+	void RunScatteringNode1line3( _ELEM_VAL_RTH *pr_111, _real *prY_111, int nx_111, int nX_111);
 	void OutputnT( void );
 	void DeleteOutputFile( void );
 	void PutPortInfo( void );		// wideband: port data for post-processing
@@ -88,7 +88,6 @@ private:
 	void RunExciteInputs( void );
 	void SetDielInNodeList( void );
 	void SetDielTopology( void );
-	void DeleteDielList( sTmcRTH_DielNodeList ** pcNodeDielList1 );
 	void RunScatteringNode( void );
 	void RunScatteringNode1( void );
 	void RunScatteringNode2( void );
@@ -137,12 +136,6 @@ private:
 	_ELEM_VAL_RTH * prUNode1Temp;		// temp pointer 
 //	_ELEM_VAL_RTH * prUNode2;			// array voltage on unit with 2 takt  
 	_real * prYNode;					// node admitance array
-//	prYNode[0] - value 2/(y1+y2+y3+y4+y5+y+y6*y7/(y6+y7));
-//	prYNode[1] - value y5;
-//	prYNode[2] - value y;
-//	prYNode[3] - value 2*(y6*y7)/(y6+y7);
-//	prYNode[4] - value 2*(y7-y6)/(y6+y7);
-//	prYNode[5] - value prYNode[3]*prYNode[4]/4;
 	_real * prYNodeTemp;				// temp pointer
 //	_real * prYMulNode;					// node multiple admitance array
 //	  int * pnTypeNode;					// node type array

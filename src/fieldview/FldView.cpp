@@ -64,11 +64,6 @@ BOOL CFldViewApp::InitInstance()
 	//  of your final executable, you should remove from the following
 	//  the specific initialization routines you do not need.
 
-#ifdef _AFXDLL
-	Enable3dControls();			// Call this when using MFC in a shared DLL
-#else
-//	Enable3dControlsStatic();	// Call this when linking to MFC statically
-#endif
 
 	// Change the registry key under which our settings are stored.
 	// TODO: You should modify this string to be something appropriate
@@ -157,8 +152,6 @@ BOOL CFldViewApp::InitInstance()
 		WINDOWPLACEMENT sWndPl;
 			// read main frame size and place
 		csBuffer = AfxGetApp()->GetProfileString( TMC_GROFLD_RAZDEL_INI, TMC_GROFLD_INIWND );
-//		csBuf1.Format("{%s};", csBuffer );
-//		AfxMessageBox(csBuf1);
 		if( csBuffer.GetLength() != 0 )
 		{
 			if( sscanf( csBuffer, "%d %d %d %d", &(rect.left), &(rect.right), &(rect.top), &(rect.bottom)  ) == 4 )
@@ -177,7 +170,6 @@ BOOL CFldViewApp::InitInstance()
 	};
 
 	pMainFrame->ShowWindow(SW_RESTORE);
-//	pMainFrame->ShowWindow(SW_SHOW);
 	pMainFrame->UpdateWindow();
 
 	return TRUE;

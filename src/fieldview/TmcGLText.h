@@ -18,12 +18,9 @@ class CTmcGLText : public CWnd
 // Construction
 public:
 	void SetColor( COLORREF scColorRef1 );
-	void SetColorSize( void );
-	void SetColorInput( void );
 	void SetFont( LOGFONT *plf1 );
 	void DrawString( char *ch, double x, double y, double z );
 	void DrawString( CString cs, double x, double y, double z );
-	void DrawInputNum( int n, double x, double y, double z );
 	CTmcGLText();
 
 // Attributes

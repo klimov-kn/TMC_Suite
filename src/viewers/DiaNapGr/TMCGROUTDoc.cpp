@@ -145,7 +145,6 @@ void CTMCGROUTDoc::CreatProc(char * lpszComLine)
 
    if( piProcInfo.hProcess != NULL ) 
    {
-//	TerminateProcess( piProcInfo.hProcess, 0 );
 	piProcInfo.hProcess = NULL;
    }; 
    ZeroMemory( &piProcInfo, sizeof(piProcInfo) );	// S-45
@@ -1178,8 +1177,6 @@ void CTMCGROUTDoc::ReadGraph1Expession( int nGr, char *szExpression )
 	if(  grdoc.psGraph[nGr].pcExpr->InitData() != NULL )
 	{
 	 snprintf( grdoc.psGraph[nGr].szGrapPodp, TMC_GROUT_MAXSTRING_BUF,  "Error_expression_absent_or_bad_file_name_%s", szExpression );
-//	 delete grdoc.psGraph[nGr].pcExpr;
-//	 grdoc.psGraph[nGr].pcExpr = NULL;
 	 return;
 	};
 
@@ -1193,16 +1190,12 @@ void CTMCGROUTDoc::ReadGraph1Expession( int nGr, char *szExpression )
 		if( ( pszFileName == NULL )||( pnPoint == NULL )||( ppFreq == NULL )||( ppSmatr == NULL ) )
 		{
 			 snprintf( grdoc.psGraph[nGr].szGrapPodp, TMC_GROUT_MAXSTRING_BUF,  "Error_expression_memory_allocation_error_%s", szExpression );
-//			 delete grdoc.psGraph[nGr].pcExpr;
-//			 grdoc.psGraph[nGr].pcExpr = NULL;
 			 return;
 		};
 		ReadGraph1( nGr, pszFileName, pnPoint, ppFreq, ppSmatr);
 		if( *pnPoint <= 0 ) 
 		{
 			snprintf( grdoc.psGraph[nGr].szGrapPodp, TMC_GROUT_MAXSTRING_BUF,  "Error_when_read_file_%s", pszFileName );
-//			delete grdoc.psGraph[nGr].pcExpr;
-//			grdoc.psGraph[nGr].pcExpr = NULL;
 			return;
 		}
 	};
@@ -1210,16 +1203,12 @@ void CTMCGROUTDoc::ReadGraph1Expession( int nGr, char *szExpression )
 	if( !grdoc.psGraph[nGr].pcExpr->IsFreqCorrect() ) 
 	{
 		snprintf( grdoc.psGraph[nGr].szGrapPodp, TMC_GROUT_MAXSTRING_BUF,  "Error_expression_different_freq_array_%s", szExpression );
-//		delete grdoc.psGraph[nGr].pcExpr;
-//		grdoc.psGraph[nGr].pcExpr = NULL;
 		return;
 	}
 
 	if( (grdoc.psGraph[nGr].pFreq = new  double[*pnPoint] ) == NULL )
 	{
 			 snprintf( grdoc.psGraph[nGr].szGrapPodp, TMC_GROUT_MAXSTRING_BUF,  "Error_expression_memory_allocation_error_%s", szExpression );
-//			 delete grdoc.psGraph[nGr].pcExpr;
-//			 grdoc.psGraph[nGr].pcExpr = NULL;
 			 return;
 	};
 	for( i = 0; i < *pnPoint; i++ )
@@ -1254,7 +1243,6 @@ void CTMCGROUTDoc::read_RT_output_signal( int n_Gr1, int *in1, int *mod1, int *i
 	*nPoint = 0;
 	
 	if(  *in1 < 1 )  *in1 = 1;
-//	if( *mod1 < 0 ) *mod1 = 0;
 	if( *mod1 == 0 )
 	{
 		pcDirectionalPattern[ n_Gr1 ].bIsReduceElMagnAnalysis = FALSE;
@@ -1476,7 +1464,6 @@ void CTMCGROUTDoc::SetOneReadGraphParameters(char *ch)
 				&( sGrDoc1[ 14 ].LineColor ), &( sGrDoc1[ 14 ].LineType ), &( sGrDoc1[ 14 ].LineWidth ),
 				&( sGrDoc1[ 15 ].LineColor ), &( sGrDoc1[ 15 ].LineType ), &( sGrDoc1[ 15 ].LineWidth ) ) != 49 )
 			 {
-//					SetDefaultLineColorWidthType();	
 					sscanf( ch + strlen(TMC_TOPVIEW_DOCFILE_ID_sDrawPointColor), "%d",  &(nCol) );
 					scPointColor = nCol;
 					for( i = 0; i < 16; i++ )
@@ -2021,7 +2008,6 @@ void CTMCGROUTDoc::read_RT_output_signal_CangeAngle( int n_Gr1, int *in1, int *m
 	*nPoint = 0;
 	
 	if(  *in1 < 1 )  *in1 = 1;
-//	if( *mod1 < 0 ) *mod1 = 0;
 	if( *mod1 == 0 )
 	{
 		pcDirectionalPattern[ n_Gr1 ].bIsReduceElMagnAnalysis = FALSE;

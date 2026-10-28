@@ -263,7 +263,6 @@ void CTMCGROUTView::OnInitialUpdate()
 	SetTimer( 1, 10000, NULL);
 
 
-	//	InitTmcGrWin(pDoc, &tmcgrwin);
 
 }
 
@@ -388,7 +387,6 @@ void CTMCGROUTView::onDrawGrid( CDC *pDC )
    {
 	  pDC->MoveTo( i, -tmcgrwin.sGrView.nYmin );
 	  pDC->LineTo( i, -tmcgrwin.sGrView.nYmax );
-//	  text.Format("%4.3lg", x );
 	  text.Format( (const char *)TmcSafeAxisFormat( csXAxiesFormat ), x );	// S-42
 	  VTextOut( pDC, i, -tmcgrwin.sGrView.nYmax,text);
 
@@ -396,31 +394,14 @@ void CTMCGROUTView::onDrawGrid( CDC *pDC )
 
    for( j = 0, x = tmcgrwin.sGrWin.Ymax, xstep = (tmcgrwin.sGrWin.Ymax - tmcgrwin.sGrWin.Ymin)/(NumY), i = tmcgrwin.sGrView.nYmin, step = (tmcgrwin.sGrView.nYmax - tmcgrwin.sGrView.nYmin)/(NumY); j <= NumY ; i += step, x -= xstep, j++)
    {
-//	  pDC->MoveTo( tmcgrwin.sGrView.nXmin, -i );
 	  pDC->MoveTo( 100, -i );
 	  pDC->LineTo( tmcgrwin.sGrView.nXmax, -i );
-//	  text.Format("%4.3lg", x );
 	  text.Format( (const char *)TmcSafeAxisFormat( csYAxiesFormat ), x );	// S-42
-//	  VTextOut( pDC, tmcgrwin.sGrView.nXmin - 1000, -i + 500,text);
 	  VTextOut( pDC,  100, -i + 500,text);
    };
 
    pDC->SelectObject(pOldPen);
 
-   /*
-
-	GetClientRect(rectClient);
-	text.Format("Error cod = %d", pDoc->nErrorCod );
-	VTextOut( pDC, 10,50,text);
-	text.Format("x = {%s}; y = {%s}", pDoc->pszNameX, pDoc->pszNameY );
-	VTextOut( pDC, 10,100,text);
-	if(pDoc->ppPointArray == NULL) return;
-	pDC->MoveTo((int)(pDoc->ppPointArray[0].x), (int)(pDoc->ppPointArray[0].y));
-	for( i = 1; i < pDoc->nSizePoints; i++)
-	{
-	pDC->LineTo((int)(pDoc->ppPointArray[i].x), (int)(pDoc->ppPointArray[i].y));
-	};
-  */
 	// TODO: add draw code for native data here
 
 
@@ -481,7 +462,6 @@ void CTMCGROUTView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		FlagDrawMouseCoord = FALSE;
 	};
-//	IvalidateRectView( rectOutXY );
 	CScrollView::OnLButtonDown(nFlags, point);
 }
 
@@ -700,7 +680,6 @@ void CTMCGROUTView::PrepareDoubleGraph()
 				{
 					if( pDoc->grdoc.psGraph[i].pcExpr->IsGraphDifferent() )
 					{
-//						tmcgrwin.psGraph[i].pPoint[j].y = -20.*log10( cabsv( pDoc->grdoc.psGraph[i].pSmatr[j] ) );
 					}
 					else
 					{
@@ -1711,7 +1690,6 @@ void CTMCGROUTView::OnEditAddcharacteristics()
 
 	CFileDialog dlg( TRUE, "", csBuf, OFN_ENABLESIZING, "Tamic S-matrix");
 	dlg.m_ofn.lpstrTitle = "Add *.s characteristics";
-//	strcpy( dlg.m_ofn.lpstrFile, m_SFileName );
 	if( dlg.DoModal() == IDOK )
 	{
 		strcpy( ch, dlg.GetPathName() );
@@ -1790,7 +1768,6 @@ void CTMCGROUTView::OnLButtonUp(UINT nFlags, CPoint point)
 		return ;
 
 	tmcgrwin.sGrWin.nAFlagY = TRUE;
-//	tmcgrwin.sGrWin.nAFlagX = TRUE;	
 
 	if( (Ymax-Ymin) >= 0.1*(tmcgrwin.sGrWin.Ymax-tmcgrwin.sGrWin.Ymin) )
 	{
@@ -1842,7 +1819,6 @@ void CTMCGROUTView::OnMouseMove(UINT nFlags, CPoint point)
 
 	MouseXCoord = LXCordToDoublX( point.x );
 	MouseYCoord = LYCordToDoublY( point.y );
-//	IvalidateRectView( rectOutXY );
 	PutTrace1();
 
 	CScrollView::OnMouseMove(nFlags, point);
@@ -2038,15 +2014,7 @@ void CTMCGROUTView::OnConfigColorBackground()
 
 void CTMCGROUTView::OnDrawBackground(CDC* pDC)
 {
-//	CTMCGROUTDoc* pDoc = GetDocument();
-//	ASSERT_VALID(pDoc);
 //	CRect rectClient;
-//	GetClientRect( &rectClient );
-//	CClientDC dc(this);
-//	OnPrepareDC(&dc);
-//	dc.DPtoLP(&rectClient);  
-//	rectClient.NormalizeRect();
-//	pDC->FillSolidRect( &rectClient, pDoc->scBackgoundColor );
 	return;
 }
 
@@ -2101,14 +2069,12 @@ void CTMCGROUTView::PutTrace1()
 	{
 		if(tmcgrwin.nXType == gr_typX[i].nType ) j = i;
 	};
-//	text.Format("%s=%lg", gr_typX[j].pszXname, MouseXCoord );
 	text.Format("%s=%lg", gr_typX[j].pszXname, MouseXCoord );
 
 	for( i = 0, j = 0; (gr_typY[i].nType != -1) ; i++) 
 	{
 		if(tmcgrwin.nYType == gr_typY[i].nType ) j = i;
 	};
-//	text1.Format("%s=%lg", gr_typY[j].pszYname, MouseYCoord );
 	text1.Format("%s=%lg", gr_typY[j].pszYname, MouseYCoord );
 	
 	csBuf.Format("%s; %s", text, text1);
@@ -2523,7 +2489,6 @@ void CTMCGROUTView::OnPrepareDC(CDC* pDC, CPrintInfo* pInfo)
 	ASSERT_VALID(pDoc);
 	if( pDC->IsPrinting() ) 
 	{
-//		pDC->SetBkColor( pDoc->scBackgoundColor );
 	}
 	else 
 	{
@@ -2546,7 +2511,6 @@ BOOL CTMCGROUTView::OnEraseBkgnd(CDC* pDC)
 	pDC->PatBlt( rect.left, rect.top, rect.Width(), rect.Height(), PATCOPY);
 	pDC->SelectObject(pOldBrush);
 	return TRUE;
-//	return CScrollView::OnEraseBkgnd(pDC);
 }
 
 void CTMCGROUTView::OnViewTranslateHome() 

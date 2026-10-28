@@ -40,10 +40,6 @@ public:
 
 // Implementation
 public:
-	void SetBusyOn( void );
-	void SetBusyOff( void );
-	BOOL IsBusy( void );
-	FILETIME GetLastWriteFile( void );
 	void DelViews__( void );
 	void AddViews__( void );
 	double GetdLongUnit( void );

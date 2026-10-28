@@ -26,9 +26,6 @@
     <ClCompile Include="..\Expr\Expremsg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Expr\Get_err.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Inter\Inte_in1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

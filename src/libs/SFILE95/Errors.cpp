@@ -11,11 +11,9 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-#include <conio.h>
 
 #include <typedef.h>
 #include <error1.h>
-#include "error2.h"
 
 
 char msg1[] = "Fatal ERROR.\nNot enough memory to run program.\nRemove resident programs and restart system. ";
@@ -29,7 +27,7 @@ char msg8[] = "Error !\nDifferent number of inputs! See listing.";
 char msg9[] = "Error !\nDifferent number of modes! See listing.";
 char msg10[] = "Error !\nCan't open file for text table\n%s!";
 
-int  _far   put_error_messege( int err_num, ... )
+int  put_error_messege( int err_num, ... )
   {
 /*   va_list  argptr;                      // Argument list pointer
 //   char _far *msg;
@@ -70,14 +68,11 @@ int  _far   put_error_messege( int err_num, ... )
                                  vsprintf( buff, msg10, argptr );
                               break;
       default:
-  //                            printf("\nUnknown ERROR number %d!", err_num );
                               va_end( argptr );
                               return -1;
                               break;
      }
    va_end( argptr );                     // Close va_ functions
 
-//   printf( buff );
-//   printf("  Press any key . . ."); getch();
 */   return 0;
   }

@@ -147,12 +147,6 @@ void CTmcRTH_BlockList::Add( CString &csCh, CTmcLibError &cError, CTmcRTH_IndanP
 
 	n = csCh.GetLength();
 
-//	if( n >= (10*CTMCRTH_INDAN_LINELEN) )
-//	{
-//		csBuf.Format("Very long string in %s at {%s};", CTMCRTH_INDANMET_BLOCK, csCh);
-//		cError.PutErrorMessage( csBuf );
-//		return;
-//	}
 
 	for( i = (int)(strlen(CTMCRTH_INDANMET_BLOCK)), i1 = 0, ii = 0; i < n; i++ )
 	{
@@ -265,15 +259,6 @@ void CTmcRTH_BlockList::Add( CString &csCh, CTmcLibError &cError, CTmcRTH_IndanP
 	Read( cError, pcParam );
 
 
-/*
-	n = csCh.GetLength();
-	if( n >= (CTMCRTH_INDAN_LINELEN) )
-	{
-		csBuf.Format("YYYY  Very long string in %s at {%s};", CTMCRTH_INDANMET_BLOCK, csCh);
-		cError.PutErrorMessage( csBuf );
-		return;
-	}
-*/
 
 	return;
 }
@@ -465,8 +450,6 @@ void CTmcRTH_BlockList::Add( CTmcRTH_BlockList &cCh )
 			for( i = 0; i < nXY; i++ ) 
 			{
 				dX[i] = pR[i];
-//				csBuf1.Format("{%lg;%lg}", dX[i], pR[i] );
-//				AfxMessageBox(csBuf1);
 			};
 		}
 		else
@@ -488,8 +471,6 @@ void CTmcRTH_BlockList::Add( CTmcRTH_BlockList &cCh )
 			for( i = 0; i < nXY; i++ ) 
 			{
 				dY[i] = pR[i];
-//				csBuf1.Format("{%lg;%lg}", dX[i], pR[i] );
-//				AfxMessageBox(csBuf1);
 			};
 		}
 		else
@@ -1682,13 +1663,7 @@ void CTmcRTH_BlockList::ReadPolygonStat_1( CTmcLibError &cError, CTmcRTH_IndanPa
 	for( i1 = 0; i1 < nXY; i1++ )
 	{
 //		CString csBuf1;
-//		csBuf1.Format("{%s}", szBuf+i );
-//		AfxMessageBox(csBuf1);
 		ReadXY( szBuf+i,  cError, pcParam , dX+i1, dY+i1 );
-//		csBuf1.Format("{%lg;%lg}", dX[i1], dY[i1] );
-//		AfxMessageBox(csBuf1);
-//		if(i1 > 0) csBuf1.Format("{%lg;%lg}", dX[i1-1], dY[i1-1] );
-//		AfxMessageBox(csBuf1);
 		if( cError.IsError() )
 		{
 			if( szBuf != NULL )
@@ -1701,28 +1676,6 @@ void CTmcRTH_BlockList::ReadPolygonStat_1( CTmcLibError &cError, CTmcRTH_IndanPa
 		if( i1 < nXY ) i += SkipEOL( szBuf+i  );
 	};
 
-/*	{
-	
-		int i;
-		double *pX, *pY;
-		CString csBuf1;
-	
-		pX = GetpX();
-		pY = GetpY();
-		
-		if( pX == NULL ) return;
-		if( pY == NULL ) return;
-		
-		for( i = 0; i < GetnXY(); i++ )
-		{
-			csBuf1.Format("{%lg;%lg}", dX[i], dY[i] );
-			AfxMessageBox(csBuf1);
-			csBuf1.Format("{%lg;%lg}", pX[i], pY[i] );
-			AfxMessageBox(csBuf1);
-		};	
-
-	}
-*/	
 	
 	if( szBuf != NULL )
 	{
@@ -1815,8 +1768,6 @@ void CTmcRTH_BlockList::ReadRectMove( CTmcLibError &cError, CTmcRTH_IndanParam *
 		return;
 	};
 	dXmax = (double)(r*pcParam->rLongUnit);
-//	csBuf1.Format();
-//	AfxMessageBox(csBuf1);
 
 	i += Search_1Param( csBuf, szBuf+i, cError );
 	if( cError.IsError() ) 
@@ -2401,13 +2352,7 @@ void CTmcRTH_BlockList::ReadPolygonMove( CTmcLibError &cError, CTmcRTH_IndanPara
 	for( i1 = 0; i1 < nXY; i1++ )
 	{
 //		CString csBuf1;
-//		csBuf1.Format("{%s}", szBuf+i );
-//		AfxMessageBox(csBuf1);
 		ReadXY( szBuf+i,  cError, pcParam , dX+i1, dY+i1 );
-//		csBuf1.Format("{%lg;%lg}", dX[i1], dY[i1] );
-//		AfxMessageBox(csBuf1);
-//		if(i1 > 0) csBuf1.Format("{%lg;%lg}", dX[i1-1], dY[i1-1] );
-//		AfxMessageBox(csBuf1);
 		if( cError.IsError() ) return;
 		if( i1 < nXY ) i += SkipEOL( szBuf+i  );
 	};
@@ -3015,17 +2960,10 @@ void CTmcRTH_BlockList::ReadXY( char *szBuf,  CTmcLibError &cError, CTmcRTH_Inda
 	
 	i = (int)(strlen(CTMCRTH_INDANBLCK_POLGLINE));
 
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("{%s}", szBuf+i);
-//		AfxMessageBox(csBuf1);
-//	};
 	i += Search_1Param( csBuf, szBuf+i, cError );
 	if( cError.IsError() ) return;
-//	AfxMessageBox(csBuf);
 	strcpy( szBuf1, csBuf );
-//	csBuf1.Format("{%s}", szBuf1);
-//	AfxMessageBox(csBuf1);
 	expr_del_Blanks2( szBuf1 );
 	if( i1nte_atof_1( szBuf1, &r ) != 0 )
 	{
@@ -3034,17 +2972,10 @@ void CTmcRTH_BlockList::ReadXY( char *szBuf,  CTmcLibError &cError, CTmcRTH_Inda
 		return;
 	};
 	*dX1 = (double)(r*pcParam->rLongUnit);
-//	csBuf1.Format("{%lg}", dX1);
-//	AfxMessageBox(csBuf1);
 
-//	csBuf1.Format("{%s}", szBuf+i);
-//	AfxMessageBox(csBuf1);
 	i += Search_1Param( csBuf, szBuf+i, cError );
 	if( cError.IsError() ) return;
-//	AfxMessageBox(csBuf);
 	strcpy( szBuf1, csBuf );
-//	csBuf1.Format("{%s}", szBuf1);
-//	AfxMessageBox(csBuf1);
 	expr_del_Blanks2( szBuf1 );
 	if( i1nte_atof_1( szBuf1, &r ) != 0 )
 	{
@@ -3053,8 +2984,6 @@ void CTmcRTH_BlockList::ReadXY( char *szBuf,  CTmcLibError &cError, CTmcRTH_Inda
 		return;
 	};
 	*dY1 = (double)(r*pcParam->rLongUnit);
-//	csBuf1.Format("{%lg}", dY1);
-//	AfxMessageBox(csBuf1);
 
 	return;
 }
@@ -3382,11 +3311,7 @@ void CTmcRTH_BlockList::Load( FILE **fp, CTmcLibError &cError )
 				*fp = NULL;
 				return;
 			};
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("{%s}", pszBufForReadTopology);
-//		AfxMessageBox(csBuf1);
-//	};
 			if( sscanf( pszBufForReadTopology, "%lg %lg %lg %lg %lg %lg %d %d %d %d", &dX0, &dXmax, &dXmin, &dY0, &dYmax, &dYmin, &nBlock, &nMemory, &nType, &nXY) != 10 )
 			{
 				cError.PutErrorMessage( "bad topology file (can't read block list)" );
@@ -3395,11 +3320,8 @@ void CTmcRTH_BlockList::Load( FILE **fp, CTmcLibError &cError )
 				*fp = NULL;
 				return;
 			};
-//	{
 //		CString csBuf1;
 //		csBuf1.Format("{%s}{%lg %lg %lg %lg %lg %lg %d %d %d %d}", pszBufForReadTopology, dX0, dXmax, dXmin, dY0, dYmax, dYmin, nBlock, nMemory, nType, nXY);
-//		AfxMessageBox(csBuf1);
-//	};
 			if( nXY > 0 )
 			{
 				if( dX != NULL ) delete []dX;

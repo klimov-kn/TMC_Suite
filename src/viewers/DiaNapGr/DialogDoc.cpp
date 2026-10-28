@@ -276,9 +276,7 @@ void CDialogDoc::OnAddMakedeviation()
 {
 	// TODO: Add your control notification handler code here
 	cDeviation dlg;
-//	char ch[1000];
 
-//	GetCurrentDirectory( 1000, ch );
 
 	dlg.m_dAmpDev  = 10.;
 	dlg.m_dFazaDev = 10.;

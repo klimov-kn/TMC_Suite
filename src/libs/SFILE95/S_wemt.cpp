@@ -20,7 +20,6 @@
 #include <windows.h>
 #include <io.h>
 #include <stdio.h>
-#include <conio.h>
 #include <string.h>
 #include <math.h>
 
@@ -31,21 +30,20 @@
 #include <tmclimit.h>
 #include <s_file.h>
 #include <error1.h>
-#include "error2.h"
 #include <proc_s.h>
 #include <ys_proc.h>
 
 
-int _far _fortran save_S_matrix_element( int in1, char *filename, _complex *sss, double f1, int nInput)
+int save_S_matrix_element( int in1, char *filename, _complex *sss, double f1, int nInput)
   {
 //
-   S_INDEX    _far *si;
-   S_INDEX    _far si1;
+   S_INDEX    *si;
+   S_INDEX    si1;
    FREQUENCY  frq;
    int extrapol_flag;
-   _complex   _far **sss1;
-   INPUT_DATA _far *id;
-   INPUT_DATA _far id1;
+   _complex   **sss1;
+   INPUT_DATA *id;
+   INPUT_DATA id1;
    _complex *lpxS1;
    _complex *s;
 //   double *f;
@@ -60,7 +58,6 @@ int _far _fortran save_S_matrix_element( int in1, char *filename, _complex *sss,
    if( ( nInput < 1 )||( nInput > MAX_INPUT_NUM ) ) return -1;	/* A-22: ne bolshe MAX_INPUT_NUM portov */
    sprintf( filename1, "%s$", filename );
 
-//   getch();
    sss1 = NULL;
 
    if( read_S_matrix( filename, &si, &extrapol_flag, &sss1,  &frq, &id ) != 0 )
@@ -88,7 +85,7 @@ int _far _fortran save_S_matrix_element( int in1, char *filename, _complex *sss,
 	   si1.delta1 = 0.0;
 	   si1.delta2 = 0.0;
 	   si1.delta3 = 0.0;
-       if( ( s = (_complex _far *)alloc_mem_err( sizeof(_complex)*id1.num*id1.num ) ) == NULL )
+       if( ( s = (_complex *)alloc_mem_err( sizeof(_complex)*id1.num*id1.num ) ) == NULL )
 	   {
 		   return -1;
 	   };
@@ -182,7 +179,7 @@ int _far _fortran save_S_matrix_element( int in1, char *filename, _complex *sss,
 		   si1.delta1 = 0.0;
 		   si1.delta2 = 0.0;
 		   si1.delta3 = 0.0;
-	       if( ( s = (_complex _far *)alloc_mem_err( sizeof(_complex)*id1.num*id1.num ) ) == NULL )
+	       if( ( s = (_complex *)alloc_mem_err( sizeof(_complex)*id1.num*id1.num ) ) == NULL )
 		   {
 			  Free_GRID_Index( &si, extrapol_flag );
 			  free_mem( frq.f );
@@ -241,7 +238,6 @@ int _far _fortran save_S_matrix_element( int in1, char *filename, _complex *sss,
 		};
 	};
 
-//  getch();
   Free_GRID_Index( &si, extrapol_flag );
   free_mem( frq.f );
   free_mem( id );

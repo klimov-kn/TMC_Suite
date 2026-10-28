@@ -202,8 +202,6 @@ void CTmcRTH_DialogBlock::PrepareData( void )
 //		CString csBuf1;
 		dX[i].Format("%lg", pX[i]/m_pcParam->rGetLongUnit());
 		dY[i].Format("%lg", pY[i]/m_pcParam->rGetLongUnit());
-//		csBuf1.Format("{%lg;%lg}", pX[i], pY[i] );
-//		AfxMessageBox(csBuf1);
 	};
 	dX1 = dX[0];
 	dX2 = dX[1];

@@ -39,9 +39,6 @@
     <ClCompile Include="PREP_MN.CPP">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="READ_BUF.CPP">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\INCLUDE\Prepr1.h">

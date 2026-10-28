@@ -74,9 +74,6 @@
 #define CTMCRTH_DELTA_T_ID "DELTA_T_MECHANICAL "
 
 void SetDeltaT( double dDeltaT1 );
-double GetDeltaT( void );
-BOOL IsDeltaTDefine( void );
-void SwitchDeltaT( void );
 void SetDeltaT( char *lpszDeltaT );
 
 class CTmcRTH_IndanParam //: public CWnd
@@ -94,7 +91,6 @@ public:
 	double dGetdT( void );
 	double dGetTmin( void );
 	int nGetTmax( void );
-	double dGetHeight( void );
 	CTmcLibError cError;
 	CString csFreqUnit;
 	double rFreqUnit;
@@ -173,7 +169,6 @@ private:
 	void ReadNUnit( CString &csCh );
 public:
 	// CalcnNodeGlobal return NodeGlobal or -1, if point x,y isn't in region
-	TmcIdx CalcnNodeGlobalNorm(double x, double y);	// INT64
 	double rDeltaTMechanical;
 };
 

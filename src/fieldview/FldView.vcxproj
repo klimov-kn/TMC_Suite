@@ -218,8 +218,6 @@
     <None Include="res\FldView.rc2" />
     <None Include="res\FldViewDoc.ico" />
     <None Include="res\Toolbar.bmp" />
-    <None Include="FldView.reg" />
-    <None Include="ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

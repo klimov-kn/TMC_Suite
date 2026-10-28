@@ -23,7 +23,7 @@
 
 
 
-int _far fortran dest_prep( void )
+int dest_prep( void )
  {
    char szName[512];
    if( strlen( GetCurrentPath() ) + 1 + strlen( vr_mac_file_name() ) >= sizeof(szName) ) return -1;   // N-29

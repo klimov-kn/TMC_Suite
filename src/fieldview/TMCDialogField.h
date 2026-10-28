@@ -18,7 +18,6 @@ class CTMCDialogField : public CPropertyPage
 public:
 	CFldViewView * pFieldView;
 	COLORREF c20Color[20];
-//	COLORREF c20ColorBuf[20];
 	int nPixel;
 	CTMCDialogField();
 	~CTMCDialogField();
@@ -62,7 +61,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 private:
-	void ChangeColorLevel( int n );
 public:
 	BOOL bHightColorResolution;
 	afx_msg void OnBnClickedAutodrawsizeflagz2();

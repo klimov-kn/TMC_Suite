@@ -150,12 +150,7 @@ BOOL cIzl::bIsAngleInDiapazon(double dAngle)
 	dAnglePrived( dFimax );
 	dAnglePrived( dAngle );
 	
-//	if( (dAngle >= dFimin)&&(dAngle <= dFimax) )
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("bIsAngleInDiapazon = TRUE; dFimin = %lg; dFimax = %lg; dAngle = %lg", dFimin, dFimax, dAngle);
-//		AfxMessageBox(csBuf1);
-//	}
 	
 	if( (dAngle >= dFimin)&&(dAngle <= dFimax) ) return TRUE;
 	
@@ -163,12 +158,7 @@ BOOL cIzl::bIsAngleInDiapazon(double dAngle)
 	dAnglePrived1( dFimax );
 	dAnglePrived1( dAngle );
 
-//	if( (dAngle >= dFimin)&&(dAngle <= dFimax) )
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("bIsAngleInDiapazon = TRUE; dFimin = %lg; dFimax = %lg; dAngle = %lg", dFimin, dFimax, dAngle);
-//		AfxMessageBox(csBuf1);
-//	}
 	
 	if( (dAngle >= dFimin)&&(dAngle <= dFimax) ) return TRUE;
 
@@ -225,24 +215,16 @@ double cIzl::dGetDirectionalPatternEmitter(double dAngle)
 	sprintf( szBuf1, "f=(%lg);", dAngle);
 	if( i1nte_atof_1( szBuf1, &r1 ) != 0 )
 	{
-//		bIsError = TRUE;
-//		sprintf( szError, "Error when calculate expression for one Directional Pattern {%s}", expr_get_error());
 		return 0.0;
 	};
 
-//	csBuf1.Format("%s", szBuf1);
-//	AfxMessageBox(csBuf1);
 
 	sprintf( szBuf1, "(%s);", csEmitterDirectPat);
 	if( i1nte_atof_1( szBuf1, &r1 ) != 0 )
 	{
-//		bIsError = TRUE;
-//		sprintf( szError, "Error when calculate expression for one Directional Pattern {%s}", expr_get_error());
 		return 0.0;
 	};
 
-//	csBuf1.Format("{%s}=%lg", szBuf1, r1);
-//	AfxMessageBox(csBuf1);
 
 	return r1;
 }

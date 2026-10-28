@@ -158,8 +158,6 @@
     <ClCompile Include="TmcRTH_IndanOutput.cpp" />
     <ClCompile Include="TmcRTH_IndanParam.cpp" />
     <ClCompile Include="TmcRTH_IndanTopology.cpp" />
-    <ClCompile Include="TmcRTH_Input.cpp" />
-    <ClCompile Include="TmcRTH_InputNode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\INCLUDE\FieldIntegrated.h" />
@@ -168,11 +166,6 @@
     <ClInclude Include="..\..\INCLUDE\TmcRTH_IndanOutput.h" />
     <ClInclude Include="..\..\INCLUDE\TmcRTH_IndanParam.h" />
     <ClInclude Include="..\..\INCLUDE\TmcRTH_IndanTopology.h" />
-    <ClInclude Include="..\..\INCLUDE\TmcRTH_Input.h" />
-    <ClInclude Include="..\..\INCLUDE\TmcRTH_InputNode.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

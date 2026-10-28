@@ -158,7 +158,6 @@
     <ClCompile Include="..\Expr\Expr_in1.cpp" />
     <ClCompile Include="..\Expr\Expr_per.cpp" />
     <ClCompile Include="..\Expr\Expremsg.cpp" />
-    <ClCompile Include="..\Expr\Get_err.cpp" />
     <ClCompile Include="..\Inter\Inte_in1.cpp" />
     <ClCompile Include="..\Inter\Inte_ope.cpp" />
     <ClCompile Include="..\Inter\Inte_val.cpp" />

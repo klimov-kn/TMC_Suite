@@ -54,7 +54,7 @@ static char  *char_error[]={
 		     };
 
 
-char   * fortran expr_get_error( void )
+char   * expr_get_error( void )
  {
   int n = -expr_get_error_cod();
   if( (n < 0)||(n >= (int)(sizeof(char_error)/sizeof(char_error[0]))) ) return( (char *)"unknown error of expression" );   // N-30

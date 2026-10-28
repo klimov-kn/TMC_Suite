@@ -29,14 +29,13 @@
 #include <listing.h>
 #include <mainwndw.h>
 #include <tpl_file.h>
-#include <indan.h>
 
 #include "prepr1.h"
 
 static char  szDefine1[] = "#define ";
 static char  szDefine2[] = "#define\t";
                    /*  return pointer on string '#define' in buffer*/
-int  def_macro( BUFFER _far *buf )
+int  def_macro( BUFFER *buf )
  {
   int p, p1;
 
@@ -84,9 +83,9 @@ static int def_include_name_outside( const char *pszName )
   }
 }
 
-int _far fortran def_include( BUFFER _far *buf )
+int def_include( BUFFER *buf )
  {
-  FILE _far *in;
+  FILE *in;
   char       FgetsBuff[BUFSIZ];
 
   char		*str;
@@ -212,29 +211,6 @@ int _far fortran def_include( BUFFER _far *buf )
        {
 		   DeleteComment(str1);
         /* comments skipping */
-/*        if( (*str1 == '!')||(*str1 == '\n')||(*str1 == '\r') ) continue;
-        for( lpTmp = str1; *lpTmp != 0; lpTmp++ ) if( *lpTmp != ' ') goto m_Cont;
-        continue;
-
-m_Cont: put_inc_line_number( ++inc_line );
-
-		  // comment cutting 
-        lpTmp = strrchr( str1, '!' );
-        if( lpTmp != NULL )  *lpTmp = 0;
-        else
-          {
-           lpTmp = strrchr( str1, '\n' );
-           if( lpTmp != NULL )
-            {
-             *lpTmp = ' ';
-             *(++lpTmp) = 0;
-             }
-          }
-
-
-        if( (get_listing_echo_flag() == 1) &&
-            (get_include_echo_flag() == 1)    ) l_printf( szMessage2, inc_line, str1);
-*/
 
 	if( buf->inp_p_nul < 0 )
 	 {
@@ -286,7 +262,6 @@ static void  put_inc_line_number( Uint line_number )
   char buff[20];
 
   sprintf( buff, szFmt, line_number );
-//  put_trace( buff );
   }
 
 
@@ -294,7 +269,7 @@ static void  put_inc_line_number( Uint line_number )
 static char  mac[]  = "\\\\";
 static char  str1[] = " \n";
 
-int  def_sl( BUFFER _far *buf )
+int  def_sl( BUFFER *buf )
  {
   char *str;
   if( (str = new char[ BUF_STR_N_MAX + 1 ]) == NULL )	// N-26
@@ -337,32 +312,5 @@ int  def_sl( BUFFER _far *buf )
   return(0);
   }
 
-char  *DefineIncludeName( char _far *str, char _far *str1 )
-  {
-/*   char _far *szFile, _far *ptr;
-   int i;
-   FILE _far *fl;
-
-   for( i = 0, szFile = str; i < 8; i++, szFile++ ) *szFile = ' ';
-   del_blanks( str );
-   if( strcmp( str, VR_MAC_FILE_NAME ) == 0 ) return str;
-
-   strcpy( str1, (char _far *)get_tpl_file_name() );
-   ptr = strrchr( str1, '\\' );
-   if( strchr( str, '\\' ) == NULL ) *(++ptr) = '\0';
-   else                              *(ptr)   = '\0';
-
-   strcat( str1, str );
-   if( (fl = fopen( str1, "rb" )) != NULL )
-    {
-     fclose( fl );
-     strcpy( str, str1 );
-     return str;
-    }
-
-   str1 = make_full_file_name( str1, GetIncludePathName(), str );
-   strcpy( str, str1 );
-*/   return str;
-  }
 
 

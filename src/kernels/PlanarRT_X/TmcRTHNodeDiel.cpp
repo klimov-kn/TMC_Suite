@@ -142,121 +142,9 @@ void CTmcRTHNodeDiel::DeleteData( void )
 	return;
 }
 
-CTmcLibError &CTmcRTHNodeDiel::SetBorderXmin( int nX, int nY )
-{
-	DeleteData();
-	
-	nNumNode = nY;
-	if( nNumNode < 1 )
-	{
-		cError.PutErrorMessage("nNumNode < 1 for Xmin border");
-		return cError;
-	};
-	if( (pcNodeDielOne = new sTmcRTHNodeDielOne[nNumNode]) == NULL )
-	{
-		cError.PutErrorMessage("Not enough memory for Xmin border");
-		return cError;
-	};
-	
-	TmcIdx i;	// BIGBLOCK3
-	TmcIdx	ii;	// INT64
-//	CString csBuf1;
-	for( i = 0, ii = 0; i < nNumNode; i++, ii+=nX )
-	{
-		pcNodeDielOne[i].nNodeGlobal = ii;
-//{
-//	csBuf1.Format("{nNodeGlobal=%d;}", ii );
-//	AfxMessageBox(csBuf1);
-//};
-	};
 
-	SetnType();
-	return cError;
-}
 
-CTmcLibError &CTmcRTHNodeDiel::SetBorderXmax( int nX, int nY )
-{
-	DeleteData();
-	
-	nNumNode = nY;
-	if( nNumNode < 1 )
-	{
-		cError.PutErrorMessage("nNumNode < 1 for Xmax border");
-		return cError;
-	};
-	if( (pcNodeDielOne = new sTmcRTHNodeDielOne[nNumNode]) == NULL )
-	{
-		cError.PutErrorMessage("Not enough memory for Xmax border");
-		return cError;
-	};
-	
-	TmcIdx i;	// BIGBLOCK3
-	TmcIdx	ii;	// INT64
 
-	for( i = 0, ii = nX-1; i < nNumNode; i++, ii+=nX )
-	{
-		pcNodeDielOne[i].nNodeGlobal = ii;
-	};
-
-	SetnType();
-	return cError;
-}
-
-CTmcLibError &CTmcRTHNodeDiel::SetBorderYmin( int nX )
-{
-	DeleteData();
-	
-	nNumNode = nX;
-	if( nNumNode < 1 )
-	{
-		cError.PutErrorMessage("nNumNode < 1 for Ymin border");
-		return cError;
-	};
-	if( (pcNodeDielOne = new sTmcRTHNodeDielOne[nNumNode]) == NULL )
-	{
-		cError.PutErrorMessage("Not enough memory for Ymin border");
-		return cError;
-	};
-	
-	TmcIdx i;	// BIGBLOCK3
-	TmcIdx	ii;	// INT64
-
-	for( i = 0, ii = 0; i < nNumNode; i++, ii++ )
-	{
-		pcNodeDielOne[i].nNodeGlobal = ii;
-	};
-
-	SetnType();
-	return cError;
-}
-
-CTmcLibError &CTmcRTHNodeDiel::SetBorderYmax( int nX, int nY )
-{
-	DeleteData();
-	
-	nNumNode = nX;
-	if( nNumNode < 1 )
-	{
-		cError.PutErrorMessage("nNumNode < 1 for Ymax border");
-		return cError;
-	};
-	if( (pcNodeDielOne = new sTmcRTHNodeDielOne[nNumNode]) == NULL )
-	{
-		cError.PutErrorMessage("Not enough memory for Ymax border");
-		return cError;
-	};
-	
-	TmcIdx i;	// BIGBLOCK3
-	TmcIdx	ii;	// INT64
-
-	for( i = 0, ii = ((TmcIdx)nX)*nY - nX; i < nNumNode; i++, ii++ )
-	{
-		pcNodeDielOne[i].nNodeGlobal = ii;
-	};
-
-	SetnType();
-	return cError;
-}
 
 
 CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH_IndanParam &cParam, CTmcRTH_IndanOutput *cOut, _real *prYNode, volatile BOOL *pbStopFlag, CString csCurrentPath )
@@ -575,11 +463,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 	SetYForInput( cParam );
 	pcNextBlockList->SetnMemory( sizeof(CTmcRTHNodeDiel)+(sizeof(sTmcRTHNodeDielOne))*((TmcIdx)nNumNode) );	// BIGBLOCK
 	DeleteStatDielData();
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("YRR");
-//		AfxMessageBox(csBuf1);
-//	};
 	{
 		CString csBuf;
 		csBuf.Format(" ");
@@ -670,8 +554,6 @@ int CTmcRTHNodeDiel::EpsFastEval( const char *pszExpr, double x, double y, CTmcR
 	r = sqrt( x*x + y*y );
 	f = atan2__1( y, x)/cParam.rAngleUnit;
 	// B-11, old (6 digits):
-	// sprintf( szBuf1, "x=(%lg);y=(%lg);r=(%lg);f=(%lg);", x, y, r, f);
-	// if( i1nte_atof_1( szBuf1, &r1 ) != 0 ) return -1;
 	expr_set_per( (char *)"x", 1, (_real)x );	// B-11: the full precision, without a string
 	expr_set_per( (char *)"y", 1, (_real)y );
 	expr_set_per( (char *)"r", 1, (_real)r );
@@ -1345,11 +1227,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRect( CTmcRTH_BlockList * pcNextBlockList, CTm
 
 	for( i = 0, ii = 0, x = dXmin; i < nX; i++, x = dXmin + (i*cParam.rDelta) )
 	{
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("X = %lg", x);
-//		AfxMessageBox(csBuf1);
-//	};
 		for( j = 0, y = dYmin; j < nY; j++, y = dYmin + (j*cParam.rDelta) )
 		{
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
@@ -1421,11 +1299,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetCirc( CTmcRTH_BlockList * pcNextBlockList, CTm
 		dFImax -= i*(2*3.14159265358979323846);
 	};
 
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("dFImin = %lg; dFImax = %lg", dFImin, dFImax );
-//		AfxMessageBox(csBuf1);
-//	};
 
 	dXmin = - pcNextBlockList->GetXmax() + pcNextBlockList->GetX0();
 	if( dXmin < cParam.rXmin ) dXmin = cParam.rXmin;
@@ -1580,11 +1454,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetCirc( CTmcRTH_BlockList * pcNextBlockList, CTm
 				{
 					pcNodeDielOne[ii].rY += (_real)(0.25);
 				};
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("pcNodeDielOne[%d] = %lg;", ii, pcNodeDielOne[ii].rY );
-//		AfxMessageBox(csBuf1);
-//	};
 				ii++;
 			};
 		};
@@ -1718,11 +1588,8 @@ CTmcLibError &CTmcRTHNodeDiel::SetPoly( CTmcRTH_BlockList * pcNextBlockList, CTm
 		};
 	};
 
-//	{
 //		CString csBuf1;
 //		csBuf1.Format("dXmin = %lg; dXmax = %lg; dYmin = %lg; dYmax = %lg; nNumNode = %d; nX = %d; nY = %d;", dXmin, dXmax, dYmin, dYmax, nNumNode, nX, nY );
-//		AfxMessageBox(csBuf1);
-//	};
 
 	if( nNumNode <= 0)
 	{
@@ -1908,9 +1775,6 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpXLeft( CTmcRTH_BlockList * pcNextBlockList,
 
 	for( j = 0, y = dYmin; j < nY; j++, y+=cParam.rDelta )
 	{
-/*
-		pcNodeDielOne[j].nNodeGlobal = cParam.CalcnNodeGlobal( (double)cParam.rXmin, (double)y );
-*/
 		pcNodeDielOne[j].nNodeGlobal = cParam.CalcnNodeGlobal( (double)(pcNextBlockList->GetX0()), (double)y );
 		pcNodeDielOne[j].rU  = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[j].rU1 = (_ELEM_VAL_RTH)(0.0);
@@ -2020,9 +1884,6 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpXRight( CTmcRTH_BlockList * pcNextBlockList
 
 	for( j = 0, y = dYmin; j < nY; j++, y+=cParam.rDelta )
 	{
-/*
-		pcNodeDielOne[j].nNodeGlobal = cParam.CalcnNodeGlobal( (double)cParam.rXmax, (double)y );
-*/
 		pcNodeDielOne[j].nNodeGlobal = cParam.CalcnNodeGlobal( (double)(pcNextBlockList->GetX0()), (double)y );
 		pcNodeDielOne[j].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[j].rY = (_real)(0.0);
@@ -2124,9 +1985,6 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpYTop( CTmcRTH_BlockList * pcNextBlockList, 
 
 	for( j = 0, x = dXmin; j < nX; j++, x+=cParam.rDelta )
 	{
-/*
-		pcNodeDielOne[j].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)cParam.rYmax );
-*/
 		pcNodeDielOne[j].nNodeGlobal = cParam.CalcnNodeGlobal( (double)x, (double)(pcNextBlockList->GetY0()) );
 		pcNodeDielOne[j].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[j].rY = (_real)(0.0);
@@ -2227,9 +2085,6 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpYBot( CTmcRTH_BlockList * pcNextBlockList, 
 
 	for( j = 0, x = dXmin; j < nX; j++, x+=cParam.rDelta )
 	{
-/*
-		pcNodeDielOne[j].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)cParam.rYmin );
-*/
 		pcNodeDielOne[j].nNodeGlobal = cParam.CalcnNodeGlobal( (double)x, (double)(pcNextBlockList->GetY0()) );
 		pcNodeDielOne[j].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[j].rY = (_real)(0.0);
@@ -2258,12 +2113,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpYBot( CTmcRTH_BlockList * pcNextBlockList, 
 
 void CTmcRTHNodeDiel::SetYLineForDiel( CTmcRTH_IndanParam &cParam, _real *prYNode )
 {
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("pcNodeDielOne[%d]%d(%lg;%lg) = %lg", i, nNode, x, y, y_line );
-//		csBuf1.Format("pcNodeDielOne");
-//		AfxMessageBox(csBuf1);
-//	};
 	if( cError.IsError() ) return;
 	if( nNumNode == 0 ) return;
 	if( pcNodeDielOne == NULL ) return;
@@ -2330,12 +2180,7 @@ void CTmcRTHNodeDiel::SetYLineForDiel( CTmcRTH_IndanParam &cParam, _real *prYNod
 		{
 			x = cParam.CalcX( nNode ) - dX0;
 			y = cParam.CalcY( nNode ) - dY0;
-//if( fabs(y) < FLT_MIN )
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("pcNodeDielOne[%d]%d(%lg;%lg) = %lg*%lg", i, nNode, x, y, pcNodeDielOne[i].rY, CalcEps( x, y, cParam) );
-//		AfxMessageBox(csBuf1);
-//	};
 			if( ( !bEpsConst )||( i == 0 ) ) rEpsConst = CalcEps( x, y, cParam);	// EPSFAST: constant - once
 			y_line = pcNodeDielOne[i].rY *( rEpsConst );
 		};
@@ -2345,11 +2190,7 @@ void CTmcRTHNodeDiel::SetYLineForDiel( CTmcRTH_IndanParam &cParam, _real *prYNod
 
 	prYNode[ 6*nNode + i_Type ] += (_real)(y_line);
 
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("pcNodeDielOne[%d]%d(%lg;%lg) = %lg", i, nNode, x, y, y_line );
-//		AfxMessageBox(csBuf1);
-//	};
 
 	};
 	if( bEpsConst && ( nNumNode > 1 ) )	// EPSFAST: the interpreter keeps the last node, as before
@@ -2418,12 +2259,6 @@ void CTmcRTHNodeDiel::SetYForInput( CTmcRTH_IndanParam &cParam )
 
 	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
 	{
-//		dUnormir = sqrt(1./(dY1_InputAdmitance*(nNumNode-1)*cParam.rFreq/299792458*cParam.dGetDelta()*cParam.dGetDelta()));
-//		for( i = 0; i < nNumNode; i++ )
-//		{
-////			pcNodeDielOne[i].rY = (_real)(1.0);
-//			pcNodeDielOne[i].rY = (_real)(dUnormir);
-//		};
 		for( i = 0, dUnormir = 0.0; i < nNumNode; i++ )
 		{
 			dUnormir += 1.*1.;
@@ -2479,9 +2314,6 @@ _real CTmcRTHNodeDiel::CalcEps( double x, double y, CTmcRTH_IndanParam &cParam )
 	r = sqrt( x*x + y*y );
 	f = atan2__1( y, x)/cParam.rAngleUnit;
 	// B-11, old (6 digits):
-	// sprintf( szBuf1, "x=(%lg);y=(%lg);r=(%lg);f=(%lg);", x, y, r, f);
-	// if( i1nte_atof_1( szBuf1, &r1 ) != 0 )
-	// { csBuf.Format("In{%s}%s", szBuf1, expr_get_error() ); cError.PutErrorMessage(csBuf); return (_real)(0.0); };
 	expr_set_per( (char *)"x", 1, (_real)x );	// B-11: the full precision, without a string
 	expr_set_per( (char *)"y", 1, (_real)y );
 	expr_set_per( (char *)"r", 1, (_real)r );
@@ -2495,154 +2327,13 @@ _real CTmcRTHNodeDiel::CalcEps( double x, double y, CTmcRTH_IndanParam &cParam )
 		return (_real)(0.0);
 	};
 	rr = (_real)r1;
-//if( fabs(y) < FLT_MIN )
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("%s; Expr(%s)=%lg", szBuf1, szBuf, r1 );
-//		AfxMessageBox(csBuf1);
-//	};
 
 	return rr;
 }
 
 
-void CTmcRTHNodeDiel::SetBlockInDielList( sTmcRTH_DielNodeList **  pcNodeDielList, TmcIdx nNumNode1, CTmcLibError &cError1 )	// INT64
-{
-	if( cError1.IsError() ) return;
-	if( cError.IsError() )
-	{
-		cError1 = cError;
-		return;
-	};
-	if( nNumNode1 == 0 ) return;
-	if( nNumNode == 0 ) return;
-	if( pcNodeDielList == NULL ) return;
-	if( pcNodeDielOne == NULL ) return;
 
-	TmcIdx i;	// BIGBLOCK3
-	CString csBuf;
-
-	for( i = 0; i < nNumNode; i++)
-	{
-		if( pcNodeDielOne[i].nNodeGlobal >= nNumNode1 )
-		{
-			csBuf.Format("Set Diel array in NodeList nNodeGlobal = %.0f > nNodeGlobalMax = %.0f",	// INT64
-				(double)pcNodeDielOne[i].nNodeGlobal, (double)nNumNode1);
-			cError.PutErrorMessage(csBuf);
-			cError1 = cError;
-			return;
-		};
-		AddList( &(pcNodeDielOne[i]), &(pcNodeDielList[ pcNodeDielOne[i].nNodeGlobal ]) );
-		if( cError.IsError() )
-		{
-			cError1 = cError;
-			return;
-		};
-	};
-
-	cError1 = cError;
-	return;
-}
-
-void CTmcRTHNodeDiel::AddList( sTmcRTHNodeDielOne *pcNodeDielOne1, sTmcRTH_DielNodeList **pcNodeDielList1 )
-{
-	if( cError.IsError() ) return;
-	if( pcNodeDielList1 == NULL ) return;
-	if( pcNodeDielOne1 == NULL ) return;
-
-//	CString csBuf1;
-	CString csBuf;
-	sTmcRTH_DielNodeList * pcDielNodeNextList;
-//	csBuf1.Format("{%d}", pcNodeDielOne1->nType );
-//	AfxMessageBox(csBuf1);
-	if( pcNodeDielList1[0] == NULL )
-	{
-		if( (pcNodeDielList1[0] = new sTmcRTH_DielNodeList[1]) == NULL )
-		{
-			cError.PutErrorMessage("Not enought memory for NodeDielList");
-			return;
-		};
-		pcNodeDielList1[0]->pcDielNodeNextList = NULL;
-		pcNodeDielList1[0]->pcNodeDielOne = pcNodeDielOne1;
-		return;
-	};
-	switch( pcNodeDielList1[0]->pcNodeDielOne->nType )
-	{
-		case  CTMCRTH_BLCKNTYPE_INPXLEFT  : ;
-		case  CTMCRTH_BLCKNTYPE_INPXRIGHT : ;
-		case  CTMCRTH_BLCKNTYPE_INPYTOP   : ;
-		case  CTMCRTH_BLCKNTYPE_INPYBOT   : ;
-			if( (pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_INPXLEFT )||
-				(pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_INPXRIGHT)||
-				(pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_INPYTOP  )||
-				(pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_INPYBOT  ))
-			{
-				csBuf.Format("Dublicated inputs in AddList");
-				cError.PutErrorMessage(csBuf);
-				return;
-			};
-			AddList( pcNodeDielOne1, &(pcNodeDielList1[0]->pcDielNodeNextList) );
-			break;
-		case  CTMCRTH_BLCKNTYPE_METAL   : ;
-			if( (pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_INPXLEFT )||
-				(pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_INPXRIGHT)||
-				(pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_INPYTOP  )||
-				(pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_INPYBOT  ))
-			{
-				pcDielNodeNextList = pcNodeDielList1[0];
-				pcNodeDielList1[0] = NULL;
-				AddList( pcNodeDielOne1, &(pcNodeDielList1[0]) );
-				pcNodeDielList1[0]->pcDielNodeNextList = pcDielNodeNextList;
-			}
-			else
-			{
-				AddList( pcNodeDielOne1, &(pcNodeDielList1[0]->pcDielNodeNextList) );
-			};
-			break;
-		case  CTMCRTH_BLCKNTYPE_ABSORBER   : ;
-			if( (pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_INPXLEFT )||
-				(pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_INPXRIGHT)||
-				(pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_INPYTOP  )||
-				(pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_INPYBOT  )||
-				(pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_METAL    ))
-			{
-				pcDielNodeNextList = pcNodeDielList1[0];
-				pcNodeDielList1[0] = NULL;
-				AddList( pcNodeDielOne1, &(pcNodeDielList1[0]) );
-				pcNodeDielList1[0]->pcDielNodeNextList = pcDielNodeNextList;
-			}
-			else
-			{
-				AddList( pcNodeDielOne1, &(pcNodeDielList1[0]->pcDielNodeNextList) );
-			};
-			break;
-		case  CTMCRTH_BLCKNTYPE_EPS   : ;
-//		case  CTMCRTH_BLCKNTYPE_EPSLE0   : ;
-			if( (pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_INPXLEFT )||
-				(pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_INPXRIGHT)||
-				(pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_INPYTOP  )||
-				(pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_INPYBOT  )||
-				(pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_METAL    )||
-				(pcNodeDielOne1->nType == CTMCRTH_BLCKNTYPE_ABSORBER ))
-			{
-				pcDielNodeNextList = pcNodeDielList1[0];
-				pcNodeDielList1[0] = NULL;
-				AddList( pcNodeDielOne1, &(pcNodeDielList1[0]) );
-				pcNodeDielList1[0]->pcDielNodeNextList = pcDielNodeNextList;
-			}
-			else
-			{
-				AddList( pcNodeDielOne1, &(pcNodeDielList1[0]->pcDielNodeNextList) );
-			};
-			break;
-		default :
-			csBuf.Format("Unknow node type %d in AddList", pcNodeDielList1[0]->pcNodeDielOne->nType);
-			cError.PutErrorMessage(csBuf);
-			return;
-	};
-
-	return;
-}
 
 
 /* ==== BUG12 PORTFIX: input nodes excluded from scattering ==== */
@@ -2702,7 +2393,6 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 	_ELEM_VAL_RTH *u2, *u3, *u4, y1, dBuf;
 
 	a = bSigFile ? dSignalFromFile( dtCurrent, cParam ) : dAmplitude(cParam, dtCurrent)*sin( dWT + dFaza(cParam, dtCurrent) );
-//	y1 = (_ELEM_VAL_RTH)1.0;
 	y1 = (_ELEM_VAL_RTH)dY1_InputAdmitance;
 //	y1 = (_ELEM_VAL_RTH)( 1 + 
 //		( (4*cos(dY1_InputAdmitance)-8*cos(dWidthWaveg))*cos(dWT) + sin(dY1_InputAdmitance)*sin(dWT) )/
@@ -2726,10 +2416,6 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 
 	for( i = 0, n1 = nNumNode; i < n1; i++)
 	{
-//		pr1[ pcNodeDielOne[i].nNodeGlobal*6 ] = pcNodeDielOne[i].rU_Cur;
-//		pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 1 ] = pcNodeDielOne[i].rU_Cur1;
-//		pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 2 ] = pcNodeDielOne[i].rU_Cur2;
-//		pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 3 ] = pcNodeDielOne[i].rU_Cur3;
 	};
 
 	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
@@ -2986,23 +2672,16 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 
 	for( i = 0, n1 = nNumNode; i < n1; i++)
 	{
-//		pcNodeDielOne[i].rU_Cur = pr1[ pcNodeDielOne[i].nNodeGlobal*6 ];
-//		pcNodeDielOne[i].rU_Cur1 = pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 1 ];
-//		pcNodeDielOne[i].rU_Cur2 = pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 2 ];
-//		pcNodeDielOne[i].rU_Cur3 = pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 3 ];
 	};
 
 	for( i = 0, dUp = 0.0, dUo = 0.0; i < nNumNode; i++)
 	{
 		dUp += pcNodeDielOne[i].rY*pcNodeDielOne[i].rY;
 		dUo += pcNodeDielOne[i].rY*( pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 0] - pcNodeDielOne[i].rU );
-//		pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)(pcNodeDielOne[i].rY*a1* _ELEM_VAL_RTH_MULT);
 	};
 
 	dUo /= dUp/_ELEM_VAL_RTH_MULT;
 	dUp = a1;
-//	dUo /= dUp/_ELEM_VAL_RTH_MULT/dUnormir;
-//	dUp = a1/dUnormir;
 	OutputUpUo( dUp, dUo , cError1);
 
 
@@ -3033,7 +2712,6 @@ void CTmcRTHNodeDiel::ExciteInputs1( CTmcLibError &cError1, double dWT, double d
 	_ELEM_VAL_RTH *u2, *u3, *u4, y1, dBuf;
 
 	a = bSigFile ? dSignalFromFile( dtCurrent, cParam ) : dAmplitude(cParam, dtCurrent)*sin( dWT + dFaza(cParam, dtCurrent) );
-//	y1 = (_ELEM_VAL_RTH)1.0;
 	y1 = (_ELEM_VAL_RTH)dY1_InputAdmitance;
 //	y1 = sqrt(2.)*sqrt(1-(dWT/dT)/(2*dWidthWaveg*C0___)*(dWT/dT)/(2*dWidthWaveg*C0___));
 //	y1 = (_ELEM_VAL_RTH)( 1 + 
@@ -3059,10 +2737,6 @@ void CTmcRTHNodeDiel::ExciteInputs1( CTmcLibError &cError1, double dWT, double d
 
 	for( i = 0, n1 = nNumNode; i < n1; i++)
 	{
-//		pr1[ pcNodeDielOne[i].nNodeGlobal*6 ] = pcNodeDielOne[i].rU_Cur;
-//		pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 1 ] = pcNodeDielOne[i].rU_Cur1;
-//		pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 2 ] = pcNodeDielOne[i].rU_Cur2;
-//		pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 3 ] = pcNodeDielOne[i].rU_Cur3;
 	};
 
 	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
@@ -3317,23 +2991,16 @@ void CTmcRTHNodeDiel::ExciteInputs1( CTmcLibError &cError1, double dWT, double d
 
 	for( i = 0, n1 = nNumNode; i < n1; i++)
 	{
-//		pcNodeDielOne[i].rU_Cur = pr1[ pcNodeDielOne[i].nNodeGlobal*6 ];
-//		pcNodeDielOne[i].rU_Cur1 = pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 1 ];
-//		pcNodeDielOne[i].rU_Cur2 = pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 2 ];
-//		pcNodeDielOne[i].rU_Cur3 = pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 3 ];
 	};
 
 	for( i = 0, dUp = 0.0, dUo = 0.0; i < nNumNode; i++)
 	{
 		dUp += pcNodeDielOne[i].rY*pcNodeDielOne[i].rY;
 		dUo += pcNodeDielOne[i].rY*( pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 1] - pcNodeDielOne[i].rU1 );
-//		pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)(pcNodeDielOne[i].rY*a1* _ELEM_VAL_RTH_MULT);
 	};
 
 	dUo /= dUp/_ELEM_VAL_RTH_MULT;
 	dUp = a1;
-//	dUo /= dUp/_ELEM_VAL_RTH_MULT/dUnormir;
-//	dUp = a1/dUnormir;
 	OutputUpUo( dUp, dUo , cError1);
 
 
@@ -3366,7 +3033,6 @@ void CTmcRTHNodeDiel::ExciteInputs2( CTmcLibError &cError1, double dWT, double d
 	_ELEM_VAL_RTH *u2, *u3, *u4, y1, dBuf;
 
 	a = bSigFile ? dSignalFromFile( dtCurrent, cParam ) : dAmplitude(cParam, dtCurrent)*sin( dWT + dFaza(cParam, dtCurrent) );
-//	y1 = (_ELEM_VAL_RTH)1.0;
 	y1 = (_ELEM_VAL_RTH)dY1_InputAdmitance;
 //	y1 = sqrt(2.)*sqrt(1-(dWT/dT)/(2*dWidthWaveg*C0___)*(dWT/dT)/(2*dWidthWaveg*C0___));
 //	y1 = (_ELEM_VAL_RTH)( 1 + 
@@ -3392,10 +3058,6 @@ void CTmcRTHNodeDiel::ExciteInputs2( CTmcLibError &cError1, double dWT, double d
 
 	for( i = 0, n1 = nNumNode; i < n1; i++)
 	{
-//		pr1[ pcNodeDielOne[i].nNodeGlobal*6 ] = pcNodeDielOne[i].rU_Cur;
-//		pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 1 ] = pcNodeDielOne[i].rU_Cur1;
-//		pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 2 ] = pcNodeDielOne[i].rU_Cur2;
-//		pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 3 ] = pcNodeDielOne[i].rU_Cur3;
 	};
 
 	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
@@ -3650,23 +3312,16 @@ void CTmcRTHNodeDiel::ExciteInputs2( CTmcLibError &cError1, double dWT, double d
 
 	for( i = 0, n1 = nNumNode; i < n1; i++)
 	{
-//		pcNodeDielOne[i].rU_Cur = pr1[ pcNodeDielOne[i].nNodeGlobal*6 ];
-//		pcNodeDielOne[i].rU_Cur1 = pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 1 ];
-//		pcNodeDielOne[i].rU_Cur2 = pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 2 ];
-//		pcNodeDielOne[i].rU_Cur3 = pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 3 ];
 	};
 
 	for( i = 0, dUp = 0.0, dUo = 0.0; i < nNumNode; i++)
 	{
 		dUp += pcNodeDielOne[i].rY*pcNodeDielOne[i].rY;
 		dUo += pcNodeDielOne[i].rY*( pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 2] - pcNodeDielOne[i].rU2 );
-//		pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)(pcNodeDielOne[i].rY*a1* _ELEM_VAL_RTH_MULT);
 	};
 
 	dUo /= dUp/_ELEM_VAL_RTH_MULT;
 	dUp = a1;
-//	dUo /= dUp/_ELEM_VAL_RTH_MULT/dUnormir;
-//	dUp = a1/dUnormir;
 	OutputUpUo( dUp, dUo , cError1);
 
 
@@ -3699,7 +3354,6 @@ void CTmcRTHNodeDiel::ExciteInputs3( CTmcLibError &cError1, double dWT, double d
 	_ELEM_VAL_RTH *u2, *u3, *u4, y1, dBuf;
 
 	a = bSigFile ? dSignalFromFile( dtCurrent, cParam ) : dAmplitude(cParam, dtCurrent)*sin( dWT + dFaza(cParam, dtCurrent) );
-//	y1 = (_ELEM_VAL_RTH)1.0;
 	y1 = (_ELEM_VAL_RTH)dY1_InputAdmitance;
 //	y1 = sqrt(2.)*sqrt(1-(dWT/dT)/(2*dWidthWaveg*C0___)*(dWT/dT)/(2*dWidthWaveg*C0___));
 //	y1 = (_ELEM_VAL_RTH)( 1 + 
@@ -3725,10 +3379,6 @@ void CTmcRTHNodeDiel::ExciteInputs3( CTmcLibError &cError1, double dWT, double d
 
 	for( i = 0, n1 = nNumNode; i < n1; i++)
 	{
-//		pr1[ pcNodeDielOne[i].nNodeGlobal*6 ] = pcNodeDielOne[i].rU_Cur;
-//		pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 1 ] = pcNodeDielOne[i].rU_Cur1;
-//		pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 2 ] = pcNodeDielOne[i].rU_Cur2;
-//		pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 3 ] = pcNodeDielOne[i].rU_Cur3;
 	};
 
 	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
@@ -3983,23 +3633,16 @@ void CTmcRTHNodeDiel::ExciteInputs3( CTmcLibError &cError1, double dWT, double d
 
 	for( i = 0, n1 = nNumNode; i < n1; i++)
 	{
-//		pcNodeDielOne[i].rU_Cur = pr1[ pcNodeDielOne[i].nNodeGlobal*6 ];
-//		pcNodeDielOne[i].rU_Cur1 = pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 1 ];
-//		pcNodeDielOne[i].rU_Cur2 = pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 2 ];
-//		pcNodeDielOne[i].rU_Cur3 = pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 3 ];
 	};
 
 	for( i = 0, dUp = 0.0, dUo = 0.0; i < nNumNode; i++)
 	{
 		dUp += pcNodeDielOne[i].rY*pcNodeDielOne[i].rY;
 		dUo += pcNodeDielOne[i].rY*( pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 3] - pcNodeDielOne[i].rU3 );
-//		pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)(pcNodeDielOne[i].rY*a1* _ELEM_VAL_RTH_MULT);
 	};
 
 	dUo /= dUp/_ELEM_VAL_RTH_MULT;
 	dUp = a1;
-//	dUo /= dUp/_ELEM_VAL_RTH_MULT/dUnormir;
-//	dUp = a1/dUnormir;
 	OutputUpUo( dUp, dUo , cError1);
 
 
@@ -4032,17 +3675,9 @@ void CTmcRTHNodeDiel::OutputUpUo( double dUp, double dUo, CTmcLibError &cError1)
 	fprintf( fp, psForm, dUp);
 	psForm = GetdOutFormat();
 
-#ifdef _VERSION_PROF___
 	fprintf( fp, psForm, dUo);
-#endif
 
-#ifdef _VERSION_EDUC___
-	fprintf( fp, psForm, dUo);
-#endif
 
-#ifdef _VERSION_DEMO___
-	fprintf( fp, "   DemoVersion   ");
-#endif
 
 	if( !bHeld ) fclose( fp );
 	if( m_pqSignalFileTicks != NULL ) *m_pqSignalFileTicks += TmcTimingNow() - qTm;	// TIMING
@@ -4059,7 +3694,6 @@ double CTmcRTHNodeDiel::SetInputAdmitance( double dFreq, double dDelta )
 //	dY1 = sqrt( 2.*(1. - ( C0___/(dFreq*2.*dWidthWaveg) )*( C0___/(dFreq*2.*dWidthWaveg) ) ) );
 
 	dA_111 = sqrt(2.)*PI___*dDelta*dFreq/C0___;
-//	dY1 = 1/(1+2*PI___*PI___/3.*(dDelta*dFreq/C0___)*(dDelta*dFreq/C0___))*acos( 2*cos(dA_111) - cos(PI___*dDelta/dWidthWaveg) )/dA_111;
 	double dArgCutoff = (2+fabs(dYInput)/2.)*cos(dA_111) - dYInput/2. - cos(PI___/(dWidthWaveg/dDelta));	// A-7
 	if( !( dArgCutoff >= -1. && dArgCutoff <= 1. ) )
 	{
@@ -4069,12 +3703,7 @@ double CTmcRTHNodeDiel::SetInputAdmitance( double dFreq, double dDelta )
 	};
 	dY1 = sin(acos( dArgCutoff ))/sin(dA_111);
 
-//	t0 = dDelta*sqrt( MU0___*EPS0___/2. );
-//	dY1 = acos( 2*cos(2*PI___*dFreq*t0) - cos(PI___*dDelta/dWidthWaveg) );
-//	dWidthWaveg = 2*PI___*dFreq*t0;
 
-//	csBuf1.Format("Freq = %lg; a = %lg; y1 = %lg", dFreq, dWidthWaveg, dY1);
-//	AfxMessageBox(csBuf1);
 
 	return dY1;
 }
@@ -4087,8 +3716,6 @@ double CTmcRTHNodeDiel::SetAbsorberAdmitance( double dFreq, double dDelta )
 	dA_111 = sqrt(2.)*PI___*dDelta*dFreq/C0___;
 	dY1 = sin(acos( (2+fabs(dYInput)/2.)*cos(dA_111) - 1. - dYInput/2. ))/sin(dA_111);
 
-//	csBuf1.Format("y1 = %lg", dY1);
-//	AfxMessageBox(csBuf1);
 
 	return dY1;
 }
@@ -4274,16 +3901,12 @@ void CTmcRTHNodeDiel::RunBlockNode( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int
 					u4  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal - nX ) + 3 ];
 					ut1 = prUNode1[ 6*pcNodeDielOne[i].nNodeGlobal + 3 ];
 					ut2 = pcNodeDielOne[i].rU;
-//					pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)ut1;
 					y = pcNodeDielOne[i].rY;
 //					if( y < (1.e-6) ) y = (1.e-6);
 					// B-8 (26.10.2026): the stub admittance of the node is in the slot 1 in X (the slot 0 is 2/a);
 					// to return the old variant: y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
 					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal + 1 ];
 //{		CString csBuf1;
-//		csBuf1.Format("y = %lg; y5 = %lg;", y, y5);
-//		AfxMessageBox(csBuf1);		
-//	};
 					prU = prUNode1 + (6*pcNodeDielOne[i].nNodeGlobal + 0);
 					switch( pcNodeDielOne[i].nType )
 					{
@@ -4424,7 +4047,6 @@ void CTmcRTHNodeDiel::RunBlockNode1( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 					u4  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal - nX ) + 0 ];
 					ut1 = prUNode1[ 6*pcNodeDielOne[i].nNodeGlobal + 0 ];
 					ut2 = pcNodeDielOne[i].rU;
-//					pcNodeDielOne[i].rU = ut1;
 					y = pcNodeDielOne[i].rY;
 //					if( y < (1.e-6) ) y = (1.e-6);
 					// B-8 (26.10.2026): the stub admittance of the node is in the slot 1 in X (the slot 0 is 2/a);
@@ -4573,16 +4195,12 @@ void CTmcRTHNodeDiel::RunBlockNode2( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 					u4  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal - nX ) + 1 ];
 					ut1 = prUNode1[ 6*pcNodeDielOne[i].nNodeGlobal + 1 ];
 					ut2 = pcNodeDielOne[i].rU;
-//					pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)ut1;
 					y = pcNodeDielOne[i].rY;
 //					if( y < (1.e-6) ) y = (1.e-6);
 					// B-8 (26.10.2026): the stub admittance of the node is in the slot 1 in X (the slot 0 is 2/a);
 					// to return the old variant: y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
 					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal + 1 ];
 //{		CString csBuf1;
-//		csBuf1.Format("y = %lg; y5 = %lg;", y, y5);
-//		AfxMessageBox(csBuf1);		
-//	};
 					prU = prUNode1 + (6*pcNodeDielOne[i].nNodeGlobal + 2);
 					switch( pcNodeDielOne[i].nType )
 					{
@@ -4723,7 +4341,6 @@ void CTmcRTHNodeDiel::RunBlockNode3( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 					u4  = prUNode1[ 6*(pcNodeDielOne[i].nNodeGlobal - nX ) + 2 ];
 					ut1 = prUNode1[ 6*pcNodeDielOne[i].nNodeGlobal + 2 ];
 					ut2 = pcNodeDielOne[i].rU;
-//					pcNodeDielOne[i].rU = ut1;
 					y = pcNodeDielOne[i].rY;
 //					if( y < (1.e-6) ) y = (1.e-6);
 					// B-8 (26.10.2026): the stub admittance of the node is in the slot 1 in X (the slot 0 is 2/a);
@@ -4918,33 +4535,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 		nX1 = nX2;
 		nY1 = nY2;	
 	};
-/*
-	r = pX[0] + pcNextBlockList->GetX0();
-	r = (r - cParam.rXmin)/cParam.rDelta + 0.5;
-	if( fabs(r) >= INT_MAX ) 
-	{
-		CString csBuf;
-		csBuf.Format("Very big Xmin for block %d", nBlock);
-		cError.PutErrorMessage(csBuf);
-		return cError;
-	};
-	nX2 = (int)(r);	
-	
-	r = pY[0] + pcNextBlockList->GetY0();
-	r = (r - cParam.rYmin)/cParam.rDelta + 0.5;
-	if( fabs(r) >= INT_MAX ) 
-	{
-		CString csBuf;
-		csBuf.Format("Very big Ymin for block %d", nBlock);
-		cError.PutErrorMessage(csBuf);
-		return cError;
-	};
-	nY2 = (int)(r);		
-	
-	nNumNode += abs( nY1 - nY2 ) + abs( nX1 - nX2 );
-*/
-//	csBuf1.Format("nNumNode = %d;", nNumNode);
-//	AfxMessageBox(csBuf1);
 		
 
 	if( nNumNode <= 0)
@@ -5038,13 +4628,10 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 			j_step = -1;
 		};
 
-//	csBuf1.Format("nY = %d; nX = %d", nY, nX);
-//	AfxMessageBox(csBuf1);		
 		if( nY < nX )
 		{
 			for( i = 0, j = 0; (i < nY)&&(j < nX) ; i++ )
 			{
-//				for( jj = 0; (jj < njj)&&(j < nX); j++, ii++, jj++ )
 				for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++, ii++ )
 				{
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
@@ -5053,8 +4640,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 				};
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
@@ -5062,11 +4647,8 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 					ii++;
 			};
-//				for( jj = 0; (jj < njj)&&(j < nX); j++, ii++, jj++ )
 				for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++, ii++ )
 				{
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
@@ -5075,16 +4657,12 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 				};
 		}
 		else
 		{
-//			for( i = 0, j = 0, njj = nY/(nX+1)+1; (i < nX)&&(j < nY) ; i++ )
 			for( i = 0, j = 0; (i < nX)&&(j < nY) ; i++ )
 			{
-//				for( jj = 0; (jj < njj)&&(j < nY); j++, ii++, jj++ )
 				for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++, ii++ )
 				{
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
@@ -5093,8 +4671,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 				};
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
@@ -5102,11 +4678,8 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 					ii++;
 			};
-//				for( jj = 0; (jj < njj)&&(j < nY); j++, ii++, jj++ )
 				for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++, ii++ )
 				{
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
@@ -5115,8 +4688,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 				};
 		};
 
@@ -5185,8 +4756,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 	{
 		j_step = -1;
 	};
-//	csBuf1.Format("nY = %d; nX = %d", nY, nX);
-//	AfxMessageBox(csBuf1);		
 		if( nY < nX )
 		{
 			for( i = 0, j = 0, njj = nX/(nY+1)+1; (i < nY)&&(j < nX) ; i++ )
@@ -5199,8 +4768,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 				};
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
@@ -5208,8 +4775,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 					ii++;
 			};
 				for( jj = 0; (jj < njj)&&(j < nX); j++, ii++, jj++ )
@@ -5220,8 +4785,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 				};
 		}
 		else
@@ -5236,8 +4799,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 				};
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
@@ -5245,8 +4806,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 					ii++;
 			};
 				for( jj = 0; (jj < njj)&&(j < nY); j++, ii++, jj++ )
@@ -5257,8 +4816,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 				};
 		};
 */
@@ -5815,19 +5372,9 @@ CTmcLibError & CTmcRTHNodeDiel::SetRectAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	nNumNode = 2*nX + 2*(nY-2) + 2*(nX-2)+2*(nY-3);
 
 //{	CString csBuf1;
-//	csBuf1.Format("nNumNode = %d;", nNumNode);
-//	AfxMessageBox(csBuf1);		
-//};
 
 
 //{	CString csBuf1;
-//	csBuf1.Format("nXmin = %d; nXmax = %d; nX = %d;", nXmin, nXmax, nX);
-//	AfxMessageBox(csBuf1);		
-//	csBuf1.Format("nYmin = %d; nYmax = %d; nY = %d;", nYmin, nYmax, nY);
-//	AfxMessageBox(csBuf1);		
-//	csBuf1.Format("nNumNode = %d;", nNumNode);
-//	AfxMessageBox(csBuf1);		
-//};
 
 	if( nNumNode <= 0)
 	{
@@ -5957,9 +5504,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetRectAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	};
 
 //{	CString csBuf1;
-//	csBuf1.Format("ii = %d;", ii);
-//	AfxMessageBox(csBuf1);		
-//};
 
 	return cError;
 }
@@ -6064,19 +5608,9 @@ CTmcLibError & CTmcRTHNodeDiel::SetRectMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	nNumNode = 2*nX + 2*(nY-2) + 2*(nX-2)+2*(nY-3);
 
 //{	CString csBuf1;
-//	csBuf1.Format("nNumNode = %d;", nNumNode);
-//	AfxMessageBox(csBuf1);		
-//};
 
 
 //{	CString csBuf1;
-//	csBuf1.Format("nXmin = %d; nXmax = %d; nX = %d;", nXmin, nXmax, nX);
-//	AfxMessageBox(csBuf1);		
-//	csBuf1.Format("nYmin = %d; nYmax = %d; nY = %d;", nYmin, nYmax, nY);
-//	AfxMessageBox(csBuf1);		
-//	csBuf1.Format("nNumNode = %d;", nNumNode);
-//	AfxMessageBox(csBuf1);		
-//};
 
 	if( nNumNode <= 0)
 	{
@@ -6218,9 +5752,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetRectMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	};
 
 //{	CString csBuf1;
-//	csBuf1.Format("ii = %d;", ii);
-//	AfxMessageBox(csBuf1);		
-//};
 
 	return cError;
 }
@@ -6329,8 +5860,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	};
 
 	nNumNode *=4;
-//	csBuf1.Format("nNumNode = %d;", nNumNode);
-//	AfxMessageBox(csBuf1);
 		
 
 	if( nNumNode <= 0)
@@ -6425,8 +5954,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 			j_step = -1;
 		};
 
-//	csBuf1.Format("nY = %d; nX = %d", nY, nX);
-//	AfxMessageBox(csBuf1);		
 		if( nY < nX )
 		{
 			for( i = 0, j = 0; (i < nY)&&(j < nX) ; i++ )	// B-4 (old: njj = nX/(nY+1)+1 - the staircase stopped halfway)
@@ -6464,8 +5991,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 				};
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
@@ -6499,8 +6024,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 			};
 				for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++ )	// B-4 (old: jj < njj)
 				{
@@ -6536,8 +6059,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 				};
 		}
 		else
@@ -6578,8 +6099,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 				};
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
@@ -6613,8 +6132,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 			};
 				for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++ )	// B-4 (old: jj < njj)
 				{
@@ -6650,8 +6167,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 				};
 		};
 
@@ -6783,14 +6298,9 @@ void CTmcRTHNodeDiel::SetAbsorberNodeType( CTmcRTH_IndanParam &cParam )
 			};
 			if( nn == 0 ) pcNodeDielOne[i].nType = CTMCRTH_BLCKNTYPE_ABSR_1111_4;
 		};
-//		{
 //			CString csBuf1;
 //			csBuf1.Format("Type = %d; nNode = %d; x = %lg; y = %lg", pcNodeDielOne[i].nType, pcNodeDielOne[i].nNodeGlobal,
 //				cParam.CalcX( pcNodeDielOne[i].nNodeGlobal ),
-//				cParam.CalcY( pcNodeDielOne[i].nNodeGlobal ) );
-//			AfxMessageBox(csBuf1);		
-//		};
-//	pcNodeDielOne[i].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 	};
 	return;
 }
@@ -7019,11 +6529,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	nNumNode += k2;
 	
 	nNumNode *= 4;
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("nNumNode = %d;", nNumNode);
-//		AfxMessageBox(csBuf1);
-//	};
 	
 	if( nNumNode <= 0)
 	{
@@ -7647,11 +7153,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 		ii++;
 	};
 
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("nNumNode = %d, ii = %d, k2 = %d;", nNumNode, ii, k2);
-//		AfxMessageBox(csBuf1);
-//	};
 	if( k2 > 2 ) df = ( pcNextBlockList->GetYmax() - pcNextBlockList->GetYmin() )/( k2 - 2 );
 	else df = 0.0;
 	for( i = 0, r = pcNextBlockList->GetYmin(); i < k2; i++, r += df )
@@ -7689,11 +7191,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 		ii++;
 	};
 
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("nNumNode = %d, ii = %d, k2 = %d;", nNumNode, ii, k2);
-//		AfxMessageBox(csBuf1);
-//	};
 	DeleteDublicateData();
 	{	// B-16: the nodes of the parts outside the region (marked -1) are dropped
 		TmcIdx a, b;
@@ -7707,11 +7205,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	};
 	SetAbsorberNodeType( cParam );
 
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("After dublicated nNumNode = %d, ii = %d, k2 = %d;", nNumNode, ii, k2);
-//		AfxMessageBox(csBuf1);
-//	};
 
 	return cError;
 }
@@ -7839,11 +7333,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	nNumNode += k2;
 	
 	nNumNode *= 4;
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("nNumNode = %d;", nNumNode);
-//		AfxMessageBox(csBuf1);
-//	};
 	
 	if( nNumNode <= 0)
 	{
@@ -8467,11 +7957,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 		ii++;
 	};
 
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("nNumNode = %d, ii = %d, k2 = %d;", nNumNode, ii, k2);
-//		AfxMessageBox(csBuf1);
-//	};
 	if( k2 > 2 ) df = ( pcNextBlockList->GetYmax() - pcNextBlockList->GetYmin() )/( k2 - 2 );
 	else df = 0.0;
 	for( i = 0, r = pcNextBlockList->GetYmin(); i < k2; i++, r += df )
@@ -8509,11 +7995,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 		ii++;
 	};
 
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("nNumNode = %d, ii = %d, k2 = %d;", nNumNode, ii, k2);
-//		AfxMessageBox(csBuf1);
-//	};
 	DeleteDublicateData();
 	{	// B-16: the nodes of the parts outside the region (marked -1) are dropped
 		TmcIdx a, b;
@@ -8528,11 +8010,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	SetAbsorberNodeType( cParam );
 	SetMagneticPolygonType( cParam );	// B-26: the edge of the region as for the magnetic polygon (old: not called)
 
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("After dublicated nNumNode = %d, ii = %d, k2 = %d;", nNumNode, ii, k2);
-//		AfxMessageBox(csBuf1);
-//	};
 
 	return cError;
 }
@@ -8633,8 +8111,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	};
 
 	nNumNode *=4;
-//	csBuf1.Format("nNumNode = %d;", nNumNode);
-//	AfxMessageBox(csBuf1);
 		
 
 	if( nNumNode <= 0)
@@ -8729,8 +8205,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 			j_step = -1;
 		};
 
-//	csBuf1.Format("nY = %d; nX = %d", nY, nX);
-//	AfxMessageBox(csBuf1);		
 		if( nY < nX )
 		{
 			for( i = 0, j = 0; (i < nY)&&(j < nX) ; i++ )	// B-4 (old: njj = nX/(nY+1)+1 - the staircase stopped halfway)
@@ -8768,8 +8242,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 				};
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
@@ -8803,8 +8275,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 			};
 				for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++ )	// B-4 (old: jj < njj)
 				{
@@ -8840,8 +8310,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 				};
 		}
 		else
@@ -8882,8 +8350,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 				};
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
@@ -8917,8 +8383,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 			};
 				for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++ )	// B-4 (old: jj < njj)
 				{
@@ -8954,8 +8418,6 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					
-//	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
-//	AfxMessageBox(csBuf1);		
 				};
 		};
 
@@ -9118,23 +8580,6 @@ void CTmcRTHNodeDiel::SaveFileRect( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH
 						TMC_RTH_EPSFILE_NAccur_, sizeof(_real), 13, 10,
 						TMC_RTH_EPSFILE_NdFrmt_, "NULL", 13, 10,
 						TMC_RTH_EPSFILE_VlFrmt_, "NULL", 13, 10);
-//	for( i = 0; i < nY; i++)
-//	{
-//		fprintf( fp, "%c%c", 13, 10);
-//		for( j = 0; j < nX; j++ )
-//		{
-////			fprintf( fp, GetdFieldOutFormat(), prUNode1[ii]);
-//			if( strcmp( GetdFieldOutFormat(), "") == 0 )
-//			{
-//				fwrite( &(prUNode1[ii]), sizeof(_real), 1, fp );
-//			}
-//			else
-//			{
-//				fprintf( fp, GetdFieldOutFormat(), prUNode1[ii]);
-//			};
-//			ii+=2;
-//		};
-//	};
 	
 	csBuf.Format("%d point in file %s", nNumNode1, csFileNameEps);
 	PutTrace(csBuf);
@@ -9567,11 +9012,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 		return cError;
 	};
 	pcNextBlockList->SetYmax( dYmin1 + (nY-1)*cParam.rDelta );
-//{
 //	CString csBuf1;
-//	csBuf1.Format("{ Ymin = %lg; Ymax = %lg; nY = %d }", dYmin1, dYmin1 + (nY-1)*cParam.rDelta, nY );
-//	AfxMessageBox(csBuf1);
-//};
 
 	if( fgets( ch, CTMCRTH_INDANSBUF, pfData ) == NULL )
 	{
@@ -9964,9 +9405,6 @@ double CTmcRTHNodeDiel::dAmplitude(CTmcRTH_IndanParam &cParam, double dtCurrent)
 	t = dtCurrent/cParam.rTimeUnit;
 
 	// B-11, old (6 digits):
-	// sprintf( szBuf1, "t=(%lg);f=(%lg);", t, f);
-	// if( i1nte_atof_1( szBuf1, &r1 ) != 0 )
-	// { csBuf.Format("In{%s}%s", szBuf1, expr_get_error() ); cError.PutErrorMessage(csBuf); return (double)(0.0); };
 	expr_set_per( (char *)"t", 1, (_real)t );	// B-11: the full precision, without a string
 	expr_set_per( (char *)"f", 1, (_real)f );
 	szBuf1[0] = '\0';
@@ -9998,9 +9436,6 @@ double CTmcRTHNodeDiel::dFaza(CTmcRTH_IndanParam &cParam, double dtCurrent)
 	t = dtCurrent/cParam.rTimeUnit;
 
 	// B-11, old (6 digits):
-	// sprintf( szBuf1, "t=(%lg);f=(%lg);", t, f);
-	// if( i1nte_atof_1( szBuf1, &r1 ) != 0 )
-	// { csBuf.Format("In{%s}%s", szBuf1, expr_get_error() ); cError.PutErrorMessage(csBuf); return (double)(0.0); };
 	expr_set_per( (char *)"t", 1, (_real)t );	// B-11: the full precision, without a string
 	expr_set_per( (char *)"f", 1, (_real)f );
 	szBuf1[0] = '\0';
@@ -10083,8 +9518,6 @@ void CTmcRTHNodeDiel::SetMagneticPolygonType( CTmcRTH_IndanParam &cParam )
 				{
 					pcNodeDielOne[i].nType = CTMCRTH_BLCKNTYPE_ABSR_0111;
 //						csBuf.Format("x = %lg; set type CTMCRTH_BLCKNTYPE_ABSR_1101",
-//						cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) );
-//						AfxMessageBox(csBuf);
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_ABSR_1100:
@@ -10092,8 +9525,6 @@ void CTmcRTHNodeDiel::SetMagneticPolygonType( CTmcRTH_IndanParam &cParam )
 				{
 					pcNodeDielOne[i].nType = CTMCRTH_BLCKNTYPE_ABSR_1101;
 //						csBuf.Format("x = %lg; set type CTMCRTH_BLCKNTYPE_ABSR_0111",
-//						cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) );
-//						AfxMessageBox(csBuf);
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_ABSR_1001:
@@ -10101,8 +9532,6 @@ void CTmcRTHNodeDiel::SetMagneticPolygonType( CTmcRTH_IndanParam &cParam )
 				{
 					pcNodeDielOne[i].nType = CTMCRTH_BLCKNTYPE_ABSR_1101;
 //						csBuf.Format("x = %lg; set type CTMCRTH_BLCKNTYPE_ABSR_1101",
-//						cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) );
-//						AfxMessageBox(csBuf);
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_ABSR_0011:
@@ -10110,8 +9539,6 @@ void CTmcRTHNodeDiel::SetMagneticPolygonType( CTmcRTH_IndanParam &cParam )
 				{
 					pcNodeDielOne[i].nType = CTMCRTH_BLCKNTYPE_ABSR_0111;
 //						csBuf.Format("x = %lg; set type CTMCRTH_BLCKNTYPE_ABSR_0111",
-//						cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) );
-//						AfxMessageBox(csBuf);
 				};
 				break;
 			default:

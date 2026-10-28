@@ -180,16 +180,11 @@
     <ClCompile Include="S_file.cpp" />
     <ClCompile Include="S_memf.cpp" />
     <ClCompile Include="S_remt.cpp" />
-    <ClCompile Include="S_table.cpp" />
     <ClCompile Include="S_wemt.cpp" />
     <ClCompile Include="Sadd.cpp" />
     <ClCompile Include="Sofftbl.cpp" />
     <ClCompile Include="Unite_s.cpp" />
     <ClCompile Include="Write_s.cpp" />
-    <ClCompile Include="Wrrd_s.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\Tmc\Source\Tamic\Post_pro\Thresh.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

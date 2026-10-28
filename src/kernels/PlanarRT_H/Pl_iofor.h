@@ -35,11 +35,8 @@ void SetDemoRunOff( void );
 BOOL IsDemoRun( void );
 void Set_CommandLine_Flags( char *lpszCmdLine );
 void SwitchAutoRunFlag( void );
-CMainFrame *GetMainFramePointer__( void );
 void SetMainFramePointer__( CMainFrame* HwndMainFrame1 );
 void SetBatchRunOn( void );
-void SetBatchRunOff( void );
-void SwitchBatchRunFlag( void );
 BOOL IsBatchRun( void );
 void SetTimeReportOn( void );	// TIMING: key /Time - calculation time report file
 void SetTimeReportOff( void );

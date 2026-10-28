@@ -73,8 +73,8 @@ private:
 	void RunBlockNode1( void );
 	void RunBlockNode( void );
 	void PutField( TmcIdx ii );	// INT64
-	near void RunScatteringNode1line( _ELEM_VAL_RTH *pr_111, _real *prY_111, int nx_111, int nX_111);
-	near void RunScatteringNode1line1( _ELEM_VAL_RTH *pr_111, _real *prY_111, int nx_111, int nX_111);
+	void RunScatteringNode1line( _ELEM_VAL_RTH *pr_111, _real *prY_111, int nx_111, int nX_111);
+	void RunScatteringNode1line1( _ELEM_VAL_RTH *pr_111, _real *prY_111, int nx_111, int nX_111);
 	void OutputnT( void );
 	void DeleteOutputFile( void );
 	void PutPortInfo( void );		// wideband: port data for post-processing
@@ -82,7 +82,6 @@ private:
 	void RunExciteInputs( void );
 	void SetDielInNodeList( void );
 	void SetDielTopology( void );
-	void DeleteDielList( sTmcRTH_DielNodeList ** pcNodeDielList1 );
 	void RunScatteringNode( void );
 	void RunScatteringNode1( void );
 	CTmcRTH_IndanParam cParam;

@@ -4,7 +4,6 @@
 #include "stdafx.h"
 #include <TmcRTH_Indan.h>
 #include <prepr1.h>
-#include <conio.h>
 #include <map>		// T-8
 #include <set>
 #include <string>
@@ -13,11 +12,6 @@
 #endif
 #include <tmcrth_indan.h>
 
-//#ifdef _DEBUG
-//#define new DEBUG_NEW
-//#undef THIS_FILE
-//static char THIS_FILE[] = __FILE__;
-//#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // CTmcRTH_Indan
@@ -69,14 +63,8 @@ void CTmcRTH_Indan::SetTplFileName( CString csFileName )
 	CString csBuf;
 
 //		{	CString csBuf1;
-//			csBuf1.Format("Trace function\nSetTplFileName(%s);", csFileName);
-//			AfxMessageBox(csBuf1);		
-//		};
 	DeleteData();
 //		{	CString csBuf1;
-//			csBuf1.Format("Trace function\nSetTplFileName(%s);", csFileName);
-//			AfxMessageBox(csBuf1);		
-//		};
 
 	if( ( pfTpl = fopen( csFileName, "r") ) == NULL )
 	{
@@ -180,21 +168,12 @@ void CTmcRTH_Indan::MakePreprFile( void )
 {
 	if( IsError() ) return;
 
-//	WriteFileForMaple( "c:\\work\\tpl\\ivtan\\test\\test_maple.dat", "test_maple_spline.dat", 130., 5.0, 40.0, 360.0, 398.0, 86.5);
 
 	PutTrace("Load prepr.");
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("Load prepr.");
-//		AfxMessageBox(csBuf1);
-//	};
 	MainPrepr( csTplFileNamePrepr, csTplFileName, csCurrentPath, cError );
 	PutTrace("UnLoad prepr.");
-//	{
 //		CString csBuf1;
-//		csBuf1.Format("UnLoad prepr.");
-//		AfxMessageBox(csBuf1);
-//	};
 	return;
 }
 
@@ -619,15 +598,9 @@ int CTmcRTH_Indan::GetBlock( CString &csCh )
 	csCh += csBuf;
 	while( (i = GetLineSection( csBuf )) != EOF )
 	{
-//		{
 //			FILE *fp;
-//			fp = fopen( "debug2.txt", "a" );
-//			fprintf( fp, "\nAdd Block {%s}", csCh);
-//			fclose(fp);
-//		};
 		if( strncmp( csBuf, CTMCRTH_INDANMET_ENDBLOCK, strlen(CTMCRTH_INDANMET_ENDBLOCK) ) == 0 ) 
 		{
-//			csCh += csBuf;
 			return 0;
 		};
 		if( strncmp( csBuf, CTMCRTH_INDANMET_BLOCK, strlen(CTMCRTH_INDANMET_BLOCK) ) == 0 ) 
@@ -850,17 +823,7 @@ void CTmcRTH_Indan::OnOffFieldOutput()
 	return;
 }
 
-void CTmcRTH_Indan::OnOffFieldOutput1()
-{
-	cOut.OnOffFieldOutput1();
-	return;
-}
 
-void CTmcRTH_Indan::OnOffFieldOutputU()
-{
-	cOut.OnOffFieldOutputU();
-	return;
-}
 
 void CTmcRTH_Indan::OnOffSinchronizationFieldOutput()
 {
@@ -931,60 +894,7 @@ CString CTmcRTH_Indan::GetTopologyFileName(void)
 // dStatorR2 - external radius of stator in mm
 // dMagnMomP -  magnetic moment
 
-CTmcLibError CTmcRTH_Indan::WriteFileForMaple(CString csFileName, CString csFileNameData, double dHeight, double dRolikR1, double dRolikR2, double dStatorR1, double dStatorR2, double dMagnMomP)
-{
-	CTmcLibError cError1;
-	FILE *fp;
 
-	if( strlen(csFileName) < 1 )
-	{
-		cError1.PutErrorMessage("lenght of file name for Maple < 1");
-		return cError1;
-	}
-
-	if( strlen(csFileNameData) < 1 )
-	{
-		cError1.PutErrorMessage("lenght of file name for spline data < 1");
-		return cError1;
-	}
-	
-	if( ( fp = fopen( csFileName , "w") ) == NULL )
-	{
-		CString csBuf;
-		csBuf.Format("can't open file {%s} for write geometry data for Maple", csFileName );
-		cError1.PutErrorMessage( csBuf );
-		return cError1;
-	};
-
-	if( fprintf( fp, "\nFile name for spline \"%s\"\nHeight stator and rolik %lg mm\nInternal radius of rolik %lg mm\nExternal radius of rolik %lg mm\nInternal radius of stator %lg mm\nInternal radius of stator %lg mm\nMagnetic moment %lg \n",
-		csFileNameData, dHeight, dRolikR1, dRolikR2, dStatorR1, dStatorR2, dMagnMomP ) < 1 )
-	{
-		CString csBuf;
-		csBuf.Format("can't  write geometry data for Maple in file {%s}", csFileName );
-		cError1.PutErrorMessage( csBuf );
-		fclose( fp );
-		return cError1;
-	};
-
-//	{
-//		CString csBuf1;
-//		csBuf1.Format( "Write file {%s} for Maple", csFileName );
-//		AfxMessageBox(csBuf1);
-//	};
-
-	fclose( fp );
-	return cError1;
-}
-
-CTmcLibError CTmcRTH_Indan::WriteFileForMaple(char *szFileName, char *szFileNameData, double dHeight, double dRolikR1, double dRolikR2, double dStatorR1, double dStatorR2, double dMagnMomP)
-{
-	CString csBuf, csBuf1;
-
-	csBuf.Format("%s", szFileName);
-	csBuf1.Format("%s", szFileNameData);
-
-	return WriteFileForMaple( csBuf, csBuf1, dHeight, dRolikR1, dRolikR2, dStatorR1, dStatorR2, dMagnMomP);
-}
 
 
 

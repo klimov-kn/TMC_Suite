@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <conio.h>
 
 
 #include <typedef.h>
@@ -27,21 +26,21 @@
 
 #include <malloc.h>
 
-void _far  *  alloc_mem_err( long size )
+void *  alloc_mem_err( long size )
   {
-   void _far *ptr;
-   ptr = (void _far *)malloc( (size_t)size );
+   void *ptr;
+   ptr = (void *)malloc( (size_t)size );
    if( ptr == NULL ) put_error_messege( FATAL_MEM_ALLOC_ERROR );
    return ( ptr );
   }
 
-int  _far     free_mem( void far *mem_ptr )
+int  free_mem( void *mem_ptr )
   {
    free( mem_ptr );
    return 0;
   }
 
-int  _far free_mem_null( void far **ptr )
+int  free_mem_null( void **ptr )
   {
    if( *ptr != NULL )
      {
@@ -51,6 +50,5 @@ int  _far free_mem_null( void far **ptr )
    return 0;
   }
 
-void _far     stat_messege( int num, char _far *mes ) { return; }
+void stat_messege( int num, char *mes ) { return; }
 
-int _far _fortran get_comp_file_flag( void ) { return 0; }

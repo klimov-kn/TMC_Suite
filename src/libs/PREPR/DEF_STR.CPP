@@ -32,7 +32,7 @@
 #include "prepr1.h"
 
 
-int  buf_gets( char _far *str, int n, BUFFER _far *buf)
+int  buf_gets( char *str, int n, BUFFER *buf)
  {
   int  i, j, j1;
 
@@ -53,70 +53,17 @@ int  buf_gets( char _far *str, int n, BUFFER _far *buf)
   if( buf->inp_p < 0 )
    {
     buf->inp_p = j;
-  //  put_error_messege( "Buffer is small" );
     return( BUF_EOF );
     };
 
   if( BUF_LEX == '\0') return( BUF_NULL );
 
-//  put_error_messege( "Long string" );
   return( BUF_ABN );
   }
 
-int  buf_puts( char _far *str, BUFFER _far *buf)
- {
-  int i, j, j1;
 
-  j = buf->ilex[buf->inp_p];
-  buf->ilex[buf->inp_p] = buf->inp_p_nul;
 
-  for( i = 0; ( BUF_STR_I != '\0' )&&( buf->inp_p_nul >= 0 ); i++)
-   {
-    BUF_LEX_NUL = BUF_STR_I;
-    buf->inp_p_nul = buf->ilex[buf->inp_p_nul];
-    };
-
-  if( buf->inp_p_nul < 0 )
-   {
-    put_error_messege( "Small buffer" );
-    return( BUF_ABN );
-    }
-
-  BUF_LEX_NUL = BUF_STR_I;
-  j1 = buf->inp_p_nul;
-  buf->inp_p_nul = buf->ilex[buf->inp_p_nul];
-  buf->ilex[j1] = j;
-
-  return( BUF_NULL );
-  }
-
-int  buf_puts1( char _far *str, BUFFER _far *buf )
- {
-  int i, j, j1;
-
-  j = buf->ilex[buf->inp_p];
-  buf->ilex[buf->inp_p] = buf->inp_p_nul;
-
-  for( i = 0; ( str[i+1] != '\0' )&&( buf->inp_p_nul >= 0 ); i++)
-   {
-    BUF_LEX_NUL = BUF_STR_I;
-    buf->inp_p_nul = buf->ilex[buf->inp_p_nul];
-    };
-  if( buf->inp_p_nul < 0 )
-   {
-    put_error_messege( "Small buffer" );
-    return( BUF_ABN );
-    }
-
-  BUF_LEX_NUL = BUF_STR_I;
-  j1 = buf->inp_p_nul;
-  buf->inp_p_nul = buf->ilex[buf->inp_p_nul];
-  buf->ilex[j1] = j;
-
-  return( BUF_NULL );
-  }
-
-int  buf_puts2( char _far *str, BUFFER _far *buf)
+int  buf_puts2( char *str, BUFFER *buf)
  {
   int i, j, j1;
 
@@ -147,7 +94,7 @@ int  buf_puts2( char _far *str, BUFFER _far *buf)
   return( BUF_NULL );
   }
 
-int  buf_puts3( char _far *str, BUFFER _far *buf)
+int  buf_puts3( char *str, BUFFER *buf)
  {
   int i, j, j1;
 
@@ -175,7 +122,7 @@ int  buf_puts3( char _far *str, BUFFER _far *buf)
   return( BUF_NULL );
   }
 
-int  buf_dels( BUFFER _far *buf, int n)
+int  buf_dels( BUFFER *buf, int n)
  {
   int i, j, j1;
 
@@ -195,9 +142,9 @@ int  buf_dels( BUFFER _far *buf, int n)
 
 
 
-void  def_gets( char _far *mac1, char _far *ch)
+void  def_gets( char *mac1, char *ch)
  {
-  register int i = 0;
+  int i = 0;
 
   while( ( (ch[i] <= 'z')&&(ch[i] >= 'a') )||
          ( (ch[i] <= 'Z')&&(ch[i] >= 'A') )||
@@ -217,7 +164,7 @@ void  def_gets( char _far *mac1, char _far *ch)
   mac1[i] = '\0';
   }
 
-int   def_buf_gets_mac( BUFFER _far *buf, char _far *mac1)
+int   def_buf_gets_mac( BUFFER *buf, char *mac1)
  {
   int i;
   char ch;
@@ -258,7 +205,7 @@ int   def_buf_gets_mac( BUFFER _far *buf, char _far *mac1)
   return( 0 );
   }
 
-int   def_buf_gets_param( BUFFER _far *buf, char _far *mac1)
+int   def_buf_gets_param( BUFFER *buf, char *mac1)
  {
   int  jb = 0, i;
   char ch;
@@ -306,7 +253,7 @@ int   def_buf_gets_param( BUFFER _far *buf, char _far *mac1)
   return 0;
   }
 
-int   buf_cmpn( BUFFER _far *buf, int n, char _far *mac)
+int   buf_cmpn( BUFFER *buf, int n, char *mac)
  {
   int p, i;
 
@@ -324,7 +271,7 @@ int   buf_cmpn( BUFFER _far *buf, int n, char _far *mac)
   return( BUF_NULL );
   }
 
-int   buf_cmpn2( BUFFER _far *buf, int n, char _far *mac1, char _far *mac2 )
+int   buf_cmpn2( BUFFER *buf, int n, char *mac1, char *mac2 )
  {
   int p, i;
 

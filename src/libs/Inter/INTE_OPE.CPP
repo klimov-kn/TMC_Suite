@@ -24,7 +24,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
-#include <conio.h>
 
 #include <typedef.h>
 #include <tmc_lib.h>
@@ -44,8 +43,6 @@ _real  inte_oper( char   *lex, int n )
 //  int i1;
   double d;
 
-//  printf("\nlex={%s}, n={%d}", lex, n);
-//  getch();
 
   i = 0;
   if( strncmp( lpsOper[i].lpszName, lex, lpsOper[i].nLenght ) == 0)

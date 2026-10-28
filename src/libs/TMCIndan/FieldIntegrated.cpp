@@ -5,8 +5,6 @@
 #include "stdafx.h"
 #include <tmcgrviw.h>
 #include <FieldIntegrated.h>
-//#include "TmcRTHRectNode.h"
-//#include "Pl_iofor.h"
 
 
 #ifdef _DEBUG
@@ -269,10 +267,6 @@ void CFieldIntegrated::SetFreq(double dF)
 	return;
 }
 
-double CFieldIntegrated::GetFreq()
-{
-	return dFreq;
-}
 
 void CFieldIntegrated::SetTmin(double dTmin1)
 {
@@ -337,11 +331,7 @@ static void TmcFieldOpenError( CTmcLibError &cErr, const char *pszName, FILE *f1
 
 void CFieldIntegrated::InitFile(CString csFileName)
 {
-//	{ 
 //		CString csBuf1;
-//		csBuf1.Format("InitFile = {%s}", csFileName );
-//		AfxMessageBox(csBuf1);
-//	};
 	if( IsError() ) return;
 	if( !bIsFieldDistribution ) return;
 	if( bIsIntegretedInMemory ) return;
@@ -535,11 +525,7 @@ void CFieldIntegrated::Integrate(CString csFileName, _real *prUNode1, _real r1)
 			fread( &(r), sizeof(_real), 1, fp );
 			fflush( fp );
 			r = (_real)(r + prUNode1[ii]*r1*dT);
-//	{ 
 //		CString csBuf1;
-//		csBuf1.Format("Integrate  write; r = %lg; ", r );
-//		AfxMessageBox(csBuf1);
-//	};
 			fsetpos( fp, &fpos );
 			fflush( fp );
 			fwrite( &(r), sizeof(_real), 1, fp );
@@ -1916,13 +1902,7 @@ void CFieldIntegrated::AddDirectionalPatternFileOneEmitter(double &x, double &y,
 	double dDkL;
 //	CString csBuf1;
 
-//	dA_111 = sqrt(2.)*3.141592653589*dDelta*dFreq/299792458;
-//	dW0 = 1./(sqrt((8.854187817e-12)/(2.*(12.566370614e-7))))/(sin(acos( (2+fabs(0.)/2.)*cos(dA_111) - 1. - 0./2. ))/sin(dA_111));
-//	dW0 = 1./(sqrt((8.854187817e-12)/((12.566370614e-7))));
-//	koef = sqrt(1./(12.))*(dDelta)*sqrt(dW0);
 	dDkL = (dDelta*dFreq/299792458);
-//	koef = sqrt(134.304966913/(dFreq/299792458))*dDkL/sqrt(dW0);
-//	koef = sqrt(dDelta*dW0/3.*0.999996/0.9361811)*dDkL/sqrt(dW0)/sqrt(dFreq/299792458);
 	koef = sqrt(dDelta/3.*0.999996/0.9361811)*dDkL/sqrt(dFreq/299792458);
 
 	nEmitterInFile++;

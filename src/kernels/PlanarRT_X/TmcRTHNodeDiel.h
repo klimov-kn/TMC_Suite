@@ -73,12 +73,7 @@ public:
 	void SaveInputNodes( _ELEM_VAL_RTH *pr );
 	void RestoreInputNodes( _ELEM_VAL_RTH *pr );
 	_ELEM_VAL_RTH *prInputSave;
-	void SetBlockInDielList( sTmcRTH_DielNodeList **  pcNodeDielList, TmcIdx nNumNode1, CTmcLibError &cError1 );	// INT64
 	CTmcLibError &SetBlock( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH_IndanParam &cParam, CTmcRTH_IndanOutput *cOut, _real *prYNode, volatile BOOL *pbStopFlag, CString csCurrentPath );
-	CTmcLibError &SetBorderXmax( int nX, int nY );
-	CTmcLibError &SetBorderXmin( int nX, int nY );
-	CTmcLibError &SetBorderYmax( int nX, int nY );
-	CTmcLibError &SetBorderYmin( int nX );
 	void DeleteData( void );
 	CTmcRTHNodeDiel();
 	void SetTimingCounters( __int64 *pqSignalFile, __int64 *pqEpsFile ) { m_pqSignalFileTicks = pqSignalFile; m_pqEpsFileTicks = pqEpsFile; }	// TIMING
@@ -164,7 +159,6 @@ private:
 	double dY1_InputAdmitance;
 	double dWidthWaveg;
 	void OutputUpUo( double dUp, double dUo, CTmcLibError &cError1);
-	void AddList( sTmcRTHNodeDielOne *pcNodeDielOne1, sTmcRTH_DielNodeList **pcNodeDielList1 );
 	_real CalcEps( double x, double y, CTmcRTH_IndanParam &cParam );
 	// EPSFAST: fast build of stationary eps blocks (TmcRTHNodeDiel.cpp)
 	BOOL SetStatEpsFast( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH_IndanParam &cParam, CString csCurrentPath, _real *prYNode, int nShape, int nStride, int nOffset );

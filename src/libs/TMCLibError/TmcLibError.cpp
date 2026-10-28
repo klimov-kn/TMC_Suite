@@ -2,14 +2,8 @@
 //
 
 #include "stdafx.h"
-//#include "PlanRT_H.h"
 #include <TmcLibError.h>
 
-//#ifdef _DEBUG
-//#define new DEBUG_NEW
-//#undef THIS_FILE
-//static char THIS_FILE[] = __FILE__;
-//#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // CTmcLibError
@@ -33,19 +27,10 @@ CTmcLibError::~CTmcLibError()
 void CTmcLibError::Clear( void )
 {								  
 //		{	CString csBuf1;
-//			csBuf1.Format("Trace0");
-//			AfxMessageBox(csBuf1);		
-//		};
 	bIsError = FALSE;
 //		{	CString csBuf1;
-//			csBuf1.Format("Trace2");
-//			AfxMessageBox(csBuf1);		
-//		};
 	csError.Format(CTMCRTHERROR_0000);
 //		{	CString csBuf1;
-//			csBuf1.Format("Trace1");
-//			AfxMessageBox(csBuf1);		
-//		};
 	return;
 }
 
@@ -68,26 +53,6 @@ void CTmcLibError::PutErrorMessage( char *pszErrorMessage )
 	return;
 }
 
-/*
-void CTmcLibError::PutErrorMessage( char *pszErrorMessage, ... )
-{
-	bIsError = TRUE;
-
-	va_list argptr;
-	char szBuf[CTMCRTHERROR_STRLENMAX];
-	
-	if( (szBuf == NULL)||((&argptr) == NULL) )
-	{
-		csError.Format( "Memory allocation error for error message" );
-		return;
-	};
-//	vsprintf( char *buffer, const char *format, va_list argptr );
-//	csError.Format( "%s", pszErrorMessage );
-	vsprintf( szBuf, pszErrorMessage, argptr );
-	csError.Format( "%s", szBuf );
-	return;
-}
-*/
 
 CString CTmcLibError::GetErrorMessage( void )
 {

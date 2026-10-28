@@ -33,12 +33,6 @@
     <ClCompile Include="TmcRTH_IndanTopology.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TmcRTH_Input.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TmcRTH_InputNode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\INCLUDE\FieldIntegrated.h">
@@ -59,14 +53,5 @@
     <ClInclude Include="..\..\INCLUDE\TmcRTH_IndanTopology.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\INCLUDE\TmcRTH_Input.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\INCLUDE\TmcRTH_InputNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ReadMe.txt" />
   </ItemGroup>
 </Project>

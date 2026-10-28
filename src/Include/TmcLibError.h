@@ -8,19 +8,8 @@
 #define CTMCLIBERROR_H__
 
 #include <cstringt.h>
-//#include <windows.h>
 
 #define CTMCRTHERROR_0000 "Error:no"
-#define CTMCRTHERROR_0001 "Error:"
-#define CTMCRTHERROR_0002 "Error:"
-#define CTMCRTHERROR_0003 "Error:"
-#define CTMCRTHERROR_0004 "Error:"
-#define CTMCRTHERROR_0005 "Error:"
-#define CTMCRTHERROR_0006 "Error:"
-#define CTMCRTHERROR_0007 "Error:"
-#define CTMCRTHERROR_0008 "Error:"
-#define CTMCRTHERROR_0009 "Error:"
-#define CTMCRTHERROR_0010 "Error:"
 #define CTMCRTHERROR_STRLENMAX 512
 
 class CTmcLibError

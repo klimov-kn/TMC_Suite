@@ -1,4 +1,3 @@
-//#include <typerth.h>
 
 #define ABS    0
 #define EXP    1
@@ -34,14 +33,12 @@ void    expr_set_angle( int flag );
 _real   expr_comp( int cod, char   *oper1, int n1, char  *oper2, int n2 );
 void    expr_set_error_cod( int n );
 int     expr_get_error_cod( void );
-_real   expr_atof( char  *string );
 _real   expr_inter( char  *lex, int n );
 int     expr_numbern( char *lex, int n);
 _real   expr_get_per( char   *lpszName, int nLenghtName );
 void    expr_set_per( char   *lpszName, int nLenghtName, _real rValue );
 int     expr_is_per( char   *lpszName, int nLenghtName );
 char   *expr_get_error( void );
-int     get_expr_err( char  *lpszExpr );
 int     i1nte_atof_1( char *string, double *r );
 _real   inte_atof( char  *string );
 _real   inte_inter( char  *lex, int n );

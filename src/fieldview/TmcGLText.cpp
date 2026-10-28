@@ -46,27 +46,6 @@ END_MESSAGE_MAP()
 // CTmcGLText message handlers
 
 
-void CTmcGLText::DrawInputNum( int n, double x, double y, double z )
-{
-    char ch[TMC_GROUT_MAXSTRING_BUF];
-	unsigned char    *lpBitmap;
-
-	sprintf( ch, "Inp %d", n );
-	if( wglGetCurrentDC() == NULL ) return;
-    if( (lpBitmap = createStringBitmapFont( wglGetCurrentDC(), ch, &size) ) == NULL ) return;
-
-	SetColorInput();
-	
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	glRasterPos3f( (GLfloat)x, (GLfloat)y, (GLfloat)z);
-
-    glBitmap(size.cx, size.cy, (GLfloat)0.0, (GLfloat)2.0, (GLfloat)(size.cx+2), (GLfloat)0.0, lpBitmap);
-
-    GlobalFree(lpBitmap);
-
-  return;
-}
 
 unsigned char  * CTmcGLText::createStringBitmapFont(HDC hDC, char *str, PSIZEL size1)
 {
@@ -106,7 +85,6 @@ unsigned char  * CTmcGLText::createStringBitmapFont(HDC hDC, char *str, PSIZEL s
         DeleteObject(hbmp);
     }
       DeleteObject(hFontOld);
-//    SelectObject(hDC, hFontOld);
     return pbm;
 }
 
@@ -190,23 +168,7 @@ void CTmcGLText::DrawString( char *ch, double x, double y, double z )
   return;
 }
 
-void CTmcGLText::SetColorInput( void )
-{
-	glColor4f( ((float)(GetRValue(scColorRef)))/256,
-				((float)(GetGValue(scColorRef)))/256,
-				((float)(GetBValue(scColorRef)))/256,
-				(float)(nBlend/100.0) );
-	return;
-}
 
-void CTmcGLText::SetColorSize( void )
-{
-	glColor4f( ((float)(GetRValue(scColorRef)))/256,
-				((float)(GetGValue(scColorRef)))/256,
-				((float)(GetBValue(scColorRef)))/256,
-				(float)(nBlend/100.0) );
-	return;
-}
 
 void CTmcGLText::SetColor( COLORREF scColorRef1 )
 {

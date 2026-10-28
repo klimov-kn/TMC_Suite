@@ -27,18 +27,18 @@ typedef struct
         {
          _real frq;
          INPUT_DATA id;
-	 _complex   _far *sss;
+	 _complex   *sss;
          }FOR_SORT;
 
 int cmpgle( const void *fs1, const void *fs2 );
 
-int  _far _fortran Unite_two_S( FREQUENCY _far *frq_out1, INPUT_DATA _far *id1, _complex _far **sss1,
-				FREQUENCY _far *frq_out2, INPUT_DATA _far *id2, _complex _far **sss2,
-				FREQUENCY _far *frq_out,  INPUT_DATA _far **id, _complex _far ***sss )
+int  Unite_two_S( FREQUENCY *frq_out1, INPUT_DATA *id1, _complex **sss1,
+				FREQUENCY *frq_out2, INPUT_DATA *id2, _complex **sss2,
+				FREQUENCY *frq_out,  INPUT_DATA **id, _complex ***sss )
   {
    int i, j;
    int nFr1 = 0, nFr2 = 0;
-   FOR_SORT _far *FSRT;
+   FOR_SORT *FSRT;
 
    /* find equal frequencies */
    for( i = 0; i < frq_out1->max; i++ )
@@ -71,7 +71,7 @@ int  _far _fortran Unite_two_S( FREQUENCY _far *frq_out1, INPUT_DATA _far *id1, 
      }
 
   /* allocation memory for sorting according to frequency */
-  if( (FSRT = (FOR_SORT _far *)alloc_mem_err( (long)sizeof(FOR_SORT)*(frq_out->max) ) ) == NULL)
+  if( (FSRT = (FOR_SORT *)alloc_mem_err( (long)sizeof(FOR_SORT)*(frq_out->max) ) ) == NULL)
     return -1;
 
   /* copy data for unique frequencies to struct to be sorted */
@@ -101,13 +101,13 @@ int  _far _fortran Unite_two_S( FREQUENCY _far *frq_out1, INPUT_DATA _far *id1, 
   qsort( (void *)FSRT, (size_t)frq_out->max, sizeof( FOR_SORT ), &cmpgle );
 
    /* allocation of memory for frq buff */
-   if( (frq_out->f = (_real _far *)alloc_mem_err( (long)sizeof(_real)*(frq_out->max) ) ) != NULL)
+   if( (frq_out->f = (_real *)alloc_mem_err( (long)sizeof(_real)*(frq_out->max) ) ) != NULL)
     {
      /* allocation of memory for input data structures */
-     if( (*id = (INPUT_DATA _far *)alloc_mem_err( (long)sizeof(INPUT_DATA)*(frq_out->max) ) ) != NULL )
+     if( (*id = (INPUT_DATA *)alloc_mem_err( (long)sizeof(INPUT_DATA)*(frq_out->max) ) ) != NULL )
       {
        /* allocation of memory for pointers at scattering matrices */
-       if( ((*sss) = (_complex _far **)alloc_mem_err( (long)sizeof(void _far *)*(frq_out->max) ) ) == NULL )
+       if( ((*sss) = (_complex **)alloc_mem_err( (long)sizeof(void *)*(frq_out->max) ) ) == NULL )
          {
           free_mem( *id );
           free_mem( frq_out->f );

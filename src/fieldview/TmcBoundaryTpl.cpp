@@ -6,11 +6,6 @@
 #include "FldView.h"
 #include "TmcBoundaryTpl.h"
 
-//#ifdef _DEBUG
-//#define new DEBUG_NEW
-//#undef THIS_FILE
-//static char THIS_FILE[] = __FILE__;
-//#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // CTmcBoundaryTpl
@@ -385,14 +380,6 @@ void CTmcBoundaryTpl::SetPolygonStat(CTmcRTH_BlockList *pcBlList, CTmcLibError &
 	pcTopSize[i].SetdSize( sqrt( (pX[i]-pX[0])*(pX[i]-pX[0]) + (pY[i]-pY[0])*(pY[i]-pY[0]) ) );
 	if( nType == CTMCRTH_BLCKNTYPE_EPS )
 	{
-//		pX1[ i ] = pX[0] - dDelta/2;
-//		pY1[ i ] = pY[0] - dDelta/2;
-//		pX2[ i ] = pX[0] - dDelta/2;
-//		pY2[ i ] = pY[0] + dDelta/2;
-//		pX3[ i ] = pX[i] + dDelta/2;
-//		pY3[ i ] = pY[i] + dDelta/2;
-//		pX4[ i ] = pX[i] + dDelta/2;
-//		pY4[ i ] = pY[i] - dDelta/2;
 		if( fabs( pX[i] - pX[0] ) < fabs( pY[i] - pY[0] ) )
 		{
 			pX1[ i ] = pX[i] - dDelta/2;
@@ -601,7 +588,6 @@ void CTmcBoundaryTpl::SetCircleStat(CTmcRTH_BlockList *pcBlList, CTmcLibError &c
 	if( pcTopSize != NULL ) delete []pcTopSize;
 	pcTopSize = NULL;
 
-//	if( fabs( 2*PI - (pcBlList->GetYmax() - pcBlList->GetYmin()) )*pcBlList->GetXmax() <= dDelta ) 
 	if( fabs( pcBlList->GetXmin() ) <= dDelta ) 
 	{
 		nPoint = (int)( pcBlList->GetXmax()*(pcBlList->GetYmax() - pcBlList->GetYmin())/dDelta + 0.5) + 1;
@@ -676,14 +662,6 @@ void CTmcBoundaryTpl::SetCircleStat(CTmcRTH_BlockList *pcBlList, CTmcLibError &c
 		y2 = pcBlList->GetXmax()*sin(f+df);
 		if( fabs( x1 - x2 ) < fabs( y1 - y2 ) )
 		{
-//			pX1[ i ] = x1 - dDelta/2;
-//			pY1[ i ] = y1 - dDelta/2;
-//			pX2[ i ] = x1 - dDelta/2;
-//			pY2[ i ] = y1 + dDelta/2;
-//			pX3[ i ] = x2 + dDelta/2;
-//			pY3[ i ] = y2 + dDelta/2;
-//			pX4[ i ] = x2 + dDelta/2;
-//			pY4[ i ] = y2 - dDelta/2;
 			pX1[ i ] = x1;
 			pY1[ i ] = y1;
 			pX2[ i ] = x1;
@@ -695,14 +673,6 @@ void CTmcBoundaryTpl::SetCircleStat(CTmcRTH_BlockList *pcBlList, CTmcLibError &c
 		}
 		else
 		{
-//			pX1[ i ] = x1 - dDelta/2;
-//			pY1[ i ] = y1 - dDelta/2;
-//			pX2[ i ] = x2 - dDelta/2;
-//			pY2[ i ] = y2 + dDelta/2;
-//			pX3[ i ] = x2 + dDelta/2;
-//			pY3[ i ] = y2 + dDelta/2;
-//			pX4[ i ] = x1 + dDelta/2;
-//			pY4[ i ] = y1 - dDelta/2;
 			pX1[ i ] = x1;
 			pY1[ i ] = y1;
 			pX2[ i ] = x1;
@@ -712,47 +682,9 @@ void CTmcBoundaryTpl::SetCircleStat(CTmcRTH_BlockList *pcBlList, CTmcLibError &c
 			pX4[ i ] = x2;
 			pY4[ i ] = y1;
 		};
-//		pX1[ i ] = x1 - dDelta/2;
-//		pY1[ i ] = y1 - dDelta/2;
-//		pX2[ i ] = x2 - dDelta/2;
-//		pY2[ i ] = y2 + dDelta/2;
-//		pX3[ i ] = x2 + dDelta/2;
-//		pY3[ i ] = y2 + dDelta/2;
-//		pX4[ i ] = x1 + dDelta/2;
-//		pY4[ i ] = y1 - dDelta/2;
 	};
 
-//	if( fabs( 2*PI - (pcBlList->GetYmax() - pcBlList->GetYmin()) )*pcBlList->GetXmax() <= dDelta ) return;
 	if( fabs( pcBlList->GetXmin() ) <= dDelta ) return;
-/*
-	x1 = pcBlList->GetXmin()*cos(pcBlList->GetYmin());
-	y1 = pcBlList->GetXmin()*sin(pcBlList->GetYmin());
-	x2 = pcBlList->GetXmax()*cos(pcBlList->GetYmin());
-	y2 = pcBlList->GetXmax()*sin(pcBlList->GetYmin());
-	pX1[ i ] = x1 - dDelta/2;
-	pY1[ i ] = y1 - dDelta/2;
-	pX2[ i ] = x2 - dDelta/2;
-	pY2[ i ] = y2 + dDelta/2;
-	pX3[ i ] = x2 + dDelta/2;
-	pY3[ i ] = y2 + dDelta/2;
-	pX4[ i ] = x1 + dDelta/2;
-	pY4[ i ] = y1 - dDelta/2;
-	i++;
-
-	x1 = pcBlList->GetXmin()*cos(pcBlList->GetYmax());
-	y1 = pcBlList->GetXmin()*sin(pcBlList->GetYmax());
-	x2 = pcBlList->GetXmax()*cos(pcBlList->GetYmax());
-	y2 = pcBlList->GetXmax()*sin(pcBlList->GetYmax());
-	pX1[ i ] = x1 - dDelta/2;
-	pY1[ i ] = y1 - dDelta/2;
-	pX2[ i ] = x2 - dDelta/2;
-	pY2[ i ] = y2 + dDelta/2;
-	pX3[ i ] = x2 + dDelta/2;
-	pY3[ i ] = y2 + dDelta/2;
-	pX4[ i ] = x1 + dDelta/2;
-	pY4[ i ] = y1 - dDelta/2;
-	i++;
-*/
 	x1 = pcBlList->GetXmax()*cos(pcBlList->GetYmin());
 	y1 = pcBlList->GetXmax()*sin(pcBlList->GetYmin());
 	x2 = pcBlList->GetXmin()*cos(pcBlList->GetYmin());
@@ -859,20 +791,8 @@ int CTmcBoundaryTpl::GetnPoint()
 	return nPoint;
 }
 
-int CTmcBoundaryTpl::GetnBlock()
-{
-	return nBlock;
-}
 
-double CTmcBoundaryTpl::GetdY0()
-{
-	return dY0;
-}
 
-double CTmcBoundaryTpl::GetdX0()
-{
-	return dX0;
-}
 
 CString CTmcBoundaryTpl::GetcsEpsExpr()
 {
@@ -978,10 +898,6 @@ CTmcTopSize& CTmcBoundaryTpl::GetcTopSizeY0()
 	return cTopSizeLinklListY0;
 }
 
-int CTmcBoundaryTpl::GetnInputNum()
-{
-	return nInputNum;
-}
 
 void CTmcBoundaryTpl::SetnInputNum(int n)
 {

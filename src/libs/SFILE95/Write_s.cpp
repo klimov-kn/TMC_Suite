@@ -104,55 +104,36 @@
 #include <s_file.h>
 #include <mainwndw.h>
 
-#ifdef _MODEL_3D
-  #include <label\3d.h>
-#endif
 
-#ifdef _MODEL_IC
-  #include <label\ic.h>
-#endif
 
-#ifdef _MODEL_M
- #include <label\m.h>
-#endif
 
-#ifdef _MODEL_H
- #include <label\h.h>
-#endif
 
-#ifdef _MODEL_E
- #include <label\e.h>
-#endif
 
-#ifdef _MODEL_W
- #include <label\w.h>
-#endif
 
 #include <label\rth.h>
 
 
 #ifndef _HIGH_ACCURACY
-#pragma message("High accuracy not defined in write_S!!!!")
 #endif
 
 
-static int _near _fortran Write_TITLE( void );
-static int _near _fortran Write_GRID( S_INDEX _far *si, int extrapol_flag );
-static int _near _fortran write_offset_table( WORD cnFrq );
-static int _near _fortran write_string( char _far *string );
-static int _near _fortran write_CR( void );
+static int Write_TITLE( void );
+static int Write_GRID( S_INDEX *si, int extrapol_flag );
+static int write_offset_table( WORD cnFrq );
+static int write_string( char *string );
+static int write_CR( void );
 
-static char _BASE_CODE trace[] = "Wrt.Scatt.Mt.";
+static char trace[] = "Wrt.Scatt.Mt.";
 
-int _far save_S_matrix( _complex _far *sss, INPUT_DATA _far *id,
-                        char _far *S_filename, S_INDEX _far *si, int extrapol_flag )
+int save_S_matrix( _complex *sss, INPUT_DATA *id,
+                        char *S_filename, S_INDEX *si, int extrapol_flag )
  {
-  register int ret_code = -1, i;
-  INT_1 _far *lpnArr;
+  int ret_code = -1, i;
+  INT_1 *lpnArr;
   INT_1 sBuff;
   _real fTmp;
 
-  put_trace( (char _far *)trace );
+  put_trace( (char *)trace );
 
   if( Open_S_file( S_filename, S_WR ) != 0 ) return -1;
 
@@ -203,7 +184,7 @@ int _far save_S_matrix( _complex _far *sss, INPUT_DATA _far *id,
   }
 
 
-static int _near _fortran Write_TITLE( void )
+static int Write_TITLE( void )
   {
    char buff[4];
    char form[4]="%3d";
@@ -224,7 +205,7 @@ static int _near _fortran Write_TITLE( void )
 
 
 
-static int _near _fortran Write_GRID( S_INDEX _far *si, int extrapol_flag )
+static int Write_GRID( S_INDEX *si, int extrapol_flag )
   {
    int ret_code = 0, i;
    INT_1 length, sFlag = (INT_1)extrapol_flag;
@@ -249,7 +230,7 @@ static int _near _fortran Write_GRID( S_INDEX _far *si, int extrapol_flag )
 
 
 
-static int _near _fortran write_offset_table( WORD cnFrq )
+static int write_offset_table( WORD cnFrq )
  {
   WORD cnFrqNum = get_frq_nf();
   S_OFFSET_TABLE OffsetTable;
@@ -258,7 +239,7 @@ static int _near _fortran write_offset_table( WORD cnFrq )
   WORD i;
   int j;
   double frq;
-  FILE _far *sf = Get_S_FILE();
+  FILE *sf = Get_S_FILE();
 
   OffsetTable.cbSize = sizeof(WORD) +              /* cnFrqNum value size*/
                        (sizeof(_real)+sizeof(int))*cnFrqNum;  /* Frq offset table size*/
@@ -283,7 +264,7 @@ static int _near _fortran write_offset_table( WORD cnFrq )
 
 
 
-static int _near _fortran write_string( char _far *string )
+static int write_string( char *string )
  {
   INT_1 length = (INT_1)strlen( string );                 /* string length*/
 
@@ -295,7 +276,7 @@ static int _near _fortran write_string( char _far *string )
 
 
 
-static int _near _fortran write_CR( void )
+static int write_CR( void )
  {
   INT_1 EOL = 0x0a0d;
   return( write_S( &EOL, sizeof( INT_1 ) ) );    /* delimiter*/

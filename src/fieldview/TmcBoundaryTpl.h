@@ -33,7 +33,6 @@ public:
 // Implementation
 public:
 	void SetnInputNum( int n );
-	int GetnInputNum( void );
 	CTmcTopSize& GetcTopSizeY0( void );
 	CTmcTopSize& GetcTopSizeX0( void );
 	CTmcTopSize * GetpcTopSize( void );
@@ -48,9 +47,6 @@ public:
 	double * GetpdY4( void );
 	CString GetcsBlock( void );
 	CString GetcsEpsExpr( void );
-	double GetdX0( void );
-	double GetdY0( void );
-	int GetnBlock( void );
 	int GetnPoint( void );
 	int GetnType( void );
 	void SetBlockList(CTmcRTH_BlockList *pcBlList, CTmcLibError &cError, double dDelta);

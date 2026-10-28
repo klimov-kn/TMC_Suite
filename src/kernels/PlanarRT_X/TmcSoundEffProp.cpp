@@ -24,7 +24,6 @@ CTmcSoundEffProp::CTmcSoundEffProp(UINT nIDCaption, CWnd* pParentWnd, UINT iSele
 CTmcSoundEffProp::CTmcSoundEffProp(LPCTSTR pszCaption, CWnd* pParentWnd, UINT iSelectPage)
 	:CPropertySheet( pszCaption, pParentWnd, iSelectPage)
 {
-//	cMelody1.SetTitle("DDD");
 	AddPage( &cMelody1 );
 	AddPage( &cMelody2 );
 	cMelody1.csMelodyName.Format("Step finish calculation");

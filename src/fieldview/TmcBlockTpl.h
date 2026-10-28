@@ -12,14 +12,12 @@ class CTmcBlockTpl : public CTmcRTH_BlockList
 public:
 	CTmcBlockTpl();
 	int GetnX( void );
-	double * GetpdSurface( void );
 	double * GetpdSurfaceByType( int nType );
 	int HasPlasma( void );
 	void DeleteData( void );
 	void Read( CString csTplFileName1, CTmcLibError &cError1 );
 	CString GetTplFileName( void );
 	void SetTplFileName( CString &csTplFileName1 );
-	CTmcLibError & GetError( void );
 	virtual ~CTmcBlockTpl();
 private:
 	void InitAllocationArray( void );

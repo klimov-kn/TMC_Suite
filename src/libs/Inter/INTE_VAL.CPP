@@ -24,7 +24,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
-#include <conio.h>
 
 #include <typedef.h>
 #include <tmc_lib.h>

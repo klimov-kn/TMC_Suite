@@ -95,16 +95,8 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 //	DWORD dwStyle; 
 // read main frame size and place
 	csBuffer = AfxGetApp()->GetProfileString( PLANRT_H_RAZDEL_INI, PLANRT_H_MNWNDSIZEPLACE_INI );
-//	if( csBuffer.GetLength() != 0 )
-//	{
-//		sscanf( csBuffer, "%d%d%d%d%ld", &(cs.cx), &(cs.cy), &(cs.x), &(cs.y), &(dwStyle) );
-//		cs.style = dwStyle;
-//	}
-//	else
-//	{
 		cs.style = WS_OVERLAPPED | WS_CAPTION | FWS_ADDTOTITLE
 			| WS_THICKFRAME | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_MAXIMIZE;
-//	};
 
 	return CMDIFrameWnd::PreCreateWindow(cs);
 }
@@ -177,18 +169,6 @@ void CMainFrame::OnDestroy()
 {
 
 	// TODO: Add your message handler code here
-/*	char szBuffer[N_BUF_MAX];
-	CString csBuf1;
-	RECT Rect; 
-	DWORD dwStyle = GetStyle(); 
-// save main frame size and place
-//	sprintf( szBuffer, "%d%d%d%d", cs.cx, cs.cy, cs.x, cs.y );
-	csBuf1.Format("cx = %d; cy = %d; x = %d; y = %d;", Rect.right - Rect.left, Rect.bottom - Rect.top, Rect.left, Rect.top );
-	AfxMessageBox(csBuf1);
-//	sprintf( szBuffer, "%d%d%d%d%ld", Rect.right - Rect.left, -Rect.bottom + Rect.top, Rect.left, Rect.bottom, dwStyle  );
-	sprintf( szBuffer, "%d%d%d%d%ld", 200, 300, 200, 300, dwStyle  );
-	AfxGetApp()->WriteProfileString( PLANRT_H_RAZDEL_INI, PLANRT_H_MNWNDSIZEPLACE_INI, szBuffer);
-*/	
 	if( IsDemoRun() ) 
 	{
 		if( GetProcessInformation().hProcess != NULL ) 
@@ -206,8 +186,6 @@ void CMainFrame::OnDestroy()
 			char szBuffer[N_BUF_MAX];
 //			CString csBuf1;
 			sprintf( szBuffer, "%d %d %d %d", sWndPl.rcNormalPosition.left, sWndPl.rcNormalPosition.right, sWndPl.rcNormalPosition.top, sWndPl.rcNormalPosition.bottom  );
-//			csBuf1.Format("{%s};", szBuffer );
-//			AfxMessageBox(csBuf1);
 			AfxGetApp()->WriteProfileString( PLANRT_H_RAZDEL_INI, PLANRT_H_MNWNDSIZEPLACE_INI, szBuffer);
 		};
 	};

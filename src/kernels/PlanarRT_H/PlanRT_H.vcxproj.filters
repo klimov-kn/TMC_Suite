@@ -54,16 +54,10 @@
     <ClCompile Include="TmcRTHRectNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Tmcrtout\TmcSMatrix.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TmcSoundEffProp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TmcSoundMel1.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Tmcrtout\TmcTtoS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -73,9 +67,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="RES\idr_main.ico">
       <Filter>Resource Files</Filter>
     </None>
@@ -120,9 +111,6 @@
     <ClInclude Include="TmcDialogStatistics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TmcRTH_BolckList.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TmcRTH_DialogBlock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -133,9 +121,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TmcRTHRectNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Tmcrtout\TmcSMatrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TmcSoundEffProp.h">

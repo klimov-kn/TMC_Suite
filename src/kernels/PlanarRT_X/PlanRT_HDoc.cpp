@@ -102,7 +102,6 @@ BOOL CPlanRT_HDoc::RunExeFile( char *lpszNameExe )
 	int i;
 	CString theString;
 
-//	strcpy( szCommandLine, lpszNameExe);
 	sprintf( szCommandLine, "\"%s\"", lpszNameExe);
 	i = strlen( szCommandLine );
 
@@ -113,7 +112,6 @@ BOOL CPlanRT_HDoc::RunExeFile( char *lpszNameExe )
 	};
 	
 	szCommandLine[i] = ' ';
-//	strcpy( szCommandLine + i + 1, theString);
 	sprintf( szCommandLine + i + 1, "\"%s\"", theString);
 
 	for( i = 0; ( i < N_BUF_MAX )&&( szCommandLine[i] == ' ' ); i++)
@@ -236,7 +234,6 @@ BOOL CPlanRT_HDoc::CreatProc(char * lpszComLine)
 
    if( piProcInfo.hProcess != NULL ) 
    {
-//	TerminateProcess( piProcInfo.hProcess, 0 );
 	piProcInfo.hProcess = NULL;
    }; 
    STARTUPINFO siStartInfo; 
@@ -402,7 +399,6 @@ void CPlanRT_HDoc::Stop( void )
 	
 	cRectNode.Stop();
 
-//	CloseAndExit();
 	
 	return;
 }
@@ -638,15 +634,8 @@ void CPlanRT_HDoc::RunAll1( void )
 BOOL CPlanRT_HDoc::IsRun( void )
 {
 	return cRectNode.IsRunStep();
-//	return (cRectNode.IsRunStep()||bIsReadData);
 }
 
-void CPlanRT_HDoc::CloseAndExit( void )
-{
-	for( ; cRectNode.IsRunStep(); ) ;
-	for( ; IsReadData(); ) ;
-	return;
-}
 
 BOOL CPlanRT_HDoc::RunExeFile(char *lpszNameExe, char *lpszArgCommLine)
 {
@@ -654,7 +643,6 @@ BOOL CPlanRT_HDoc::RunExeFile(char *lpszNameExe, char *lpszArgCommLine)
 	int i;
 	CString theString;
 
-//	strcpy( szCommandLine, lpszNameExe);
 	sprintf( szCommandLine, "\"%s\"", lpszNameExe);
 	i = strlen( szCommandLine );
 
@@ -665,7 +653,6 @@ BOOL CPlanRT_HDoc::RunExeFile(char *lpszNameExe, char *lpszArgCommLine)
 	};
 	
 	szCommandLine[i] = ' ';
-//	strcpy( szCommandLine + i + 1, theString);
 	sprintf( szCommandLine + i + 1, "\"%s\"", theString);
 
 	for( i = 0; ( i < N_BUF_MAX )&&( szCommandLine[i] == ' ' ); i++)
@@ -829,13 +816,8 @@ void CPlanRT_HDoc::OnCloseDocument()
 {
 	// TODO: Add your specialized code here and/or call the base class
 
-//{
 //	CString csBuf1;
-//	csBuf1.Format("It is impossible to close the document %s, while the process of calculations proceeds. Please stop calculations.", GetPathName() );
-//	AfxMessageBox(csBuf1);
-//};
 	Stop();
-//	CloseAndExit();
 	
 	CDocument::OnCloseDocument();
 }
@@ -844,15 +826,12 @@ BOOL CPlanRT_HDoc::CanCloseFrame(CFrameWnd* pFrame)
 {
 	// TODO: Add your specialized code here and/or call the base class
 
-//	Stop();
-//	CloseAndExit();
 
 	if( (IsReadData())||(IsRun()) )
 	{
 		return FALSE;
 	};
 
-//	if( bIsReadData != TRUE ) return FALSE;
 	
 	return CDocument::CanCloseFrame(pFrame);
 }
@@ -866,7 +845,6 @@ BOOL CPlanRT_HDoc::RunViewerDirectPattern()
 {
 	FILE *fd;
 
-//	((cRectNode.GetOutput())->GetFieldIntegrated()).ExportToDirectionalPattern(cRectNode.GetParam());
 
 	if( ( fd = fopen( ((cRectNode.GetOutput())->GetFieldIntegrated()).GetcsDirectPatternFile(), "r") ) == NULL )
 	{

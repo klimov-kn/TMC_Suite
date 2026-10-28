@@ -94,8 +94,6 @@ void CThreadCalcDirPat::OnTimer(UINT_PTR nIDEvent)
 				m_CurrentDirPat = pDoc->nGraphCurrent + 1;
 				m_NAllDirPat = pDoc->grdoc.nGraph;
 				m_nEmitters = pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ].GetnIzl();
-//				m_csStatistics.Format("Directional Pattern %d from %d; calculate %#5.3lg%%", pDoc->nGraphCurrent + 1, pDoc->grdoc.nGraph, ((double)(pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ].iN/10.)) );
-//				m_csStatisticsAll.Format("Please Wait already calculate %#5.3lg%%", ((double)((pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ].iN/10.+pDoc->nGraphCurrent*100)/pDoc->grdoc.nGraph)) );
 				{
 					int ii;
 					ltime_start = pDlg->ltime_start;
@@ -157,10 +155,6 @@ INT_PTR CThreadCalcDirPat::DoModal()
 
 	time( &ltime_start );
 
-//	CTMCGROUTView* pDlg = (CTMCGROUTView *)(pCView);
-//	CTMCGROUTDoc* pDoc = pDlg->GetDocument();
-//	ASSERT_VALID(pDoc);
-//	m_nEmitters = pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ].GetnIzl();
 	
 	return CDialog::DoModal();
 }

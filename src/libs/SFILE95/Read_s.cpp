@@ -65,41 +65,32 @@
 #include <proc_s.h>
 
 
-//#ifndef _TMC_EXT
 
 #include <error1.h>
 
-//#else
-// #ifndef _NDP2
-//   #include "c:\tmc\source\utility\extrapol\errorext.h"
-// #else
-//   #include "c:\tmc\source\utility\extrapol\errorext.h"
-// #endif
-//#endif
 
 
-static int _near _fortran Read_TITLE( char _far *szFileName );
-static int _near _fortran Read_GRID( S_INDEX _far **si, int _far *extrapol_flag );
-static int _near _fortran read_string( char _far *string );
-static int _near _fortran read_CR( void );
+static int Read_TITLE( char *szFileName );
+static int Read_GRID( S_INDEX **si, int *extrapol_flag );
+static int read_string( char *string );
+static int read_CR( void );
 
-static char _BASE_CODE trace[] = "Rd.Scatt.Mt.";
+static char trace[] = "Rd.Scatt.Mt.";
 
 
-int _far read_S_matrix( char _far *szFileName, S_INDEX _far **si, int _far *extrapol_flag,
-                        _complex _far ***sss, FREQUENCY _far *frq_out, INPUT_DATA _far **id)
+int read_S_matrix( char *szFileName, S_INDEX **si, int *extrapol_flag,
+                        _complex ***sss, FREQUENCY *frq_out, INPUT_DATA **id)
  {
   int ret_code = 0, i, m;
   WORD len, length, wBuff;
   INT_1 sBuff;
   int iBuff;
-  INT_1 _far *lpnArr;
+  INT_1 *lpnArr;
   double dTmp;
-  double _far *lpdTmp;
+  double *lpdTmp;
   fpos_t  lNextPoint, lOffset;
-  FILE _far *sf;
+  FILE *sf;
 
-//   put_trace( (char _far *)trace );
 
   frq_out->max = 0;
 
@@ -128,13 +119,13 @@ int _far read_S_matrix( char _far *szFileName, S_INDEX _far **si, int _far *extr
     }
 
    // allocation of memory for frq buff 
-   if( (frq_out->f = (_real _far *)alloc_mem_err( (long)sizeof(_real)*(frq_out->max) ) ) != NULL)
+   if( (frq_out->f = (_real *)alloc_mem_err( (long)sizeof(_real)*(frq_out->max) ) ) != NULL)
     {
      // allocation of memory for input data structures 
-     if( (*id = (INPUT_DATA _far *)alloc_mem_err( (long)sizeof(INPUT_DATA)*(frq_out->max) ) ) != NULL )
+     if( (*id = (INPUT_DATA *)alloc_mem_err( (long)sizeof(INPUT_DATA)*(frq_out->max) ) ) != NULL )
       {
        // allocation of memory for pointers at scattering matrices 
-       if( ((*sss) = (_complex _far **)alloc_mem_err( (long)sizeof(void _far *)*(frq_out->max) ) ) != NULL )
+       if( ((*sss) = (_complex **)alloc_mem_err( (long)sizeof(void *)*(frq_out->max) ) ) != NULL )
         {
          for( i = 0; i < frq_out->max; i++)	 (*sss)[i] = NULL;
 
@@ -144,7 +135,6 @@ int _far read_S_matrix( char _far *szFileName, S_INDEX _far **si, int _far *extr
            // set position in the offset table
            if( i != 0 )  
 		   { 
-//			   if( fseek( sf, (long)lNextPoint, SEEK_SET ) != 0 ) ret_code = -1; 
 			   if( fsetpos( sf, &lNextPoint ) != 0 ) ret_code = -1; 
 		   };
 //
@@ -198,16 +188,16 @@ int _far read_S_matrix( char _far *szFileName, S_INDEX _far **si, int _far *extr
            if( ret_code == 0 )
              {
               len = ((*id)[i].dim)*((*id)[i].dim);
-              if( ( (*sss)[i] = (_complex _far *)alloc_mem_err( (long)sizeof(_complex)*len ) ) == NULL )
+              if( ( (*sss)[i] = (_complex *)alloc_mem_err( (long)sizeof(_complex)*len ) ) == NULL )
                 ret_code = i;
              }
 #ifdef _HIGH_ACCURACY
-           lpdTmp = (double _far *)(*sss)[i];
+           lpdTmp = (double *)(*sss)[i];
 #else
            // allocation of memory for auxiliary array 
            if( ret_code == 0 )
              {
-              if( ( lpdTmp = (double _far *)alloc_mem_err( (long)2*sizeof(double)*len ) ) == NULL )
+              if( ( lpdTmp = (double *)alloc_mem_err( (long)2*sizeof(double)*len ) ) == NULL )
                 {
                  ret_code = i;
                  free_mem( (*sss)[i] );
@@ -287,7 +277,7 @@ Close_L:
  } // end of read_S_matrix
 
 
-void _far _fortran Free_GRID_Index( S_INDEX _far **si, int extrapol_flag )
+void Free_GRID_Index( S_INDEX **si, int extrapol_flag )
   {
    int i;
 
@@ -300,7 +290,7 @@ void _far _fortran Free_GRID_Index( S_INDEX _far **si, int extrapol_flag )
 
   }
 
-void _far _fortran Free_S_read( _complex _far ***sss, int nFrqNum )
+void Free_S_read( _complex ***sss, int nFrqNum )
   {
    int i;
 
@@ -321,7 +311,7 @@ void _far _fortran Free_S_read( _complex _far ***sss, int nFrqNum )
 
 
 
-static int _near _fortran Read_TITLE( char _far *szFileName )
+static int Read_TITLE( char *szFileName )
   {
    char szStr[4];
    int nVer;
@@ -362,7 +352,7 @@ static int _near _fortran Read_TITLE( char _far *szFileName )
   } // end of Read_TITLE routine
 
 
-static int _near _fortran Read_GRID( S_INDEX _far **si, int _far *extrapol_flag )
+static int Read_GRID( S_INDEX **si, int *extrapol_flag )
   {
    int ret_code = 0;
    INT_1 length, sBuff;
@@ -381,7 +371,7 @@ static int _near _fortran Read_GRID( S_INDEX _far **si, int _far *extrapol_flag 
    if( ret_code == 0 )
     {
      // allocation of space for grid sequence parameters 
-     if( (*si = (S_INDEX _far  *)alloc_mem_err( (long)sizeof(S_INDEX)*(*extrapol_flag+1) ) ) == NULL)
+     if( (*si = (S_INDEX *)alloc_mem_err( (long)sizeof(S_INDEX)*(*extrapol_flag+1) ) ) == NULL)
         return -2;
     }
 
@@ -409,9 +399,9 @@ static int _near _fortran Read_GRID( S_INDEX _far **si, int _far *extrapol_flag 
      // allocation of space for file names 
      for( i = 0; ( i <= *extrapol_flag )&&( ret_code == 0 ); i++ )
        {
-        if( ( (*si)[i].tpl_name = (char _far  *)alloc_mem_err( (long)sizeof(char)*FILENAME_MAX ) ) != NULL)
+        if( ( (*si)[i].tpl_name = (char *)alloc_mem_err( (long)sizeof(char)*FILENAME_MAX ) ) != NULL)
           {
-           if( ( (*si)[i].S_name = (char _far  *)alloc_mem_err( (long)sizeof(char)*FILENAME_MAX ) ) == NULL)
+           if( ( (*si)[i].S_name = (char *)alloc_mem_err( (long)sizeof(char)*FILENAME_MAX ) ) == NULL)
              {
               free_mem( (*si)[i].tpl_name );
               ret_code = i;
@@ -449,7 +439,7 @@ static int _near _fortran Read_GRID( S_INDEX _far **si, int _far *extrapol_flag 
 
 
 
-static int _near _fortran read_string( char _far *string )
+static int read_string( char *string )
  {
   INT_1 length;
 
@@ -462,7 +452,7 @@ static int _near _fortran read_string( char _far *string )
   }
 
 
-static int _near _fortran read_CR( void )
+static int read_CR( void )
  {
   INT_1 EOL;
 

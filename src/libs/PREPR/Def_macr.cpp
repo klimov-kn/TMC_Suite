@@ -33,7 +33,7 @@
 
 /* #define _DEBUG*/
 
-static int  _near fortran def_main_macdef( BUFFER _far *buf );
+static int  def_main_macdef( BUFFER *buf );
 
 static MACROS *s_pMacMain = NULL;   // BUG-004: one MACROS buffer for all #define
 
@@ -48,7 +48,7 @@ static void def_macro_message( const char *pszWhat, const char *pszName )   // S
 }
 
                 /*  substitute all macros*/
-int def_main_macro( BUFFER _far *buf )
+int def_main_macro( BUFFER *buf )
  {
   // BUG-004: without recursion and with one MACROS buffer (see the head of the file)
   int  p1, i_err = BUF_NULL, nPos = 0, nMax = 0, k, pLast;
@@ -96,18 +96,12 @@ int def_main_macro( BUFFER _far *buf )
   }
 
                    /*  substitute 1 macro define*/
-int  def_main_macdef( BUFFER _far *buf )
+int  def_main_macdef( BUFFER *buf )
  {
    MACROS *mac = s_pMacMain;   // BUG-004: it was new MACROS (~10 MB) for every #define
 
    int p1, i, n1;
-#ifdef __DEBUG
-   int ind;
-#endif
 
-#ifdef __DEBUG
- printf("\n function def_main_macdef");
-#endif
 
 /*
 ****   separation macros name and formal parameters  *****
@@ -127,14 +121,6 @@ int  def_main_macdef( BUFFER _far *buf )
 	   return( i );
    };
 
-#ifdef __DEBUG
-printf("\n after function def_separ_mac_name");
-for( ind = 0; ind <= mac.j1; ind++ )
- {
-  printf("\n number formal par = %d ; maska = {%s}", ind, mac.m[ind] );
-  getch();
-  }
-#endif
 
 /*
 ***** macro define ( separation formal parameter ) *****
@@ -145,17 +131,6 @@ for( ind = 0; ind <= mac.j1; ind++ )
 		return( BUF_ERROR_NO_FORMAL_PARAM );
 	};
 
-#ifdef __DEBUG
-printf("\n after function def_set_formal_param");
-for( ind = 0; ind < mac.i2; ind++ )
- {
-  printf("\n number of formal parameter : %d\n", mac.im1[ind]);
-  if( mac.im1[ind] >= 0 )
-   printf("{%s}", mac.m[mac.im1[ind]]);
-  printf("{%s}", mac.m1[ind]);
-  getch();
-  }
-#endif
 
 /*
 *****          delete macro define           *****
@@ -174,7 +149,7 @@ for( ind = 0; ind < mac.i2; ind++ )
 
 
 
-int  def_subst_mac( BUFFER _far *buf, MACROS _far *mac)
+int  def_subst_mac( BUFFER *buf, MACROS *mac)
  {
    char *mac1;
 
@@ -238,13 +213,6 @@ int  def_subst_mac( BUFFER _far *buf, MACROS _far *mac)
 			 return -1;
 		 };
 
-#ifdef __DEBUG
-printf("\n after function def_subst_mac\n");
-  if( mac->im1[j] >= 0 )
-   printf("{%s}", mac->m[mac->im1[j]]);
-  printf("{%s}", mac->m1[j]);
-  getch();
-#endif
 
         if( buf->inp_p < 0 )
          {
@@ -260,10 +228,10 @@ printf("\n after function def_subst_mac\n");
  return( BUF_NULL);
  }
                      /*  set formal parameters in struct. macros*/
-int  def_set_formal_param( BUFFER _far *buf, MACROS _far *mac, int i)
+int  def_set_formal_param( BUFFER *buf, MACROS *mac, int i)
  {
   int i3, j, n, i1;
-  char _far *ch;
+  char *ch;
   char  *mac1;
 
   if( (mac1 = new char[ BUF_STR_N_MAX ]) == NULL )
@@ -283,11 +251,6 @@ int  def_set_formal_param( BUFFER _far *buf, MACROS _far *mac, int i)
 
   mac->m1[0] = ch;
   mac->im1[0] = -1;
-#ifdef __DEBUG
-  printf("\n in function def_set_formal_param\n");
-  printf(" mac->i2 = 0; number formal param = %d; maska string = {%s}", mac->im1[0], mac->m1[0]);
-  getch();
-#endif
 
   for( j = 0; j < mac->j1; j++ )
    {
@@ -296,11 +259,6 @@ int  def_set_formal_param( BUFFER _far *buf, MACROS _far *mac, int i)
       n = strlen( mac1 );
       mac->m1[ mac->i2 ] = ch;
       mac->im1[ mac->i2 ] = j+1;
-#ifdef __DEBUG
-  printf("\n in function def_set_formal_param for IF\n");
-  printf(" mac->i2 = %d; number formal param = %d; maska string = {%s}", mac->i2, mac->im1[mac->i2], mac->m1[mac->i2]);
-  getch();
-#endif
       mac->i2++;
       if( mac->i2 >= BUF_MASKA_MAX )
        {
@@ -324,11 +282,6 @@ int  def_set_formal_param( BUFFER _far *buf, MACROS _far *mac, int i)
       {
        mac->m1[0] = ch;
        mac->im1[0] = -1;
-#ifdef __DEBUG
-  printf("\n in function def_set_formal_param for ELSE\n");
-  printf(" mac->i2 = 0; number formal param = %d; maska string = {%s}", mac->im1[0], mac->m1[0]);
-  getch();
-#endif
       };
     };
 
@@ -348,11 +301,6 @@ int  def_set_formal_param( BUFFER _far *buf, MACROS _far *mac, int i)
         n = strlen( mac1 );
         mac->m1[mac->i2] = ch+1;
         mac->im1[mac->i2] = j+1;
-#ifdef __DEBUG
-  printf("\n in function def_set_formal_param\n");
-  printf(" mac->i2 = %d; number formal param = %d; maska string = {%s}", mac->i2, mac->im1[mac->i2], mac->m1[mac->i2]);
-  getch();
-#endif
         mac->i2++;
 	if( mac->i2 >= BUF_MASKA_MAX )
 	 {
@@ -381,14 +329,11 @@ int  def_set_formal_param( BUFFER _far *buf, MACROS _far *mac, int i)
   }
                 /*  separate macros name and name formal parameter*/
                 /*  return i - pointer separator position*/
-int  def_separ_mac_name( BUFFER _far *buf, MACROS _far *mac)
+int  def_separ_mac_name( BUFFER *buf, MACROS *mac)
  {
   int  p1, j, i;
   char ib;
 
-#ifdef __DEBUG
-  printf("\n function def_separ_mac_name");
-#endif
 
   p1 = buf->inp_p;
 
@@ -406,9 +351,6 @@ int  def_separ_mac_name( BUFFER _far *buf, MACROS _far *mac)
   for( i = 8; mac->mac[ i ] != DEF_SEPARATOR; i++)
    {
 
-#ifdef __DEBUG
-  printf("\n ib = %d; mac->mac[%d] = mac->mac[%d] = %c", ib, i-8+j, i, mac->mac[i]);
-#endif
 
     switch( ib )
      {

@@ -10,11 +10,6 @@
 #include <TmcRTH_IndanParam.h>
 #include <expr.h>
 
-//#ifdef _DEBUG
-//#define new DEBUG_NEW
-//#undef THIS_FILE
-//static char THIS_FILE[] = __FILE__;
-//#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // CTmcRTH_IndanParam
@@ -1007,8 +1002,6 @@ TmcIdx CTmcRTH_IndanParam::CalcnNodeGlobal( double x, double y )	// INT64
 
 	n = (int)(((double)x - (double)rXmin)/(double)rDelta+0.5) + ((TmcIdx)nX)*((int)(((double)y - (double)rYmin)/(double)rDelta+0.5));
 
-//	if( n < 0 ) n = 0;
-//	if( n >= nX*nY ) n = nX*nY-1;
 
 	return n;
 }
@@ -1046,8 +1039,6 @@ TmcIdx CTmcRTH_IndanParam::CalcnNodeGlobalFM( double x, double y )	// INT64
 
 	n = (int)(((double)x - (double)rXmin)/(double)rDelta+0.5) + ((TmcIdx)nX)*((int)(((double)y - (double)rYmin)/(double)rDelta+0.5));
 
-//	if( n < 0 ) n = 0;
-//	if( n >= nX*nY ) n = nX*nY-1;
 
 	return n;
 }
@@ -1162,23 +1153,8 @@ void CTmcRTH_IndanParam::ReadDeltaTMechanical( CString &csCh )
 }
 
 
-double CTmcRTH_IndanParam::dGetHeight( void )
-{
-	double r;
-	r = (double)(rHeight);
-	return r;
-}
 
 // CalcnNodeGlobal return NodeGlobal or -1, if point x,y isn't in region
-TmcIdx CTmcRTH_IndanParam::CalcnNodeGlobalNorm(double x, double y)	// INT64
-{
-	if( x > (double)(rXmax - 2*rDelta) )	return -1;
-	if( x < (double)(rXmin + 2*rDelta) )	return -1;
-	if( y > (double)(rYmax - 2*rDelta) )	return -1;
-	if( y < (double)(rYmin + 2*rDelta) )	return -1;
-	
-	return CalcnNodeGlobal( x, y);
-}
 
 void CTmcRTH_IndanParam::ReadBUnit( CString &csCh )
 {
@@ -1288,21 +1264,8 @@ void SetDeltaT( double dDeltaT1 )
 	return;
 }
 
-double GetDeltaT( void )
-{
-	return dDeltaT;
-}
 
-BOOL IsDeltaTDefine( void )
-{
-	return bDeltaTFlag;
-}
 
-void SwitchDeltaT( void )
-{
-	bDeltaTFlag = !bDeltaTFlag;
-	return;
-}
 
 void SetDeltaT( char *lpszDeltaT )
 {
@@ -1310,8 +1273,6 @@ void SetDeltaT( char *lpszDeltaT )
 	if( sscanf( lpszDeltaT, "%lg", &dDeltaT1 ) != 1 )
 	{
 //		CString csBuf;
-//		csBuf.Format( "Error in command line, bad delta T in {%s}", lpszDeltaT );
-//		AfxMessageBox( csBuf );
 		return;
 	}
 	else
@@ -1319,9 +1280,6 @@ void SetDeltaT( char *lpszDeltaT )
 		dDeltaT = dDeltaT1;
 		bDeltaTFlag = TRUE;
 //		CString csBuf;
-//		csBuf.Format( "Delta T in {%s} = %lg", lpszDeltaT, dDeltaT );
-//		AfxMessageBox( csBuf );
-//		return;
 	};
 	return;
 }

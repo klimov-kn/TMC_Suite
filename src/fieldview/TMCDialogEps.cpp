@@ -105,26 +105,11 @@ void CTMCDialogEps::OnColorLevelChange()
 {
 	// TODO: Add your control notification handler code here
 	CTmcASetColor dlg;
-//	dlg.m_cc.rgbResult = c20Color[ n ];
 	dlg.DoModal(c20Color);
 	RedrawWindow();	
 	return;
 }
 
-void CTMCDialogEps::ChangeColorLevel(int n)
-{
-	if( n < 0 ) return;
-	if( n > 19 ) return;
-
-	CColorDialog dlg;
-	dlg.m_cc.rgbResult = c20Color[ n ];
-	if( dlg.DoModal() == IDOK )
-	{
-		c20Color[ n ] = dlg.GetColor();
-		RedrawWindow();	
-	};
-	return;
-}
 
 BOOL CTMCDialogEps::OnCommand(WPARAM wParam, LPARAM lParam) 
 {

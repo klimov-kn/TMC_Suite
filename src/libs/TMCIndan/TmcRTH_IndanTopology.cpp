@@ -8,11 +8,6 @@
 #include <math.h>
 #include <expr.h>
 
-//#ifdef _DEBUG
-//#define new DEBUG_NEW
-//#undef THIS_FILE
-//static char THIS_FILE[] = __FILE__;
-//#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // CTmcRTH_IndanTopology
@@ -150,23 +145,6 @@ void CTmcRTH_IndanTopology::ReadLink( CString &csCh, CTmcLibError &cError )
 	pcBl = cBlockList.FindBlock( iBuf );
 	if( pcBl->GetnType() == CTMCRTH_BLCKNTYPE_INPXLEFT )
 	{
-/*
-		if( fabs( (double)(pcParam->rXmin - x0) ) <= (pcParam->rDelta) )
-		{
-			return;
-		};
-		if( fabs( (double)(pcParam->rXmax - x0) ) <= (pcParam->rDelta) )
-		{
-			pcBl->SetnType(CTMCRTH_BLCKNTYPE_INPXRIGHT);
-			return;
-		};
-		csBuf.Format("%s %d %s in %s section x0 must be %lg - for left input or %lg - for right input", 
-			CTMCRTH_INDANMET_BLOCK, iBuf, CTMCRTH_INDANBLCK_INPUT_X,
-			CTMCRTH_INDANMET_LINKLIST, pcParam->rXmin/pcParam->rGetLongUnit(), 
-			pcParam->rXmax/pcParam->rGetLongUnit());
-		cError.PutErrorMessage(csBuf);
-		return;
-*/
 		if( fabs( (double)(pcParam->rXmin - x0) ) <= (pcParam->rDelta) )
 		{
 			return;
@@ -202,17 +180,6 @@ void CTmcRTH_IndanTopology::ReadLink( CString &csCh, CTmcLibError &cError )
 
 	if( pcBl->GetnType() == CTMCRTH_BLCKNTYPE_INPYTOP )
 	{
-/*
-		if( fabs( (double)(pcParam->rYmin - y0) ) <= (pcParam->rDelta) )
-		{
-			pcBl->SetnType(CTMCRTH_BLCKNTYPE_INPYBOT);
-			return;
-		};
-		if( fabs( (double)(pcParam->rYmax - y0) ) <= (pcParam->rDelta) )
-		{
-			return;
-		};
-*/
 		if( fabs( (double)(pcParam->rYmin - y0) ) <= (pcParam->rDelta) )
 		{
 			pcBl->SetnType(CTMCRTH_BLCKNTYPE_INPYBOT);

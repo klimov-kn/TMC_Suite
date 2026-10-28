@@ -36,7 +36,6 @@ protected: // create from serialization only
 
 // Attributes
 public:
-	void CloseAndExit( void );
 	BOOL IsRun( void );
 	void RunAll( void );
 	void Stop( void );

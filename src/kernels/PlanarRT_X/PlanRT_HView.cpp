@@ -133,7 +133,6 @@ void CPlanRT_HView::OnInitialUpdate()
 	// TODO: calculate the total size of this view
 
 
-//	cSoundDialog = CTmcSoundEffProp;
 
 	CPlanRT_HDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
@@ -224,12 +223,6 @@ void CPlanRT_HView::OnInitialUpdate()
 
 	if( IsAutoRun() )
 	{
-//		if( IsBatchRun() ) 
-//		{
-//			pDoc->RunAll();
-//		}
-//		else
-//		{
 			OnRunAll();
 			if( IsDemoRun() ) 
 			{
@@ -237,7 +230,6 @@ void CPlanRT_HView::OnInitialUpdate()
 				pDoc->SetOutSinchrFieldOutFlag( TRUE );
 				Sleep(1000);
 			};
-//		};
 	};
 
 
@@ -433,12 +425,6 @@ void CPlanRT_HView::ReadData( void )
 	
 	bIsReadData = TRUE;
 	
-//	if( ( AfxBeginThread( ReadDataGlobal, (void *)(pDoc), THREAD_PRIORITY_NORMAL ) ) == NULL )
-//	{
-//		PutTrace( "Can't open thread for read data" );
-//		bIsReadData = FALSE;
-//		return;
-//	};
 	pDoc->ReadData();
 
 	csBuf.Format( "Step:%d;%s", pDoc->GetnStep(), pDoc->GetErrorMessage() );
@@ -464,12 +450,10 @@ void CPlanRT_HView::OnRunStartstep()
 	ASSERT_VALID(pDoc);
 	if(	pDoc->IsReadData() ) return;
 	if(	pDoc->IsRun() ) return;
-//	OnRunStop();
 	CString csBuf;
 
 	bIsReadData = TRUE;
 
-//	pDoc->SetModifiedFlag();
 	
 	CWinThread* pThread = AfxBeginThread( RunStepGlobal, (void *)(pDoc), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED );
 	if( pThread == NULL )
@@ -492,12 +476,10 @@ void CPlanRT_HView::OnRunAll()
 	CPlanRT_HDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	if(	pDoc->IsReadData() ) return;
-//	OnRunStop();
 	CString csBuf;
 
 	bIsReadData = TRUE;
 
-//	pDoc->SetModifiedFlag();
 	
 	CWinThread* pThread = AfxBeginThread( RunAllGlobal, (void *)(pDoc), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED );
 	if( pThread == NULL )
@@ -608,20 +590,14 @@ void CPlanRT_HView::OnRunStop()
 
 	pDoc->Stop();
 	bIsReadData = FALSE;
-//	pDoc->CloseAndExit();
 	
 	return;
 }
 
 void CPlanRT_HView::OnDestroy() 
 {
-//	CPlanRT_HDoc* pDoc = GetDocument();
-//	ASSERT_VALID(pDoc);
-//	pDoc->CloseAndExit();
 	CScrollView::OnDestroy();	
 	// TODO: Add your message handler code here	
-//	OnRunStop();
-//	Sleep(2000);
 }
 
 void CPlanRT_HView::OnDrawBackground(CDC* pDC)
@@ -858,14 +834,6 @@ BOOL CPlanRT_HView::DestroyWindow()
 	
 	OnRunStop();
 
-//	CPlanRT_HDoc* pDoc = GetDocument();
-//	ASSERT_VALID(pDoc);
-//	pDoc->CloseAndExit();
-//	OnRunStop();
-//	Sleep(2000);
-//	CPlanRT_HDoc* pDoc = GetDocument();
-//	ASSERT_VALID(pDoc);
-//	pDoc->CloseAndExit();
 	return CScrollView::DestroyWindow();
 }
 
@@ -993,17 +961,6 @@ void CPlanRT_HView::OnUpdateRunStop(CCmdUI* pCmdUI)
 	return;
 }
 
-void CPlanRT_HView::Stop()
-{
-	CPlanRT_HDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-
-	pDoc->Stop();
-	bIsReadData = FALSE;
-	pDoc->CloseAndExit();
-	
-	return;
-}
 
 
 void CPlanRT_HView::OnConfigSmatrix() 
@@ -1047,13 +1004,6 @@ void CPlanRT_HView::OnUpdateFileClose(CCmdUI* pCmdUI)
 	return;
 }
 
-void CPlanRT_HView::OnClose() 
-{
-	// TODO: Add your command update UI handler code here
-	// dead code kept for linkage; real close handling is in the frame windows
-	CScrollView::OnClose();
-	return;
-}
 
 void CPlanRT_HView::OnConfigAutorun() 
 {

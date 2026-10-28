@@ -799,7 +799,6 @@ BOOL CTmcSMatrix::TtoSOneInputOnePoint(_complex *pscSFor2Point, double dTsignal1
 	else
 	{
 		if( fabs(dcos1) < FLT_MIN ) return FALSE;
-//		dFi = asin(1/sqrt(1+(dcos1/dsin1)*(dcos1/dsin1)));
 		dFi = atan(-dsin1/dcos1);
 	};
 

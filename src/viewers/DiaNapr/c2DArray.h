@@ -27,17 +27,12 @@ public:
 	void SaveData( char *pszFile );
 	void CopyIzlSector( c2DArray &cSource, int i );	// A-31: sektor i diagramma izluchatelya i iz cSource
 	void MakeDeviation( char *szSourceFile, char *szDistinationFile, double dXmm, double dYmm, double dAmplProcent, double dFazaDegree );
-	void SetNPointForNormirovka( int nPoint );
 	void SetdFrequence( double dFrequenceGHz );
 	void SetszOneExpression( char *ch );
-	double GetOptimPurposeFunction( void );
 	void SetIzl( int i, double dXcoord_mm, double dYcoord_mm, double dAmplitud, double dFaza_gradus );
 	void OptimizationInit( char *szFileRequiDirPat, int nIzl1 );
-	double GetImageIzl( int i );
-	double GetRealIzl( int i );
 	void ReadData( char *szFileName1 );
 	char * GetOneExpression( void );
-	void SetOneExpression( char *ch );
 	int GetnIzl( void );
 	double GetKnd_dB( void );
 	double GetKnd( void );

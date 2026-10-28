@@ -59,7 +59,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 private:
-	void ChangeColorLevel( int n );
 };
 
 //{{AFX_INSERT_LOCATION}}

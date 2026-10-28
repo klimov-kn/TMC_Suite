@@ -29,9 +29,6 @@
     <ClCompile Include="S_remt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="S_table.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="S_wemt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -47,13 +44,5 @@
     <ClCompile Include="Write_s.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Wrrd_s.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\Tmc\Source\Tamic\Post_pro\Thresh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

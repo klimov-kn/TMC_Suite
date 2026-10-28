@@ -26,7 +26,7 @@
 #include <s_file.h>
 
 
-int _far _fortran update_offset_table( _real frq, int num, int nTBL_Flag )
+int update_offset_table( _real frq, int num, int nTBL_Flag )
  {
   int i;
   int nPS_Number = Get_PS_Number();
@@ -34,7 +34,7 @@ int _far _fortran update_offset_table( _real frq, int num, int nTBL_Flag )
   fpos_t   fPos_t;
   S_OFFSET s_Offset;
 //  int n_Offset;
-  FILE _far *sf = Get_S_FILE();
+  FILE *sf = Get_S_FILE();
   INT_1 nBuf;
 
   if( fseek( sf, 0L, SEEK_END ) != 0 ) return -1;     /* position to the file end */
@@ -52,7 +52,6 @@ int _far _fortran update_offset_table( _real frq, int num, int nTBL_Flag )
 
   num++;
   nBuf = num;
-//  if( write_S( &num, sizeof( WORD ) ) != 0 ) return -1; /* write frq num */
   if( write_S( &nBuf, sizeof( INT_1 ) ) != 0 ) return -1; /* write frq num */
   num--;
 

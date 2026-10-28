@@ -109,13 +109,11 @@ void CTMCDialogPlace::OnPlaceaxiesfont()
 {
 	// TODO: Add your control notification handler code here
 	CFontDialog dlg( &lfInitial, CF_SCREENFONTS );
-//	CFontDialog dlg( &lfInitial, CF_EFFECTS | CF_SCREENFONTS);
 	
 	dlg.m_cf.rgbColors = scColorAxies;
 
 	if( dlg.DoModal() == IDOK )
 	{
-//		scColorAxies = dlg.GetColor();
 		RedrawWindow();	
 	};
 	return;
