@@ -13,6 +13,8 @@
 
 #include "ThreadCalcDirPat.h"
 
+extern volatile LONG g_lTmcDnCalcRunning;	// A-30: tmcgroutview.cpp
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -68,15 +70,22 @@ void CThreadCalcDirPat::OnTimer(UINT_PTR nIDEvent)
 	// TODO: Add your message handler code here and/or call default
 	CTMCGROUTView* pDlg = (CTMCGROUTView *)(pCView);
 
+	if( g_lTmcDnCalcRunning == 0 )	// A-30, S-55: okno zakryvaetsya, kogda potok rascheta zavershilsya
+	{
+		EndDialog( 0 );
+		CDialog::OnTimer(nIDEvent);
+		return;
+	};
+
 	if( pDlg != NULL )
 	{
 		CTMCGROUTDoc* pDoc = pDlg->GetDocument();
 		ASSERT_VALID(pDoc);
 		if( (pDoc->pcDirectionalPattern != NULL) )
 		{
-			if( ((pDoc->grdoc.nGraph == (pDoc->nGraphCurrent + 1))&&(pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ].iN > (pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ].GetnAngle() - 2) ))||(pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ].IsError()) ) 
+			if( ( pDoc->grdoc.nGraph <= 0 )||( pDoc->nGraphCurrent < 0 )||( pDoc->nGraphCurrent >= pDoc->grdoc.nGraph ) )	// S-55: delenie na 0; A-30: zakrytie - tolko po koncu potoka
 			{
-				EndDialog( 0 );
+				;
 			}
 			else
 			{
@@ -119,7 +128,19 @@ void CThreadCalcDirPat::OnTimer(UINT_PTR nIDEvent)
 	CDialog::OnTimer(nIDEvent);
 }
 
-BOOL CThreadCalcDirPat::OnInitDialog() 
+void CThreadCalcDirPat::OnCancel()	// A-30: "Hide" ne zakryvaet okno, poka idet raschet
+{
+	if( g_lTmcDnCalcRunning != 0 ) return;
+	CDialog::OnCancel();
+}
+
+void CThreadCalcDirPat::OnClose()	// A-30: krestik - tozhe
+{
+	if( g_lTmcDnCalcRunning != 0 ) return;
+	CDialog::OnClose();
+}
+
+BOOL CThreadCalcDirPat::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 	

@@ -8,6 +8,10 @@
 
 #include <typedef.h>
 
+// D-8: unwrapping of the phase in GetCPhase: 0 - the phase decreases monotonically (Foster, the default, as before),
+// 1 - the standard unwrapping with the threshold pi. One per program, set by the menu Config.
+extern int g_nTmcPhaseUnwrap;
+
 class CTMCGrExpression  
 {
 // Construction
@@ -20,6 +24,7 @@ public:
 	double GetExpressionValueSFR_User( int nPoint );
 	double GetExpressionValueSFD_User( int nPoint );
 	double GetExpressionValue( int nPoint );
+	double GetExpressionValueRe( int nPoint );	// A-28: TMCROS - vyrazhenie ot znachenii signalov
 	BOOL IsFreqCorrect( void );
 	BOOL IsGraphDifferent( void );
 	int * GetNPoint( int nFileName );

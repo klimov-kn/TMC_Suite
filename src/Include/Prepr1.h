@@ -19,6 +19,7 @@
 #define BUF_PAR_MAX      60
 
 #define VR_MAC_FILE_NAME "$$vr$$s.prc"
+const char *vr_mac_file_name( void );   // S-16: "$$vr$$s<PID>.prc" - svoj u kazhdogo processa
 #define VR_MAC_INCLUDE   "#include $$vr$$s.prc"
 
 typedef struct

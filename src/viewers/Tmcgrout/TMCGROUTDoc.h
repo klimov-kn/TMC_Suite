@@ -34,6 +34,7 @@ public:
 	void RunExeFile( char *lpszNameExe );
 	BOOL DocFileNewData(int n);
 	void DocFileDelData();
+	void RebaseGraphPaths( const char *szOldDocPath );	// S-44: imena grafikov - otnositelno novoi papki
 
 // Operations
 public:

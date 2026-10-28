@@ -25,6 +25,7 @@ public:
 	void SaveDeviationDirectionalPattern( char *pszFileName );
 	void GetIzl( int i, double *dXmm, double *dYmm, double *dAmpl, double *dFazaDegree);
 	void SaveData( char *pszFile );
+	void CopyIzlSector( c2DArray &cSource, int i );	// A-31: sektor i diagramma izluchatelya i iz cSource
 	void MakeDeviation( char *szSourceFile, char *szDistinationFile, double dXmm, double dYmm, double dAmplProcent, double dFazaDegree );
 	void SetNPointForNormirovka( int nPoint );
 	void SetdFrequence( double dFrequenceGHz );

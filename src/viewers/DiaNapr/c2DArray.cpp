@@ -8,9 +8,21 @@
 #include <float.h>
 #include <string.h>
 #include <math.h>
+#include <sys/types.h>	// T-28: razmer faila
+#include <sys/stat.h>
 #include <typedef.h>
 #include <expr.h>
 #include "c2DArray.h"
+
+// S-50: podpis kesha DN - versiya formata kesha, razmer i vremya .DAT, chislo izluchatelei, chastota
+static BOOL TmcDnCacheSign( const char *szDat, int nIzl1, double dFreq1, char *szSign, int nSize )
+{
+	struct stat stDat;
+	if( stat( szDat, &stDat ) != 0 ) return FALSE;
+	snprintf( szSign, nSize, "TMC_DN cache v1; size %.0f; mtime %.0f; N %d; F %.12g;",
+		(double)stDat.st_size, (double)stDat.st_mtime, nIzl1, dFreq1 );
+	return TRUE;
+}
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -103,6 +115,12 @@ void c2DArray::ReadData(char *szFileName1)
 {
 	if( (nIzl > nMaxTemporary)&&bIsInitialData ) return;
 	DeleteData();
+	if( strlen( szFileName1 ) > ( TMC_C2DARRAY_MAX_STRING - 200 ) )	// BUG-021, BUG-023: imena i teksty oshibok - 1000 bait
+	{
+		bIsError = TRUE;
+		sprintf( szError, "Input file name is too long (%d characters)", (int)strlen( szFileName1 ) );
+		return;
+	};
 	sprintf( szFileName, "%s", szFileName1 );
 	sprintf( szFileNameTemp, "%s_Temp%d", szFileName, bIsReduceElMagnAnalysis );
 	ReadData();
@@ -112,6 +130,13 @@ void c2DArray::ReadData(char *szFileName1)
 void c2DArray::WriteData(char *szFileName1)
 {
 	if( (nIzl > nMaxTemporary)&&bIsInitialData ) return;
+	if( bIsError ) return;	// BUG-021, BUG-023
+	if( strlen( szFileName1 ) > ( TMC_C2DARRAY_MAX_STRING - 200 ) )
+	{
+		bIsError = TRUE;
+		sprintf( szError, "Output file name is too long (%d characters)", (int)strlen( szFileName1 ) );
+		return;
+	};
 
 	sprintf( szFileNameOut, "%s%d", szFileName1, bIsReduceElMagnAnalysis );
 	WriteData();
@@ -218,6 +243,16 @@ void c2DArray::ReadData()
 		fclose( fp );
 		return;
 	};
+	{															// T-28: N ne bolshe chisla strok v faile
+		struct stat stDat;
+		if( ( stat( szFileName, &stDat ) == 0 )&&( (double)nIzl > (double)stDat.st_size/32. + 1. ) )
+		{
+			bIsError = TRUE;
+			sprintf( szError, "Number of emitter N = %d does not match the size of input data file %s", nIzl, szFileName);
+			fclose( fp );
+			return;
+		};
+	};
 
 	InitData();
 	if( bIsError )
@@ -241,7 +276,8 @@ void c2DArray::ReadData()
 			dFiMax =  180.;
 			szBuf1[0] = '\0';
 
-			if( sscanf( szBuf, "%d   X = %lg mm; Y = %lg mm; Amplitude = %lg; Faza = %lg degree;", &j, &x, &y, &a, &f ) != 5 ) 
+			int nEnd = 0;	// N-34: stroka dolzhna zakanchivatsya "degree;"
+			if( ( sscanf( szBuf, "%d   X = %lg mm; Y = %lg mm; Amplitude = %lg; Faza = %lg degree;%n", &j, &x, &y, &a, &f, &nEnd ) != 5 )||( nEnd == 0 ) )
 			{
 				bIsError = TRUE;
 				sprintf( szError, "Error when read emitter N %d from input data file %s", i, szFileName);
@@ -256,6 +292,13 @@ void c2DArray::ReadData()
 //			fclose( fp );
 //			return;
 //		};
+		if( !_finite( x )||!_finite( y )||!_finite( a )||!_finite( f )||!_finite( dFiMin )||!_finite( dFiMax ) )	// S-53
+		{
+			bIsError = TRUE;
+			sprintf( szError, "Emitter N %d in input data file %s: value is not a finite number", i+1, szFileName);
+			fclose( fp );
+			return;
+		};
 		pcIzl[i].SetdXcoordinata(x/1000.);
 		pcIzl[i].SetdYcoordinata(y/1000.);
 		pcIzl[i].SetdAmplituda(a);
@@ -293,10 +336,9 @@ void c2DArray::WriteData()
 	double x, y, a, f, dFiMax, dFiMin;
 	CString csBuf;
 
-	if( ( fp = fopen( szFileNameOut , "w") ) == NULL ) 
+	if( ( fp = fopen( szFileNameOut , "w") ) == NULL )
 	{
-		bIsError = TRUE;
-		sprintf( szError, "Error when open output data file %s", szFileNameOut);
+		WriteTemporaryFile();		// S-51: listing ne zapisan (papka tolko dlya chteniya) - ne oshibka
 		return;
 	};
 
@@ -407,7 +449,15 @@ void c2DArray::InitData()
 		pcIzl = NULL;
 	};
 
-	if( ( pcIzl = new cIzl[ nIzl ] ) == NULL )
+	try	// T-28: new brosaet std::bad_alloc, a ne vozvrashchaet NULL
+	{
+		pcIzl = new cIzl[ nIzl ];
+	}
+	catch( ... )
+	{
+		pcIzl = NULL;
+	};
+	if( pcIzl == NULL )
 	{
 		bIsError = TRUE;
 		sprintf( szError, "Error when allocation memory for emitter array ");
@@ -442,12 +492,28 @@ void c2DArray::CalculateDiagrNapr()
 	double dReal, dImage, r1;
 	char szBuf1[TMC_C2DARRAY_MAX_STRING];
 
+	BOOL bFromCache = FALSE;	// S-50
 	if( IsDirectPatSaveInFile() )
 	{
+		int iA;
+		double *pdAngleSave = new double[ nAngle ];	// S-50: setka uglov - na sluchai plohogo kesha
+		for( iA = 0; iA < nAngle; iA++ ) pdAngleSave[ iA ] = pdAngle[ iA ];
 		ReadDataFromTempFile();
+		bFromCache = !bIsError;
+		if( !bFromCache )		// S-50: kesh ne chitaetsya - udalit i schitat zanovo na prezhnei setke uglov
+		{
+			char szChk[TMC_C2DARRAY_MAX_STRING];
+			bIsError = FALSE;
+			sprintf( szError, "No Error" );
+			remove( szFileNameTemp );
+			snprintf( szChk, TMC_C2DARRAY_MAX_STRING, "%s.chk", szFileNameTemp );
+			remove( szChk );
+			for( iA = 0; iA < nAngle; iA++ ) pdAngle[ iA ] = pdAngleSave[ iA ];
+		};
+		delete []pdAngleSave;
 	}
-	else
-	{		
+	if( !bFromCache )
+	{				
 		if( strcmp("1.", szOneExpression) == 0 )
 		{
 			for( iN = 0; iN < nAngle; iN++)
@@ -670,7 +736,102 @@ double c2DArray::CalculateImageDN_ForKip(double dAngle)
 	return d;
 }
 
+// B-12 (26.10.2026): KND and KIP of the 2D task on a grid fine enough for the beam, one algorithm for any N.
 void c2DArray::NormirovkaDiagrNapr()
+{
+	if( bIsError ) return;
+	if( (nAngle < 2)||( pdRealDN == NULL )||( pdImageDN == NULL ) ) return;
+
+	int i, nFine;
+	double x, y, r, r1, dAng, dStep, dRmax, dPow, dMaxKip, dIntKip;
+	BOOL bExpr;
+
+	if( !IsNormirovka )
+	{
+		IsNormirovka = TRUE;
+		for( i = 0, dRmax = 0.0; i < nIzl; i++ )
+		{
+			x = pcIzl[i].GetdXcoordinata();
+			y = pcIzl[i].GetdYcoordinata();
+			r = sqrt( x*x + y*y );
+			if( r > dRmax ) dRmax = r;
+		};
+		nFine = nPointForNormir;
+		r = 64.*2*3.141592653589*dFreq*dRmax/299792458.;
+		if( r + 1. > (double)nFine ) nFine = ( r + 1. > 4000000. ) ? 4000000 : (int)( r + 1. );
+		if( nFine < 16 ) nFine = 16;
+		bExpr = ( strcmp( "1.", szOneExpression ) != 0 );
+		dStep = 2*3.141592653589/nFine;
+		for( i = 0, dMax = 0.0, dKnd = 0.0, dMaxKip = 0.0, dIntKip = 0.0; i < nFine; i++ )
+		{
+			dAng = i*dStep;
+			r1 = 1.;
+			if( bExpr )
+			{
+				expr_set_per( (char *)"f", 1, (_real)dAng );
+				if( i1nte_atof_1( szOneExpression, &r1 ) != 0 )
+				{
+					bIsError = TRUE;
+					sprintf( szError, "Error when calculate expression for one Directional Pattern {%s}", expr_get_error());
+					return;
+				};
+			};
+			x = r1*CalculateRealDN( dAng );
+			y = r1*CalculateImageDN( dAng );
+			dPow = x*x + y*y;
+			dKnd += dPow*dStep;
+			if( dPow > dMax ) dMax = dPow;
+			if( !IsCalculateKip() )		// KIP: the uniform in-phase array of the same geometry (N <= 400, as before)
+			{
+				x = CalculateRealDN_ForKip( dAng );
+				y = CalculateImageDN_ForKip( dAng );
+				dPow = x*x + y*y;
+				dIntKip += dPow*dStep;
+				if( dPow > dMaxKip ) dMaxKip = dPow;
+			};
+		};
+		if( !( dMax > DBL_MIN )||!_finite( dMax )||!( dKnd > 0. )||!_finite( dKnd ) )	// S-53
+		{
+			bIsError = TRUE;
+			sprintf( szError, "Directional pattern is identically zero or not a finite number");
+			return;
+		};
+		if( IsCalculateKip() )
+		{
+			dKip = dKnd;						// N > 400: "Kip" is the emitted power, Integral |F|^2 (as before)
+			dKnd = 2*3.141592653589*dMax/dKnd;
+			for( i = 0, r = 0.0; i < nAngle; i++ )
+			{
+				if( !_finite( pdRealDN[ i ] ) ) r = -1.;	// S-53
+				if( ( r >= 0. )&&( pdRealDN[ i ] > r ) ) r = pdRealDN[ i ];
+			};
+			if( !( r > DBL_MIN ) )
+			{
+				bIsError = TRUE;
+				sprintf( szError, "Directional pattern is identically zero or not a finite number");
+				return;
+			};
+			dMax = r;							// the plot is normalized by its own maximum, as before
+			for( i = 0; i < nAngle; i++ ) pdRealDN[ i ] /= dMax;
+			return;
+		};
+		dKnd = 2*3.141592653589*dMax/dKnd;
+		if( ( dIntKip > 0. )&&( dMaxKip > 0. ) ) dKip = dKnd/( 2*3.141592653589*dMaxKip/dIntKip );
+		else dKip = FLT_MIN;
+		dMax = sqrt( dMax );
+		dMax *= 1.001;
+	};
+
+	for( i = 0; i < nAngle; i++)
+	{
+		pdRealDN[ i ] /= dMax;
+	}
+
+	return;
+}
+
+#if 0	// B-12, old (the power squared once more for N <= 400; the coarse grid of the plot for N > 400)
+void c2DArray::NormirovkaDiagrNapr_Old()
 {
 	if( bIsError ) return;
 	if( (nAngle < 2)||( pdRealDN == NULL )||( pdImageDN == NULL ) ) return;
@@ -688,6 +849,13 @@ void c2DArray::NormirovkaDiagrNapr()
 			for( i = 0, dKip = dKnd = dMax = 0.0, dStep = 2*3.141592653589/(nAngle-1); i < nAngle; i++)
 			{
 				if( pdRealDN[ i ] > dMax ) dMax = pdRealDN[ i ];
+				if( !_finite( pdRealDN[ i ] ) ) dMax = -1.;	// S-53
+			};
+			if( !( dMax > DBL_MIN )||!_finite( dMax ) )	// S-53
+			{
+				bIsError = TRUE;
+				sprintf( szError, "Directional pattern is identically zero or not a finite number");
+				return;
 			};
 			for( i = 0; i < nAngle; i++)
 			{
@@ -737,7 +905,12 @@ void c2DArray::NormirovkaDiagrNapr()
 		dMax = sqrt( dMax );
 		dMax *= 1.001;
 
-		if( dMax < DBL_MIN ) return;
+		if( !( dMax >= DBL_MIN )||!_finite( dMax ) )	// S-53: bylo molcha - Knd = nan
+		{
+			bIsError = TRUE;
+			sprintf( szError, "Directional pattern is identically zero or not a finite number");
+			return;
+		};
 	};
 
 	for( i = 0; i < nAngle; i++)
@@ -747,6 +920,8 @@ void c2DArray::NormirovkaDiagrNapr()
 
 	return;
 }
+
+#endif
 
 double c2DArray::GetdAngle(int i)
 {
@@ -1048,9 +1223,10 @@ void c2DArray::SaveData(char *pszFile)
 
 	FILE *fp;
 	int i;
-	double x, y, a, f;
+	double x, y, a, f, dFiMax, dFiMin;	// A-31
+	CString csBuf;
 
-	if( ( fp = fopen( pszFile , "w") ) == NULL ) 
+	if( ( fp = fopen( pszFile , "w") ) == NULL )  
 	{
 		bIsError = TRUE;
 		sprintf( szError, "Error when open output data file %s", pszFile);
@@ -1090,7 +1266,14 @@ void c2DArray::SaveData(char *pszFile)
 		y = 1000 * pcIzl[i].GetdYcoordinata();
 		a = pcIzl[i].GetdAmplituda();
 		f = pcIzl[i].GetdFaza()*180./3.141592653589;
-		if( fprintf( fp, "%d   X = %lg mm; Y = %lg mm; Amplitude = %lg; Faza = %lg degree;\n", i+1, x, y, a, f ) < 0 ) 
+		dFiMin = pcIzl[i].GetdFimin()*180./3.141592653589;	// A-31: format WriteData (8 polei)
+		dFiMax = pcIzl[i].GetdFimax()*180./3.141592653589;
+		csBuf = pcIzl[i].GetcsEmitterDirectPat();
+		if(strlen(csBuf) < 1)
+		{
+			csBuf.Format("1.");
+		};
+		if( fprintf( fp, "%d   X = %lg mm; Y = %lg mm; Amplitude = %lg; Faza = %lg degree; FiMin = %lg degree; FiMax = %lg degree; %s\n", i+1, x, y, a, f, dFiMin, dFiMax, (const char *)csBuf ) < 0 )  
 		{
 			bIsError = TRUE;
 			sprintf( szError, "Error when write emitter N %d to output data file %s", i+1, pszFile);
@@ -1104,6 +1287,21 @@ void c2DArray::SaveData(char *pszFile)
 
 }
 
+
+void c2DArray::CopyIzlSector( c2DArray &cSource, int i )	// A-31
+{
+	if( bIsError ) return;
+	if( ( i < 0 )||( i >= nIzl )||( pcIzl == NULL )||( i >= cSource.nIzl )||( cSource.pcIzl == NULL ) )
+	{
+		bIsError = TRUE;
+		sprintf( szError, "Error when copy emitter %d", i);
+		return;
+	};
+	pcIzl[i].SetdFimin( cSource.pcIzl[i].GetdFimin() );
+	pcIzl[i].SetdFimax( cSource.pcIzl[i].GetdFimax() );
+	pcIzl[i].SetcsEmitterDirectPat( cSource.pcIzl[i].GetcsEmitterDirectPat() );
+	return;
+}
 
 void c2DArray::GetIzl(int i, double *dXmm, double *dYmm, double *dAmpl, double *dFazaDegree)
 {
@@ -1190,10 +1388,14 @@ void c2DArray::WriteTemporaryFile()
 	double a, f;
 	CString csBuf;
 
-	if( ( fp = fopen( szFileNameTemp , "w") ) == NULL ) 
+	{										// S-50: staraya podpis bolshe ne verna
+		char szChk[TMC_C2DARRAY_MAX_STRING];
+		snprintf( szChk, TMC_C2DARRAY_MAX_STRING, "%s.chk", szFileNameTemp );
+		remove( szChk );
+	};
+	if( ( fp = fopen( szFileNameTemp , "w") ) == NULL )
 	{
-		bIsError = TRUE;
-		sprintf( szError, "Error when open temporary data file %s", szFileNameTemp);
+		bIsInitialData = TRUE;		// S-51: DN poschitana; kesh ne zapisan (papka tolko dlya chteniya) - ne oshibka
 		return;
 	};
 
@@ -1212,8 +1414,22 @@ void c2DArray::WriteTemporaryFile()
 
 	fclose( fp );
 
+	if( nIzl >= nMaxTemporary )		// S-50: podpis kesha (kesh ispolzuetsya pri nIzl >= nMaxTemporary)
+	{
+		char szSign[TMC_C2DARRAY_MAX_STRING], szChk[TMC_C2DARRAY_MAX_STRING];
+		snprintf( szChk, TMC_C2DARRAY_MAX_STRING, "%s.chk", szFileNameTemp );
+		if( TmcDnCacheSign( szFileName, nIzl, dFreq, szSign, TMC_C2DARRAY_MAX_STRING ) )
+		{
+			if( ( fp = fopen( szChk, "w" ) ) != NULL )
+			{
+				fprintf( fp, "%s\n", szSign );
+				fclose( fp );
+			};
+		};
+	};
+
 	bIsInitialData = TRUE;
-	
+
 	return;
 }
 
@@ -1230,6 +1446,7 @@ BOOL c2DArray::IsCalculateKip()
 BOOL c2DArray::IsDirectPatSaveInFile()
 {
 	if( nIzl < nMaxTemporary ) return FALSE;
+	if( strlen( szFileName ) == 0 ) return FALSE;	// A-31: net vhodnogo faila (Deviation DirPat) - kesha net
 
 	FILE *fp;
 	if( ( fp = fopen( szFileName , "r") ) == NULL ) 
@@ -1248,14 +1465,24 @@ BOOL c2DArray::IsDirectPatSaveInFile()
 	char szBuf[TMC_C2DARRAY_MAX_STRING];
     FILETIME LastWriteTimeInput, LastWriteTimeTemp;
 
-	sprintf( szBuf, szFileName );
+	sprintf( szBuf, "%s", szFileName );		// N-34: imya faila - ne stroka formata
 	LastWriteTimeInput = LastWriteTime( szBuf );
-	sprintf( szBuf, szFileNameTemp );
+	sprintf( szBuf, "%s", szFileNameTemp );
 	LastWriteTimeTemp = LastWriteTime( szBuf );
+
+	if( ( LastWriteTimeInput.dwLowDateTime == 0 )&&( LastWriteTimeInput.dwHighDateTime == 0 ) ) return FALSE;	// S-50: vremya ne prochitalos
 
 	if( CompareFileTime( &LastWriteTimeInput, &LastWriteTimeTemp) <= 0 )
 	{
-		return TRUE;
+		char szSign[TMC_C2DARRAY_MAX_STRING], szSignFile[TMC_C2DARRAY_MAX_STRING];	// S-50: podpis kesha
+		if( !TmcDnCacheSign( szFileName, nIzl, dFreq, szSign, TMC_C2DARRAY_MAX_STRING ) ) return FALSE;
+		snprintf( szBuf, TMC_C2DARRAY_MAX_STRING, "%s.chk", szFileNameTemp );
+		if( ( fp = fopen( szBuf, "r" ) ) == NULL ) return FALSE;
+		szSignFile[0] = '\0';
+		if( fgets( szSignFile, TMC_C2DARRAY_MAX_STRING, fp ) == NULL ) szSignFile[0] = '\0';
+		fclose( fp );
+		szSignFile[strcspn( szSignFile, "\r\n" )] = '\0';
+		return ( strcmp( szSign, szSignFile ) == 0 );
 	};
 	return FALSE;
 }
@@ -1277,7 +1504,7 @@ void c2DArray::ReadDataFromTempFile()
 
 	for( iN = 0; iN < nAngle; iN++ )
 	{
-		if( fscanf( fp, "%lg\t%lg\t%lg\t%lg\n", &ugol, &a, &an, &f ) < 0 ) 
+		if( fscanf( fp, "%lg\t%lg\t%lg\t%lg\n", &ugol, &a, &an, &f ) != 4 ) 	// S-50: bylo < 0 
 		{
 			bIsError = TRUE;
 			sprintf( szError, "Error when read emitter N %d from temporary data file %s", iN+1, szFileNameTemp);

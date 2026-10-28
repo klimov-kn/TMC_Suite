@@ -30,9 +30,47 @@ static PROCESS_INFORMATION piProcInfo;
 static CMainFrame* HwndMainFrame = NULL;
 static CPlanRT_HView* pcView = NULL;
 
+// T-4, S-15: the format from the settings goes straight to fprintf. It is accepted only
+// with exactly one conversion of the needed kind ('i' - integer: d i u x X o; 'f' - double:
+// e E f F g G, optional 'l'), flags -+ #0, width and precision of at most 2 digits, other
+// text without '%' (except "%%"), shorter than the buffer. Otherwise the default is used.
+static BOOL IsGoodOutFormat( const char *psz, char cKind, BOOL bEmptyOk )
+{
+	const char *p;
+	int nConv = 0, nD;
+
+	if( psz == NULL ) return FALSE;
+	if( strlen( psz ) >= MAX_LEN_FORMAT_OUT_FILE ) return FALSE;
+	if( psz[0] == '\0' ) return bEmptyOk;
+	for( p = psz; *p != '\0'; p++ )
+	{
+		if( *p != '%' ) continue;
+		p++;
+		if( *p == '%' ) continue;
+		while( ( *p == '-' )||( *p == '+' )||( *p == ' ' )||( *p == '#' )||( *p == '0' ) ) p++;
+		for( nD = 0; ( *p >= '0' )&&( *p <= '9' ); p++ ) if( ++nD > 2 ) return FALSE;
+		if( *p == '.' )
+		{
+			p++;
+			for( nD = 0; ( *p >= '0' )&&( *p <= '9' ); p++ ) if( ++nD > 2 ) return FALSE;
+		};
+		if( cKind == 'i' )
+		{
+			if( ( *p == '\0' )||( strchr( "diuxXo", *p ) == NULL ) ) return FALSE;
+		}
+		else
+		{
+			if( *p == 'l' ) p++;
+			if( ( *p == '\0' )||( strchr( "eEfFgG", *p ) == NULL ) ) return FALSE;
+		};
+		nConv++;
+	};
+	return ( nConv == 1 ) ? TRUE : FALSE;
+}
+
 void SetnTFormat( CString csBuf )
 {
-	if( csBuf.GetLength() > MAX_LEN_FORMAT_OUT_FILE ) return;
+	if( !IsGoodOutFormat( csBuf, 'i', FALSE ) ) { strcpy( szNTFormat, FORMAT_OUT_FILE_NTFORMAT ); return; }	// T-4
 	strcpy( szNTFormat, csBuf );
 	return;
 }
@@ -44,7 +82,7 @@ char *GetnTFormat( void )
 
 void SetdTcurrentFormat( CString csBuf )
 {
-	if( csBuf.GetLength() > MAX_LEN_FORMAT_OUT_FILE ) return;
+	if( !IsGoodOutFormat( csBuf, 'f', FALSE ) ) { strcpy( szDTCurrentFormat, FORMAT_OUT_FILE_DTCurrentFORMAT ); return; }	// T-4
 	strcpy( szDTCurrentFormat, csBuf );
 	return;
 }
@@ -56,7 +94,7 @@ char *GetdTcurrentFormat( void )
 
 void SetnBFormat( CString csBuf )
 {
-	if( csBuf.GetLength() > MAX_LEN_FORMAT_OUT_FILE ) return;
+	if( !IsGoodOutFormat( csBuf, 'i', FALSE ) ) { strcpy( szNBFormat, FORMAT_OUT_FILE_NBFORMAT ); return; }	// T-4
 	strcpy( szNBFormat, csBuf );
 	return;
 }
@@ -68,7 +106,7 @@ char *GetnBFormat( void )
 
 void SetdInpFormat( CString csBuf )
 {
-	if( csBuf.GetLength() > MAX_LEN_FORMAT_OUT_FILE ) return;
+	if( !IsGoodOutFormat( csBuf, 'f', FALSE ) ) { strcpy( szDInpFormat, FORMAT_OUT_FILE_DINPFORMAT ); return; }	// T-4
 	strcpy( szDInpFormat, csBuf );
 	return;
 }
@@ -80,7 +118,7 @@ char *GetdInpFormat( void )
 
 void SetdOutFormat( CString csBuf )
 {
-	if( csBuf.GetLength() > MAX_LEN_FORMAT_OUT_FILE ) return;
+	if( !IsGoodOutFormat( csBuf, 'f', FALSE ) ) { strcpy( szDOutFormat, FORMAT_OUT_FILE_DOUTFORMAT ); return; }	// T-4
 	strcpy( szDOutFormat, csBuf );
 	return;
 }
@@ -97,7 +135,7 @@ char *GetdFieldOutFormat( void )
 
 void SetdFieldOutFormat( CString csBuf )
 {
-	if( csBuf.GetLength() > MAX_LEN_FORMAT_OUT_FILE ) return;
+	if( !IsGoodOutFormat( csBuf, 'f', TRUE ) ) { strcpy( szDFieldOutFormat, FORMAT_OUT_FILE_DFLDOUTFORMAT ); return; }	// T-4
 	strcpy( szDFieldOutFormat, csBuf );
 	return;
 }
@@ -219,6 +257,79 @@ void SetRunExitCode( int nCode )
 int GetRunExitCode( void )
 {
 	return nRunExitCode;
+}
+
+// The warnings of a run are shown in the status line only for a moment (the next progress message
+// overwrites them) - the last one is kept and shown again at the end of the run.
+static char szRunWarning[1024] = "";
+
+void SetRunWarning( const char *pszText )
+{
+	if( pszText == NULL ) pszText = "";
+	strncpy( szRunWarning, pszText, sizeof(szRunWarning) - 1 );
+	szRunWarning[sizeof(szRunWarning) - 1] = '\0';
+	return;
+}
+
+const char *GetRunWarning( void )
+{
+	return szRunWarning;
+}
+
+// GPU: Config -> Compute on GPU. The switch is the variable TMC_GPU of this process - the kernel reads it
+// before each step (TmcGpuH.h, TmcGpuX.h: TMC_GPU = card number + 1). TMC_GPU set outside the program
+// is kept: its card number is used when the switch is on again.
+static char szGpuEnvStart[32] = "";
+
+void InitGpuSetting( BOOL bOn )
+{
+	const char *p = getenv( "TMC_GPU" );
+	if( p != NULL )
+	{
+		strncpy( szGpuEnvStart, p, sizeof(szGpuEnvStart) - 1 );
+		szGpuEnvStart[sizeof(szGpuEnvStart) - 1] = '\0';
+	};
+	if( bOn && !IsGpuSettingOn() ) SetGpuSetting( TRUE );
+	return;
+}
+
+void SetGpuSetting( BOOL bOn )
+{
+	if( bOn ) _putenv_s( "TMC_GPU", ( atoi( szGpuEnvStart ) > 0 ) ? szGpuEnvStart : "1" );
+	else _putenv_s( "TMC_GPU", "0" );
+	return;
+}
+
+BOOL IsGpuSettingOn( void )
+{
+	const char *p = getenv( "TMC_GPU" );
+	return ( ( p != NULL )&&( atoi( p ) > 0 ) ) ? TRUE : FALSE;
+}
+
+int GetGpuSettingCard( void )
+{
+	int n = atoi( szGpuEnvStart );
+	return ( n > 0 ) ? n - 1 : 0;
+}
+
+BOOL IsGpuKeyInCommandLine( void )	// the same words as CTmcGpuH::IsRequested / IsCpuKey
+{
+	const char *c = GetCommandLineA();
+	BOOL bQuote = FALSE;
+	int i;
+	char e;
+
+	for( i = 0; c[i] != '\0'; i++ )
+	{
+		if( c[i] == '"' ) { bQuote = !bQuote; continue; };
+		if( bQuote ) continue;
+		if( ( c[i] != '/' )&&( c[i] != '-' ) ) continue;
+		if( ( i > 0 )&&( c[i-1] != ' ' )&&( c[i-1] != '\t' ) ) continue;
+		if( ( _strnicmp( c + i + 1, "GPU", 3 ) != 0 )&&( _strnicmp( c + i + 1, "CPU", 3 ) != 0 ) ) continue;
+		e = c[i+4];
+		if( ( e == '\0' )||( e == ' ' )||( e == '\t' )||( e == ':' )||( e == '=' ) ) return TRUE;
+	};
+	return FALSE;
 }
 
 void SetRunMainWnd( HWND hWnd )
@@ -345,16 +456,17 @@ void Set_CommandLine_Flags( char *lpszCmdLine )
 		if( ( lpszCmdLine[i] != '/' )&&( lpszCmdLine[i] != '-' )&&( lpszCmdLine[i] != '\\' ) ) continue;
 		if( ( i > 0 )&&( lpszCmdLine[i-1] != ' ' )&&( lpszCmdLine[i-1] != '\t' ) ) continue;
 		k = lpszCmdLine + i + 1;
-		if( ( k[0] == 'A' )&&( k[1] == 'r' )&&( ( k[2] == '\0' )||( k[2] == ' ' )||( k[2] == '\t' ) ) )
+		// T-6: the keys are not case sensitive (/arb = /Arb), as /Time and /GPU
+		if( ( _strnicmp( k, "Ar", 2 ) == 0 )&&( ( k[2] == '\0' )||( k[2] == ' ' )||( k[2] == '\t' ) ) )
 		{
 			SetAutoRunOn();
 		}
-		else if( ( k[0] == 'A' )&&( k[1] == 'r' )&&( k[2] == 'b' )&&( ( k[3] == '\0' )||( k[3] == ' ' )||( k[3] == '\t' ) ) )
+		else if( ( _strnicmp( k, "Arb", 3 ) == 0 )&&( ( k[3] == '\0' )||( k[3] == ' ' )||( k[3] == '\t' ) ) )
 		{
 			SetAutoRunOn();
 			SetBatchRunOn();
 		}
-		else if( ( k[0] == 'd' )&&( ( k[1] == '\0' )||( k[1] == ' ' )||( k[1] == '\t' ) ) )
+		else if( ( ( k[0] == 'd' )||( k[0] == 'D' ) )&&( ( k[1] == '\0' )||( k[1] == ' ' )||( k[1] == '\t' ) ) )
 		{
 			SetAutoRunOn();
 			SetBatchRunOn();

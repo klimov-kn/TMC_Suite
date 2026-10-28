@@ -43,19 +43,21 @@ static char  *char_error[]={
 				"overflow",
 				"argument LOG10 <=0 (bad)",
 
-				"overflow x/y",
-				"for x^y x<0",
+				"division by zero in x/y",   // N-30: it was "overflow x/y"
+				"x^y: x<0 with a fractional y, or 0^y with y<=0",   // A-10: it was "for x^y x<=0"
 				"abnormal bracket",
 				"abnormal function",
 				"abnormal expression",
 				"float overflow",
-				"bad parameter in =",
-				"bad return"
+				"bad return",                // N-30: -21 ERROR_RETURN (the two lines were swapped)
+				"bad parameter in ="         // N-30: -22 ERROR_VAR
 		     };
 
 
 char   * fortran expr_get_error( void )
  {
-  return( char_error[ -expr_get_error_cod() ] );
+  int n = -expr_get_error_cod();
+  if( (n < 0)||(n >= (int)(sizeof(char_error)/sizeof(char_error[0]))) ) return( (char *)"unknown error of expression" );   // N-30
+  return( char_error[ n ] );
   }
 

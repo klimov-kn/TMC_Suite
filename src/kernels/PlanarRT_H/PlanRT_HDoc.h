@@ -26,6 +26,7 @@
 #define PLANRT_H_OUTFIELDSINCHRFLAG_INI		"OutputSinchrFlagdOutField"
 #define PLANRT_H_OUTFIELDFLAG_INI			"OutputFlagdOutField"
 #define PLANRT_H_MNWNDSIZEPLACE_INI			"MainFrameSizeAndPlace__1"
+#define PLANRT_H_COMPUTEGPU_INI				"ComputeGPU"	// GPU: Config -> Compute on GPU (1 - on)
 
 class CPlanRT_HDoc : public CDocument
 {

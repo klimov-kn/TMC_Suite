@@ -47,7 +47,7 @@ int _far fortran read_buf( char _far *str, int n, BUFFER _far *buf)
     buf->inp_p = buf->ilex[buf->inp_p];         /*  skeep input pointer*/
     };
 
-  if( buf->lsplex[buf->ilex[buf->inp_p]] == '\0')  buf->inp_p = buf->ilex[buf->inp_p];
+  if( (buf->inp_p >= 0)&&(buf->ilex[buf->inp_p] >= 0)&&(buf->lsplex[buf->ilex[buf->inp_p]] == '\0') )  buf->inp_p = buf->ilex[buf->inp_p];   // N-25
   j = buf->inp_p;
   str[i] = '\0';
 

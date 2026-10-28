@@ -570,6 +570,57 @@ void CTmcSMatrix::MakeSmatrix()
 	TtoS();
 	SetnLineInSMatrix();
 
+	// B-3.1: S = Uo/Up - divide the column by the incident wave of the excited input (the same two-point
+	// estimate as for Uo, column 2*n of the .t). Old: S = Uo (true only for Amp = 1, Faza = 0); to return it,
+	// delete this block. |Up - 1| < 1e-3 is the noise of the 7 digits of the .t - not divided.
+	if( !IsError() )
+	{
+		int i, ii, n = nLineInSMatrix;
+		_complex scUp;
+		for( i = 1, ii = 0, scUp.x = 0.0, scUp.y = 0.0; i < nPoint; i++ )
+		{
+			if( TtoSOneInputOnePoint( &scUp, pdTsignal[2*n+(i-1)*nInput*2], pdTime[i-1], pdTsignal[2*n+i*nInput*2], pdTime[i]) ) ii++;
+		};
+		if( ii > 0 )
+		{
+			scUp.x /= ii;
+			scUp.y /= ii;
+		};
+		double dUp2 = scUp.x*scUp.x + scUp.y*scUp.y;
+		if( ( ii == 0 )||( !( dUp2 > 1e-24 ) ) )
+		{
+			char szBuf[TMC_GROUT_MAXSTRING_BUF];
+			sprintf( szBuf, "No incident wave (Up) of the excited input %d in the window Tmin=%lg; Tmax=%lg in file {%s}",
+				n + 1, dTmin, dTmax, (LPCSTR)csTFileName );
+			PutErrorMessage(szBuf);
+			return;
+		};
+		if( ( scUp.x - 1.0 )*( scUp.x - 1.0 ) + scUp.y*scUp.y >= 1e-6 )
+		{
+			for( i = 0; i < nInput; i++ )
+			{
+				double dRe = pcSmatrix[i].x, dIm = pcSmatrix[i].y;
+				pcSmatrix[i].x = ( dRe*scUp.x + dIm*scUp.y )/dUp2;
+				pcSmatrix[i].y = ( dIm*scUp.x - dRe*scUp.y )/dUp2;
+			};
+		};
+	};
+
+	// D-1: S that is not a number (the field diverged) is an error - not NaN in the .s
+	if( !IsError() )
+	{
+		int i;
+		for( i = 0; i < nInput; i++ )
+		{
+			if( ( fabs( (double)pcSmatrix[i].x ) <= DBL_MAX )&&( fabs( (double)pcSmatrix[i].y ) <= DBL_MAX ) ) continue;
+			char szBuf[TMC_GROUT_MAXSTRING_BUF];
+			sprintf( szBuf, "S of input %d is not a number (NaN or Inf: the field of the calculation diverged) in file {%s}",
+				i + 1, (LPCSTR)csTFileName );
+			PutErrorMessage(szBuf);
+			return;
+		};
+	};
+
 	return;
 }
 

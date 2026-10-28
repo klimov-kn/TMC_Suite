@@ -47,6 +47,7 @@ void CTmcWideband::DeleteData()
 	csSFileName.Format("");
 	csError.Format("No error");
 	bIsError = FALSE;
+	csWarning.Format("");	// B-22
 	bWideband = FALSE;
 	bContinuous = FALSE;
 	nPoint = 0;
@@ -68,6 +69,80 @@ BOOL CTmcWideband::IsError()
 CString & CTmcWideband::GetErrorMessage()
 {
 	return csError;
+}
+
+CString & CTmcWideband::GetWarningMessage()	// B-22
+{
+	return csWarning;
+}
+
+//  B-22 (answer of the author 26.10.2026): the window Tmin...Tmax (SMATRIX of the kernel or the TtoS dialog) is
+//  used; the full window is 0...Tmax of the task. Old: all the points of the .t, the window was not used.
+//  For a pulse: a response not died away by the end of the window, or a window that cuts the incident
+//  pulse at its start, is a warning - the spectrum is distorted then.
+void CTmcWideband::ApplyWindow()
+{
+	int i, j, n;
+	BOOL bCutStart = FALSE;
+	char szE[TMC_WB_BUF];
+
+	if( IsError() ) return;
+
+	if( dTmax > dTmin )
+	{
+		bCutStart = ( pdTime[0] < dTmin );
+		for( i = 0, n = 0; i < nPoint; i++ )
+		{
+			if( ( pdTime[i] < dTmin )||( pdTime[i] > dTmax ) ) continue;
+			pdTime[n] = pdTime[i];
+			for( j = 0; j < nInput; j++ )
+			{
+				pdUp[n*nInput + j] = pdUp[i*nInput + j];
+				pdUo[n*nInput + j] = pdUo[i*nInput + j];
+			};
+			n++;
+		};
+		if( n < 8 )
+		{
+			sprintf( szE, "Wideband: only %d points of the .t in the window Tmin=%lg; Tmax=%lg s", n, dTmin, dTmax );
+			PutErrorMessage( szE );
+			return;
+		};
+		nPoint = n;
+	};
+
+	if( bContinuous ) return;	// a multi-tone does not die away by its nature
+
+	{
+		double dPeak = 0.0, dHead = 0.0, dTail = 0.0, dR;
+		int nEdge = nPoint/20;
+		if( nEdge < 1 ) nEdge = 1;
+		for( i = 0; i < nPoint; i++ )
+		{
+			for( j = 0; j < nInput; j++ )
+			{
+				dR = fabs( pdUp[i*nInput + j] );
+				if( fabs( pdUo[i*nInput + j] ) > dR ) dR = fabs( pdUo[i*nInput + j] );
+				if( dR > dPeak ) dPeak = dR;
+				if( ( i >= nPoint - nEdge )&&( dR > dTail ) ) dTail = dR;
+				if( ( i < nEdge )&&( dR > dHead ) ) dHead = dR;
+			};
+		};
+		if( ( dPeak > 0.0 )&&( dTail > 0.01*dPeak ) )
+		{
+			sprintf( szE, "Wideband: the response has not died away by the end of the window (t = %lg s): %.1f%% of its peak - "
+				"the spectrum is distorted; make TIME (or Tmax of SMATRIX) longer", pdTime[nPoint-1], 100.0*dTail/dPeak );
+			csWarning = szE;
+		};
+		if( bCutStart&&( dPeak > 0.0 )&&( dHead > 0.01*dPeak ) )
+		{
+			sprintf( szE, "Wideband: the window starts while the pulse is running (t = %lg s): %.1f%% of its peak - "
+				"the spectrum is distorted; make Tmin of SMATRIX smaller", pdTime[0], 100.0*dHead/dPeak );
+			if( csWarning.GetLength() > 0 ) csWarning += " ";
+			csWarning += szE;
+		};
+	};
+	return;
 }
 
 void CTmcWideband::PutErrorMessage(char *ch)
@@ -346,6 +421,9 @@ BOOL CTmcWideband::SolveLinear( double *pdA, double *pdB, int n )
 {
 	int i, j, k, nBest;
 	double dBest, dR;
+	double dScale = 0.0;	// S-32: the scale of the matrix for a relative test of degeneracy
+
+	for( k = 0; k < n; k++ ) if( fabs( pdA[k*n + k] ) > dScale ) dScale = fabs( pdA[k*n + k] );
 
 	for( k = 0; k < n; k++ )
 	{
@@ -360,6 +438,7 @@ BOOL CTmcWideband::SolveLinear( double *pdA, double *pdB, int n )
 			};
 		};
 		if( dBest < 1e-300 ) return FALSE;
+		if( dBest < 1e-6*dScale ) return FALSE;	// S-32: nearly singular (tones closer than 1/T or repeated)
 		if( nBest != k )
 		{
 			for( j = 0; j < n; j++ )
@@ -696,6 +775,16 @@ double CTmcWideband::PortGamma( double dF, int nPort1 )
 
 	dA = sqrt( 2.0 )*TMC_WB_PI*dDelta*dF/TMC_WB_C0;
 	if( fabs( sin( dA ) ) < 1e-30 ) return 0.0;
+	{
+		double dArg = 2.0*cos( dA ) - cos( TMC_WB_PI*dDelta/dAper );
+		if( !( ( dArg >= -1.0 )&&( dArg <= 1.0 ) ) )	// S-29: below the cutoff of the port - no wave, NaN
+		{
+			char szE[256];
+			sprintf( szE, "Wideband: frequency %lg Hz is below the cutoff of port %d (aperture %lg m)", dF, nPort1 + 1, dAper );
+			PutErrorMessage( szE );
+			return 0.0;
+		};
+	};
 	dY1 = sin( acos( 2.0*cos( dA ) - cos( TMC_WB_PI*dDelta/dAper ) ) )/sin( dA );
 
 	dA = sqrt( 2.0 )*TMC_WB_PI*dDelta*dF0/TMC_WB_C0;
@@ -830,6 +919,11 @@ void CTmcWideband::MakeAndSave()
 	};
 
 	//  one frequency at a time: build the column and append it to the .s
+	double dIncMax = 0.0;	// S-31: the strongest tone of the incident wave
+	int nFreqErr = 0;		// D-1: frequencies with an error (zeros in the .s)
+	CString csFreqErr, csFirstErr;
+	for( k = 0; k < nFreq; k++ )
+		if( pcInc[k].x*pcInc[k].x + pcInc[k].y*pcInc[k].y > dIncMax ) dIncMax = pcInc[k].x*pcInc[k].x + pcInc[k].y*pcInc[k].y;
 	for( k = 0; k < nFreq; k++ )
 	{
 		for( i = 0; i < nInput; i++ ) { pcCol[i].x = 0.0; pcCol[i].y = 0.0; };
@@ -841,7 +935,11 @@ void CTmcWideband::MakeAndSave()
 			for( j = 0; j < nPoint; j++ ) pdCol[j] = pdUo[j*nInput + i];
 			if( bContinuous )
 			{
-				if( !FitTones( pdCol, dT1, dT2, pcRef ) ) continue;
+				if( !FitTones( pdCol, dT1, dT2, pcRef ) )	// S-31: not S = 0 silently
+				{
+					PutErrorMessage("Wideband: can not resolve the tones of the reflected wave");
+					break;
+				};
 				dRe = pcRef[k].x;
 				dIm = pcRef[k].y;
 			}
@@ -851,12 +949,34 @@ void CTmcWideband::MakeAndSave()
 			};
 			//  divide by the incident wave
 			dDen = pcInc[k].x*pcInc[k].x + pcInc[k].y*pcInc[k].y;
-			if( dDen < 1e-300 ) continue;
+			if( ( dDen < 1e-300 )||( dDen < 1e-12*dIncMax ) )	// S-31: no incident wave at this frequency - not S = 0 silently
+			{
+				char szE[256];
+				sprintf( szE, "Wideband: the incident wave has no energy at %lg Hz", dFreq[k] );
+				PutErrorMessage( szE );
+				break;
+			};
 			pcCol[i].x = ( _real )( ( dRe*pcInc[k].x + dIm*pcInc[k].y )/dDen );
 			pcCol[i].y = ( _real )( ( dIm*pcInc[k].x - dRe*pcInc[k].y )/dDen );
 		};
 
-FixMismatch( pcCol, nExc, dFreq[k] );
+		// D-1: a frequency with an error is zeros in the column, the next frequencies are calculated.
+		// Old: if( IsError() ) break; FixMismatch(...); if( IsError() ) break; - the rest of the sweep was lost.
+		if( !IsError() ) FixMismatch( pcCol, nExc, dFreq[k] );	// S-29: below the cutoff of the port - an error
+		if( IsError() )
+		{
+			if( nFreqErr == 0 ) csFirstErr = csError;
+			if( nFreqErr < 10 )
+			{
+				CString csF;
+				csF.Format( "%s%lg", ( nFreqErr > 0 ) ? ", " : "", dFreq[k] );
+				csFreqErr += csF;
+			};
+			nFreqErr++;
+			bIsError = FALSE;
+			csError.Format("No error");
+			for( i = 0; i < nInput; i++ ) { pcCol[i].x = 0.0; pcCol[i].y = 0.0; };
+		};
 
 		strcpy( szBuf, ( const char * )csSFileName );
 		if( save_S_matrix_element( nExc + 1, szBuf, pcCol, dFreq[k], nInput ) != 0 )
@@ -864,6 +984,15 @@ FixMismatch( pcCol, nExc, dFreq[k] );
 			PutErrorMessage("Wideband: can not write the S-matrix file");
 			break;
 		};
+	};
+	if( ( nFreqErr > 0 )&&( !IsError() ) )	// D-1
+	{
+		CString csE;
+		csE.Format( "Wideband: error at %d of %d frequencies (%s%s Hz) - the S-matrix is zeros there. %s",
+			nFreqErr, nFreq, (LPCSTR)csFreqErr, ( nFreqErr > 10 ) ? ", ..." : "", (LPCSTR)csFirstErr );
+		strncpy( szBuf, (LPCSTR)csE, TMC_WB_BUF - 1 );
+		szBuf[TMC_WB_BUF - 1] = '\0';
+		PutErrorMessage( szBuf );
 	};
 
 	delete []pcCol;
@@ -886,6 +1015,7 @@ void CTmcWideband::Process( CString csTFile, CString csSFile,
 	ReadHeader();
 	ReadSignals();
 	DetectSignalKind();
+	ApplyWindow();		// B-22
 	FindFrequencies();
 	MakeAndSave();
 	return;

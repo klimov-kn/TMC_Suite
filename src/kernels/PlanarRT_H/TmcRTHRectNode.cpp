@@ -7,6 +7,130 @@
 #include "TmcRTHRectNode.h"
 #include <malloc.h>
 #include "Pl_iofor.h"
+#include "TmcGpuH.h"	// GPU
+
+static CTmcGpuH g_cGpuH;	// GPU: the grid on the video card while RunKernel runs
+
+// T-5, T-9: the .t file of the step.
+// T-5: the file is kept open while the step runs; other programs may read it, but not
+// write it (_SH_DENYWR): a second kernel with the same FILE gets an error instead of
+// mixing its lines into the file. The bytes are the same as before (the same text mode
+// and order); a line goes to the disk when the next one begins, at Stop and at the end.
+// T-9: a busy file is waited for by the clock (20 s), not by 2000 tries of Sleep(10).
+#include <errno.h>
+#include <chrono>
+#include <mutex>
+#ifdef _WIN32
+#include <share.h>
+#endif
+
+#define TMC_OUTT_WAIT_MS	20000
+#define TMC_OUTT_MAX		16
+
+static struct { CString csName; FILE *fp; } s_aOutT[TMC_OUTT_MAX];
+static std::mutex s_mxOutT;
+
+static long long TmcNowMs( void )
+{
+	return (long long)std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::steady_clock::now().time_since_epoch() ).count();
+}
+
+// T-9: open a file, a busy one is waited for at most 20 s; *pnErr - errno of the last try
+FILE *TmcFopenWait( const char *pszName, const char *pszMode, BOOL bDenyWrite, int *pnErr )
+{
+	long long t0 = TmcNowMs();
+	FILE *fp;
+	for( ;; )
+	{
+		errno = 0;
+#ifdef _WIN32
+		fp = bDenyWrite ? _fsopen( pszName, pszMode, _SH_DENYWR ) : fopen( pszName, pszMode );
+#else
+		fp = fopen( pszName, pszMode );
+#endif
+		if( fp != NULL ) return fp;
+		if( pnErr != NULL ) *pnErr = errno;
+		if( ( errno != EACCES )&&( errno != EBUSY ) ) return NULL;	// no folder, bad name: waiting does not help
+		if( TmcNowMs() - t0 >= TMC_OUTT_WAIT_MS ) return NULL;
+		Sleep( 10 );
+	};
+}
+
+// T-7, T-9: why a file can't be opened
+CString TmcOpenFailText( const char *pszName, int nErr )
+{
+	CString cs;
+#ifdef _WIN32
+	if( strlen( pszName ) >= 260 )
+	{
+		cs.Format( "Can't open file %s: the path is %d characters long, at most 259 are supported", pszName, (int)strlen( pszName ) );
+		return cs;
+	};
+#endif
+	if( ( nErr == EACCES )||( nErr == EBUSY ) )
+		cs.Format( "Can't open file %s: the file is used by another program (another calculation with the same FILE?) or is read-only", pszName );
+	else if( nErr == ENOENT )
+		cs.Format( "Can't open file %s: no such folder", pszName );
+	else
+		cs.Format( "Can't open file %s: %s", pszName, strerror( nErr ) );
+	return cs;
+}
+
+void TmcOutTClose( const char *pszName )
+{
+	int i;
+	std::lock_guard<std::mutex> lk( s_mxOutT );
+	for( i = 0; i < TMC_OUTT_MAX; i++ )
+	{
+		if( ( s_aOutT[i].fp == NULL )||( strcmp( s_aOutT[i].csName, pszName ) != 0 ) ) continue;
+		fclose( s_aOutT[i].fp );
+		s_aOutT[i].fp = NULL;
+		s_aOutT[i].csName = "";
+	};
+	return;
+}
+
+FILE *TmcOutTGet( const char *pszName )
+{
+	int i;
+	std::lock_guard<std::mutex> lk( s_mxOutT );
+	for( i = 0; i < TMC_OUTT_MAX; i++ )
+		if( ( s_aOutT[i].fp != NULL )&&( strcmp( s_aOutT[i].csName, pszName ) == 0 ) ) return s_aOutT[i].fp;
+	return NULL;
+}
+
+void TmcOutTFlush( const char *pszName )
+{
+	FILE *fp = TmcOutTGet( pszName );
+	if( fp != NULL ) fflush( fp );
+	return;
+}
+
+// T-5: open the .t of the step ("w" - the header, "a" - go on after Stop) and keep it open
+FILE *TmcOutTOpen( const char *pszName, const char *pszMode, CString &csErr )
+{
+	int i, nErr = 0;
+	FILE *fp;
+
+	TmcOutTClose( pszName );
+	if( ( fp = TmcFopenWait( pszName, pszMode, TRUE, &nErr ) ) == NULL )
+	{
+		csErr = TmcOpenFailText( pszName, nErr );
+		return NULL;
+	};
+	std::lock_guard<std::mutex> lk( s_mxOutT );
+	for( i = 0; i < TMC_OUTT_MAX; i++ )
+	{
+		if( s_aOutT[i].fp != NULL ) continue;
+		s_aOutT[i].fp = fp;
+		s_aOutT[i].csName = pszName;
+		return fp;
+	};
+	fclose( fp );
+	csErr.Format( "Can't open file %s: too many calculations at once", pszName );
+	return NULL;
+}
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -205,6 +329,7 @@ void CTmcRTHRectNode::RunStep( void )
 	{
 		cError.PutErrorMessage( "Exception in calculation" );
 	};
+	TmcOutTClose( cIndan.GetOutput()->csFileName );	// T-5: the step is over (done, stopped or error) - the .t is closed
 	m_cTiming.cur.nTDone = nTCurrent;			// TIMING
 	m_cTiming.EndRunStep( ( cError.IsError() || cIndan.IsError() ) ? 4 :
 		( ( ( nTMax > 0 )&&( nTCurrent >= nTMax ) ) ? 2 : 3 ), qTmStep );	// TIMING
@@ -365,6 +490,7 @@ void CTmcRTHRectNode::InitKernel( void )
 	__int64 qTm = TmcTimingNow();				// TIMING
 	DeleteOutputFile();
 	m_cTiming.Add( TMCT_OUTFILEINIT, qTm );		// TIMING
+	if( IsError() ) return;	// T-9: the .t can't be opened - no second wait in PutPortInfo
 
 	nTMax     = cIndan.nGetTmax();
 	csBuf.Format("nTmax %d", nTMax);
@@ -469,7 +595,8 @@ void CTmcRTHRectNode::InitKernel( void )
 	cIndan.GetOutput()->GetFieldIntegrated().InitAllFile( nX, nY, dDelta, dXmin, dYmin, cParam, dT );
 	m_cTiming.Add( TMCT_DISTRINIT, qTm );			// TIMING
 
-	cError = cIndan.GetOutput()->GetFieldIntegrated().GetError();
+	if( cIndan.GetOutput()->GetFieldIntegrated().GetError().IsError() )	// T-9: not erase an error set before
+		cError = cIndan.GetOutput()->GetFieldIntegrated().GetError();
 
 
 	qTm = TmcTimingNow();						// TIMING
@@ -521,12 +648,16 @@ void CTmcRTHRectNode::RunKernel( void )
 		ltime_start = ltime_current - ltime_start;
 	};
 
+	BOOL bGpu = g_cGpuH.Begin( prUNode1, prYNode, nX, nY, pcNodeDiel, nDiel ) ? TRUE : FALSE;	// GPU
+	strncpy( m_cTiming.cur.szCompute, (LPCTSTR)g_cGpuH.csInfo, sizeof(m_cTiming.cur.szCompute) - 1 );	// GPU
+	if( g_cGpuH.csInfo != "CPU" ) PutTrace( g_cGpuH.csInfo );	// GPU
 	__int64 qTmLoop = TmcTimingNow();					// TIMING
 	for( ; nTCurrent < nTMax;  ii+=2)
 	{
-		if( IsError() ) { m_cTiming.Add( TMCT_LOOPWALL, qTmLoop ); m_cTiming.cur.nTDone = nTCurrent; return; }	// TIMING
+		if( IsError() ) { if( bGpu ) g_cGpuH.End( prUNode1, pcNodeDiel ); m_cTiming.Add( TMCT_LOOPWALL, qTmLoop ); m_cTiming.cur.nTDone = nTCurrent; return; }	// TIMING, GPU
 		if( !bIsReadData ) 
 		{
+			if( bGpu ) g_cGpuH.End( prUNode1, pcNodeDiel );	// GPU
 			m_cTiming.Add( TMCT_LOOPWALL, qTmLoop );	// TIMING
 			m_cTiming.cur.nTDone = nTCurrent;		// TIMING
 			time( &ltime_current );
@@ -567,9 +698,15 @@ void CTmcRTHRectNode::RunKernel( void )
 			m_cTiming.Add( TMCT_STATUS, qTmSt );	// TIMING
 			ii = 0;
 		};
-		RunKernel1T();
+		if( bGpu ) RunKernel1TGpu();	// GPU
+		else RunKernel1T();
 	};
 	m_cTiming.Add( TMCT_LOOPWALL, qTmLoop );			// TIMING
+	if( bGpu )	// GPU: the grid and absorber states back for PutSmatrix and the next step (one-off, outside the loop time)
+	{
+		g_cGpuH.End( prUNode1, pcNodeDiel );
+		if( ( !g_cGpuH.csError.IsEmpty() )&&( !IsError() ) ) cError.PutErrorMessage( g_cGpuH.csError );
+	};
 	m_cTiming.cur.nTDone = nTCurrent;					// TIMING
 
 	time( &ltime_current );
@@ -594,7 +731,15 @@ void CTmcRTHRectNode::RunKernel( void )
 //  there is no menu, so it can be asked for with TMC_AUTO_DN=1	// BORDER
 	{
 		const char *pszDN = getenv( "TMC_AUTO_DN" );
-		if( ( pszDN != NULL )&&( *pszDN == '1' ) ) ExportToDirectionalPatter();
+		if( ( pszDN != NULL )&&( *pszDN == '1' )&&( !cError.IsError() ) )
+		{
+			ExportToDirectionalPatter();
+			if( cError.IsError() )	// N-13: the pattern was not asked for in the .tpl - its error does not spoil the run
+			{
+				ConsolePrint( "WARNING: TMC_AUTO_DN: %s", (LPCSTR)cError.GetErrorMessage() );
+				cError.Clear();
+			};
+		};
 	};
 	m_cTiming.Add( TMCT_SMATRIX, qTmPost );		// TIMING
 	
@@ -1240,6 +1385,7 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 				PutStatistics(csBuf);
 			};
 			jj = 0;
+			if( !bIsReadData ) return;	// S-13: stopped (the window is closing) - do not go through all the nodes
 		};
 	};
 
@@ -1302,27 +1448,29 @@ void CTmcRTHRectNode::DeleteOutputFile( void )
 		cError.PutErrorMessage("Output field file name is NULL");
 		return;
 	};
-	remove(cOut->csFileNameField);
-	
 	if( cOut->csFileNameTopology.GetLength() == 0 )
 	{
 		cError.PutErrorMessage("Output field file name is NULL");
 		return;
 	};
-	remove(cOut->csFileNameTopology);
 
 	FILE *fp;
-	if( (fp = fopen( cOut->csFileName, "w")) == NULL )
+	CString csOpenErr;	// T-5: the .t is opened first and stays open (write denied to others) until the end of the step
+	if( (fp = TmcOutTOpen( cOut->csFileName, "w", csOpenErr )) == NULL )
 	{
-		cError.PutErrorMessage("Can't open output file for write data");
+		CString csOpenMsg;
+		csOpenMsg.Format("Can't open output file for write data. %s", (LPCSTR)csOpenErr);
+		cError.PutErrorMessage( csOpenMsg );
 		return;
 	};
+	remove(cOut->csFileNameField);
+	remove(cOut->csFileNameTopology);
 	fprintf( fp, "%s\n!File name %s\n%s%lg\n%s%d\n!nT\tnBlock\tUp\tUo",
-		TMC_GROTS_FILEOUT_ID, 
+		TMC_GROTS_FILEOUT_ID,
 		cOut->csFileName,
 		TMC_GROTS_FLOUTFreq_ID, cParam.rFreq,
 		TMC_GROTS_FLOUTInpNum_ID, -2);
-	fclose( fp );
+	fflush( fp );
 
 //	if( ( fp = fopen( cOut.csFileNameField , "w") ) == NULL ) return;
 //	fclose( fp );
@@ -1348,17 +1496,12 @@ void CTmcRTHRectNode::OutputnT( void )
 	char *psForm;
 	__int64 qTm = TmcTimingNow();				// TIMING
 
-	int nOpenTry;	// A-8: ne zhdat vechno
-	for( nOpenTry = 0; ( fp = fopen( cOut->csFileName , "a") ) == NULL; nOpenTry++ )
+	CString csOpenErr;
+	if( ( fp = TmcOutTGet( cOut->csFileName ) ) != NULL ) fflush( fp );	// T-5: the file of the step is open; the line before goes to the disk
+	else if( ( fp = TmcOutTOpen( cOut->csFileName, "a", csOpenErr ) ) == NULL )	// after Stop - open it again (T-9: wait 20 s)
 	{
-		if( nOpenTry > 2000 )
-		{
-			CString csOpen;
-			csOpen.Format("Can't open file %s", (LPCSTR)(cOut->csFileName));
-			cError.PutErrorMessage( csOpen );
-			return;
-		};
-		Sleep( 10 );
+		cError.PutErrorMessage( csOpenErr );
+		return;
 	};
 	
 
@@ -1369,7 +1512,6 @@ void CTmcRTHRectNode::OutputnT( void )
 	psForm = GetdTcurrentFormat();
 	fprintf( fp, psForm, dTCurrent);
 
-	fclose( fp );
 	m_cTiming.Add( TMCT_SIGNALFILE, qTm );		// TIMING
 	return;
 }
@@ -2037,6 +2179,7 @@ void CTmcRTHRectNode::RunBlockNode1()
 void CTmcRTHRectNode::PutStepEndSound()
 {
 	if( !((cIndan.GetOutput())->bSoundEffect) ) return;
+	if( IsBatchRun() ) return;	// N-11: no sound in the batch run /Arb (a synchronous Beep, ~1.3 s a step)
 	int n;
 	n = cIndan.GetnStep();
 	if( n == cIndan.GetNStepMax() )
@@ -2160,16 +2303,24 @@ BOOL CTmcRTHRectNode::IsFieldFileRead()
 {
 	CTmcRTH_IndanOutput* cOut;
 	cOut = cIndan.GetOutput();
-	if( GetFileAttributes( cOut->csFileNameField ) == 0xFFFFFFFF ) return FALSE;
-	if( GetFileAttributes( cOut->csFileNameField ) != FILE_ATTRIBUTE_ARCHIVE ) return TRUE;
+	DWORD dwAttr = GetFileAttributes( cOut->csFileNameField );
+	if( dwAttr == 0xFFFFFFFF ) return FALSE;
+	if( ( dwAttr & FILE_ATTRIBUTE_ARCHIVE ) == 0 ) return TRUE;	// S-59: only the ARCHIVE bit (compressed / OneDrive files)
 	return FALSE;
 }
 
 void CTmcRTHRectNode::PutSmatrix()
 {
+	TmcOutTFlush( cIndan.GetOutput()->csFileName );	// T-5: the S-matrix reads the .t from the disk
 	cIndan.GetOutput()->PutSmatrix();
 	if( ( !cError.IsError() )&&( cIndan.GetOutput()->csSMatrixError.GetLength() > 0 ) )	// A-21
 		cError.PutErrorMessage( cIndan.GetOutput()->csSMatrixError );
+	if( cIndan.GetOutput()->csSMatrixWarning.GetLength() > 0 )	// B-22: the response has not died away
+	{
+		ConsolePrint( "WARNING: %s", (LPCSTR)cIndan.GetOutput()->csSMatrixWarning );
+		SetRunWarning( cIndan.GetOutput()->csSMatrixWarning );
+		PutTrace( cIndan.GetOutput()->csSMatrixWarning );
+	};
 	return;
 }
 
@@ -2226,17 +2377,13 @@ void CTmcRTHRectNode::PutPortInfo( void )
 	if( nPort < 1 ) return;
 
 	FILE *fp;
-	int nOpenTry;	// A-8: ne zhdat vechno
-	for( nOpenTry = 0; ( fp = fopen( cOut->csFileName, "a" ) ) == NULL; nOpenTry++ )
+	CString csOpenErr;
+	if( ( fp = TmcOutTGet( cOut->csFileName ) ) == NULL )	// T-5: the file of the step is open
+		fp = TmcOutTOpen( cOut->csFileName, "a", csOpenErr );
+	if( fp == NULL )
 	{
-		if( nOpenTry > 2000 )
-		{
-			CString csOpen;
-			csOpen.Format("Can't open file %s", (LPCSTR)(cOut->csFileName));
-			cError.PutErrorMessage( csOpen );
-			return;
-		};
-		Sleep( 10 );
+		cError.PutErrorMessage( csOpenErr );
+		return;
 	};
 
 	fprintf( fp, "\n%s%d", TMC_GROTS_FLOUTWideband_ID, ( nWide > 0 ) ? 1 : 0 );
@@ -2275,6 +2422,46 @@ void CTmcRTHRectNode::PutPortInfo( void )
 			cParam.rFreq,
 			pcNodeDiel[i].IsSignalFromFile() ? 1 : 0 );
 	};
-	fclose( fp );
+	return;		// T-5: the file stays open
+}
+
+// GPU: RunKernel1T with the grid on the video card (TmcGpuH.h). The same calls
+// in the same order: ports and file output stay here, on the CPU, and see
+// the nodes they touch; the node update and METAL/ABSORBER/MAGNETIC blocks
+// run on the card.
+void CTmcRTHRectNode::RunKernel1TGpu( void )
+{
+	if( IsError() ) return;
+	if( !bIsReadData ) return;
+	__int64 qTm0, qTm1;
+	int k;
+	CTmcRTH_IndanOutput *cOut;
+	BOOL bWhole;
+
+	for( k = 0; k < 2; k++ )
+	{
+		qTm0 = TmcTimingNow();
+		if( !g_cGpuH.PortsDown( prUNode1 ) ) { cError.PutErrorMessage( g_cGpuH.csError ); return; };
+		if( k == 0 ) RunExciteInputs();
+		else RunExciteInputs1();
+		if( IsError() ) return;
+		if( !g_cGpuH.PortsUp( prUNode1 ) ) { cError.PutErrorMessage( g_cGpuH.csError ); return; };
+		qTm1 = TmcTimingNow(); m_cTiming.cur.q[TMCT_EXCITE] += qTm1 - qTm0;
+		if( ( !g_cGpuH.Pass( k ) )||( !g_cGpuH.Blocks( k ) ) ) { cError.PutErrorMessage( g_cGpuH.csError ); return; };
+		qTm0 = TmcTimingNow(); m_cTiming.cur.q[TMCT_SCATTER] += qTm0 - qTm1;
+//  the whole grid is needed only for FIELDS and inside the directional pattern window
+		cOut = cIndan.GetOutput();
+		bWhole = cOut->bOutField;
+		if( ( cOut->GetFieldIntegrated().bIsFieldDistr() )&&
+			( dTCurrent >= cOut->GetFieldIntegrated().GetTmin() )&&
+			( dTCurrent <= cOut->GetFieldIntegrated().GetTmax() ) ) bWhole = TRUE;
+		if( bWhole && ( !g_cGpuH.Download( prUNode1 ) ) ) { cError.PutErrorMessage( g_cGpuH.csError ); return; };
+		PutField( k );
+		m_cTiming.cur.q[TMCT_FIELDFILE] += TmcTimingNow() - qTm0;
+		DistributionIntegrated( k );
+		nTCurrent++;
+		dTCurrent += dT;
+	};
+
 	return;
 }

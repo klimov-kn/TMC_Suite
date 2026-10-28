@@ -65,13 +65,15 @@ int _far _fortran read_S_matrix_element_TMC( int *in1, int *mod1, int *in2, int 
 	if( *in1 > id[0].num ) *in1 = id[0].num;
 	if( *in2 > id[0].num ) *in2 = id[0].num;
 
-	for( k = 0, nP = 0; k < frq.max; k++ )
+	for( k = 0, nP = 0; ( k < frq.max )&&( *in1 >= 1 )&&( *in2 >= 1 ); k++ )	// N-31: num == 0 -> array[-1]
 	{
-		if( (*mod1 <= id[k].array[*in1-1])&&(*mod2 <= id[k].array[*in2-1]) ) nP++;
+		if( ( *in1 <= id[k].num )&&( *in2 <= id[k].num )&&	// N-31: nomer vhoda - po id[k], ne po id[0]
+			(*mod1 <= id[k].array[*in1-1])&&(*mod2 <= id[k].array[*in2-1]) ) nP++;
 	};
 	if( nP == 0 )
 	{
 	   Free_GRID_Index( &si, extrapol_flag );
+	   free_mem( frq.f );	// N-31: utechka
 	   free_mem( id );
 	   Free_S_read( &sss1, frq.max );
 	   return -1;
@@ -81,6 +83,7 @@ int _far _fortran read_S_matrix_element_TMC( int *in1, int *mod1, int *in2, int 
    if( ( s = new _complex[nP] ) == NULL )
    {
 	   Free_GRID_Index( &si, extrapol_flag );
+	   free_mem( frq.f );	// N-31: utechka
 	   free_mem( id );
 	   Free_S_read( &sss1, frq.max );
 	   return -1;
@@ -90,6 +93,7 @@ int _far _fortran read_S_matrix_element_TMC( int *in1, int *mod1, int *in2, int 
    {
 	   delete s;
 	   Free_GRID_Index( &si, extrapol_flag );
+	   free_mem( frq.f );	// N-31: utechka
 	   free_mem( id );
 	   Free_S_read( &sss1, frq.max );
 	   return -1;
@@ -98,7 +102,8 @@ int _far _fortran read_S_matrix_element_TMC( int *in1, int *mod1, int *in2, int 
    /* loop over frequencies */
    for( k = 0, nP = 0; k < frq.max; k++ )
      {
-	  if( (*mod1 <= id[k].array[*in1-1])&&(*mod2 <= id[k].array[*in2-1]) )
+	  if( ( *in1 <= id[k].num )&&( *in2 <= id[k].num )&&	// N-31
+		  (*mod1 <= id[k].array[*in1-1])&&(*mod2 <= id[k].array[*in2-1]) )
 	  {
 	  lpxS1 = sss1[k];
 	  f[nP] = frq.f[k];
@@ -115,7 +120,7 @@ int _far _fortran read_S_matrix_element_TMC( int *in1, int *mod1, int *in2, int 
                /* second loop over modes */
                for( j1 = 0, kol = id[k].array[i1]; j1 < kol; j1++ )
                  {
-				   if( (i==(*in1-1))&&(j==(*mod1-1))&&(i1==(*in2-1))&&(j1==(*mod2-1)) )
+				   if( (i==(*in1-1))&&(j==(*mod1-1))&&(i1==(*in2-1))&&(j1==(*mod2-1))&&( ii < id[k].dim*id[k].dim ) )	// N-31
 				   {
 					   s[nP] = lpxS1[ii];
 				   };
@@ -460,7 +465,7 @@ void _far _fortran SMatrixElementHFSS_FreqArrayRead( int *in1, int *mod1, int *i
 		delete f;
 		*f1 = NULL;
 		delete s;
-		*sss = NULL;
+		*sss = NULL; *nPoint = -1;	// S-34
 		delete []ch;
 		fclose( fp );
 		return;
@@ -474,7 +479,7 @@ void _far _fortran SMatrixElementHFSS_FreqArrayRead( int *in1, int *mod1, int *i
 			delete f;
 			*f1 = NULL;
 			delete s;
-			*sss = NULL;
+			*sss = NULL; *nPoint = -1;	// S-34
 			delete []ch;
 			fclose( fp );
 			return;
@@ -489,7 +494,7 @@ void _far _fortran SMatrixElementHFSS_FreqArrayRead( int *in1, int *mod1, int *i
 				delete f;
 				*f1 = NULL;
 				delete s;
-				*sss = NULL;
+				*sss = NULL; *nPoint = -1;	// S-34
 				delete []ch;
 				fclose( fp );
 				return;
@@ -751,7 +756,7 @@ void _far _fortran SMatrixElementCST_FreqArrayRead( int *in1, int *mod1, int *in
 		delete f;
 		*f1 = NULL;
 		delete s;
-		*sss = NULL;
+		*sss = NULL; *nPoint = -1;	// S-34
 		delete []ch;
 		fclose( fp );
 		return;
@@ -766,7 +771,7 @@ void _far _fortran SMatrixElementCST_FreqArrayRead( int *in1, int *mod1, int *in
 		delete f;
 		*f1 = NULL;
 		delete s;
-		*sss = NULL;
+		*sss = NULL; *nPoint = -1;	// S-34
 		delete []ch;
 		fclose( fp );
 		return;
@@ -779,7 +784,7 @@ void _far _fortran SMatrixElementCST_FreqArrayRead( int *in1, int *mod1, int *in
 			delete f;
 			*f1 = NULL;
 			delete s;
-			*sss = NULL;
+			*sss = NULL; *nPoint = -1;	// S-34
 			delete []ch;
 			fclose( fp );
 			return;

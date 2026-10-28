@@ -77,6 +77,7 @@ struct TmcTimingStep
 	__int64 q[TMCT_COUNT];
 	__int64 qRunStep;			// RunStep wall time (init + loop + post)
 	SYSTEMTIME stStart;
+	char    szCompute[200];		// GPU: "CPU" or the video card the loop ran on (empty - CPU)
 };
 
 class CTmcCalcTiming
@@ -435,6 +436,7 @@ private:
 		r += line1;
 		s.Format( " Grid: nX = %d, nY = %d, nodes = %.0f; blocks = %d\r\n", c.nX, c.nY, c.dNodes, c.nBlocks ); r += s;
 		s.Format( " Time steps: %d of %d done; dt = %.6g s; delta = %.6g m\r\n", c.nTDone, c.nTMax, c.dT, c.dDelta ); r += s;
+		s.Format( " Compute: %s\r\n", c.szCompute[0] ? c.szCompute : "CPU" ); r += s;	// GPU
 		// distribution files (.eps: eps, plasma N/B/Y) are optional
 		if( ( c.nEpsWritten == 0 )&&( c.nEpsRead == 0 ) ) r += " Distribution files (.eps): not used\r\n";
 		else

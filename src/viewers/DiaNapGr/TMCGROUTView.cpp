@@ -16,6 +16,7 @@
 #include "ThreadCalcDirPat.h"
 
 UINT ReadDocFileW_Thread1( LPVOID pParam );
+volatile LONG g_lTmcDnCalcRunning = 0;	// A-30: 1 - idet raschet DN v potoke (odin na process)
 
 
 #ifdef _DEBUG
@@ -219,7 +220,7 @@ void CTMCGROUTView::OnDraw(CDC* pDC)
 
 	OnDrawBackground( pDC );
 
-	if( !bIsDataCalculate )
+	if( ( !bIsDataCalculate )||( g_lTmcDnCalcRunning != 0 ) )	// A-30: potok eshche menyaet dannye vida
 	{
 		text.Format( "Please wait ... Data calculate");
 		VTextOut( pDC, 10,00,text);
@@ -303,7 +304,7 @@ void CTMCGROUTView::OnInitialUpdate()
 	PrepareLogGraph();		// calculation double coord -> logic coord
 	SetRectOutXY();	
 	
-	SetTimer( 1, 3000000, NULL);
+	SetTimer( 1, 10000, NULL);	// N-34: bylo 3000000 ms (50 min); 10 s - kak v TMCROS
 
 
 	//	InitTmcGrWin(pDoc, &tmcgrwin);
@@ -393,6 +394,28 @@ void CTMCGROUTView::onDrowAxies( CDC *pDC )
    pDC->SelectObject(pOldPen);
 }
 
+// S-42: format podpisi osi - rovno odin specifikator chisla [eEfgG]; inache standartnyi
+static CString TmcSafeAxisFormat( const CString &csFormat )
+{
+	const char *p = (const char *)csFormat;
+	int nConv = 0;
+	if( strlen( p ) > 64 ) return CString( "%4.3lg" );
+	for( ; *p != '\0'; p++ )
+	{
+		if( *p != '%' ) continue;
+		if( p[1] == '%' ) { p++; continue; };
+		p++;
+		while( ( *p != '\0' )&&( strchr( "-+ #0", *p ) != NULL ) ) p++;
+		while( ( *p >= '0' )&&( *p <= '9' ) ) p++;
+		if( *p == '.' ) { p++; while( ( *p >= '0' )&&( *p <= '9' ) ) p++; };
+		if( *p == 'l' ) p++;
+		if( ( *p == '\0' )||( strchr( "eEfgG", *p ) == NULL ) ) return CString( "%4.3lg" );
+		nConv++;
+	};
+	if( nConv != 1 ) return CString( "%4.3lg" );
+	return csFormat;
+}
+
 void CTMCGROUTView::onDrawGrid( CDC *pDC )
 {
    CTMCGROUTDoc* pDoc = GetDocument();
@@ -410,7 +433,7 @@ void CTMCGROUTView::onDrawGrid( CDC *pDC )
 	  pDC->MoveTo( i, -tmcgrwin.sGrView.nYmin );
 	  pDC->LineTo( i, -tmcgrwin.sGrView.nYmax );
 //	  text.Format("%4.3lg", x );
-	  text.Format( csXAxiesFormat, x );
+	  text.Format( (const char *)TmcSafeAxisFormat( csXAxiesFormat ), x );	// S-42
 	  VTextOut( pDC, i, -tmcgrwin.sGrView.nYmax,text);
 
    };
@@ -421,7 +444,7 @@ void CTMCGROUTView::onDrawGrid( CDC *pDC )
 	  pDC->MoveTo( 100, -i );
 	  pDC->LineTo( tmcgrwin.sGrView.nXmax, -i );
 //	  text.Format("%4.3lg", x );
-	  text.Format( csYAxiesFormat, x );
+	  text.Format( (const char *)TmcSafeAxisFormat( csYAxiesFormat ), x );	// S-42
 //	  VTextOut( pDC, tmcgrwin.sGrView.nXmin - 1000, -i + 500,text);
 	  VTextOut( pDC,  100, -i + 500,text);
    };
@@ -612,6 +635,7 @@ void CTMCGROUTView::OnLButtonDblClk(UINT nFlags, CPoint point)
 void CTMCGROUTView::ReadDocFileW()
 {
 	if( bIsDataCalculate ) return;
+	if( g_lTmcDnCalcRunning != 0 ) return;	// A-30: raschet uzhe idet
 
 	bIsDataCalculate = FALSE;
 
@@ -622,8 +646,10 @@ void CTMCGROUTView::ReadDocFileW()
 	cDlg.pCView = (void *)(this);
 	time( &ltime_start );
 
+	g_lTmcDnCalcRunning = 1;	// A-30: do zapuska potoka
 	if( ( AfxBeginThread( ReadDocFileW_Thread1, (void *)(this), THREAD_PRIORITY_NORMAL ) ) == NULL )
 	{
+		g_lTmcDnCalcRunning = 0;
 		CString csError;
 		csError.Format("Error when open thread for optimization All Partitional");
 		CTMCGROUTDoc* pDoc = GetDocument();
@@ -635,6 +661,23 @@ void CTMCGROUTView::ReadDocFileW()
 	cDlg.DoModal();
 	
 	return;
+}
+
+// N-33: diapazon osi - konechnyi i nevyrozhdennyi
+static void TmcFixAxisRange( double *pdMin, double *pdMax )
+{
+	if( !_finite( *pdMin )||!_finite( *pdMax )||( *pdMin > *pdMax )||( *pdMin <= -FLT_MAX )||( *pdMax >= FLT_MAX ) )
+	{
+		*pdMin = 0.0;
+		*pdMax = 1.0;
+		return;
+	};
+	if( *pdMin == *pdMax )
+	{
+		double d = ( *pdMin == 0.0 ) ? 0.5 : 0.05*fabs( *pdMin );
+		*pdMin -= d;
+		*pdMax += d;
+	};
 }
 
 void CTMCGROUTView::PrepareDoubleGraph()
@@ -688,8 +731,8 @@ void CTMCGROUTView::PrepareDoubleGraph()
 				tmcgrwin.psGraph[i].pPoint[j].x = j;
 				break;
 			}
-			if( xMin > tmcgrwin.psGraph[i].pPoint[j].x ) xMin = tmcgrwin.psGraph[i].pPoint[j].x;
-			if( xMax < tmcgrwin.psGraph[i].pPoint[j].x ) xMax = tmcgrwin.psGraph[i].pPoint[j].x;
+			if( _finite( tmcgrwin.psGraph[i].pPoint[j].x )&&( xMin > tmcgrwin.psGraph[i].pPoint[j].x ) ) xMin = tmcgrwin.psGraph[i].pPoint[j].x;
+			if( _finite( tmcgrwin.psGraph[i].pPoint[j].x )&&( xMax < tmcgrwin.psGraph[i].pPoint[j].x ) ) xMax = tmcgrwin.psGraph[i].pPoint[j].x;
 
 			switch(tmcgrwin.nYType)
 			{
@@ -830,8 +873,8 @@ void CTMCGROUTView::PrepareDoubleGraph()
 
 			if( (tmcgrwin.sGrWin.nAFlagX)||( (tmcgrwin.psGraph[i].pPoint[j].x >= tmcgrwin.sGrWin.Xmin)&&(tmcgrwin.psGraph[i].pPoint[j].x <= tmcgrwin.sGrWin.Xmax) ) )
 			{
-				if( yMin > tmcgrwin.psGraph[i].pPoint[j].y ) yMin = tmcgrwin.psGraph[i].pPoint[j].y;
-				if( yMax < tmcgrwin.psGraph[i].pPoint[j].y ) yMax = tmcgrwin.psGraph[i].pPoint[j].y;
+				if( _finite( tmcgrwin.psGraph[i].pPoint[j].y )&&( yMin > tmcgrwin.psGraph[i].pPoint[j].y ) ) yMin = tmcgrwin.psGraph[i].pPoint[j].y;
+				if( _finite( tmcgrwin.psGraph[i].pPoint[j].y )&&( yMax < tmcgrwin.psGraph[i].pPoint[j].y ) ) yMax = tmcgrwin.psGraph[i].pPoint[j].y;
 			};
 			
 		};
@@ -849,6 +892,8 @@ void CTMCGROUTView::PrepareDoubleGraph()
 	tmcgrwin.sGrWin.Ymin = yMin;
 	tmcgrwin.sGrWin.Ymax = yMax;
 	}
+	TmcFixAxisRange( &tmcgrwin.sGrWin.Xmin, &tmcgrwin.sGrWin.Xmax );	// N-33
+	TmcFixAxisRange( &tmcgrwin.sGrWin.Ymin, &tmcgrwin.sGrWin.Ymax );
 
 }
 
@@ -955,6 +1000,10 @@ void CTMCGROUTView::PrepareLogGraph()
 			if( tmcgrwin1.psGraph[i].piPoint != NULL ) delete  tmcgrwin1.psGraph[i].piPoint;
 		};
 		delete tmcgrwin1.psGraph;
+	};
+	for( i = 0; i < tmcgrwin.nGraph; i++ )	// S-41: u skrytyh grafikov nPointDraw ne zadan
+	{
+		if( !pDoc->grdoc.psGraph[i].OutFlag ) tmcgrwin.psGraph[i].nPointDraw = 0;
 	};
 	tmcgrwin1.nGraph = tmcgrwin.nGraph;
 	tmcgrwin1.psGraph = new TMC_GR_VIEW[tmcgrwin1.nGraph];
@@ -1161,7 +1210,7 @@ void CTMCGROUTView::OnDrawGraph3(CDC *pDC, int i)
 	   text.Format("-%s;"  ,	pDoc->grdoc.psGraph[i].szGrapPodp);
 	};
 
-	if( pDoc->pcDirectionalPattern != NULL )
+	if( ( pDoc->pcDirectionalPattern != NULL )&&( !pDoc->pcDirectionalPattern[i].IsError() ) )	// S-52: bez "Knd = 0 dB" u oshibochnogo
 	{
 		if( pDoc->pcDirectionalPattern[i].IsCalculateKip() )
 		{
@@ -1337,8 +1386,9 @@ void CTMCGROUTView::OnViewGraphics()
 	RedrawViewGr();	
 }
 
-void CTMCGROUTView::OnEditDocument() 
+void CTMCGROUTView::OnEditDocument()
 {
+	if( g_lTmcDnCalcRunning != 0 ) return;	// A-30: ne udalyat dannye pod rabotayushchim potokom
 	// TODO: Add your command handler code here
 	int i, n;
 	CDialogDoc dlg;
@@ -1702,9 +1752,22 @@ void CTMCGROUTView::OnEditDocument()
 		if( dlg.m_SFileName_19.GetLength() != 0 ) i++;
 		if( dlg.m_SFileName_20.GetLength() != 0 ) i++;
 		n = i;
+		int nTail = ( pDoc->grdoc.nGraph > 20 ) ? pDoc->grdoc.nGraph - 20 : 0;	// S-46: grafiki 21+ v dialoge ne vidny
+		CString *pcsTail = ( nTail > 0 ) ? new CString[ 2*nTail ] : NULL;
+		int *pnTail = ( nTail > 0 ) ? new int[ 5*nTail ] : NULL;
+		for( int k = 0; k < nTail; k++ )
+		{
+			pcsTail[2*k]   = pDoc->grdoc.psGraph[20+k].szGrapName;
+			pcsTail[2*k+1] = pDoc->grdoc.psGraph[20+k].szGrapPodp;
+			pnTail[5*k]   = pDoc->grdoc.psGraph[20+k].nInp1;
+			pnTail[5*k+1] = pDoc->grdoc.psGraph[20+k].nMod1;
+			pnTail[5*k+2] = pDoc->grdoc.psGraph[20+k].nInp2;
+			pnTail[5*k+3] = pDoc->grdoc.psGraph[20+k].nMod2;
+			pnTail[5*k+4] = pDoc->grdoc.psGraph[20+k].OutFlag;
+		};
 		pDoc->DocFileDelData();					 // delete old data and free memory
 		bIsDataCalculate = FALSE;
-		if( pDoc->DocFileNewData( n ) )          //allocation memory for new data and set standart data
+		if( pDoc->DocFileNewData( n + nTail ) )          //allocation memory for new data and set standart data	// S-46
 		{
 			i = 0;
 			if(  dlg.m_SFileName_1.GetLength() != 0 )
@@ -2007,6 +2070,16 @@ void CTMCGROUTView::OnEditDocument()
 				};
 				i++;
 			}
+			for( int k = 0; k < nTail; k++, i++ )	// S-46: grafiki 21+ - bez izmenenii
+			{
+				strncpy( pDoc->grdoc.psGraph[i].szGrapName, pcsTail[2*k], TMC_GROUT_MAXSTRING_BUF-1 );
+				strncpy( pDoc->grdoc.psGraph[i].szGrapPodp, pcsTail[2*k+1], TMC_GROUT_MAXSTRING_BUF-1 );
+				pDoc->grdoc.psGraph[i].nInp1 = pnTail[5*k];
+				pDoc->grdoc.psGraph[i].nMod1 = pnTail[5*k+1];
+				pDoc->grdoc.psGraph[i].nInp2 = pnTail[5*k+2];
+				pDoc->grdoc.psGraph[i].nMod2 = pnTail[5*k+3];
+				pDoc->grdoc.psGraph[i].OutFlag = pnTail[5*k+4];
+			};
 			pDoc->grdoc.PointDrawFlag = tmcgrwin.PointDrawFlag;
 			pDoc->grdoc.nXType  = tmcgrwin.nXType;
 			pDoc->grdoc.nYType  = tmcgrwin.nYType;
@@ -2018,8 +2091,10 @@ void CTMCGROUTView::OnEditDocument()
 			pDoc->grdoc.nAFlagY = tmcgrwin.sGrWin.nAFlagY;
 
 			pDoc->WriteDocFile();
-			ReadDocFileW();						// read data document 
+			ReadDocFileW();						// read data document
 		};
+		if( pcsTail != NULL ) delete []pcsTail;	// S-46
+		if( pnTail != NULL ) delete []pnTail;
 		RedrawViewGr();
 	};
 
@@ -2034,13 +2109,14 @@ void CTMCGROUTView::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: Add your message handler code here and/or call default
 	  
-	if( nIDEvent == 1 )
+	if( ( nIDEvent == 1 )&&( g_lTmcDnCalcRunning == 0 ) )	// A-30: vo vremya rascheta izmenenie ne "s'edat"
 	{
 		CTMCGROUTDoc* pDoc = GetDocument();
 		ASSERT_VALID(pDoc);
 		if( pDoc->IsDataModific() )	// if document file or S-matrix is modific
 		{
-			ReadDocFileW();			// read data document 
+			bIsDataCalculate = FALSE;	// N-34: inache ReadDocFileW srazu vyhodit - avtoobnovlenie ne rabotalo
+			ReadDocFileW();			// read data document  
 			RedrawViewGr();
 		};
 	};
@@ -2048,8 +2124,9 @@ void CTMCGROUTView::OnTimer(UINT_PTR nIDEvent)
 	CScrollView::OnTimer(nIDEvent);
 }
 
-void CTMCGROUTView::OnEditAddcharacteristics() 
+void CTMCGROUTView::OnEditAddcharacteristics()
 {
+	if( g_lTmcDnCalcRunning != 0 ) return;	// A-30
 	// TODO: Add your command handler code here
 	char ch[TMC_GROUT_MAXSTRING_BUF];
 	CString csBuf;
@@ -2286,7 +2363,9 @@ void CTMCGROUTView::OnFileSaveAs()
 	CFileDialog dlg( FALSE, "tos", "*.tos");
 	if( dlg.DoModal() == IDOK )
 	{
+		CString csOldPath = pDoc->GetPathName();	// S-44
 		pDoc->SetPathName( dlg.GetPathName() );
+		pDoc->RebaseGraphPaths( csOldPath );	// S-44: otnositelnye imena grafikov - ot novoi papki
 		pDoc->WriteDocFile();
 		RedrawViewGr();	
 	};
@@ -3279,6 +3358,7 @@ double CTMCGROUTView::GetXAxiesUnit()
 
 void CTMCGROUTView::ReadDocFileW_1()
 {
+	if( g_lTmcDnCalcRunning != 0 ) return;	// A-30: ne menyat ugly pod rabotayushchim potokom
 	int i;
 	CTMCGROUTDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
@@ -3366,7 +3446,9 @@ UINT ReadDocFileW_Thread1( LPVOID pParam )
 	CTMCGROUTView* pDlg = (CTMCGROUTView *)(pParam);
 
 	pDlg->ReadDocFileW_Thread();
-	
+	g_lTmcDnCalcRunning = 0;	// A-30: raschet zakonchen
+	pDlg->RedrawWindow();		// A-30: perekrasit uzhe bez "Please wait"
+
 	return 0;
 }
 
@@ -3378,8 +3460,8 @@ void CTMCGROUTView::OnDestroy()
 	CScrollView::OnDestroy();
 
 
-	for( ; !bIsDataCalculate; )
-	{
+	for( ; g_lTmcDnCalcRunning != 0; )	// A-30: zhdat konca potoka (bylo !bIsDataCalculate - pri neschitannom
+	{									// dokumente okno zakryvalos i cikl ne konchalsya)
 		CThreadCalcDirPat cDlg;
 		cDlg.pCView = (void *)(this);
 		cDlg.DoModal();

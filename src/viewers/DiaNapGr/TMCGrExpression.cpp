@@ -298,13 +298,13 @@ BOOL CTMCGrExpression::IsFreqCorrect( void )
 double CTMCGrExpression::GetExpressionValue( int nPoint )
 {
 	char ch[TMC_GROUT_MAXSTRING_BUF];
-	double d;
+	double d = 0.0;	// S-48
 
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
 	if( (pnPoint[0] < nPoint)||( nPoint < 0 ) ) return 0;
 
-	sprintf( ch, "{f=(%lf)}", ppdFreq[0][nPoint] );
-	if( i1nte_atof_1( ch, &d ) != 0 ) IsError = TRUE;
+	snprintf( ch, TMC_GROUT_MAXSTRING_BUF, "{f=(%.17g)}", ppdFreq[0][nPoint] );	// S-48, A-28: bylo %lf (1e-12 -> 0)
+	if( i1nte_atof_1( ch, &d ) != 0 ) d = 0.0;	// S-48: oshibka - tolko v etoi tochke (ne zalipaet)
 	return d;
 }
 
@@ -312,7 +312,7 @@ double CTMCGrExpression::GetExpressionValueSFD( int nPoint )
 {
 	int i, n;
 	char ch[TMC_GROUT_MAXSTRING_BUF];
-	double d;
+	double d = 0.0;	// S-48
 
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
 	if( (pnPoint[0] < nPoint)||( nPoint < 0 ) ) return 0;
@@ -323,10 +323,10 @@ double CTMCGrExpression::GetExpressionValueSFD( int nPoint )
 	for( i = 0; i < nVar; i++, n = strlen( ch ) )
 	{
 		d = 180./(3.141592653589)*GetCPhase( i, nPoint);
-		sprintf( ch+n, "(%lf)%s", d, pszMaska[i+1] );
+		snprintf( ch+n, TMC_GROUT_MAXSTRING_BUF-n, "(%.17g)%s", d, pszMaska[i+1] );	// S-48: bylo %lf
 	};
 
-	if( i1nte_atof_1( ch, &d ) != 0 ) IsError = TRUE;
+	if( i1nte_atof_1( ch, &d ) != 0 ) d = 0.0;	// S-48: oshibka - tolko v etoi tochke (ne zalipaet)
 	return d;
 }
 
@@ -334,7 +334,7 @@ double CTMCGrExpression::GetExpressionValueSFR( int nPoint )
 {
 	int i, n;
 	char ch[TMC_GROUT_MAXSTRING_BUF];
-	double d;
+	double d = 0.0;	// S-48
 
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
 	if( (pnPoint[0] < nPoint)||( nPoint < 0 ) ) return 0;
@@ -345,10 +345,10 @@ double CTMCGrExpression::GetExpressionValueSFR( int nPoint )
 	for( i = 0; i < nVar; i++, n = strlen( ch ) )
 	{
 		d = GetCPhase( i, nPoint);
-		sprintf( ch+n, "(%lf)%s", d, pszMaska[i+1] );
+		snprintf( ch+n, TMC_GROUT_MAXSTRING_BUF-n, "(%.17g)%s", d, pszMaska[i+1] );	// S-48: bylo %lf
 	};
 
-	if( i1nte_atof_1( ch, &d ) != 0 ) IsError = TRUE;
+	if( i1nte_atof_1( ch, &d ) != 0 ) d = 0.0;	// S-48: oshibka - tolko v etoi tochke (ne zalipaet)
 	return d;
 }
 
@@ -356,7 +356,7 @@ double CTMCGrExpression::GetExpressionValueSM( int nPoint )
 {
 	int i, n;
 	char ch[TMC_GROUT_MAXSTRING_BUF];
-	double d;
+	double d = 0.0;	// S-48
 
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
 	if( (pnPoint[0] < nPoint)||( nPoint < 0 ) ) return 0;
@@ -367,10 +367,10 @@ double CTMCGrExpression::GetExpressionValueSM( int nPoint )
 	for( i = 0; i < nVar; i++, n = strlen( ch ) )
 	{
 		d = cabsv( ppcSmatrix[i][nPoint] );
-		sprintf( ch+n, "(%lf)%s", d, pszMaska[i+1] );
+		snprintf( ch+n, TMC_GROUT_MAXSTRING_BUF-n, "(%.17g)%s", d, pszMaska[i+1] );	// S-48: bylo %lf
 	};
 
-	if( i1nte_atof_1( ch, &d ) != 0 ) IsError = TRUE;
+	if( i1nte_atof_1( ch, &d ) != 0 ) d = 0.0;	// S-48: oshibka - tolko v etoi tochke (ne zalipaet)
 	return d;
 }
 
@@ -378,7 +378,7 @@ double CTMCGrExpression::GetExpressionValueL( int nPoint )
 {
 	int i, n;
 	char ch[TMC_GROUT_MAXSTRING_BUF];
-	double d;
+	double d = 0.0;	// S-48
 
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
 	if( (pnPoint[0] < nPoint)||( nPoint < 0 ) ) return 0;
@@ -389,10 +389,10 @@ double CTMCGrExpression::GetExpressionValueL( int nPoint )
 	for( i = 0; i < nVar; i++, n = strlen( ch ) )
 	{
 		d = -20.*log10( cabsv( ppcSmatrix[i][nPoint] ) );
-		sprintf( ch+n, "(%lf)%s", d, pszMaska[i+1] );
+		snprintf( ch+n, TMC_GROUT_MAXSTRING_BUF-n, "(%.17g)%s", d, pszMaska[i+1] );	// S-48: bylo %lf
 	};
 
-	if( i1nte_atof_1( ch, &d ) != 0 ) IsError = TRUE;
+	if( i1nte_atof_1( ch, &d ) != 0 ) d = 0.0;	// S-48: oshibka - tolko v etoi tochke (ne zalipaet)
 	return d;
 }
 
@@ -400,7 +400,7 @@ double CTMCGrExpression::GetExpressionValueK( int nPoint )
 {
 	int i, n;
 	char ch[TMC_GROUT_MAXSTRING_BUF];
-	double d, r11;
+	double d = 0.0, r11;	// S-48
 
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
 	if( (pnPoint[0] < nPoint)||( nPoint < 0 ) ) return 0;
@@ -416,12 +416,14 @@ double CTMCGrExpression::GetExpressionValueK( int nPoint )
 			r11 = 0.9999;
 		}
 		d = (1. + r11)/(1. - r11 );
-		sprintf( ch+n, "(%lf)%s", d, pszMaska[i+1] );
+		snprintf( ch+n, TMC_GROUT_MAXSTRING_BUF-n, "(%.17g)%s", d, pszMaska[i+1] );	// S-48: bylo %lf
 	};
 
-	if( i1nte_atof_1( ch, &d ) != 0 ) IsError = TRUE;
+	if( i1nte_atof_1( ch, &d ) != 0 ) d = 0.0;	// S-48: oshibka - tolko v etoi tochke (ne zalipaet)
 	return d;
 }
+
+int g_nTmcPhaseUnwrap = 0;	// D-8: 0 - monotonically decreasing (default), 1 - standard (threshold pi)
 
 double CTMCGrExpression::GetCPhase( int i, int nPoint )
 {
@@ -434,7 +436,12 @@ double CTMCGrExpression::GetCPhase( int i, int nPoint )
 	for( j = 1, n = 0, d1 = cphase( ppcSmatrix[i][0] ); j <= nPoint; j++, d1 = d )
 	{
 		d = cphase( ppcSmatrix[i][j] );
-		if( d > d1 ) n++;
+		if( g_nTmcPhaseUnwrap == 1 )	// D-8: the standard unwrapping, the threshold pi
+		{
+			if( d - d1 > 3.141592653589 ) n++;
+			else if( d - d1 < -3.141592653589 ) n--;
+		}
+		else if( d > d1 ) n++;		// the phase decreases monotonically (as before)
 	};
 
 	return d1-2*3.141592653589*n;

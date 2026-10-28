@@ -6,6 +6,7 @@
 #include <TmcRTH_BolckList.h>
 #include <TmcRTH_Indan.h>
 #include <expr.h>
+#include <ctype.h>	// D-5
 
 /////////////////////////////////////////////////////////////////////////////
 // CTmcRTH_BolckList
@@ -564,15 +565,23 @@ void CTmcRTH_BlockList::Read( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam
 		return;
 	};
 
-	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_FILEN), strlen(CTMCRTH_INDANBLCK_FILE) ) == 0 )
+	// B-17: the whole tag is compared (old: strlen(CTMCRTH_INDANBLCK_FILE) - 5 characters, FILE_B and FILE_Y were
+	// read as FILE_N); FILE_Y added. The name of the file starts after the tag (all three are 7 characters long).
+	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_FILEN), strlen(CTMCRTH_INDANBLCK_FILEN) ) == 0 )
 	{
 		ReadFileStatN( cError, pcParam );
 		return;
 	};
 
-	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_FILEB), strlen(CTMCRTH_INDANBLCK_FILE) ) == 0 )
+	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_FILEB), strlen(CTMCRTH_INDANBLCK_FILEB) ) == 0 )
 	{
 		ReadFileStatB( cError, pcParam );
+		return;
+	};
+
+	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_FILEY), strlen(CTMCRTH_INDANBLCK_FILEY) ) == 0 )
+	{
+		ReadFileStatB( cError, pcParam );	// the same length of the tag as FILE_B
 		return;
 	};
 
@@ -606,15 +615,23 @@ void CTmcRTH_BlockList::Read( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam
 		return;
 	};
 
-	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_CIRCSTATN), strlen(CTMCRTH_INDANBLCK_CIRCSTAT) ) == 0 )
+//	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_CIRCSTATN), strlen(CTMCRTH_INDANBLCK_CIRCSTAT) ) == 0 )   // A-11: old, _B and _Y matched _N
+	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_CIRCSTATN), strlen(CTMCRTH_INDANBLCK_CIRCSTATN) ) == 0 )
 	{
 		ReadCircleStatN( cError, pcParam );
 		return;
 	};
 
-	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_CIRCSTATB), strlen(CTMCRTH_INDANBLCK_CIRCSTAT) ) == 0 )
+//	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_CIRCSTATB), strlen(CTMCRTH_INDANBLCK_CIRCSTAT) ) == 0 )   // A-11: old
+	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_CIRCSTATB), strlen(CTMCRTH_INDANBLCK_CIRCSTATB) ) == 0 )
 	{
 		ReadCircleStatB( cError, pcParam );
+		return;
+	};
+
+	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_CIRCSTATY), strlen(CTMCRTH_INDANBLCK_CIRCSTATY) ) == 0 )   // A-11: there was no reader
+	{
+		ReadCircleStatY( cError, pcParam );
 		return;
 	};
 
@@ -624,15 +641,43 @@ void CTmcRTH_BlockList::Read( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam
 		return;
 	};
 
-	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_POLYGSTTN), strlen(CTMCRTH_INDANBLCK_POLYGSTT) ) == 0 )
+//	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_POLYGSTTN), strlen(CTMCRTH_INDANBLCK_POLYGSTT) ) == 0 )   // A-11: old, _B and _Y matched _N
+	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_POLYGSTTN), strlen(CTMCRTH_INDANBLCK_POLYGSTTN) ) == 0 )
 	{
 		ReadPolygonStatN( cError, pcParam );
 		return;
 	};
 
-	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_POLYGSTTB), strlen(CTMCRTH_INDANBLCK_POLYGSTT) ) == 0 )
+//	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_POLYGSTTB), strlen(CTMCRTH_INDANBLCK_POLYGSTT) ) == 0 )   // A-11: old
+	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_POLYGSTTB), strlen(CTMCRTH_INDANBLCK_POLYGSTTB) ) == 0 )
 	{
 		ReadPolygonStatB( cError, pcParam );
+		return;
+	};
+
+	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_POLYGSTTY), strlen(CTMCRTH_INDANBLCK_POLYGSTTY) ) == 0 )   // A-11: there was no reader
+	{
+		ReadPolygonStatY( cError, pcParam );
+		return;
+	};
+
+	// B-20: sigma (S/m) - read as *_STAT_Y (the tags are of the same length), the tag _S is kept
+	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_RECTSTATS), strlen(CTMCRTH_INDANBLCK_RECTSTATS) ) == 0 )
+	{
+		ReadRectStatY( cError, pcParam );
+		csBlock.Format("%s", CTMCRTH_INDANBLCK_RECTSTATS);
+		return;
+	};
+	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_CIRCSTATS), strlen(CTMCRTH_INDANBLCK_CIRCSTATS) ) == 0 )
+	{
+		ReadCircleStatY( cError, pcParam );
+		csBlock.Format("%s", CTMCRTH_INDANBLCK_CIRCSTATS);
+		return;
+	};
+	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_POLYGSTTS), strlen(CTMCRTH_INDANBLCK_POLYGSTTS) ) == 0 )
+	{
+		ReadPolygonStatY( cError, pcParam );
+		csBlock.Format("%s", CTMCRTH_INDANBLCK_POLYGSTTS);
 		return;
 	};
 
@@ -666,7 +711,7 @@ void CTmcRTH_BlockList::Read( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam
 		return;
 	};
 
-	csBuf.Format( "Unknown keyword {%s} in %s %d; use following keywords {%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s}",
+	csBuf.Format( "Unknown keyword {%s} in %s %d; use following keywords {%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s}",   // A-11: + _Y
 					csBlock, CTMCRTH_INDANMET_BLOCK, -nBlock,
 					CTMCRTH_INDANBLCK_RECTSTAT,
 					CTMCRTH_INDANBLCK_CIRCSTAT,
@@ -677,6 +722,9 @@ void CTmcRTH_BlockList::Read( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam
 					CTMCRTH_INDANBLCK_RECTSTATB,
 					CTMCRTH_INDANBLCK_CIRCSTATB,
 					CTMCRTH_INDANBLCK_POLYGSTTB,
+					CTMCRTH_INDANBLCK_RECTSTATY,
+					CTMCRTH_INDANBLCK_CIRCSTATY,
+					CTMCRTH_INDANBLCK_POLYGSTTY,
 					CTMCRTH_INDANBLCK_RECTMOVE,
 					CTMCRTH_INDANBLCK_CIRCMOVE,
 					CTMCRTH_INDANBLCK_POLYGMOV,
@@ -827,7 +875,7 @@ void CTmcRTH_BlockList::ReadRectStat_1( CTmcLibError &cError, CTmcRTH_IndanParam
 
 	if( csBlock.GetLength() >= CTMCRTH_INDAN_LINELEN )	// A-12: ne perepolnyat bufer v steke
 	{
-		csBuf.Format("Block %d is too long: %d characters (max %d)", nBlock, csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
+		csBuf.Format("Block %d is too long: %d characters (max %d)", ( nBlock < 0 ) ? -nBlock : nBlock,  csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
 		cError.PutErrorMessage( csBuf );
 		return;
 	};
@@ -1093,6 +1141,35 @@ void CTmcRTH_BlockList::ReadCircleStatB( CTmcLibError &cError, CTmcRTH_IndanPara
 	return;
 }
 
+void CTmcRTH_BlockList::ReadCircleStatY( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam )   // A-11
+{
+	CString csBuf;
+	if( cError.IsError() ) return;
+	if( pcParam == NULL )
+	{
+		csBuf.Format("pointer for parametrs is NULL");
+		cError.PutErrorMessage(csBuf);
+		return;
+	};
+
+	int i;
+
+	i = (int)(strlen( CTMCRTH_INDANBLCK_CIRCSTATY ));
+
+	ReadCircleStat_1( cError, pcParam, i );
+	csBlock.Format("%s", CTMCRTH_INDANBLCK_CIRCSTATY);
+
+	if( nType != CTMCRTH_BLCKNTYPE_EPS )
+	{
+		csBuf.Format("In{%s%d;} for type {%s} must be only Y (loss) distribution ",
+			CTMCRTH_INDANMET_BLOCK,	-nBlock,
+			CTMCRTH_INDANBLCK_CIRCSTATY);
+		cError.PutErrorMessage(csBuf);
+		return;
+	};
+
+	return;
+}
 
 
 void CTmcRTH_BlockList::ReadCircleStat_1( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam, int i )
@@ -1113,7 +1190,7 @@ void CTmcRTH_BlockList::ReadCircleStat_1( CTmcLibError &cError, CTmcRTH_IndanPar
 
 	if( csBlock.GetLength() >= CTMCRTH_INDAN_LINELEN )	// A-12: ne perepolnyat bufer v steke
 	{
-		csBuf.Format("Block %d is too long: %d characters (max %d)", nBlock, csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
+		csBuf.Format("Block %d is too long: %d characters (max %d)", ( nBlock < 0 ) ? -nBlock : nBlock,  csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
 		cError.PutErrorMessage( csBuf );
 		return;
 	};
@@ -1247,7 +1324,7 @@ void CTmcRTH_BlockList::ReadCircleStat_1( CTmcLibError &cError, CTmcRTH_IndanPar
 		return;
 	};
 
-	if( dYmax > 2*3.14159265359  )
+	if( dYmax > (2*3.14159265358979323846 + 1e-12) )	// B-19: was 2*3.14159265359, the kernel cut at 2*3.141592653589
 	{
 		csBuf.Format("In{%s%d;} FImax(%lg) > 2*PI",
 			CTMCRTH_INDANMET_BLOCK,	-nBlock,
@@ -1256,11 +1333,11 @@ void CTmcRTH_BlockList::ReadCircleStat_1( CTmcLibError &cError, CTmcRTH_IndanPar
 		return;
 	};
 
-	if( ( dYmax - dYmin ) > 2*3.14159265359 )
+	if( ( dYmax - dYmin ) > (2*3.14159265358979323846 + 1e-12) )	// B-19: was 2*3.14159265359
 	{
 		csBuf.Format("In{%s%d;} FImax(%lg) - FImin(%lg) > 2*PI",
 			CTMCRTH_INDANMET_BLOCK,	-nBlock,
-			dYmin/pcParam->rAngleUnit, dYmax/pcParam->rAngleUnit);
+			dYmax/pcParam->rAngleUnit, dYmin/pcParam->rAngleUnit);	// N-19: the order of the text
 		cError.PutErrorMessage(csBuf);
 		return;
 	};
@@ -1438,6 +1515,36 @@ void CTmcRTH_BlockList::ReadPolygonStatB( CTmcLibError &cError, CTmcRTH_IndanPar
 		csBuf.Format("In{%s%d;} for type {%s} must be only B(Tl) distribution ",
 			CTMCRTH_INDANMET_BLOCK,	-nBlock,
 			CTMCRTH_INDANBLCK_POLYGSTTB);
+		cError.PutErrorMessage(csBuf);
+		return;
+	};
+
+	return;
+}
+
+void CTmcRTH_BlockList::ReadPolygonStatY( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam )   // A-11
+{
+	CString csBuf;
+	if( cError.IsError() ) return;
+	if( pcParam == NULL )
+	{
+		csBuf.Format("pointer for parametrs is NULL");
+		cError.PutErrorMessage(csBuf);
+		return;
+	};
+
+	int i;
+
+	i = (int)(strlen( CTMCRTH_INDANBLCK_POLYGSTTY ));
+
+	ReadPolygonStat_1( cError, pcParam, i );
+	csBlock.Format("%s", CTMCRTH_INDANBLCK_POLYGSTTY);
+
+	if( nType != CTMCRTH_BLCKNTYPE_EPS )
+	{
+		csBuf.Format("In{%s%d;} for type {%s} must be only Y (loss) distribution ",
+			CTMCRTH_INDANMET_BLOCK,	-nBlock,
+			CTMCRTH_INDANBLCK_POLYGSTTY);
 		cError.PutErrorMessage(csBuf);
 		return;
 	};
@@ -1647,7 +1754,7 @@ void CTmcRTH_BlockList::ReadRectMove( CTmcLibError &cError, CTmcRTH_IndanParam *
 
 	if( csBlock.GetLength() >= CTMCRTH_INDAN_LINELEN )	// A-12: ne perepolnyat bufer v steke
 	{
-		csBuf.Format("Block %d is too long: %d characters (max %d)", nBlock, csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
+		csBuf.Format("Block %d is too long: %d characters (max %d)", ( nBlock < 0 ) ? -nBlock : nBlock,  csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
 		cError.PutErrorMessage( csBuf );
 		return;
 	};
@@ -1888,7 +1995,7 @@ void CTmcRTH_BlockList::ReadCircleMove( CTmcLibError &cError, CTmcRTH_IndanParam
 
 	if( csBlock.GetLength() >= CTMCRTH_INDAN_LINELEN )	// A-12: ne perepolnyat bufer v steke
 	{
-		csBuf.Format("Block %d is too long: %d characters (max %d)", nBlock, csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
+		csBuf.Format("Block %d is too long: %d characters (max %d)", ( nBlock < 0 ) ? -nBlock : nBlock,  csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
 		cError.PutErrorMessage( csBuf );
 		return;
 	};
@@ -2014,7 +2121,7 @@ void CTmcRTH_BlockList::ReadCircleMove( CTmcLibError &cError, CTmcRTH_IndanParam
 		return;
 	};
 
-	if( dYmax > 2*3.14159265359  )
+	if( dYmax > (2*3.14159265358979323846 + 1e-12) )	// B-19: was 2*3.14159265359, the kernel cut at 2*3.141592653589
 	{
 		csBuf.Format("In{%s%d;} FImax(%lg) > 2*PI",
 			CTMCRTH_INDANMET_BLOCK,	-nBlock,
@@ -2032,11 +2139,11 @@ void CTmcRTH_BlockList::ReadCircleMove( CTmcLibError &cError, CTmcRTH_IndanParam
 		return;
 	};
 
-	if( ( dYmax - dYmin ) > 2*3.14159265359 )
+	if( ( dYmax - dYmin ) > (2*3.14159265358979323846 + 1e-12) )	// B-19: was 2*3.14159265359
 	{
 		csBuf.Format("In{%s%d;} FImax(%lg) - FImin(%lg) > 2*PI",
 			CTMCRTH_INDANMET_BLOCK,	-nBlock,
-			dYmin/pcParam->rAngleUnit, dYmax/pcParam->rAngleUnit);
+			dYmax/pcParam->rAngleUnit, dYmin/pcParam->rAngleUnit);	// N-19: the order of the text
 		cError.PutErrorMessage(csBuf);
 		return;
 	};
@@ -2189,7 +2296,7 @@ void CTmcRTH_BlockList::ReadPolygonMove( CTmcLibError &cError, CTmcRTH_IndanPara
 
 	if( csBlock.GetLength() >= CTMCRTH_INDAN_LINELEN )	// A-12: ne perepolnyat bufer v steke
 	{
-		csBuf.Format("Block %d is too long: %d characters (max %d)", nBlock, csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
+		csBuf.Format("Block %d is too long: %d characters (max %d)", ( nBlock < 0 ) ? -nBlock : nBlock,  csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
 		cError.PutErrorMessage( csBuf );
 		return;
 	};
@@ -2329,6 +2436,33 @@ void CTmcRTH_BlockList::ReadPolygonMove( CTmcLibError &cError, CTmcRTH_IndanPara
 */	return;
 }
 
+// D-5: does the expression use the variable t or f (a name, not a part of a name or a function)?
+static int TmcExprUsesTorF( const char *sz )
+{
+	int i = 0, j;
+	while( sz[i] != '\0' )
+	{
+		if( isalpha( (unsigned char)sz[i] )||( sz[i] == '_' ) )
+		{
+			for( j = i; isalnum( (unsigned char)sz[j] )||( sz[j] == '_' ); j++ ) ;
+			if( ( j - i == 1 )&&( ( sz[i] == 't' )||( sz[i] == 'f' ) )&&( sz[j] != '(' ) ) return 1;
+			i = j;
+			continue;
+		};
+		if( isdigit( (unsigned char)sz[i] )||( sz[i] == '.' ) )
+		{
+			// a number with an exponent (1.5e-3): skip it whole, 'e' is not a name
+			for( j = i; isdigit( (unsigned char)sz[j] )||( sz[j] == '.' ); j++ ) ;
+			if( ( sz[j] == 'e' )&&( ( sz[j+1] == '+' )||( sz[j+1] == '-' ) ) )
+				for( j += 2; isdigit( (unsigned char)sz[j] ); j++ ) ;
+			i = j;
+			continue;
+		};
+		i++;
+	};
+	return 0;
+}
+
 void CTmcRTH_BlockList::ReadInputX( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam )
 {
 	CString csBuf;
@@ -2349,7 +2483,7 @@ void CTmcRTH_BlockList::ReadInputX( CTmcLibError &cError, CTmcRTH_IndanParam * p
 
 	if( csBlock.GetLength() >= CTMCRTH_INDAN_LINELEN )	// A-12: ne perepolnyat bufer v steke
 	{
-		csBuf.Format("Block %d is too long: %d characters (max %d)", nBlock, csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
+		csBuf.Format("Block %d is too long: %d characters (max %d)", ( nBlock < 0 ) ? -nBlock : nBlock,  csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
 		cError.PutErrorMessage( csBuf );
 		return;
 	};
@@ -2462,7 +2596,7 @@ void CTmcRTH_BlockList::ReadInputX( CTmcLibError &cError, CTmcRTH_IndanParam * p
 	{
 		csBuf.Format("In{%s%d;} Tmin(%lg) >= Tmax(%lg)",
 			CTMCRTH_INDANMET_BLOCK,	-nBlock,
-			dYmin/pcParam->rLongUnit, dYmax/pcParam->rLongUnit);
+			dYmin/pcParam->rTimeUnit, dYmax/pcParam->rTimeUnit);	// N-19: time, not length
 		cError.PutErrorMessage(csBuf);
 		return;
 	};
@@ -2517,7 +2651,14 @@ void CTmcRTH_BlockList::ReadInputX( CTmcLibError &cError, CTmcRTH_IndanParam * p
 	};
 	if( strlen(szBuf1) > 0 && (r + 1.0) <= 0.0 )
 	{
-		csBuf.Format("Error: input epsilon must be > 0 (block %d)", nBlock);
+		csBuf.Format("Error: input epsilon must be > 0 (block %d)", ( nBlock < 0 ) ? -nBlock : nBlock );	// N-19
+		cError.PutErrorMessage(csBuf);
+		return;
+	};
+	if( TmcExprUsesTorF( szBuf1 ) )	// D-5
+	{
+		csBuf.Format("Error: the 8th parameter W {%s} of the input (block %d) must not depend on t or f; use a number or your own variables",
+			szBuf1, ( nBlock < 0 ) ? -nBlock : nBlock );
 		cError.PutErrorMessage(csBuf);
 		return;
 	};
@@ -2546,7 +2687,7 @@ void CTmcRTH_BlockList::ReadInputY( CTmcLibError &cError, CTmcRTH_IndanParam * p
 
 	if( csBlock.GetLength() >= CTMCRTH_INDAN_LINELEN )	// A-12: ne perepolnyat bufer v steke
 	{
-		csBuf.Format("Block %d is too long: %d characters (max %d)", nBlock, csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
+		csBuf.Format("Block %d is too long: %d characters (max %d)", ( nBlock < 0 ) ? -nBlock : nBlock,  csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
 		cError.PutErrorMessage( csBuf );
 		return;
 	};
@@ -2659,7 +2800,7 @@ void CTmcRTH_BlockList::ReadInputY( CTmcLibError &cError, CTmcRTH_IndanParam * p
 	{
 		csBuf.Format("In{%s%d;} Tmin(%lg) >= Tmax(%lg)",
 			CTMCRTH_INDANMET_BLOCK,	-nBlock,
-			dYmin/pcParam->rLongUnit, dYmax/pcParam->rLongUnit);
+			dYmin/pcParam->rTimeUnit, dYmax/pcParam->rTimeUnit);	// N-19: time, not length
 		cError.PutErrorMessage(csBuf);
 		return;
 	};
@@ -2714,7 +2855,14 @@ void CTmcRTH_BlockList::ReadInputY( CTmcLibError &cError, CTmcRTH_IndanParam * p
 	};
 	if( strlen(szBuf1) > 0 && (r + 1.0) <= 0.0 )
 	{
-		csBuf.Format("Error: input epsilon must be > 0 (block %d)", nBlock);
+		csBuf.Format("Error: input epsilon must be > 0 (block %d)", ( nBlock < 0 ) ? -nBlock : nBlock );	// N-19
+		cError.PutErrorMessage(csBuf);
+		return;
+	};
+	if( TmcExprUsesTorF( szBuf1 ) )	// D-5
+	{
+		csBuf.Format("Error: the 8th parameter W {%s} of the input (block %d) must not depend on t or f; use a number or your own variables",
+			szBuf1, ( nBlock < 0 ) ? -nBlock : nBlock );
 		cError.PutErrorMessage(csBuf);
 		return;
 	};
@@ -2959,14 +3107,19 @@ void CTmcRTH_BlockList::ReadFileStat_1( CTmcLibError &cError, CTmcRTH_IndanParam
 
 	if( csBlock.GetLength() >= CTMCRTH_INDAN_LINELEN )	// A-12: ne perepolnyat bufer v steke
 	{
-		csBuf.Format("Block %d is too long: %d characters (max %d)", nBlock, csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
+		csBuf.Format("Block %d is too long: %d characters (max %d)", ( nBlock < 0 ) ? -nBlock : nBlock,  csBlock.GetLength(), CTMCRTH_INDAN_LINELEN-1);
 		cError.PutErrorMessage( csBuf );
 		return;
 	};
 	strcpy( szBuf, csBlock );
 	n = (int)(strlen( szBuf ));
 	expr_del_Blanks2( szBuf+i );
-	csBlock.Format("%s", CTMCRTH_INDANBLCK_FILE);
+	// B-17: the tag is kept - FILE_N, FILE_B, FILE_Y put their values into N, B, Y (X kernel).
+	// Old: csBlock.Format("%s", CTMCRTH_INDANBLCK_FILE); - the values of the three went into epsilon.
+	if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEN, strlen(CTMCRTH_INDANBLCK_FILEN) ) == 0 ) csBlock.Format("%s", CTMCRTH_INDANBLCK_FILEN);
+	else if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEB, strlen(CTMCRTH_INDANBLCK_FILEB) ) == 0 ) csBlock.Format("%s", CTMCRTH_INDANBLCK_FILEB);
+	else if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEY, strlen(CTMCRTH_INDANBLCK_FILEY) ) == 0 ) csBlock.Format("%s", CTMCRTH_INDANBLCK_FILEY);
+	else csBlock.Format("%s", CTMCRTH_INDANBLCK_FILE);
 
 	i += Search_1Param( csBuf, szBuf+i, cError );
 	if( cError.IsError() ) return;
@@ -3043,7 +3196,10 @@ void CTmcRTH_BlockList::AddPathForFile( CString &csPath )
 {
 	if( pcNextBlockList != NULL ) pcNextBlockList->AddPathForFile( csPath );
 
-	if( strncmp( csBlock, (CTMCRTH_INDANBLCK_FILE), strlen(CTMCRTH_INDANBLCK_FILE) ) == 0 )
+	if( ( strncmp( csBlock, (CTMCRTH_INDANBLCK_FILE), strlen(CTMCRTH_INDANBLCK_FILE) ) == 0 )||	// B-17: all four
+		( strncmp( csBlock, (CTMCRTH_INDANBLCK_FILEN), strlen(CTMCRTH_INDANBLCK_FILEN) ) == 0 )||
+		( strncmp( csBlock, (CTMCRTH_INDANBLCK_FILEB), strlen(CTMCRTH_INDANBLCK_FILEB) ) == 0 )||
+		( strncmp( csBlock, (CTMCRTH_INDANBLCK_FILEY), strlen(CTMCRTH_INDANBLCK_FILEY) ) == 0 ) )
 	{
 		AddFileEpsExtention();
 		AddCurrentPath( csPath );
@@ -3057,21 +3213,27 @@ void CTmcRTH_BlockList::AddFileEpsExtention()
 {
 	char szBuf[CTMCRTH_INDANSBUF];
 	int i, n;
-	
+	int nDot = -1;	// N-22
+
 	strcpy( szBuf, csEpsExpr);
 	n = (int)(strlen(szBuf));
-	
+
 	if( n == 0 ) return;
-	
+
 	for( i = 0; i < n; i++)
 	{
 		switch( szBuf[i] )
 		{
 			case '.':
-				return;
+				nDot = i;
+				break;
+			case '\\':
+			case '/':
+				nDot = -1;	// N-22: a dot in a folder name is not an extension
 				break;
 		};
 	};
+	if( nDot >= 0 ) return;
 
 	csEpsExpr += ".";
 	csEpsExpr += TMC_RTH_EPSFILE_EXT_;
@@ -3097,6 +3259,7 @@ BOOL CTmcRTH_BlockList::IsFullName()
 
 	n = csEpsExpr.GetLength();
 	if( n == 0 ) return TRUE;
+	if( ( csEpsExpr[0] == '\\' )||( csEpsExpr[0] == '/' ) ) return TRUE;	// N-22: \\server\share, \folder
 	for( i = 0; i < n; i++ )
 	{
 		if( csEpsExpr[i] == ':' ) return TRUE;

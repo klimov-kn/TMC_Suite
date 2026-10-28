@@ -1,6 +1,9 @@
 // TMCGROUTDoc.cpp : implementation of the CTMCGROUTDoc class
 //
 #include "stdafx.h"
+#ifndef TMC_IS_SEP	// path separator: backslash or '/'
+#define TMC_IS_SEP(c) ( ((c) == '/') || ((c) == '\\') )
+#endif
 #include <io.h>
 #include <fcntl.h>
 #include "TMCGROUT.h"
@@ -142,8 +145,9 @@ void CTMCGROUTDoc::CreatProc(char * lpszComLine)
 //	TerminateProcess( piProcInfo.hProcess, 0 );
 	piProcInfo.hProcess = NULL;
    }; 
-   STARTUPINFO siStartInfo; 
-// Set up members of STARTUPINFO structure. 
+   ZeroMemory( &piProcInfo, sizeof(piProcInfo) );	// S-45
+   STARTUPINFO siStartInfo;
+// Set up members of STARTUPINFO structure.  
    ZeroMemory( &siStartInfo, sizeof(STARTUPINFO) );
    siStartInfo.cb = sizeof(STARTUPINFO); 
 // Create the child process. 
@@ -156,7 +160,11 @@ void CTMCGROUTDoc::CreatProc(char * lpszComLine)
       NULL,          // use parent's environment 
       szCurrentDir,          // use parent's current directory 
       &siStartInfo,  // STARTUPINFO pointer 
-      &piProcInfo);  // receives PROCESS_INFORMATION 
+      &piProcInfo);  // receives PROCESS_INFORMATION
+   if( piProcInfo.hThread != NULL ) CloseHandle( piProcInfo.hThread );	// S-45: opisateli ne nuzhny
+   if( piProcInfo.hProcess != NULL ) CloseHandle( piProcInfo.hProcess );
+   piProcInfo.hThread  = NULL;
+   piProcInfo.hProcess = NULL;
    return ;
 
 }
@@ -164,27 +172,24 @@ void CTMCGROUTDoc::CreatProc(char * lpszComLine)
 void CTMCGROUTDoc::RunExeFile( char *lpszNameExe )
 {
 	char szCommandLine[TMC_GROUT_MAXSTRING_BUF];
-	int i;
 	CString theString;
+	const char *pszExe = lpszNameExe;
 
-	strcpy( szCommandLine, lpszNameExe);
-	i = strlen( szCommandLine );
+	while( *pszExe == ' ' ) pszExe++;
 
 	theString = GetPathName();
 	if( strlen(theString) == 0 )
 	{
 		theString = GetTitle();
 	};
-	
-	szCommandLine[i] = ' ';
-	strcpy( szCommandLine + i + 1, theString);
 
-	for( i = 0; ( i < TMC_GROUT_MAXSTRING_BUF )&&( szCommandLine[i] == ' ' ); i++)
-	{
-		;
-	}
+	// S-45: put k dokumentu - v kavychkah (probely v puti); redaktor - v kavychkah, esli eto put k failu
+	if( ( pszExe[0] != '"' )&&( _access( pszExe, 0 ) == 0 ) )
+		snprintf( szCommandLine, TMC_GROUT_MAXSTRING_BUF, "\"%s\" \"%s\"", pszExe, (const char *)theString );
+	else
+		snprintf( szCommandLine, TMC_GROUT_MAXSTRING_BUF, "%s \"%s\"", pszExe, (const char *)theString );
 
-	CreatProc( szCommandLine + i );
+	CreatProc( szCommandLine );
 }
 
 
@@ -192,9 +197,17 @@ void CTMCGROUTDoc::ReadDocFile(void)
 {
 	int n, i;
 
+	error[0] = '\0';
 	MakeDocFileName();
+	char szErrMake[sizeof(error)];		// N-33: oshibku MakeDocFileName ("file not found") ne steret
+	strcpy( szErrMake, error );
 
 	DocFileDelData(); // delete old data and free memory
+	if( szErrMake[0] != '\0' )
+	{
+		put_error_messege( szErrMake );
+		return;
+	};
 	
 	if( (n = ReadNGraph()) <= 0 )
 	{
@@ -216,7 +229,8 @@ void CTMCGROUTDoc::ReadDocFile(void)
 
 void CTMCGROUTDoc::put_error_messege(char *error1)
 {
-  strcpy( error, error1);
+  strncpy( error, error1, sizeof(error)-1 );	// BUG-023: error[300]
+  error[sizeof(error)-1] = '\0';
 }
 
 int CTMCGROUTDoc::ReadNGraph( void )
@@ -280,11 +294,16 @@ void CTMCGROUTDoc::del_bl2( char *ch)
 			j = 0;
 			break;
 		case '!' :
-			if( i1 == 0 )
-			ch[i1] = '\0';
+			if( ( i1 == 0 )||( ( j1 == 0 )&&( ( ch[i-1] == ' ' )||( ch[i-1] == '\t' ) ) ) )	// N-33: ' !' - kommentarii
+			{
+				if( ( i1 != 0 )&&( ch[i1-1] == ' ' ) ) i1--;
+				ch[i1] = '\0';
+				return ;
+			};
+			ch[i1] = ch[i];		// N-33: '!' vnutri imeni - obychnyi simvol
 			i1++;
 			j = 0;
-			return ;
+			break;
 		default :
 			ch[i1] = ch[i];
 			i1++;
@@ -304,7 +323,7 @@ void CTMCGROUTDoc::ReadGraph( int nGr )
  int i;
  char ch[TMC_GROUT_MAXSTRING_BUF];
 
- strcpy( grdoc.psGraph[nGr].szFileName, GetPathName() );
+ strncpy( grdoc.psGraph[nGr].szFileName, GetPathName(), TMC_GROUT_MAXSTRING_BUF-1 ); grdoc.psGraph[nGr].szFileName[TMC_GROUT_MAXSTRING_BUF-1] = '\0';	// BUG-023
  for( i = strlen(grdoc.psGraph[nGr].szFileName)-1; i >= 0; i-- )
  {
  	if( grdoc.psGraph[nGr].szFileName[i] == '\\' )
@@ -436,9 +455,10 @@ BOOL CTMCGROUTDoc::DocFileNewData(int n) //allocation memory for new data and se
 		grdoc.psGraph[i].nMod1  = sGrDoc[i1].nMod1;
 		grdoc.psGraph[i].nInp2  = sGrDoc[i1].nInp2;
 		grdoc.psGraph[i].nMod2  = sGrDoc[i1].nMod2;
-		grdoc.psGraph[i].szFileName = new char[300];
-		grdoc.psGraph[i].szGrapName = new char[300];
-		grdoc.psGraph[i].szGrapPodp = new char[300];
+		grdoc.psGraph[i].szFileName = new char[TMC_GROUT_MAXSTRING_BUF];	// BUG-021, BUG-023: bylo 300
+		grdoc.psGraph[i].szGrapName = new char[TMC_GROUT_MAXSTRING_BUF];
+		grdoc.psGraph[i].szGrapPodp = new char[TMC_GROUT_MAXSTRING_BUF];
+		grdoc.psGraph[i].szFileName[0] = grdoc.psGraph[i].szGrapName[0] = grdoc.psGraph[i].szGrapPodp[0] = '\0';
 		grdoc.psGraph[i].LastWriteTime.dwLowDateTime   = sGrDoc[i1].LastWriteTime.dwLowDateTime;
 		grdoc.psGraph[i].LastWriteTime.dwHighDateTime  = sGrDoc[i1].LastWriteTime.dwHighDateTime;
 		grdoc.psGraph[i].OutFlag = sGrDoc[i1].OutFlag;
@@ -686,7 +706,7 @@ void CTMCGROUTDoc::MakeDocFileName( void )
 			return ;
 		};
 
-	 if(fprintf(fd,"%s\n!Graphics parameters\n", TMC_GROUT_DOCFILE_ID ) <= 0  )
+	 if(fprintf(fd,"%s\n!Graphics parameters\n", TMC_GROTS_DOCFILE_ID ) <= 0  )	// N-33: bylo TMC_GROUT_DOCFILE_ID
 		 {
 			 sprintf( ch, "when write data file %s", GetPathName());
 			 put_error_messege(ch);
@@ -700,7 +720,15 @@ void CTMCGROUTDoc::MakeDocFileName( void )
 
 							// if File.dat is File.s
 	strcpy( ch, GetPathName() );
-	if( !IsDocFileName( ch ) )	 
+	if( ( fd = fopen( ch, "r" ) ) == NULL )	// N-33: fail ne naiden - ne sozdavat dokument so ssylkoi na sebya
+	{
+		char ch2[TMC_GROUT_MAXSTRING_BUF];
+		snprintf( ch2, TMC_GROUT_MAXSTRING_BUF, "file not found %s", ch );
+		put_error_messege( ch2 );
+		return ;
+	};
+	fclose( fd );
+	if( !IsDocFileName( ch ) )
 	{
 		char ch1[TMC_GROUT_MAXSTRING_BUF];
 		strcpy( ch1, ch );
@@ -814,11 +842,15 @@ void CTMCGROUTDoc::SFileNameToDatFileName( char *ch)
 {
 	int i;
 
-	for( i = strlen(ch); i > 0; )
-		if( ch[--i] == '.' ) break;
-
-	if( i == 0 )
+	for( i = strlen(ch); i > 0; )		// N-33: tochka - tolko v imeni faila, ne v papke
 	{
+		if( TMC_IS_SEP( ch[i-1] ) ) { i = 0; break; };
+		if( ch[--i] == '.' ) break;
+	};
+
+	if( ( i == 0 )&&( ch[0] != '.' ) )
+	{
+		i = strlen(ch);		// N-33: dalee ch + i + 1 - posle dobavlennoi tochki
 		strcpy( ch + strlen(ch), ".tos");
 	}
 	else
@@ -865,6 +897,11 @@ BOOL CTMCGROUTDoc::IsDataModific( void )
 	return ret_cod;
 }				 
 
+#ifdef FILE_SHARE_WRITE		// N-33
+#define TMC_N33_SHARE_WRITE FILE_SHARE_WRITE
+#else
+#define TMC_N33_SHARE_WRITE 0
+#endif
 FILETIME CTMCGROUTDoc::LastWriteTime( char *szFileName )
 {
 	HANDLE fh;
@@ -875,16 +912,18 @@ FILETIME CTMCGROUTDoc::LastWriteTime( char *szFileName )
 	fh =  CreateFile(
     szFileName,				// pointer to name of the file 
     GENERIC_READ,			// access read mode 
-    FILE_SHARE_READ,		// share mode 
+    FILE_SHARE_READ | TMC_N33_SHARE_WRITE,		// share mode 	// N-33: fail mozhet pisat yadro 
     NULL,					// pointer to security descriptor 
     OPEN_EXISTING,			// how to create 
     FILE_ATTRIBUTE_NORMAL,	// file attributes 
     NULL					// handle to file with attributes to copy  
    );
 
-	GetFileTime( fh, NULL, NULL, &LastWriteTime1);
-
-	CloseHandle( fh );
+	if( fh != INVALID_HANDLE_VALUE )	// N-33
+	{
+		GetFileTime( fh, NULL, NULL, &LastWriteTime1);
+		CloseHandle( fh );
+	};
 	
 	return LastWriteTime1;
 
@@ -923,6 +962,58 @@ void CTMCGROUTDoc::AddGraphicsInDoc( char *szSFileName )
 }
 
 
+// S-43: sravnenie chastei puti: na Windows bez ucheta registra; '\' i '/' ravny
+static int TmcPathNCmp( const char *a, const char *b, int n )
+{
+	int k, ca, cb;
+	for( k = 0; k < n; k++ )
+	{
+		ca = (unsigned char)a[k];
+		cb = (unsigned char)b[k];
+		if( TMC_IS_SEP( ca ) ) ca = '/';
+		if( TMC_IS_SEP( cb ) ) cb = '/';
+#ifdef _WIN32
+		if( ( ca >= 'A' )&&( ca <= 'Z' ) ) ca += 'a' - 'A';
+		if( ( cb >= 'A' )&&( cb <= 'Z' ) ) cb += 'a' - 'A';
+#endif
+		if( ca != cb ) return ca - cb;
+		if( ca == 0 ) return 0;
+	};
+	return 0;
+}
+
+// S-44: posle "Save As" - otnositelnye imena grafikov (krome vyrazhenii) perevesti v put otnositelno novoi papki
+void CTMCGROUTDoc::RebaseGraphPaths( const char *szOldDocPath )
+{
+	int i, k, nDir;
+	char szAbs[TMC_GROUT_MAXSTRING_BUF];
+	if( ( szOldDocPath == NULL )||( szOldDocPath[0] == '\0' ) ) return;
+	for( k = (int)strlen( szOldDocPath ) - 1, nDir = -1; k >= 0; k-- )
+	{
+		if( TMC_IS_SEP( szOldDocPath[k] ) ) { nDir = k; break; };
+	};
+	if( nDir < 0 ) return;
+	for( i = 0; i < grdoc.nGraph; i++ )
+	{
+		char *pszName = grdoc.psGraph[i].szGrapName;
+		if( ( pszName == NULL )||( pszName[0] == '\0' )||( pszName[0] == '{' ) ) continue;
+		if( ( strchr( pszName, ':' ) == NULL )&&!( TMC_IS_SEP( pszName[0] )&&TMC_IS_SEP( pszName[1] ) ) )
+		{
+			if( nDir + 2 + (int)strlen( pszName ) >= TMC_GROUT_MAXSTRING_BUF ) continue;
+			memcpy( szAbs, szOldDocPath, nDir + 1 );
+			strcpy( szAbs + nDir + 1, pszName );
+		}
+		else
+		{
+			strncpy( szAbs, pszName, TMC_GROUT_MAXSTRING_BUF-1 );
+			szAbs[TMC_GROUT_MAXSTRING_BUF-1] = '\0';
+		};
+		MakeRelatPathSFile( szAbs );
+		strncpy( pszName, szAbs, TMC_GROUT_MAXSTRING_BUF-1 );
+		pszName[TMC_GROUT_MAXSTRING_BUF-1] = '\0';
+	};
+}
+
 void CTMCGROUTDoc::MakeRelatPathSFile( char *szSFileName )
 {
 	int nDoc, nSfile, n;
@@ -953,26 +1044,28 @@ void CTMCGROUTDoc::MakeRelatPathSFile( char *szSFileName )
 		if( iD > iS) ii = iS;
 		else ii = iD;
 		
-		if( (iD != iS)||( strncmp( ch + j, szSFileName + j, ii ) != 0 ) )
+		if( (iD != iS)||( TmcPathNCmp( ch + j, szSFileName + j, ii ) != 0 ) )	// S-43
 		{
 			if( i == 0 ) return;
-			i2 = 0;
-			if( nDoc < nSfile )
+			for( i1 = 0, i2 = 0; i1 < ( nDoc - i); i1++ )	// S-43: ".." - na kazhduyu papku dokumenta posle obshchei chasti
 			{
-				for( i1 = 0, i2 = 0; i1 < ( nDoc - i); i1++ )
-				{
-					ch1[i2++] = '.';
-					ch1[i2++] = '.';
-					ch1[i2++] = '\\';
-				};
+				ch1[i2++] = '.';
+				ch1[i2++] = '.';
+				ch1[i2++] = '\\';
 			};
 			strcpy( ch1 + i2, szSFileName + j );
 			strcpy( szSFileName, ch1 );
-			return;			
+			return;
 		};
 	};
-	
-	strcpy( ch1, szSFileName + j );
+
+	for( i1 = 0, i2 = 0; i1 < ( nDoc - n ); i1++ )	// S-43: fail v roditelskoi papke dokumenta
+	{
+		ch1[i2++] = '.';
+		ch1[i2++] = '.';
+		ch1[i2++] = '\\';
+	};
+	strcpy( ch1 + i2, szSFileName + j );
 	strcpy( szSFileName, ch1 );
 	return;
 }
@@ -980,7 +1073,7 @@ void CTMCGROUTDoc::MakeRelatPathSFile( char *szSFileName )
 int CTMCGROUTDoc::SelectDirName( char *ch )
 {
 	int i;
-	for( i = 0; (ch[ i ] != '\\')&&( i < TMC_GROUT_MAXSTRING_BUF ) ; i++ ) 
+	for( i = 0; ( !TMC_IS_SEP( ch[ i ] ) )&&( i < TMC_GROUT_MAXSTRING_BUF ) ; i++ ) 	// S-43: i '/' 
 	{
 		if( ch[ i ] == '\0' ) return 0;
 	};
@@ -1004,7 +1097,7 @@ void CTMCGROUTDoc::ReadGraph1( int nGr, char *szFileName, int *nPoint, double **
 {
  int i, i1, n;
 
- strcpy( grdoc.psGraph[nGr].szFileName, GetPathName() );
+ strncpy( grdoc.psGraph[nGr].szFileName, GetPathName(), TMC_GROUT_MAXSTRING_BUF-1 ); grdoc.psGraph[nGr].szFileName[TMC_GROUT_MAXSTRING_BUF-1] = '\0';	// BUG-023
  for( i = strlen(grdoc.psGraph[nGr].szFileName)-1; i >= 0; i-- )
  {
  	if( grdoc.psGraph[nGr].szFileName[i] == '\\' )
@@ -1019,11 +1112,17 @@ void CTMCGROUTDoc::ReadGraph1( int nGr, char *szFileName, int *nPoint, double **
  i1 = strlen( szFileName ); 
  for( i = 0; i < i1; i++)
  {
-	 if( (szFileName[i] == ':') )
+	 if( (szFileName[i] == ':')||( ( i == 0 )&&TMC_IS_SEP( szFileName[0] )&&TMC_IS_SEP( szFileName[1] ) ) )	// N-33: i UNC \\server\...
 	 {
 		 n = -1;
 		 break ;
-	 }; 
+	 };
+ };
+ if( ( n + 1 + (int)strlen( szFileName ) ) >= ( TMC_GROUT_MAXSTRING_BUF - 16 ) )	// BUG-023: put k failu ne pomeshchaetsya
+ {
+	 *nPoint = 0;
+	 snprintf( grdoc.psGraph[nGr].szGrapPodp, TMC_GROUT_MAXSTRING_BUF, "Error_file_name_too_long" );
+	 return;
  };
  strcpy( grdoc.psGraph[nGr].szFileName + n + 1, szFileName);
 
@@ -1039,7 +1138,7 @@ void CTMCGROUTDoc::ReadGraph1( int nGr, char *szFileName, int *nPoint, double **
 
  if( *nPoint <= 0 )
  {
-	 sprintf( grdoc.psGraph[nGr].szGrapPodp, "Error_when_read_%s", szFileName );
+	 snprintf( grdoc.psGraph[nGr].szGrapPodp, TMC_GROUT_MAXSTRING_BUF,  "Error_when_read_%s", szFileName );
  };
 
  return ;
@@ -1060,7 +1159,7 @@ void CTMCGROUTDoc::ReadGraph1Expession( int nGr, char *szExpression )
 	
 	if(  grdoc.psGraph[nGr].pcExpr->InitData() != NULL )
 	{
-	 sprintf( grdoc.psGraph[nGr].szGrapPodp, "Error_expression_absent_or_bad_file_name_%s", szExpression );
+	 snprintf( grdoc.psGraph[nGr].szGrapPodp, TMC_GROUT_MAXSTRING_BUF,  "Error_expression_absent_or_bad_file_name_%s", szExpression );
 //	 delete grdoc.psGraph[nGr].pcExpr;
 //	 grdoc.psGraph[nGr].pcExpr = NULL;
 	 return;
@@ -1075,7 +1174,7 @@ void CTMCGROUTDoc::ReadGraph1Expession( int nGr, char *szExpression )
 		ppSmatr = grdoc.psGraph[nGr].pcExpr->GetSMatrArray( i );
 		if( ( pszFileName == NULL )||( pnPoint == NULL )||( ppFreq == NULL )||( ppSmatr == NULL ) )
 		{
-			 sprintf( grdoc.psGraph[nGr].szGrapPodp, "Error_expression_memory_allocation_error_%s", szExpression );
+			 snprintf( grdoc.psGraph[nGr].szGrapPodp, TMC_GROUT_MAXSTRING_BUF,  "Error_expression_memory_allocation_error_%s", szExpression );
 //			 delete grdoc.psGraph[nGr].pcExpr;
 //			 grdoc.psGraph[nGr].pcExpr = NULL;
 			 return;
@@ -1083,7 +1182,7 @@ void CTMCGROUTDoc::ReadGraph1Expession( int nGr, char *szExpression )
 		ReadGraph1( nGr, pszFileName, pnPoint, ppFreq, ppSmatr);
 		if( *pnPoint <= 0 ) 
 		{
-			sprintf( grdoc.psGraph[nGr].szGrapPodp, "Error_when_read_file_%s", pszFileName );
+			snprintf( grdoc.psGraph[nGr].szGrapPodp, TMC_GROUT_MAXSTRING_BUF,  "Error_when_read_file_%s", pszFileName );
 //			delete grdoc.psGraph[nGr].pcExpr;
 //			grdoc.psGraph[nGr].pcExpr = NULL;
 			return;
@@ -1092,7 +1191,7 @@ void CTMCGROUTDoc::ReadGraph1Expession( int nGr, char *szExpression )
 
 	if( !grdoc.psGraph[nGr].pcExpr->IsFreqCorrect() ) 
 	{
-		sprintf( grdoc.psGraph[nGr].szGrapPodp, "Error_expression_different_freq_array_%s", szExpression );
+		snprintf( grdoc.psGraph[nGr].szGrapPodp, TMC_GROUT_MAXSTRING_BUF,  "Error_expression_different_freq_array_%s", szExpression );
 //		delete grdoc.psGraph[nGr].pcExpr;
 //		grdoc.psGraph[nGr].pcExpr = NULL;
 		return;
@@ -1100,7 +1199,7 @@ void CTMCGROUTDoc::ReadGraph1Expession( int nGr, char *szExpression )
 
 	if( (grdoc.psGraph[nGr].pFreq = new  double[*pnPoint] ) == NULL )
 	{
-			 sprintf( grdoc.psGraph[nGr].szGrapPodp, "Error_expression_memory_allocation_error_%s", szExpression );
+			 snprintf( grdoc.psGraph[nGr].szGrapPodp, TMC_GROUT_MAXSTRING_BUF,  "Error_expression_memory_allocation_error_%s", szExpression );
 //			 delete grdoc.psGraph[nGr].pcExpr;
 //			 grdoc.psGraph[nGr].pcExpr = NULL;
 			 return;
@@ -1108,6 +1207,12 @@ void CTMCGROUTDoc::ReadGraph1Expession( int nGr, char *szExpression )
 	for( i = 0; i < *pnPoint; i++ )
 	{
 		grdoc.psGraph[nGr].pFreq[i] = (*ppFreq)[i];
+	};
+	grdoc.psGraph[nGr].pSmatr = new _complex[*pnPoint];	// A-28: znacheniya vyrazheniya - kak signal
+	for( i = 0; i < *pnPoint; i++ )
+	{
+		grdoc.psGraph[nGr].pSmatr[i].x = grdoc.psGraph[nGr].pcExpr->GetExpressionValueRe( i );
+		grdoc.psGraph[nGr].pSmatr[i].y = 0.0;
 	};
 	grdoc.psGraph[nGr].nPoint = *pnPoint;
 	return;
@@ -1127,6 +1232,8 @@ void CTMCGROUTDoc::SetGraphColor( void )
 
 
 
+static BOOL s_bTmcParseError = FALSE;	// S-39: oshibka razbora stroki .t (gets_f1 / gets_sss)
+
 void CTMCGROUTDoc::read_RT_output_signal(int *in1, int *mod1, int *in2, int *mod2, char *filename, _complex **sss, double **f1, int *nPoint, double *dFr)
 {
 	int i, n;
@@ -1143,48 +1250,72 @@ void CTMCGROUTDoc::read_RT_output_signal(int *in1, int *mod1, int *in2, int *mod
 
 	if( *mod1 > 1 ) *mod1 = 1;
 	if( *mod2 > 1 ) *mod2 = 1;
-									// calculated number of point
+									// T-30: odin prohod po failu, massivy rastut udvoeniem
+	int nCap = 0, nBad = 0;
+	double   *pdT = NULL;
+	_complex *pcS = NULL;
+	double dT1, dS1;
 	if( (fp = fopen( filename, "r")) == NULL ) return;
-	for( i = 0, *dFr = 1.e+10; fgets( ch, TMC_GROUT_MAXSTRING_BUF, fp) != NULL; )
+	for( n = 0, *dFr = 1.e+10; fgets( ch, TMC_GROUT_MAXSTRING_BUF, fp) != NULL; )
 	{
-		if( ch[0] == ' ' ) i++;
+		if( ch[0] == ' ' )
+		{
+			s_bTmcParseError = FALSE;		// S-39
+			dT1 = gets_f1( ch );
+			dS1 = gets_sss( ch, *in1, *mod1);
+			if( s_bTmcParseError )			// S-39: stroka ne razbiraetsya (net porta, nedopisana, isporchena) - propustit
+			{
+				nBad++;
+				continue;
+			};
+			if( n >= nCap )
+			{
+				int nCap1 = ( nCap == 0 ) ? 4096 : 2*nCap;
+				double   *pdT1 = new double[ nCap1 ];
+				_complex *pcS1 = new _complex[ nCap1 ];
+				for( i = 0; i < n; i++ )
+				{
+					pdT1[i] = pdT[i];
+					pcS1[i] = pcS[i];
+				};
+				if( pdT != NULL ) delete []pdT;
+				if( pcS != NULL ) delete []pcS;
+				pdT = pdT1;
+				pcS = pcS1;
+				nCap = nCap1;
+			};
+			pdT[n] = dT1;
+			pcS[n].x = dS1;
+			pcS[n].y = 0.0;		// A-28: mnimaya chast ne musor
+			n++;
+		};
 		if( strncmp( ch, TMC_GROTS_FLOUTFreq_ID, strlen(TMC_GROTS_FLOUTFreq_ID) ) == 0 )
 		{
 			sscanf( ch + strlen(TMC_GROTS_FLOUTFreq_ID), "%lg", &dFreq);
 			*dFr = dFreq;
 		};
 	};
-	fclose(fp);
-	n = i;
-	if( n == 0 ) return;
+	fclose(fp);				// S-38: fail zakryvaetsya vsegda
+	if( n <= 0 )
+	{
+		if( pdT != NULL ) delete []pdT;
+		if( pcS != NULL ) delete []pcS;
+		return;
+	};
 
 									// allocation memory for data array
-	if( *sss != NULL ) 
+	if( *sss != NULL )
 	{
 		delete []*sss;
 		*sss = NULL;
 	};
-	if( *f1 != NULL ) 
+	if( *f1 != NULL )
 	{
 		delete []*f1;
 		*f1 = NULL;
 	};
-	if( ((*sss) = new _complex[ n ]) == NULL ) return;
-	if( ((*f1) = new double[ n ]) == NULL ) return;
-
-									// read data array
-	if( (fp = fopen( filename, "r")) == NULL ) return;
-	for( i = 0; i < n; )
-	{
-		if( fgets( ch, TMC_GROUT_MAXSTRING_BUF, fp) == NULL ) return;
-		if( ch[0] == ' ' )
-		{
-			 (*f1)[i] = gets_f1( ch );
-			(*sss)[i].x = gets_sss( ch, *in1, *mod1);
-			i++;
-		};
-	};
-	fclose(fp);
+	(*sss) = pcS;
+	(*f1)  = pdT;
 	*nPoint = n;
 
 	return;
@@ -1193,9 +1324,9 @@ void CTMCGROUTDoc::read_RT_output_signal(int *in1, int *mod1, int *in2, int *mod
 double CTMCGROUTDoc::gets_f1(char *ch)
 {
 	int i;
-	double r1;
+	double r1 = 0.0;
 
-	sscanf( ch, "%d%lg", &i, &r1);
+	if( sscanf( ch, "%d%lg", &i, &r1) != 2 ) s_bTmcParseError = TRUE;	// S-39
 
 	return r1;
 
@@ -1204,13 +1335,13 @@ double CTMCGROUTDoc::gets_f1(char *ch)
 double CTMCGROUTDoc::gets_sss(char *ch, int in1, int mod1)
 {
 	int i, i1;
-	double r1, r2;
+	double r1 = 0.0, r2 = 0.0;
 
 	i = skip_ntdt_itd( ch, in1 );
-	
-	if( i == 0 ) return 0.0;
 
-	sscanf( ch + i, "%d%lg%lg", &i1, &r1, &r2);
+	if( i == 0 ) { s_bTmcParseError = TRUE; return 0.0; };	// S-39
+
+	if( sscanf( ch + i, "%d%lg%lg", &i1, &r1, &r2) != 3 ) s_bTmcParseError = TRUE;	// S-39: net porta in1 v stroke
 
 	if( mod1 == 0 ) return r1;
 	if( mod1 == 1 ) return r2;
@@ -1256,7 +1387,7 @@ int CTMCGROUTDoc::skip_blank(char *ch)
 			default: return i;
 		};
 	};
-	return 0;
+	return i;	// S-39: konec stroki - poziciya konca (bylo 0)
 }
 
 int CTMCGROUTDoc::skip_number(char *ch)
@@ -1273,7 +1404,7 @@ int CTMCGROUTDoc::skip_number(char *ch)
 			default: break;
 		};
 	};
-	return 0;
+	return i;	// S-39: konec stroki - poziciya konca (bylo 0)
 }
 
 void CTMCGROUTDoc::SetOneReadGraphParameters(char *ch)
@@ -1387,15 +1518,18 @@ void CTMCGROUTDoc::SetOneReadGraphParameters(char *ch)
 		 };
 		 if( strncmp( ch, TMC_TOPVIEW_DOCFILE_ID_sDrawTextFont, strlen(TMC_TOPVIEW_DOCFILE_ID_sDrawTextFont) ) == 0 )
 		 {
-			 int iii1, iii2, iii3, iii4;
-			 for( i = strlen(TMC_TOPVIEW_DOCFILE_ID_sDrawTextFont); (i < TMC_GROUT_MAXSTRING_BUF)&&(ch[i] != ';'); i++ )
+			 int iii1 = lfInitial.lfItalic, iii2 = lfInitial.lfUnderline, iii3 = lfInitial.lfStrikeOut, iii4 = lfInitial.lfQuality;	// BUG-012
+			 int nIdLen = (int)strlen(TMC_TOPVIEW_DOCFILE_ID_sDrawTextFont);	// BUG-012
+			 for( i = nIdLen; (i < TMC_GROUT_MAXSTRING_BUF-1)&&(ch[i] != ';')&&(ch[i] != '\0'); i++ )	// BUG-012: do konca stroki
 			 {
 				 ;
 			 }
+			 if( ( ch[i] != ';' )||( i <= nIdLen ) ) return;	// BUG-012: net ';' ili net imeni - stroka ne razbiraetsya
 			 ch[i] = '\0';
-			 strcpy( lfInitial.lfFaceName, ch + 1 + strlen(TMC_TOPVIEW_DOCFILE_ID_sDrawTextFont));
+			 strncpy( lfInitial.lfFaceName, ch + 1 + nIdLen, LF_FACESIZE-1 );	// BUG-012: lfFaceName[LF_FACESIZE]
+			 lfInitial.lfFaceName[LF_FACESIZE-1] = '\0';
 			 ch[i] = ';';
-			 sscanf( ch + i + 1, "%ld;%ld;%ld;%ld;%ld;%d;%d;%d;%d;%d;", 
+			 sscanf( ch + i + 1, "%ld;%ld;%ld;%ld;%ld;%d;%d;%d;%d;", 	// S-40: 9 specifikatorov na 9 adresov 
 										&( lfInitial.lfHeight ),
 										&( lfInitial.lfWidth ),
 										&( lfInitial.lfEscapement ),

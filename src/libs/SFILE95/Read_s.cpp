@@ -182,6 +182,7 @@ int _far read_S_matrix( char _far *szFileName, S_INDEX _far **si, int _far *extr
 		   }
 
            if( ret_code == 0 ) ret_code = read_S( &sBuff, sizeof(INT_1) );
+           if( ( ret_code == 0 )&&( ( sBuff < 0 )||( sBuff > MAX_INPUT_NUM ) ) ) { ret_code = -1; sBuff = 0; }	// BUG-026
            (*id)[i].num = sBuff;
            for( m = 0, lpnArr = (*id)[i].array; (m < (*id)[i].num)&&(ret_code == 0 ); m++, lpnArr++ )
              {
@@ -189,6 +190,7 @@ int _far read_S_matrix( char _far *szFileName, S_INDEX _far **si, int _far *extr
               *lpnArr = sBuff;
              }
            if( ret_code == 0 ) ret_code = read_S( &sBuff, sizeof(INT_1) );
+           if( ( ret_code == 0 )&&( ( sBuff < 1 )||( sBuff > 255 ) ) ) { ret_code = -1; sBuff = 0; }	// BUG-026: len = dim*dim - WORD
            (*id)[i].dim = sBuff;
            if( ret_code == 0 ) ret_code = read_CR();
 
@@ -372,6 +374,8 @@ static int _near _fortran Read_GRID( S_INDEX _far **si, int _far *extrapol_flag 
    ret_code = read_S( &length, (size_t)sizeof(INT_1) );
    // extrapolation flag 0 - no, 1 - two grids, 2 - three grids 
    if( ret_code == 0) ret_code = read_S( &sBuff, sizeof(INT_1) );
+   if( ( ret_code == 0 )&&( ( sBuff < 0 )||( sBuff > 2 ) ) ) ret_code = -1;	// BUG-026: 0..2 setki
+   if( ret_code != 0 ) { *extrapol_flag = 0; return -1; }	// BUG-026: *si eshche ne vydelen
    *extrapol_flag = sBuff;
 
    if( ret_code == 0 )
@@ -428,13 +432,18 @@ static int _near _fortran Read_GRID( S_INDEX _far **si, int _far *extrapol_flag 
         return -2;
        }
 
-     // reading strings with file names 
+     // reading strings with file names
      for( i = 0; ( i <= (*extrapol_flag) )&&( ret_code == 0 ); i++ )
        {
         ret_code = read_string( (*si)[i].tpl_name );
         if( ret_code == 0 ) ret_code = read_string( (*si)[i].S_name );
        }
 
+   if( ret_code != 0 )		/* N-31: imena ne prochitalis - osvobodit si i imena */
+     {
+      Free_GRID_Index( si, *extrapol_flag );
+      return -1;
+     }
    return ret_code;
   } // end of Read_GRID
 
@@ -445,6 +454,7 @@ static int _near _fortran read_string( char _far *string )
   INT_1 length;
 
   if( read_S( &length, sizeof(INT_1) ) != 0 )        return -1; //  reading string length
+  if( ( length < 0 )||( length >= FILENAME_MAX ) )    return -1; //  BUG-026: dlina iz faila
   if( read_S( string, sizeof( char )*length ) != 0 ) return -1; //  reading string
   string[length] = 0;                                           //  marking end of string
   if( read_CR() != 0) return -1;                                //  reading separator

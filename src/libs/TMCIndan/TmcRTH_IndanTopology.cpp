@@ -93,11 +93,17 @@ void CTmcRTH_IndanTopology::ReadLink( CString &csCh, CTmcLibError &cError )
 	expr_del_Blanks2( szBuf1 );
 	if( i1nte_atof_1( szBuf1, &rBuf ) != 0 )
 	{
-		csBuf.Format("In{%s}{%s}%s", csCh, szBuf, expr_get_error() );
+		csBuf.Format("In{%s}{%s}%s", csCh, szBuf1, expr_get_error() );	// N-19
 		cError.PutErrorMessage(csBuf);
 		return;
 	};
 	iBuf = (int)(rBuf);
+	if( (double)iBuf != rBuf )	// N-23: "T 1.7;" is not the block 1
+	{
+		csBuf.Format("In{%s} the block number {%s} must be an integer", (LPCSTR)csCh, szBuf1 );
+		cError.PutErrorMessage(csBuf);
+		return;
+	};
 
 	i+= Search_1Param( csBuf, szBuf+i, cError);
 	
@@ -112,7 +118,7 @@ void CTmcRTH_IndanTopology::ReadLink( CString &csCh, CTmcLibError &cError )
 	expr_del_Blanks2( szBuf1 );
 	if( i1nte_atof_1( szBuf1, &rBuf ) != 0 )
 	{
-		csBuf.Format("In{%s}{%s}%s", csCh, szBuf, expr_get_error() );
+		csBuf.Format("In{%s}{%s}%s", csCh, szBuf1, expr_get_error() );	// N-19
 		cError.PutErrorMessage(csBuf);
 		return;
 	};
@@ -131,7 +137,7 @@ void CTmcRTH_IndanTopology::ReadLink( CString &csCh, CTmcLibError &cError )
 	expr_del_Blanks2( szBuf1 );
 	if( i1nte_atof_1( szBuf1, &rBuf ) != 0 )
 	{
-		csBuf.Format("In{%s}{%s}%s", csCh, szBuf, expr_get_error() );
+		csBuf.Format("In{%s}{%s}%s", csCh, szBuf1, expr_get_error() );	// N-19
 		cError.PutErrorMessage(csBuf);
 		return;
 	};
@@ -227,7 +233,7 @@ void CTmcRTH_IndanTopology::ReadLink( CString &csCh, CTmcLibError &cError )
 		{
 			return;
 		};
-		csBuf.Format("%s %d %s in %s section y0 must be %lg - for left input or %lg - for right input", 
+		csBuf.Format("%s %d %s in %s section y0 must be %lg - for bottom input or %lg - for top input", 
 			CTMCRTH_INDANMET_BLOCK, iBuf, CTMCRTH_INDANBLCK_INPUT_Y,
 			CTMCRTH_INDANMET_LINKLIST, pcParam->rYmin/pcParam->rGetLongUnit(), 
 			pcParam->rYmax/pcParam->rGetLongUnit());

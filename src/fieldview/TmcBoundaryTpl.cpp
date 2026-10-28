@@ -131,7 +131,10 @@ void CTmcBoundaryTpl::SetBlockList(CTmcRTH_BlockList *pcBlList, CTmcLibError &cE
 		TranslateX0Y0();
 		return;
 	};
-	if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILE, strlen(CTMCRTH_INDANBLCK_FILE)) == 0 )
+	if( ( strncmp( csBlock, CTMCRTH_INDANBLCK_FILE, strlen(CTMCRTH_INDANBLCK_FILE)) == 0 )||	// B-17: FILE_N/_B/_Y too
+		( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEN, strlen(CTMCRTH_INDANBLCK_FILEN)) == 0 )||
+		( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEB, strlen(CTMCRTH_INDANBLCK_FILEB)) == 0 )||
+		( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEY, strlen(CTMCRTH_INDANBLCK_FILEY)) == 0 ) )
 	{
 		nType = CTMCRTH_BLCKNTYPE_EPS;
 		SetRectStat( pcBlList, cError, dDelta );

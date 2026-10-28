@@ -45,6 +45,10 @@ CTmcRTH_IndanParam::CTmcRTH_IndanParam()
 	rTmax = (_real)(0.0);
 	rHeight = (_real)(0.0);
 	rDeltaTMechanical = FLT_MAX;
+	nXGrid = 0;	// B-2
+	nYGrid = 0;
+	rXmaxUser = 0.0;
+	rYmaxUser = 0.0;
 	return;
 }
 
@@ -92,6 +96,10 @@ void CTmcRTH_IndanParam::DeleteData( void )
 	rTmax = (_real)(0.0);
 	rHeight = (_real)(0.0);
 	rDeltaTMechanical = FLT_MAX;
+	nXGrid = 0;	// B-2
+	nYGrid = 0;
+	rXmaxUser = 0.0;
+	rYmaxUser = 0.0;
 	return;
 }
 
@@ -239,6 +247,8 @@ void CTmcRTH_IndanParam::ReadXmax( CString &csCh )
 		return;
 	};
 	rXmax = (_real)(r * rLongUnit);
+	rXmaxUser = rXmax;	// B-2: the grid is calculated again
+	nXGrid = 0;
 	
 	return;
 }
@@ -272,6 +282,7 @@ void CTmcRTH_IndanParam::ReadXmin( CString &csCh )
 		return;
 	};
 	rXmin = (_real)(r * rLongUnit);
+	nXGrid = 0;	// B-2: the grid is calculated again
 	
 	return;
 }
@@ -306,6 +317,8 @@ void CTmcRTH_IndanParam::ReadYmax( CString &csCh )
 		return;
 	};
 	rYmax = (_real)(r * rLongUnit);
+	rYmaxUser = rYmax;	// B-2: the grid is calculated again
+	nYGrid = 0;
 	
 	return;
 }
@@ -340,6 +353,7 @@ void CTmcRTH_IndanParam::ReadYmin( CString &csCh )
 		return;
 	};
 	rYmin = (_real)(r * rLongUnit);
+	nYGrid = 0;	// B-2: the grid is calculated again
 	
 	return;
 }
@@ -438,6 +452,8 @@ void CTmcRTH_IndanParam::ReadDelta( CString &csCh )
 		return;
 	};
 	rDelta = (_real)(r * rLongUnit);
+	nXGrid = 0;	// B-2: the grid is calculated again
+	nYGrid = 0;
 	rt = (_real)(rDelta*sqrt(0.5*MU0___*EPS0___));
 	
 	return;
@@ -470,7 +486,7 @@ void CTmcRTH_IndanParam::ReadTime( CString &csCh )
 	expr_del_Blanks2( szBuf1 );
 	if( i1nte_atof_1( szBuf1, &r ) != 0 )
 	{
-		csBuf.Format("In{%s}{%s}%s", csCh, szBuf, expr_get_error() );
+		csBuf.Format("In{%s}{%s}%s", csCh, szBuf1, expr_get_error() );	// N-19
 		cError.PutErrorMessage(csBuf);
 		return;
 	};
@@ -489,7 +505,7 @@ void CTmcRTH_IndanParam::ReadTime( CString &csCh )
 	expr_del_Blanks2( szBuf1 );
 	if( i1nte_atof_1( szBuf1, &r ) != 0 )
 	{
-		csBuf.Format("In{%s}{%s}%s", csCh, szBuf, expr_get_error() );
+		csBuf.Format("In{%s}{%s}%s", csCh, szBuf1, expr_get_error() );	// N-19
 		cError.PutErrorMessage(csBuf);
 		return;
 	};
@@ -765,7 +781,7 @@ void CTmcRTH_IndanParam::IsCorrectly( CTmcLibError &cError1 )
 	if( rDelta > (C0___/(5.*rFreq)) )
 	{
 		csBuf.Format("Section %s Delta(%lg) > WaveLenght(%lg)/5; make please parameter %s less than %lg %s",
-			CTMCRTH_INDANMET_PARAM, rDelta, (300000000./rFreq),
+			CTMCRTH_INDANMET_PARAM, rDelta, (C0___/rFreq),	// N-19
 			CTMCRTH_DELTA_ID, (C0___/(5.*rFreq))/rLongUnit, csLongUnit);
 		cError.PutErrorMessage(csBuf);
 		cError1 = cError;
@@ -774,11 +790,28 @@ void CTmcRTH_IndanParam::IsCorrectly( CTmcLibError &cError1 )
 
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
-	int nX111, nY111;
-	nX111 = CalcnX();
-	nY111 = CalcnY();
-	rXmax = rXmin + nX111*rDelta;
-	rYmax = rYmin + nY111*rDelta;
+	// B-2: nX and nY are calculated ONCE, from X_MAX and Y_MAX as written in the task, and kept (nXGrid, nYGrid);
+	// a new border or DELTA calculates them again. The border is moved to the reserve column as before.
+	// Old (the second division lost the column of X_MAX on some grids; a step without X_MAX moved the border
+	// again - the grid grew on every step); to return it, put these lines back instead of the block below:
+	//   int nX111, nY111;
+	//   nX111 = CalcnX();
+	//   nY111 = CalcnY();
+	//   rXmax = rXmin + nX111*rDelta;
+	//   rYmax = rYmin + nY111*rDelta;
+	// and in CalcnX/CalcnY delete the lines "if( nXGrid > 0 ) return nXGrid;" (B-2).
+	if( nXGrid <= 0 )
+	{
+		int nX111 = (int)( ( rXmaxUser - rXmin )/rDelta + 1e-7 ) + 1;
+		rXmax = rXmin + nX111*rDelta;
+		nXGrid = nX111 + 1;
+	};
+	if( nYGrid <= 0 )
+	{
+		int nY111 = (int)( ( rYmaxUser - rYmin )/rDelta + 1e-7 ) + 1;
+		rYmax = rYmin + nY111*rDelta;
+		nYGrid = nY111 + 1;
+	};
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 
@@ -858,6 +891,10 @@ CTmcRTH_IndanParam& CTmcRTH_IndanParam::operator=( CTmcRTH_IndanParam& cParam )
 	rTmax  = cParam.rTmax;
 	rHeight = cParam.rHeight;
 	rDeltaTMechanical = cParam.rDeltaTMechanical;
+	nXGrid = cParam.nXGrid;	// B-2
+	nYGrid = cParam.nYGrid;
+	rXmaxUser = cParam.rXmaxUser;
+	rYmaxUser = cParam.rYmaxUser;
 
 	return (*this);
 }
@@ -918,7 +955,7 @@ double CTmcRTH_IndanParam::CalcX( TmcIdx nNumber )	// INT64
 	double r;
 	int nY, nX;
 
-	nX = (int)(( rXmax - rXmin )/rDelta)+1;
+	nX = CalcnX();	// B-2 (old: (int)(( rXmax - rXmin )/rDelta)+1)
 	nY = (int)( nNumber - ((TmcIdx)nX)*(nNumber/nX) );	// INT64
 	r = rXmin + nY*rDelta;
 
@@ -930,7 +967,7 @@ double CTmcRTH_IndanParam::CalcY( TmcIdx nNumber )	// INT64
 	double r;
 	int nY, nX;
 
-	nX = (int)(( rXmax - rXmin )/rDelta)+1;
+	nX = CalcnX();	// B-2 (old: (int)(( rXmax - rXmin )/rDelta)+1)
 	nY = (int)(nNumber/nX);	// INT64
 	r = rYmin + nY*rDelta;
 
@@ -1018,8 +1055,8 @@ TmcIdx CTmcRTH_IndanParam::CalcnNodeGlobalFM( double x, double y )	// INT64
 BOOL CTmcRTH_IndanParam::IsnInRegion( TmcIdx n )	// INT64
 {
 	int nX, nY;
-	nX = (int)(( rXmax - rXmin )/rDelta)+1;
-	nY = (int)(( rYmax - rYmin )/rDelta)+1;
+	nX = CalcnX();	// B-2 (old: (int)(( rXmax - rXmin )/rDelta)+1, the same for nY)
+	nY = CalcnY();
 
 	if( (n < 0)||( n >= ((TmcIdx)nX)*nY ) ) return FALSE;	// INT64
 
@@ -1028,6 +1065,10 @@ BOOL CTmcRTH_IndanParam::IsnInRegion( TmcIdx n )	// INT64
 
 BOOL CTmcRTH_IndanParam::IsnInRegion( _real x, _real y )
 {
+	// B-16: a point more than half a step beyond the border is outside (old: CalcnNodeGlobal pressed it to the
+	// border first, so the check was always TRUE)
+	if( ( x < rXmin - 0.5*rDelta )||( x > rXmax + 0.5*rDelta )||( y < rYmin - 0.5*rDelta )||( y > rYmax + 0.5*rDelta ) )
+		return FALSE;
 	return IsnInRegion( CalcnNodeGlobal( x, y ) );
 }
 
@@ -1035,6 +1076,7 @@ BOOL CTmcRTH_IndanParam::IsnInRegion( _real x, _real y )
 int CTmcRTH_IndanParam::CalcnX()
 {
 	int nX;
+	if( nXGrid > 0 ) return nXGrid;	// B-2: calculated once
 	if( fabs(rDelta) < FLT_MIN ) return 0;
 	nX = (int)(( rXmax - rXmin )/rDelta)+1;
 	return nX;
@@ -1043,6 +1085,7 @@ int CTmcRTH_IndanParam::CalcnX()
 int CTmcRTH_IndanParam::CalcnY()
 {
 	int nY;
+	if( nYGrid > 0 ) return nYGrid;	// B-2: calculated once
 	if( fabs(rDelta) < FLT_MIN ) return 0;
 	nY = (int)(( rYmax - rYmin )/rDelta)+1;
 	return nY;

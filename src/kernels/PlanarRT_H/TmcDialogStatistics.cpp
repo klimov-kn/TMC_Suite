@@ -183,8 +183,7 @@ void CTmcDialogStatistics::PrepareData( void )
 	{
 		int nnn = 1;
 		dWaveLenDelt = dWaveLen/dDelta;
-		m_nNumNode = ((double)((int)(( m_cParam.rXmax - m_cParam.rXmin )/m_cParam.rDelta)+1))*	// INT64
-			((int)(( m_cParam.rYmax - m_cParam.rYmin )/m_cParam.rDelta)+1);
+		m_nNumNode = ((double)m_cParam.CalcnX())*m_cParam.CalcnY();	// B-2: the nodes as the kernel counts them
 		if(m_cOut != NULL)
 		{
 			if(m_cOut->GetFieldIntegrated().bIsItegratedInMemory()) nnn = 3;

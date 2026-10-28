@@ -110,6 +110,7 @@ BOOL CPlanRT_HApp::InitInstance()
 	// Parse command line for standard shell commands, DDE, file open
 
 	Set_CommandLine_Flags( theApp.m_lpCmdLine );
+	InitGpuSetting( GetProfileInt( PLANRT_H_RAZDEL_INI, PLANRT_H_COMPUTEGPU_INI, 0 ) != 0 );	// GPU: Config -> Compute on GPU
 
 	CCommandLineInfo cmdInfo;
 	ParseCommandLine(cmdInfo);

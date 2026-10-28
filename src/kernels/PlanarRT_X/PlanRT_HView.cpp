@@ -13,6 +13,9 @@
 #include "TmcDialogStatistics.h"
 #include "TmcRTH_DialogFormatOutFile.h"
 #include "Pl_iofor.h"
+#ifdef _WIN64
+#include <TmcOcl.h>	// GPU: the list of the video cards for Config -> Compute on GPU
+#endif
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -67,6 +70,8 @@ BEGIN_MESSAGE_MAP(CPlanRT_HView, CScrollView)
 	ON_UPDATE_COMMAND_UI(ID_FILE_CLOSE, OnUpdateFileClose)
 	ON_COMMAND(ID_CONFIG_AUTORUN, OnConfigAutorun)
 	ON_UPDATE_COMMAND_UI(ID_CONFIG_AUTORUN, OnUpdateConfigAutorun)
+	ON_COMMAND(ID_CONFIG_GPU, OnConfigGpu)					// GPU
+	ON_UPDATE_COMMAND_UI(ID_CONFIG_GPU, OnUpdateConfigGpu)	// GPU
 	ON_COMMAND(ID_CONFIG_SETUP, OnConfigSetup)
 	ON_COMMAND(ID_VIEW_DIRECTIONALPATTERN, OnViewDirectionalpattern)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_DIRECTIONALPATTERN, OnUpdateViewDirectionalpattern)
@@ -517,8 +522,11 @@ void CPlanRT_HView::OnViewStatistics()
 	ASSERT_VALID(pDoc);
 	CTmcDialogStatistics cDlg;
 
-//	if(	pDoc->IsReadData() ) return;
-//	if(	bIsReadData ) return;
+	if( pDoc->IsRun() )	// N-9: the dialog writes into the data of the running step
+	{
+		AfxMessageBox( "Statistics is shown when the calculation is stopped or finished." );
+		return;
+	};
 
 	cDlg.m_nStep = pDoc->GetnStep();
 	cDlg.m_csErrorMessage = pDoc->GetErrorMessage();
@@ -664,6 +672,10 @@ void CPlanRT_HView::OnConfigFormatOutputDataFile()
 		SetdInpFormat( cDlg.m_csdInp );
 		SetdOutFormat( cDlg.m_csdOut );
 		SetdFieldOutFormat( cDlg.m_csdOutField );
+		if( ( strcmp( cDlg.m_csnT, GetnTFormat() ) != 0 )||( strcmp( cDlg.m_csdTcurrent, GetdTcurrentFormat() ) != 0 )||	// T-4
+			( strcmp( cDlg.m_csnBlock, GetnBFormat() ) != 0 )||( strcmp( cDlg.m_csdInp, GetdInpFormat() ) != 0 )||
+			( strcmp( cDlg.m_csdOut, GetdOutFormat() ) != 0 )||( strcmp( cDlg.m_csdOutField, GetdFieldOutFormat() ) != 0 ) )
+			AfxMessageBox( "A format is not valid and is replaced by the default.\nA format must have one conversion: d (i, u, x, o) for a number, g (e, f) for a value, width and precision of at most 2 digits." );
 		WriteFile();
 		if( cDlg.IsSetDefaultFormat )
 		{
@@ -862,6 +874,11 @@ void CPlanRT_HView::OnViewTopology()
 	// TODO: Add your command handler code here
 	CPlanRT_HDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
+	if( pDoc->IsRun() )	// N-9: the arrays of the running step are not read from the window
+	{
+		AfxMessageBox( "The topology file is written when the calculation is stopped or finished." );
+		return;
+	};
 	pDoc->PutTopology();
 	WriteFile();
 	return;
@@ -1052,6 +1069,78 @@ void CPlanRT_HView::OnUpdateConfigAutorun(CCmdUI* pCmdUI)
 	return;
 }
 
+#ifdef _WIN64
+// GPU: the video card the kernel will take (the same list and order as TmcGpuH.h: only cards with double);
+// FALSE - no card, csText says why
+static BOOL TmcGpuCardText( CString &csText )
+{
+	TmcOcl ocl;
+	if( !ocl.Load() )
+	{
+		csText = "OpenCL.dll was not found in the system folder - install the driver of the video card.\n"
+			"The calculation stays on the CPU.";
+		return FALSE;
+	};
+	std::vector<TmcOclDevice> v = TmcOclListGpus( ocl ), vd;
+	for( size_t k = 0; k < v.size(); k++ ) if( v[k].bFP64 ) vd.push_back( v[k] );
+	FreeLibrary( ocl.hLib );
+	int nDev = GetGpuSettingCard();
+	if( vd.empty() )
+	{
+		csText = v.empty() ? "OpenCL has no video card (no OpenCL driver of a video card is installed).\n"
+			: "No video card with double precision (cl_khr_fp64) - the calculation needs it.\n";
+		csText += "The calculation stays on the CPU.";
+		return FALSE;
+	};
+	if( nDev >= (int)vd.size() )
+	{
+		csText.Format( "TMC_GPU asks for the card %d, but there are %d card(s) with double precision, numbered from 0.\n"
+			"The calculation stays on the CPU.", nDev, (int)vd.size() );
+		return FALSE;
+	};
+	csText.Format( "The calculation goes to the video card GPU %d: %s\n(%s, driver %s, memory %I64u MB).\n\n"
+		"Small grids stay on the CPU - it is faster there. The status line shows where a step is calculated.\n"
+		"The keys /GPU, /GPU:n and /CPU of the command line are stronger than this switch.",
+		nDev, vd[nDev].sName.c_str(), vd[nDev].sPlatform.c_str(), vd[nDev].sDriver.c_str(),
+		(unsigned __int64)( vd[nDev].nGlobalMem/( 1024*1024 ) ) );
+	return TRUE;
+}
+#endif
+
+void CPlanRT_HView::OnConfigGpu()	// GPU: Config -> Compute on GPU
+{
+	BOOL bOn = !IsGpuSettingOn();
+#ifdef _WIN64
+	if( bOn )
+	{
+		CString csText;
+		if( !TmcGpuCardText( csText ) )
+		{
+			AfxMessageBox( csText, MB_ICONWARNING );	// no card: the switch stays off
+			return;
+		};	// the card is found: only the check mark (the status line shows where a step is calculated)
+	};
+#else
+	return;	// win32: OpenCL calculation needs the win64 build
+#endif
+	SetGpuSetting( bOn );
+	AfxGetApp()->WriteProfileInt( PLANRT_H_RAZDEL_INI, PLANRT_H_COMPUTEGPU_INI, bOn ? 1 : 0 );
+	return;
+}
+
+void CPlanRT_HView::OnUpdateConfigGpu(CCmdUI* pCmdUI)
+{
+#ifdef _WIN64
+	CPlanRT_HDoc* pDoc = GetDocument();
+	// the command line decides (/GPU, /CPU); during a run the switch is not changed
+	pCmdUI->Enable( !IsGpuKeyInCommandLine() && !( ( pDoc != NULL )&&pDoc->IsRun() ) );
+#else
+	pCmdUI->Enable( FALSE );
+#endif
+	pCmdUI->SetCheck( IsGpuSettingOn() );
+	return;
+}
+
 void CPlanRT_HView::OnConfigSetup() 
 {
 
@@ -1076,7 +1165,7 @@ void CPlanRT_HView::OnConfigSetup()
 	};
 
 // read extern editor name
-	strcpy( szBuffer1, pDoc->GetExternViewer() );
+	strcpy( szBuffer1, pDoc->GetExternEditorName() );	// S-12: the editor, not the signal viewer
 	GetProfileString( PLANRT_H_RAZDEL_INI, PLANRT_H_EXTERNEDITORNAME_INI, szBuffer1, szBuffer, N_BUF_MAX);
 	csBuffer = szBuffer;
 	if( csBuffer.GetLength() != 0 )
@@ -1085,7 +1174,7 @@ void CPlanRT_HView::OnConfigSetup()
 	}
 	else
 	{
-		csBuffer = "NOTEPAD.EXE";
+		csBuffer = "NOTEPAD.EXE";	// T-33: started from the system folder (CreatProc)
 		pDoc->SetExternEditorName( csBuffer );
 	};
 
@@ -1099,8 +1188,7 @@ void CPlanRT_HView::OnConfigSetup()
 	}
 	else
 	{
-		csBuffer = szCurrentDir;
-		csBuffer += "TMCROS.EXE";
+		csBuffer = "TMCROS.EXE";	// S-12: the program of the package, found next to the kernel (not "task folder" + name)
 		pDoc->SetExternViewer( csBuffer );
 	};
 
@@ -1114,8 +1202,7 @@ void CPlanRT_HView::OnConfigSetup()
 	}
 	else
 	{
-		csBuffer = szCurrentDir;
-		csBuffer += "FLDVIEW.EXE";
+		csBuffer = "FLDVIEW.EXE";	// S-12: the program of the package, found next to the kernel (not "task folder" + name)
 		pDoc->SetExternViewerField( csBuffer );
 	};
 
@@ -1130,14 +1217,13 @@ void CPlanRT_HView::OnConfigSetup()
 	}
 	else
 	{
-		csBuffer = szCurrentDir;
-		csBuffer += "TMCGROUT.EXE";
+		csBuffer = "TMCGROUT.EXE";	// S-12: the program of the package, found next to the kernel (not "task folder" + name)
 		pDoc->SetExternViewerSmatrix( csBuffer );
 	};
 
 
 // read extern directional pattern viewer name
-	strcpy( szBuffer1, pDoc->GetExternViewerSmatrix() );
+	strcpy( szBuffer1, pDoc->GetExternViewerDirectPat() );	// S-12: the directional pattern viewer, not the S-matrix one
 	GetProfileString( PLANRT_H_RAZDEL_INI, PLANRT_H_EXTERNDIRPATVIEWERNAM_INI, szBuffer1, szBuffer, N_BUF_MAX);
 	csBuffer = szBuffer;
 	if( csBuffer.GetLength() != 0 )	
@@ -1146,8 +1232,7 @@ void CPlanRT_HView::OnConfigSetup()
 	}
 	else
 	{
-		csBuffer = szCurrentDir;
-		csBuffer += "TMC_DN.EXE";
+		csBuffer = "TMC_DN.EXE";	// S-12: the program of the package, found next to the kernel (not "task folder" + name)
 		pDoc->SetExternViewerDirectionalpattern( csBuffer );
 	};
 

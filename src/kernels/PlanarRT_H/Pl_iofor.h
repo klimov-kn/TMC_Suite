@@ -57,6 +57,13 @@ void RunOnViewField1( void );
 #define TMC_EXIT_ABORTED		3	// stopped by the user / window closed before the end
 void SetRunExitCode( int nCode );
 int  GetRunExitCode( void );
+void SetRunWarning( const char *pszText );	// the last warning of the run ("" - clear)
+const char *GetRunWarning( void );			// "" - the run had no warnings
+void InitGpuSetting( BOOL bOn );			// GPU: at the start - the switch from the settings
+void SetGpuSetting( BOOL bOn );				// GPU: Config -> Compute on GPU
+BOOL IsGpuSettingOn( void );				// GPU: TMC_GPU of the process asks for the card
+int  GetGpuSettingCard( void );				// GPU: the card number (from TMC_GPU set outside, else 0)
+BOOL IsGpuKeyInCommandLine( void );			// GPU: /GPU, /GPU:n or /CPU in the command line
 void SetRunMainWnd( HWND hWnd );
 void SetRunClosing( void );
 void PostRunClose( void );

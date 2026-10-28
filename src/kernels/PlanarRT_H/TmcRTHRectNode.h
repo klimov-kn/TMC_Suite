@@ -94,6 +94,7 @@ private:
 	void DeleteNodeArray( void );
 	void InitNodeArray( void );
 	void RunKernel1T( void );
+	void RunKernel1TGpu( void );	// GPU: RunKernel1T with the grid on the video card (TmcGpuH.h)
 	double dT;
 	double dTCurrent;
 	int nTMax;

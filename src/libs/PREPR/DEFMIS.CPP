@@ -60,6 +60,30 @@ static char  szMessage1[] = "*** Include file: \"%s\" ***";
 static char  szMessage2[] = "  %3d  %s";
 static char  szMessage3[] = "*** End Include file: \"%s\" ***";
 
+#define DEF_INCLUDE_DEPTH_MAX 64        // S-18: limit of nested #include
+
+// T-3: 1 if the #include name leaves the task folder: a part of the path that is made only of
+// dots ("..", "...") or a drive name / stream (':').
+static int def_include_name_outside( const char *pszName )
+{
+  const char *p;
+  int nDots = 0, nOther = 0;
+
+  if( strchr( pszName, ':' ) != NULL ) return 1;
+  for( p = pszName; ; p++ )
+  {
+    if( (*p == '\\')||(*p == '/')||(*p == '\0') )
+    {
+      if( (nDots >= 2)&&(nOther == 0) ) return 1;
+      if( *p == '\0' ) return 0;
+      nDots = 0;
+      nOther = 0;
+    }
+    else if( *p == '.' ) nDots++;
+    else if( (*p != ' ')&&(*p != '\t') ) nOther++;
+  }
+}
+
 int _far fortran def_include( BUFFER _far *buf )
  {
   FILE _far *in;
@@ -69,11 +93,11 @@ int _far fortran def_include( BUFFER _far *buf )
   char		*str1;
   char		*inf;
 
-  if( (str = new char[ BUF_STR_N_MAX ]) == NULL )
+  if( (str = new char[ BUF_STR_N_MAX + 1 ]) == NULL )	// N-26
   {
 	  return -1;
   };
-  if( (str1 = new char[ BUF_STR_N_MAX ]) == NULL )
+  if( (str1 = new char[ BUF_STR_N_MAX + 1 ]) == NULL )	// N-26
   {
 	  delete []str;
 	  return -1;
@@ -89,6 +113,12 @@ int _far fortran def_include( BUFFER _far *buf )
 
   int        p, p1, n1, i;
   int        inc_line;
+  int        nIncDepth = 0;                    // S-18: depth of nested #include
+  int        pnIncEnd[DEF_INCLUDE_DEPTH_MAX];  // S-18: node after the inserted text of each open #include
+  int        nIncEnd;
+  char      *pszName;
+  size_t     nPath, nName;
+  char       szMsg[640];
 
   p = buf->inp_p;
 
@@ -99,6 +129,7 @@ int _far fortran def_include( BUFFER _far *buf )
 
   while(  buf->inp_p >= 0 )                       /*  find include file name*/
    {
+    while( (nIncDepth > 0)&&(buf->inp_p == pnIncEnd[nIncDepth-1]) ) nIncDepth--;  // S-18: the included text is passed
     if(buf_cmpn2( buf, 9, szInclude1, szInclude2 ) == BUF_NULL )       /*  if find '#include'*/
      {
       p1 = buf->inp_p;
@@ -107,14 +138,16 @@ int _far fortran def_include( BUFFER _far *buf )
 		  delete []inf;
 		  delete []str1;
 		  delete []str;
+		  put_error_messege( "#include: the line is longer than 500000 characters or the text ends inside it" );  // S-17
 		  return -1;
 	  };
-      n1 = strlen(str);
+      n1 = (int)strlen(str);
       buf->inp_p = p1;
 
       buf_dels( buf, n1);                        /*  delete string with '#include'*/
+      nIncEnd = buf->ilex[p1];                   // S-18: the included text is put before this node
 
-      str[n1-1] = '\0';
+      if( (n1 > 0)&&(str[n1-1] == '\n') ) str[n1-1] = '\0';  // N-28: it was str[n1-1] = 0 always
 
       inc_line = 0;                          /*  include file line counter*/
 	  for( i = 9; (i < BUF_STR_N_MAX)&&( str[i] == ' '); i++ )
@@ -122,23 +155,54 @@ int _far fortran def_include( BUFFER _far *buf )
 		  ;
 	  };
 
-      sprintf( inf, "%s\\%s", GetCurrentPath(), str + i);
+      pszName = str + i;
+      nPath = strlen( GetCurrentPath() );
+      nName = strlen( pszName );
 
-      if( strlen( inf ) > FILENAME_MAX  )
+      if( nPath + 1 + nName > FILENAME_MAX  )     // T-2, T-7: the length is checked before the full name is built
         {
+         snprintf( szMsg, sizeof(szMsg), "#include: the file name with the task folder is too long (%u characters, at most %d): %.200s%s",
+                   (unsigned)(nPath + 1 + nName), (int)FILENAME_MAX, pszName, (nName > 200) ? "..." : "" );
+         szMsg[sizeof(szMsg)-1] = '\0';
 		  delete []inf;
 		  delete []str1;
 		  delete []str;
-         put_error_messege( "FileName is long" );
+         put_error_messege( szMsg );
          return -1;
         }
 
-      if( (in = fopen( inf, "r")) == NULL)       /*  open including file*/
-       {
+      if( def_include_name_outside( pszName ) )   // T-3: only the task folder and its subfolders
+        {
+         snprintf( szMsg, sizeof(szMsg), "#include: the file must be in the task folder or in its subfolder ('..' and drive names are not allowed): %s", pszName );
+         szMsg[sizeof(szMsg)-1] = '\0';
 		  delete []inf;
 		  delete []str1;
 		  delete []str;
-        put_error_messege( "open file" );
+         put_error_messege( szMsg );
+         return(DEF_ERROR_INFILE);
+        }
+
+      if( nIncDepth >= DEF_INCLUDE_DEPTH_MAX )    // S-18: a file that includes itself
+        {
+         snprintf( szMsg, sizeof(szMsg), "#include: more than %d nested files (does the file include itself?): %s", DEF_INCLUDE_DEPTH_MAX, pszName );
+         szMsg[sizeof(szMsg)-1] = '\0';
+		  delete []inf;
+		  delete []str1;
+		  delete []str;
+         put_error_messege( szMsg );
+         return(DEF_ERROR_INFILE);
+        }
+
+      sprintf( inf, "%s\\%s", GetCurrentPath(), pszName );
+
+      if( (in = fopen( inf, "r")) == NULL)       /*  open including file*/
+       {
+         snprintf( szMsg, sizeof(szMsg), "can't open include file %s", inf );   // S-21: it was "open file"
+         szMsg[sizeof(szMsg)-1] = '\0';
+		  delete []inf;
+		  delete []str1;
+		  delete []str;
+        put_error_messege( szMsg );
 		return(DEF_ERROR_INFILE);
 	   }                                       /*  read including file in buffer*/
 
@@ -193,6 +257,7 @@ m_Cont: put_inc_line_number( ++inc_line );
        }
 
       fclose( in );
+      pnIncEnd[nIncDepth++] = nIncEnd;            // S-18: one more open #include
 
       buf->inp_p=0;
       def_sl( buf );                              /* delete  coment*/
@@ -232,7 +297,7 @@ static char  str1[] = " \n";
 int  def_sl( BUFFER _far *buf )
  {
   char *str;
-  if( (str = new char[ BUF_STR_N_MAX ]) == NULL )
+  if( (str = new char[ BUF_STR_N_MAX + 1 ]) == NULL )	// N-26
   {
 	  return -1;
   };

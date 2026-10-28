@@ -48,6 +48,8 @@ protected:
 	//{{AFX_MSG(CThreadCalcDirPat)
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	virtual BOOL OnInitDialog();
+	virtual void OnCancel();	// A-30
+	virtual void OnClose();		// A-30
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 private:

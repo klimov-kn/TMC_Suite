@@ -124,24 +124,115 @@ BOOL CPlanRT_HDoc::RunExeFile( char *lpszNameExe )
 	return CreatProc( szCommandLine + i );
 }
 
+#ifdef _WIN32
+// T-33: the full path of a program given without a folder: next to the kernel, the system
+// folder, the Windows folder, "App Paths" of the registry, PATH - but never the current folder
+// (that is the task folder, a file put there must not start). FALSE - not found.
+static BOOL TmcFindProgram( const char *pszName, char *pszFull, DWORD nMax )
+{
+	char szDir[MAX_PATH + 1], szName[MAX_PATH + 8];
+	const char *pExt;
+	DWORD n;
+	HKEY hKey;
+	int k;
+
+	if( ( strlen( pszName ) == 0 )||( strlen( pszName ) >= MAX_PATH ) ) return FALSE;
+	strcpy( szName, pszName );
+	pExt = strrchr( szName, '.' );
+	if( pExt == NULL ) strcat( szName, ".exe" );
+	if( _stricmp( szName, "FLDVIEW.EXE" ) == 0 ) strcpy( szName, "FieldView.exe" );	// the old name of the field viewer
+	for( k = 0; k < 3; k++ )
+	{
+		szDir[0] = '\0';
+		if( k == 0 )
+		{
+			n = GetModuleFileNameA( NULL, szDir, MAX_PATH );
+			if( ( n == 0 )||( n >= MAX_PATH ) ) continue;
+			char *pS = strrchr( szDir, '\\' );
+			if( pS == NULL ) continue;
+			pS[0] = '\0';
+		};
+		if( k == 1 ) { n = GetSystemDirectoryA( szDir, MAX_PATH ); if( ( n == 0 )||( n >= MAX_PATH ) ) continue; };
+		if( k == 2 ) { n = GetWindowsDirectoryA( szDir, MAX_PATH ); if( ( n == 0 )||( n >= MAX_PATH ) ) continue; };
+		if( strlen( szDir ) + strlen( szName ) + 2 > nMax ) continue;
+		sprintf( pszFull, "%s\\%s", szDir, szName );
+		if( GetFileAttributesA( pszFull ) != INVALID_FILE_ATTRIBUTES ) return TRUE;
+	};
+	for( k = 0; k < 2; k++ )
+	{
+		char szKey[MAX_PATH + 80];
+		DWORD dwType, dwSize = nMax;
+		sprintf( szKey, "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s", szName );
+		if( RegOpenKeyExA( ( k == 0 ) ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE, szKey, 0, KEY_READ, &hKey ) != ERROR_SUCCESS ) continue;
+		LONG lRes = RegQueryValueExA( hKey, NULL, NULL, &dwType, (LPBYTE)pszFull, &dwSize );
+		RegCloseKey( hKey );
+		if( ( lRes != ERROR_SUCCESS )||( ( dwType != REG_SZ )&&( dwType != REG_EXPAND_SZ ) )||( dwSize >= nMax ) ) continue;
+		pszFull[dwSize] = '\0';
+		if( pszFull[0] == '"' )
+		{
+			memmove( pszFull, pszFull + 1, strlen( pszFull ) );
+			char *pQ = strchr( pszFull, '"' );
+			if( pQ != NULL ) *pQ = '\0';
+		};
+		if( GetFileAttributesA( pszFull ) != INVALID_FILE_ATTRIBUTES ) return TRUE;
+	};
+	{
+		const char *pszPath = getenv( "PATH" );
+		char *pFile;
+		if( ( pszPath != NULL )&&( SearchPathA( pszPath, szName, NULL, nMax, pszFull, &pFile ) > 0 )&&
+			( strlen( pszFull ) < nMax ) ) return TRUE;
+	};
+	return FALSE;
+}
+#endif
+
 BOOL CPlanRT_HDoc::CreatProc(char * lpszComLine)
 {
 	char szCurrentDir[N_BUF_MAX];
 	int i;
 	PROCESS_INFORMATION	piProcInfo;
 	BOOL ii;
+	BOOL bDirFound = FALSE;	// N-10
 
 	piProcInfo.hProcess = NULL;
 
-	strcpy( szCurrentDir, GetPathName() );
+	strncpy( szCurrentDir, GetPathName(), N_BUF_MAX - 1 );
+	szCurrentDir[N_BUF_MAX - 1] = '\0';
 	for( i = strlen(szCurrentDir)-1; i >= 0; i-- )
 	{
 		if( szCurrentDir[i] == '\\' )
 		{
 			szCurrentDir[i] = '\0';
 			i = -1;
+			bDirFound = TRUE;
 		};
 	};
+#ifdef _WIN32
+	char szCmdFull[N_BUF_MAX];
+	{	// T-33: the program is started by its full path
+		const char *p = lpszComLine;
+		char szProg[MAX_PATH + 8], szFull[MAX_PATH + 8];
+		int n = 0;
+		while( ( *p == ' ' )||( *p == '\t' ) ) p++;
+		if( *p == '"' )
+		{
+			for( p++; ( *p != '"' )&&( *p != '\0' )&&( n < MAX_PATH ); p++ ) szProg[n++] = *p;
+			if( *p == '"' ) p++;
+		}
+		else
+		{
+			for( ; ( *p != ' ' )&&( *p != '\t' )&&( *p != '\0' )&&( n < MAX_PATH ); p++ ) szProg[n++] = *p;
+		};
+		szProg[n] = '\0';
+		if( strpbrk( szProg, "\\/:" ) == NULL )
+		{
+			if( !TmcFindProgram( szProg, szFull, sizeof(szFull) ) ) return FALSE;
+			if( _snprintf( szCmdFull, N_BUF_MAX - 1, "\"%s\"%s", szFull, p ) < 0 ) return FALSE;
+			szCmdFull[N_BUF_MAX - 1] = '\0';
+			lpszComLine = szCmdFull;
+		};
+	};
+#endif
 
    if( piProcInfo.hProcess != NULL ) 
    {
@@ -157,16 +248,25 @@ BOOL CPlanRT_HDoc::CreatProc(char * lpszComLine)
       lpszComLine,       // command line 
       NULL,          // process security attributes 
       NULL,          // primary thread security attributes 
-      TRUE,          // handles are inherited 
-      0,             // creation flags 
-      NULL,          // use parent's environment 
-      szCurrentDir,          // use parent's current directory 
-      &siStartInfo,  // STARTUPINFO pointer 
-      &piProcInfo);  // receives PROCESS_INFORMATION 
-	if( IsDemoRun() ) 
+      FALSE,         // N-10: handles are not inherited (the open .t of the step and others)
+      0,             // creation flags
+      NULL,          // use parent's environment
+      bDirFound ? szCurrentDir : NULL,	// N-10: the task folder, if the path has one
+      &siStartInfo,  // STARTUPINFO pointer
+      &piProcInfo);  // receives PROCESS_INFORMATION
+	if( IsDemoRun() )
 	{
 		SetProcessInformation(piProcInfo);
+	}
+#ifdef _WIN32
+	else if( ii )	// N-10: the handles are not needed any more
+	{
+		if( piProcInfo.hThread != NULL ) CloseHandle( piProcInfo.hThread );
+		if( piProcInfo.hProcess != NULL ) CloseHandle( piProcInfo.hProcess );
 	};
+#else
+	;
+#endif
    return ii;
 }
 
@@ -274,6 +374,7 @@ void CPlanRT_HDoc::RunStep( void )
 	cRectNode.RunStep();
 	if( cRectNode.IsError() ) 
 	{
+		cRectNode.GetOutput()->PutSmatrixZero( cRectNode.GetTopology().GetBlockList() );	// D-1: zeros in the .s
 		bIsReadData = FALSE;
 		return;
 	};
@@ -341,7 +442,11 @@ void CPlanRT_HDoc::StopAndWait( void )
 				::DispatchMessage( &msg );
 			};
 		};
-		if( ::GetTickCount() - dwStart > 30000 ) break;
+		if( ::GetTickCount() - dwStart > 30000 )	// S-13: the document is not destroyed while its thread works
+		{
+			PutTrace( "Waiting for the calculation thread to stop..." );
+			dwStart = ::GetTickCount();
+		};
 	};
 	::CloseHandle( m_hRunThread );
 	m_hRunThread = NULL;
@@ -404,6 +509,9 @@ void CPlanRT_HDoc::RunAll1( void )
 	bIsReadData = TRUE;
 
 	int i, n;
+	int nErrStep = 0;		// D-1: steps calculated with an error
+	SetRunWarning( "" );		// the warnings of this run
+	CString csErrFirst, csErrSteps;
 
 	__int64 qTmPr = TmcTimingNow();								// TIMING
 	n = cRectNode.GetNStepMax( GetPathName() ) + 1;
@@ -465,11 +573,35 @@ void CPlanRT_HDoc::RunAll1( void )
 		cRectNode.RunStep();
 		if( cRectNode.IsError() )
 		{
-			ConsolePrint( "ERROR in calculation (step %d of %d): %s", nStep, n - 1,	// RUN STATUS
+			// D-1: the sweep is not broken off - the S-matrix of this step is zeros in the .s, the message goes to
+			// the console and the status line, the next step is calculated; the code 2 at the end.
+			// Old: ConsolePrint(...); SetRunExitCode( TMC_EXIT_CALC_ERROR ); bIsReadData = FALSE; return;
+			int nZero = cRectNode.GetOutput()->PutSmatrixZero( cRectNode.GetTopology().GetBlockList() );
+			ConsolePrint( "ERROR in calculation (step %d of %d, %lg %s): %s%s", nStep, n - 1,	// RUN STATUS
+				cRectNode.GetParam().rFreq/cRectNode.GetParam().rFreqUnit, (LPCTSTR)cRectNode.GetParam().csFreqUnit,
+				(LPCTSTR)cRectNode.GetErrorMessage(),
+				( nZero > 0 ) ? " - the S-matrix of this step is zeros in the .s" :
+				( ( nZero < 0 ) ? " - zeros could not be written to the .s" : "" ) );
+			csBuf.Format( "Error at step %d (%lg %s): %s", nStep,
+				cRectNode.GetParam().rFreq/cRectNode.GetParam().rFreqUnit, (LPCTSTR)cRectNode.GetParam().csFreqUnit,
 				(LPCTSTR)cRectNode.GetErrorMessage() );
-			SetRunExitCode( TMC_EXIT_CALC_ERROR );
-			bIsReadData = FALSE;
-			return;
+			PutTrace( csBuf );
+			if( nErrStep == 0 ) csErrFirst = csBuf;
+			if( nErrStep < 10 )
+			{
+				CString csS;
+				csS.Format( "%s%d (%lg %s)", ( nErrStep > 0 ) ? ", " : "", nStep,
+					cRectNode.GetParam().rFreq/cRectNode.GetParam().rFreqUnit, (LPCTSTR)cRectNode.GetParam().csFreqUnit );
+				csErrSteps += csS;
+			};
+			nErrStep++;
+			if( !bIsReadData )
+			{
+				ConsolePrint( "STOPPED at step %d of %d", nStep, n - 1 );		// RUN STATUS
+				SetRunExitCode( TMC_EXIT_ABORTED );
+				return;
+			};
+			continue;
 		};
 		if( !bIsReadData )
 		{
@@ -486,6 +618,17 @@ void CPlanRT_HDoc::RunAll1( void )
 		ConsolePrint( "Step %d of %d: done", nStep, n - 1 );			// RUN STATUS
 	};
 
+	if( nErrStep > 0 )	// D-1: all steps are done, some with an error
+	{
+		csBuf.Format( "Calculated with errors at %d step(s): %s%s - the S-matrix there is zeros. First: %s",
+			nErrStep, (LPCTSTR)csErrSteps, ( nErrStep > 10 ) ? ", ..." : "", (LPCTSTR)csErrFirst );
+		ConsolePrint( "%s", (LPCTSTR)csBuf );
+		PutTrace( csBuf );
+		SetRunExitCode( TMC_EXIT_CALC_ERROR );
+		bIsReadData = FALSE;
+		return;
+	};
+	if( GetRunWarning()[0] != '\0' ) PutTrace( GetRunWarning() );	// the warning again at the end (it was overwritten)
 	SetRunExitCode( TMC_EXIT_OK );									// RUN STATUS
 	bIsReadData = FALSE;
 

@@ -80,8 +80,10 @@ _real  inte_oper( char   *lex, int n )
 	  d = inte_inter( lex + lpsOper[i].nLenght, j - lpsOper[i].nLenght );
 	  if( expr_get_error_cod() != 0 ) return 0.;
 	  if( d < 0.0 ) return d;
+	  long nIter = 0;   // N-30: while(1) hung the kernel
 	  while( d >= 0.0 )
 	  {
+		  if( ++nIter > 10000000L ) { expr_set_error_cod( ERROR_EXPRESSION ); return 0.; }
 		  d = inte_inter( lex + j + 1, n - j - 1 );
 		  if( expr_get_error_cod() != 0 ) return 0.;
 		  d = inte_inter( lex + lpsOper[i].nLenght, j - lpsOper[i].nLenght );

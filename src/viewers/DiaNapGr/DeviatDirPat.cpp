@@ -143,6 +143,7 @@ BOOL CDeviatDirPat::CalculateDeviationDirectionalPattern()
 		cDn2.SetdFrequence( cDn1.GetdFreqGHz() );
 		cDn2.SetszOneExpression( cDn1.GetOneExpression() );
 		cDn2.SetIzl( i, x, y, a, f );
+		cDn2.CopyIzlSector( cDn1, i );	// A-31: sektor i diagramma elementa
 		if( cDn2.IsError() ) 
 		{
 			CString csBuf;

@@ -89,6 +89,8 @@ protected:
 	afx_msg void OnUpdateFileClose(CCmdUI* pCmdUI);
 	afx_msg void OnConfigAutorun();
 	afx_msg void OnUpdateConfigAutorun(CCmdUI* pCmdUI);
+	afx_msg void OnConfigGpu();							// GPU
+	afx_msg void OnUpdateConfigGpu(CCmdUI* pCmdUI);		// GPU
 	afx_msg void OnConfigSetup();
 	afx_msg void OnViewDirectionalpattern();
 	afx_msg void OnUpdateViewDirectionalpattern(CCmdUI* pCmdUI);

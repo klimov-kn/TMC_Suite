@@ -7,6 +7,130 @@
 #include "TmcRTHRectNode.h"
 #include <malloc.h>
 #include "Pl_iofor.h"
+#include "TmcGpuX.h"	// GPU
+
+static CTmcGpuX g_cGpuX;	// GPU: the grid on the video card while RunKernel runs
+
+// T-5, T-9: the .t file of the step.
+// T-5: the file is kept open while the step runs; other programs may read it, but not
+// write it (_SH_DENYWR): a second kernel with the same FILE gets an error instead of
+// mixing its lines into the file. The bytes are the same as before (the same text mode
+// and order); a line goes to the disk when the next one begins, at Stop and at the end.
+// T-9: a busy file is waited for by the clock (20 s), not by 2000 tries of Sleep(10).
+#include <errno.h>
+#include <chrono>
+#include <mutex>
+#ifdef _WIN32
+#include <share.h>
+#endif
+
+#define TMC_OUTT_WAIT_MS	20000
+#define TMC_OUTT_MAX		16
+
+static struct { CString csName; FILE *fp; } s_aOutT[TMC_OUTT_MAX];
+static std::mutex s_mxOutT;
+
+static long long TmcNowMs( void )
+{
+	return (long long)std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::steady_clock::now().time_since_epoch() ).count();
+}
+
+// T-9: open a file, a busy one is waited for at most 20 s; *pnErr - errno of the last try
+FILE *TmcFopenWait( const char *pszName, const char *pszMode, BOOL bDenyWrite, int *pnErr )
+{
+	long long t0 = TmcNowMs();
+	FILE *fp;
+	for( ;; )
+	{
+		errno = 0;
+#ifdef _WIN32
+		fp = bDenyWrite ? _fsopen( pszName, pszMode, _SH_DENYWR ) : fopen( pszName, pszMode );
+#else
+		fp = fopen( pszName, pszMode );
+#endif
+		if( fp != NULL ) return fp;
+		if( pnErr != NULL ) *pnErr = errno;
+		if( ( errno != EACCES )&&( errno != EBUSY ) ) return NULL;	// no folder, bad name: waiting does not help
+		if( TmcNowMs() - t0 >= TMC_OUTT_WAIT_MS ) return NULL;
+		Sleep( 10 );
+	};
+}
+
+// T-7, T-9: why a file can't be opened
+CString TmcOpenFailText( const char *pszName, int nErr )
+{
+	CString cs;
+#ifdef _WIN32
+	if( strlen( pszName ) >= 260 )
+	{
+		cs.Format( "Can't open file %s: the path is %d characters long, at most 259 are supported", pszName, (int)strlen( pszName ) );
+		return cs;
+	};
+#endif
+	if( ( nErr == EACCES )||( nErr == EBUSY ) )
+		cs.Format( "Can't open file %s: the file is used by another program (another calculation with the same FILE?) or is read-only", pszName );
+	else if( nErr == ENOENT )
+		cs.Format( "Can't open file %s: no such folder", pszName );
+	else
+		cs.Format( "Can't open file %s: %s", pszName, strerror( nErr ) );
+	return cs;
+}
+
+void TmcOutTClose( const char *pszName )
+{
+	int i;
+	std::lock_guard<std::mutex> lk( s_mxOutT );
+	for( i = 0; i < TMC_OUTT_MAX; i++ )
+	{
+		if( ( s_aOutT[i].fp == NULL )||( strcmp( s_aOutT[i].csName, pszName ) != 0 ) ) continue;
+		fclose( s_aOutT[i].fp );
+		s_aOutT[i].fp = NULL;
+		s_aOutT[i].csName = "";
+	};
+	return;
+}
+
+FILE *TmcOutTGet( const char *pszName )
+{
+	int i;
+	std::lock_guard<std::mutex> lk( s_mxOutT );
+	for( i = 0; i < TMC_OUTT_MAX; i++ )
+		if( ( s_aOutT[i].fp != NULL )&&( strcmp( s_aOutT[i].csName, pszName ) == 0 ) ) return s_aOutT[i].fp;
+	return NULL;
+}
+
+void TmcOutTFlush( const char *pszName )
+{
+	FILE *fp = TmcOutTGet( pszName );
+	if( fp != NULL ) fflush( fp );
+	return;
+}
+
+// T-5: open the .t of the step ("w" - the header, "a" - go on after Stop) and keep it open
+FILE *TmcOutTOpen( const char *pszName, const char *pszMode, CString &csErr )
+{
+	int i, nErr = 0;
+	FILE *fp;
+
+	TmcOutTClose( pszName );
+	if( ( fp = TmcFopenWait( pszName, pszMode, TRUE, &nErr ) ) == NULL )
+	{
+		csErr = TmcOpenFailText( pszName, nErr );
+		return NULL;
+	};
+	std::lock_guard<std::mutex> lk( s_mxOutT );
+	for( i = 0; i < TMC_OUTT_MAX; i++ )
+	{
+		if( s_aOutT[i].fp != NULL ) continue;
+		s_aOutT[i].fp = fp;
+		s_aOutT[i].csName = pszName;
+		return fp;
+	};
+	fclose( fp );
+	csErr.Format( "Can't open file %s: too many calculations at once", pszName );
+	return NULL;
+}
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -205,6 +329,7 @@ void CTmcRTHRectNode::RunStep( void )
 	{
 		cError.PutErrorMessage( "Exception in calculation" );
 	};
+	TmcOutTClose( cIndan.GetOutput()->csFileName );	// T-5: the step is over (done, stopped or error) - the .t is closed
 	m_cTiming.cur.nTDone = nTCurrent;			// TIMING
 	m_cTiming.EndRunStep( ( cError.IsError() || cIndan.IsError() ) ? 4 :
 		( ( ( nTMax > 0 )&&( nTCurrent >= nTMax ) ) ? 2 : 3 ), qTmStep );	// TIMING
@@ -365,6 +490,7 @@ void CTmcRTHRectNode::InitKernel( void )
 	__int64 qTm = TmcTimingNow();				// TIMING
 	DeleteOutputFile();
 	m_cTiming.Add( TMCT_OUTFILEINIT, qTm );		// TIMING
+	if( IsError() ) return;	// T-9: the .t can't be opened - no second wait in PutPortInfo
 
 	nTMax     = cIndan.nGetTmax();
 	csBuf.Format("nTmax %d", nTMax);
@@ -471,7 +597,8 @@ void CTmcRTHRectNode::InitKernel( void )
 
 	cIndan.GetOutput()->GetFieldIntegrated().SetNodeStep( 6 );
 
-	cError = cIndan.GetOutput()->GetFieldIntegrated().GetError();
+	if( cIndan.GetOutput()->GetFieldIntegrated().GetError().IsError() )	// T-9: not erase an error set before
+		cError = cIndan.GetOutput()->GetFieldIntegrated().GetError();
 
 
 	qTm = TmcTimingNow();						// TIMING
@@ -523,12 +650,16 @@ void CTmcRTHRectNode::RunKernel( void )
 		ltime_start = ltime_current - ltime_start;
 	};
 
+	BOOL bGpu = g_cGpuX.Begin( prUNode1, prYNode, nX, nY, pcNodeDiel, nDiel ) ? TRUE : FALSE;	// GPU
+	strncpy( m_cTiming.cur.szCompute, (LPCTSTR)g_cGpuX.csInfo, sizeof(m_cTiming.cur.szCompute) - 1 );	// GPU
+	if( g_cGpuX.csInfo != "CPU" ) PutTrace( g_cGpuX.csInfo );	// GPU
 	__int64 qTmLoop = TmcTimingNow();					// TIMING
 	for( ; nTCurrent < nTMax;  ii+=4)
 	{
-		if( IsError() ) { m_cTiming.Add( TMCT_LOOPWALL, qTmLoop ); m_cTiming.cur.nTDone = nTCurrent; return; }	// TIMING
+		if( IsError() ) { if( bGpu ) g_cGpuX.End( prUNode1, pcNodeDiel ); m_cTiming.Add( TMCT_LOOPWALL, qTmLoop ); m_cTiming.cur.nTDone = nTCurrent; return; }	// TIMING, GPU
 		if( !bIsReadData ) 
 		{
+			if( bGpu ) g_cGpuX.End( prUNode1, pcNodeDiel );	// GPU
 			m_cTiming.Add( TMCT_LOOPWALL, qTmLoop );	// TIMING
 			m_cTiming.cur.nTDone = nTCurrent;		// TIMING
 			time( &ltime_current );
@@ -569,9 +700,15 @@ void CTmcRTHRectNode::RunKernel( void )
 			m_cTiming.Add( TMCT_STATUS, qTmSt );	// TIMING
 			ii = 0;
 		};
-		RunKernel1T();
+		if( bGpu ) RunKernel1TGpu();	// GPU
+		else RunKernel1T();
 	};
 	m_cTiming.Add( TMCT_LOOPWALL, qTmLoop );			// TIMING
+	if( bGpu )	// GPU: the grid and absorber states back for PutSmatrix and the next step (one-off, outside the loop time)
+	{
+		g_cGpuX.End( prUNode1, pcNodeDiel );
+		if( ( !g_cGpuX.csError.IsEmpty() )&&( !IsError() ) ) cError.PutErrorMessage( g_cGpuX.csError );
+	};
 	m_cTiming.cur.nTDone = nTCurrent;					// TIMING
 
 	time( &ltime_current );
@@ -1197,6 +1334,40 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 //		AfxMessageBox(csBuf1);
 //	};
 
+	{	// B-6: positive epsilon together with the plasma (or with B) in one node - a warning, the code is not changed
+		double dEpsN = 0.0, dEpsB = 0.0, dEpsNeg = 0.0;
+		TmcIdx k;
+		for( k = 0; k < nNumNode; k++ )
+		{
+			if( !( prYNode[ k*6 ] > 0.0 ) ) continue;
+			if( fabs( prYNode[ k*6 + 1 ] ) > DBL_MIN )
+			{
+				dEpsN += 1.0;
+				if( prYNode[ k*6 ] - prYNode[ k*6 + 1 ]*koef_N > 0.0 ) dEpsNeg += 1.0;	// the equivalent N < 0
+			}
+			else if( fabs( prYNode[ k*6 + 4 ] ) > DBL_MIN ) dEpsB += 1.0;
+		};
+		if( dEpsN > 0.0 )
+		{
+			CString csW;
+			csW.Format("WARNING: %.0f nodes have a positive addition of epsilon and the plasma N at once - such a node is "
+				"calculated as a plasma, the addition of epsilon is right only at FREQ%s; put the dielectric and the plasma "
+				"in different nodes", dEpsN, ( dEpsNeg > 0.0 ) ? "; in some of them the addition is larger than the plasma part - "
+				"the equivalent concentration is negative and the calculation DIVERGES" : "" );
+			ConsolePrint( "%s", (LPCSTR)csW );
+			PutTrace( csW );
+			SetRunWarning( csW );
+		};
+		if( dEpsB > 0.0 )
+		{
+			CString csW;
+			csW.Format("WARNING: %.0f nodes have a positive addition of epsilon and the magnetic field B - B is not used "
+				"in a dielectric node (only in a plasma)", dEpsB );
+			ConsolePrint( "%s", (LPCSTR)csW );
+			PutTrace( csW );
+			SetRunWarning( csW );
+		};
+	};
 	for( i = 0, ii = 0, jj = 0; i < nNumNode; i++, ii+=6, jj++ )	
 	{
 //		y_line = prYNode[ii];
@@ -1204,6 +1375,12 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 		d_N_ElectronConcentr = prYNode[ ii + 1 ];
 		d_Y_Loss = prYNode[ ii + 2 ];
 		d_B_MagneticField = prYNode[ ii + 4 ];
+		if( fabs( prYNode[ ii + 3 ] ) > 0.0 )	// B-20: sigma (S/m) of *_STAT_S -> Y = 2*dT*sigma/eps0 (through the grid step)
+		{
+			prYNode[ ii + 2 ] += (_real)( 2.*dT*prYNode[ ii + 3 ]/EPS0___ );
+			d_Y_Loss = prYNode[ ii + 2 ];
+			prYNode[ ii + 3 ] = (_real)(0.0);
+		};
 
 		if( (d_EpsAdd < 0.0) || ( fabs(d_N_ElectronConcentr) > DBL_MIN ) )
 		{
@@ -1236,7 +1413,11 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 //				prYNode[ ii + 3 ] = (_real)(2*d_y6*d_y7/(d_y6+d_y7));
 				prYNode[ ii + 3 ] = (_real)(8*dT*dT*d_WC2*d_wp2/((d_WC2+d_wp2)*(4+dT*dT*(d_WC2+d_wp2))));
 			};
-			prYNode[ ii + 4 ] = (_real)(2*(dT*dT*(d_WC2+d_wp2)-4.)/(dT*dT*(d_WC2+d_wp2)+4.));
+			// B-1: the sign by formula (5.49): 2(4 - x)/(4 + x), x = dT^2*(wc^2 + wp^2) (26.10.2026).
+			// Old (the pole of the upper hybrid resonance at the Nyquist frequency - B only weakened the plasma);
+			// to return it, put this line back instead of the next one (and the old lines in PutTopology, B-1):
+			// prYNode[ ii + 4 ] = (_real)(2*(dT*dT*(d_WC2+d_wp2)-4.)/(dT*dT*(d_WC2+d_wp2)+4.));
+			prYNode[ ii + 4 ] = (_real)(2*(4.-dT*dT*(d_WC2+d_wp2))/(4.+dT*dT*(d_WC2+d_wp2)));
 			prYNode[ ii + 5 ] = (_real)(prYNode[ ii + 3 ]*prYNode[ ii + 4 ]/4.);
 			a = (4. + fabs( prYNode[ ii + 1 ] ) + prYNode[ ii + 2 ] + prYNode[ ii + 3 ]/2. );
 			prYNode[ ii ] =  (_real)(2./a);
@@ -1278,6 +1459,7 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 				PutStatistics(csBuf);
 			};
 			jj = 0;
+			if( !bIsReadData ) return;	// S-13: stopped (the window is closing) - do not go through all the nodes
 		};
 	};
 
@@ -1372,27 +1554,29 @@ void CTmcRTHRectNode::DeleteOutputFile( void )
 		cError.PutErrorMessage("Output field file name is NULL");
 		return;
 	};
-	remove(cOut->csFileNameField);
-	
 	if( cOut->csFileNameTopology.GetLength() == 0 )
 	{
 		cError.PutErrorMessage("Output field file name is NULL");
 		return;
 	};
-	remove(cOut->csFileNameTopology);
 
 	FILE *fp;
-	if( (fp = fopen( cOut->csFileName, "w")) == NULL )
+	CString csOpenErr;	// T-5: the .t is opened first and stays open (write denied to others) until the end of the step
+	if( (fp = TmcOutTOpen( cOut->csFileName, "w", csOpenErr )) == NULL )
 	{
-		cError.PutErrorMessage("Can't open output file for write data");
+		CString csOpenMsg;
+		csOpenMsg.Format("Can't open output file for write data. %s", (LPCSTR)csOpenErr);
+		cError.PutErrorMessage( csOpenMsg );
 		return;
 	};
+	remove(cOut->csFileNameField);
+	remove(cOut->csFileNameTopology);
 	fprintf( fp, "%s\n!File name %s\n%s%lg\n%s%d\n!nT\tnBlock\tUp\tUo",
-		TMC_GROTS_FILEOUT_ID, 
+		TMC_GROTS_FILEOUT_ID,
 		cOut->csFileName,
 		TMC_GROTS_FLOUTFreq_ID, cParam.rFreq,
 		TMC_GROTS_FLOUTInpNum_ID, -2);
-	fclose( fp );
+	fflush( fp );
 
 //	if( ( fp = fopen( cOut.csFileNameField , "w") ) == NULL ) return;
 //	fclose( fp );
@@ -1418,17 +1602,12 @@ void CTmcRTHRectNode::OutputnT( void )
 	char *psForm;
 	__int64 qTm = TmcTimingNow();				// TIMING
 
-	int nOpenTry;	// A-8: ne zhdat vechno
-	for( nOpenTry = 0; ( fp = fopen( cOut->csFileName , "a") ) == NULL; nOpenTry++ )
+	CString csOpenErr;
+	if( ( fp = TmcOutTGet( cOut->csFileName ) ) != NULL ) fflush( fp );	// T-5: the file of the step is open; the line before goes to the disk
+	else if( ( fp = TmcOutTOpen( cOut->csFileName, "a", csOpenErr ) ) == NULL )	// after Stop - open it again (T-9: wait 20 s)
 	{
-		if( nOpenTry > 2000 )
-		{
-			CString csOpen;
-			csOpen.Format("Can't open file %s", (LPCSTR)(cOut->csFileName));
-			cError.PutErrorMessage( csOpen );
-			return;
-		};
-		Sleep( 10 );
+		cError.PutErrorMessage( csOpenErr );
+		return;
 	};
 	
 
@@ -1439,7 +1618,6 @@ void CTmcRTHRectNode::OutputnT( void )
 	psForm = GetdTcurrentFormat();
 	fprintf( fp, psForm, dTCurrent);
 
-	fclose( fp );
 	m_cTiming.Add( TMCT_SIGNALFILE, qTm );		// TIMING
 	return;
 }
@@ -2217,6 +2395,7 @@ void CTmcRTHRectNode::RunBlockNode3()
 void CTmcRTHRectNode::PutStepEndSound()
 {
 	if( !((cIndan.GetOutput())->bSoundEffect) ) return;
+	if( IsBatchRun() ) return;	// N-11: no sound in the batch run /Arb (a synchronous Beep, ~1.3 s a step)
 	int n;
 	n = cIndan.GetnStep();
 	if( n == cIndan.GetNStepMax() )
@@ -2327,12 +2506,16 @@ void CTmcRTHRectNode::PutTopology()
 			}
 			else 
 			{
+					// B-1: the inverse for the new sign of Y4 = 2(4-x)/(4+x): x = 4(2-Y4)/(2+Y4), wp^2 = sqrt(|Y1|*x)/dT^2.
+					// Old (for the old sign):
+					//   dy_4 = prYNode[ii+4]; dy_5 = fabs( dBuf ); dAlf = (1.-dy_4); if( fabs(dAlf) < DBL_MIN ) dAlf = DBL_MIN;
+					//   dAlf = (1.+dy_4)/dAlf; dwp2 = 2*sqrt(-dy_5*dAlf)/(dT2);
 					dy_4 = prYNode[ii+4];
 					dy_5 = fabs( dBuf );
-					dAlf = (1.-dy_4);
+					dAlf = 2. + dy_4;
 					if( fabs(dAlf) < DBL_MIN ) dAlf = DBL_MIN;
-					dAlf = (1.+dy_4)/dAlf;
-					dwp2 = 2*sqrt(-dy_5*dAlf)/(dT2);
+					dAlf = 4.*(2. - dy_4)/dAlf;		// x = dT^2*(wc^2 + wp^2)
+					dwp2 = sqrt( dy_5*fabs(dAlf) )/dT2;
 //					{
 //						CString csBuf1;
 //						csBuf1.Format( "dy_4 = %lg;\ndy_5 = %lg;\nAlf = %lg;\ndT2 = %lg;\ndwp2 = %lg;\nkoef_N = %lg;\nN = %lg;\n" ,
@@ -2386,13 +2569,18 @@ void CTmcRTHRectNode::PutTopology()
 			if( dBuf >= 0. ) dBuf = 0.0;
 			else 
 			{
+				// B-1: the inverse for the new sign: x = 4(2-Y4)/(2+Y4), wp^2 = sqrt(|Y1|*x)/dT^2, wc^2 = x/dT^2 - wp^2.
+				// Old (for the old sign):
+				//   dy_4 = prYNode[ii+4]; dy_5 = fabs( dBuf ); dAlf = (1.-dy_4); if( fabs(dAlf) < DBL_MIN ) dAlf = DBL_MIN;
+				//   dAlf = (1.+dy_4)/dAlf; dwp2 = 2*sqrt(-dy_5*dAlf)/(dT2);
+				//   dWc2 = 2*prYNode[ii+3]*(dAlf+1)*(dAlf)/(dwp2*dT2*dT2);
 				dy_4 = prYNode[ii+4];
 				dy_5 = fabs( dBuf );
-				dAlf = (1.-dy_4);
+				dAlf = 2. + dy_4;
 				if( fabs(dAlf) < DBL_MIN ) dAlf = DBL_MIN;
-				dAlf = (1.+dy_4)/dAlf;
-				dwp2 = 2*sqrt(-dy_5*dAlf)/(dT2);
-				dWc2 = 2*prYNode[ii+3]*(dAlf+1)*(dAlf)/(dwp2*dT2*dT2);
+				dAlf = 4.*(2. - dy_4)/dAlf;		// x = dT^2*(wc^2 + wp^2)
+				dwp2 = sqrt( dy_5*fabs(dAlf) )/dT2;
+				dWc2 = fabs(dAlf)/dT2 - dwp2;
 //				dWc2 = (4*dAlf-2*dwp2*dT2)/dT2;
 				if( dWc2 < 0. ) dWc2 = DBL_MIN;
 				dBuf = sqrt( dWc2 )*koef_B;
@@ -2448,16 +2636,24 @@ BOOL CTmcRTHRectNode::IsFieldFileRead()
 {
 	CTmcRTH_IndanOutput* cOut;
 	cOut = cIndan.GetOutput();
-	if( GetFileAttributes( cOut->csFileNameField ) == 0xFFFFFFFF ) return FALSE;
-	if( GetFileAttributes( cOut->csFileNameField ) != FILE_ATTRIBUTE_ARCHIVE ) return TRUE;
+	DWORD dwAttr = GetFileAttributes( cOut->csFileNameField );
+	if( dwAttr == 0xFFFFFFFF ) return FALSE;
+	if( ( dwAttr & FILE_ATTRIBUTE_ARCHIVE ) == 0 ) return TRUE;	// S-59: only the ARCHIVE bit (compressed / OneDrive files)
 	return FALSE;
 }
 
 void CTmcRTHRectNode::PutSmatrix()
 {
+	TmcOutTFlush( cIndan.GetOutput()->csFileName );	// T-5: the S-matrix reads the .t from the disk
 	cIndan.GetOutput()->PutSmatrix();
 	if( ( !cError.IsError() )&&( cIndan.GetOutput()->csSMatrixError.GetLength() > 0 ) )	// A-21
 		cError.PutErrorMessage( cIndan.GetOutput()->csSMatrixError );
+	if( cIndan.GetOutput()->csSMatrixWarning.GetLength() > 0 )	// B-22: the response has not died away
+	{
+		ConsolePrint( "WARNING: %s", (LPCSTR)cIndan.GetOutput()->csSMatrixWarning );
+		SetRunWarning( cIndan.GetOutput()->csSMatrixWarning );
+		PutTrace( cIndan.GetOutput()->csSMatrixWarning );
+	};
 	return;
 }
 
@@ -2514,17 +2710,13 @@ void CTmcRTHRectNode::PutPortInfo( void )
 	if( nPort < 1 ) return;
 
 	FILE *fp;
-	int nOpenTry;	// A-8: ne zhdat vechno
-	for( nOpenTry = 0; ( fp = fopen( cOut->csFileName, "a" ) ) == NULL; nOpenTry++ )
+	CString csOpenErr;
+	if( ( fp = TmcOutTGet( cOut->csFileName ) ) == NULL )	// T-5: the file of the step is open
+		fp = TmcOutTOpen( cOut->csFileName, "a", csOpenErr );
+	if( fp == NULL )
 	{
-		if( nOpenTry > 2000 )
-		{
-			CString csOpen;
-			csOpen.Format("Can't open file %s", (LPCSTR)(cOut->csFileName));
-			cError.PutErrorMessage( csOpen );
-			return;
-		};
-		Sleep( 10 );
+		cError.PutErrorMessage( csOpenErr );
+		return;
 	};
 
 	fprintf( fp, "\n%s%d", TMC_GROTS_FLOUTWideband_ID, ( nWide > 0 ) ? 1 : 0 );
@@ -2563,6 +2755,53 @@ void CTmcRTHRectNode::PutPortInfo( void )
 			cParam.rFreq,
 			pcNodeDiel[i].IsSignalFromFile() ? 1 : 0 );
 	};
-	fclose( fp );
+	return;		// T-5: the file stays open
+}
+
+// GPU: RunKernel1T with the grid on the video card (TmcGpuX.h). The same calls
+// in the same order: ports (ExciteInputs + RunSaveInputs) and file output stay
+// here, on the CPU, and see the nodes they touch; the node update, the restore
+// of the port nodes (RunRestoreInputs) and METAL/ABSORBER/MAGNETIC blocks run
+// on the card.
+void CTmcRTHRectNode::RunKernel1TGpu( void )
+{
+	if( IsError() ) return;
+	if( !bIsReadData ) return;
+	__int64 qTm0, qTm1;
+	int k;
+	CTmcRTH_IndanOutput *cOut;
+	BOOL bWhole;
+
+	for( k = 0; k < 4; k++ )
+	{
+		qTm0 = TmcTimingNow();
+		if( !g_cGpuX.PortsDown( prUNode1 ) ) { cError.PutErrorMessage( g_cGpuX.csError ); return; };
+		switch( k )
+		{
+			case 0: RunExciteInputs(); break;
+			case 1: RunExciteInputs1(); break;
+			case 2: RunExciteInputs2(); break;
+			default: RunExciteInputs3(); break;
+		};
+		RunSaveInputs();
+		if( IsError() ) return;
+		if( !g_cGpuX.PortsUp( prUNode1 ) ) { cError.PutErrorMessage( g_cGpuX.csError ); return; };
+		qTm1 = TmcTimingNow(); m_cTiming.cur.q[TMCT_EXCITE] += qTm1 - qTm0;
+		if( ( !g_cGpuX.Pass( k ) )||( !g_cGpuX.Restore() )||( !g_cGpuX.Blocks( k ) ) ) { cError.PutErrorMessage( g_cGpuX.csError ); return; };
+		qTm0 = TmcTimingNow(); m_cTiming.cur.q[TMCT_SCATTER] += qTm0 - qTm1;
+//  the whole grid is needed only for FIELDS and inside the directional pattern window
+		cOut = cIndan.GetOutput();
+		bWhole = cOut->bOutField;
+		if( ( cOut->GetFieldIntegrated().bIsFieldDistr() )&&
+			( dTCurrent >= cOut->GetFieldIntegrated().GetTmin() )&&
+			( dTCurrent <= cOut->GetFieldIntegrated().GetTmax() ) ) bWhole = TRUE;
+		if( bWhole && ( !g_cGpuX.Download( prUNode1 ) ) ) { cError.PutErrorMessage( g_cGpuX.csError ); return; };
+		PutField( k );
+		m_cTiming.cur.q[TMCT_FIELDFILE] += TmcTimingNow() - qTm0;
+		DistributionIntegrated( k );
+		nTCurrent++;
+		dTCurrent += dT;
+	};
+
 	return;
 }

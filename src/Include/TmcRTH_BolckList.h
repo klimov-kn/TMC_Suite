@@ -105,10 +105,12 @@ private:
 	void ReadCircleStat( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam );
 	void ReadCircleStatN( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam );
 	void ReadCircleStatB( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam );
+	void ReadCircleStatY( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam );   // A-11
 	void ReadCircleStat_1( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam, int i );
 	void ReadPolygonStat( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam );
 	void ReadPolygonStatN( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam );
 	void ReadPolygonStatB( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam );
+	void ReadPolygonStatY( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam );   // A-11
 	void ReadPolygonStat_1( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam, int i );
 	void ReadRectMove( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam );
 	void ReadCircleMove( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam );

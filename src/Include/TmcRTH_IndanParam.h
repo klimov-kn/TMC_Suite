@@ -118,6 +118,10 @@ public:
 	double rYmax;
 	double rTmin;
 	double rTmax;
+	int nXGrid;			// B-2: nodes on X and Y, calculated once when the borders are read (0 - not yet)
+	int nYGrid;
+	double rXmaxUser;	// B-2: X_MAX, Y_MAX as written in the task (rXmax, rYmax are moved to the reserve column)
+	double rYmaxUser;
 	CTmcRTH_IndanParam& operator=( CTmcRTH_IndanParam& cParam );
 	double rGetLongUnit( void );
 	CString csGetLongUnit( void );

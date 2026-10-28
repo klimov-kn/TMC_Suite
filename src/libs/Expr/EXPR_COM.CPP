@@ -78,11 +78,28 @@ _real  expr_comp( int cod, char   *oper1, int n1, char   *oper2, int n2 )
 //		 getch();
 		 if( op1 <= (_real)0 )         /*if cod := op1^op2*/
 		  {
-		   expr_set_error_cod( ERROR_POW );
-		   return((_real)0);
+		   // A-10: a base <= 0 with an integer exponent is computed ((-2)^3 = -8, 0^2 = 0);
+		   //       a fractional exponent, 0^0 and 0^(y<0) are an error (B-23).
+		   //       Old code (any base <= 0 was an error):
+		   //         expr_set_error_cod( ERROR_POW );
+		   //         return((_real)0);
+		   if( (op2 != (_real)floor( op2 ))||((op1 == (_real)0)&&(op2 <= (_real)0)) )
+		    {
+		     expr_set_error_cod( ERROR_POW );
+		     return((_real)0);
+		     };
+		   rl = pow( op1, op2 );
+		   if( fabs( rl ) > FLT_MAX )
+		    {
+		     expr_set_error_cod( ERROR_OVERFLOW );
+		     return((_real)FLT_MAX);
+		     };
+		   return( (_real)rl );
 		   };
 		 if( op2 > (_real)fabs(log(FLT_MAX)/log(op1)) )
 		  {
+		   rl = pow( op1, op2 );   // S-19: for 0 < x < 1 the limit above is wrong (0.5^200 is small)
+		   if( (op1 < (_real)1)&&(rl <= FLT_MAX) ) return( (_real)rl );
 		   expr_set_error_cod( ERROR_OVERFLOW );
 		   return((_real)FLT_MAX);
 		   };

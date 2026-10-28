@@ -253,6 +253,7 @@ BEGIN
             MENUITEM "Melody",                      ID_CONFIG_SOUND_MELODY
         END
         MENUITEM "&AutoRun",                    ID_CONFIG_AUTORUN
+        MENUITEM "Compute on &GPU (OpenCL)",    ID_CONFIG_GPU
         MENUITEM "Setup",                       ID_CONFIG_SETUP
     END
     POPUP "&Window"
@@ -1184,6 +1185,7 @@ BEGIN
     ID_CONFIG_VIEWER_SMATRIX 
                             "Set extern S-matrix viewer name\nS-matrix output viewer name"
     ID_CONFIG_AUTORUN       "Automatic start on performance of calculations and exit from the program\nBatch mode"
+    ID_CONFIG_GPU           "Calculation on the video card (OpenCL, win64 build); the keys /GPU and /CPU are stronger\nCompute on GPU"
 END
 
 STRINGTABLE 

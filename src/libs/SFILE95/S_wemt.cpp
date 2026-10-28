@@ -52,6 +52,7 @@ int _far _fortran save_S_matrix_element( int in1, char *filename, _complex *sss,
    int i, j, i1, j1, ii, k, kol1, kol;
    int ii1;
    BOOL bIsFreqInMatrix = FALSE;
+   BOOL bStructBad = FALSE;	// S-36
    char ch[] = "Tamic Output Signal Viewer";
    char filename1[1000];
    int ret_code = 0;
@@ -142,7 +143,12 @@ int _far _fortran save_S_matrix_element( int in1, char *filename, _complex *sss,
 					   {
 							if( fabs( ( frq.f[k] - f1 )/f1 ) < (1.e-15) )
 							{
+								int m;
 								bIsFreqInMatrix = TRUE;
+								// S-36: the column is put by the port number - only one mode per port and the same ports
+								if( ( id[k].num != nInput )||( id[k].dim < nInput ) ) bStructBad = TRUE;
+								for( m = 0; m < id[k].num; m++ ) if( id[k].array[m] != 1 ) bStructBad = TRUE;
+								if( !bStructBad )
 								for( ii1 = 0; ii1 < nInput ; ii1++ )
 								{
 									lpxS1[ii+ii1*id[k].dim] = sss[ii1];
@@ -154,6 +160,14 @@ int _far _fortran save_S_matrix_element( int in1, char *filename, _complex *sss,
 	              }; //end of second loop over inputs
 	           }; //end of first loop over modes
 	        }; //end of first loop over inputs
+		};
+		if( bStructBad )	// S-36: the file keeps its data, the run gets "error when save"
+		{
+			Free_GRID_Index( &si, extrapol_flag );
+			free_mem( frq.f );
+			free_mem( id );
+			Free_S_read( &sss1, frq.max );
+			return -1;
 		};
 		if( !bIsFreqInMatrix )
 		{

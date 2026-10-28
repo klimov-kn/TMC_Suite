@@ -52,6 +52,7 @@ public:
 
 	BOOL IsError( void );
 	CString & GetErrorMessage( void );
+	CString & GetWarningMessage( void );	// B-22: "" - no warning
 	int GetFreqNumber( void ) { return nFreq; }
 	BOOL IsContinuous( void ) { return bContinuous; }
 
@@ -67,6 +68,7 @@ private:
 	void ReadHeader( void );
 	void ReadSignals( void );
 	void DetectSignalKind( void );
+	void ApplyWindow( void );		// B-22: the window Tmin...Tmax, the tail of a pulse
 	void FindFrequencies( void );
 	void MakeAndSave( void );
 
@@ -87,6 +89,7 @@ private:
 	CString csSFileName;
 	CString csError;
 	BOOL bIsError;
+	CString csWarning;		// B-22
 
 	BOOL bWideband;
 	BOOL bContinuous;		// TRUE: multi-tone that never stops; FALSE: pulse

@@ -380,6 +380,28 @@ void CTMCGROUTView::onDrowAxies( CDC *pDC )
    pDC->SelectObject(pOldPen);
 }
 
+// S-42: format podpisi osi - rovno odin specifikator chisla [eEfgG]; inache standartnyi
+static CString TmcSafeAxisFormat( const CString &csFormat )
+{
+	const char *p = (const char *)csFormat;
+	int nConv = 0;
+	if( strlen( p ) > 64 ) return CString( "%4.3lg" );
+	for( ; *p != '\0'; p++ )
+	{
+		if( *p != '%' ) continue;
+		if( p[1] == '%' ) { p++; continue; };
+		p++;
+		while( ( *p != '\0' )&&( strchr( "-+ #0", *p ) != NULL ) ) p++;
+		while( ( *p >= '0' )&&( *p <= '9' ) ) p++;
+		if( *p == '.' ) { p++; while( ( *p >= '0' )&&( *p <= '9' ) ) p++; };
+		if( *p == 'l' ) p++;
+		if( ( *p == '\0' )||( strchr( "eEfgG", *p ) == NULL ) ) return CString( "%4.3lg" );
+		nConv++;
+	};
+	if( nConv != 1 ) return CString( "%4.3lg" );
+	return csFormat;
+}
+
 void CTMCGROUTView::onDrawGrid( CDC *pDC )
 {
    CTMCGROUTDoc* pDoc = GetDocument();
@@ -397,7 +419,7 @@ void CTMCGROUTView::onDrawGrid( CDC *pDC )
 	  pDC->MoveTo( i, -tmcgrwin.sGrView.nYmin );
 	  pDC->LineTo( i, -tmcgrwin.sGrView.nYmax );
 //	  text.Format("%4.3lg", x );
-	  text.Format( csXAxiesFormat, x );
+	  text.Format( (const char *)TmcSafeAxisFormat( csXAxiesFormat ), x );	// S-42
 	  VTextOut( pDC, i, -tmcgrwin.sGrView.nYmax,text);
 
    };
@@ -408,7 +430,7 @@ void CTMCGROUTView::onDrawGrid( CDC *pDC )
 	  pDC->MoveTo( 100, -i );
 	  pDC->LineTo( tmcgrwin.sGrView.nXmax, -i );
 //	  text.Format("%4.3lg", x );
-	  text.Format( csYAxiesFormat, x );
+	  text.Format( (const char *)TmcSafeAxisFormat( csYAxiesFormat ), x );	// S-42
 //	  VTextOut( pDC, tmcgrwin.sGrView.nXmin - 1000, -i + 500,text);
 	  VTextOut( pDC,  100, -i + 500,text);
    };
@@ -633,6 +655,23 @@ void CTMCGROUTView::ReadDocFileW()
 
 }
 
+// N-33: diapazon osi - konechnyi i nevyrozhdennyi
+static void TmcFixAxisRange( double *pdMin, double *pdMax )
+{
+	if( !_finite( *pdMin )||!_finite( *pdMax )||( *pdMin > *pdMax )||( *pdMin <= -FLT_MAX )||( *pdMax >= FLT_MAX ) )
+	{
+		*pdMin = 0.0;
+		*pdMax = 1.0;
+		return;
+	};
+	if( *pdMin == *pdMax )
+	{
+		double d = ( *pdMin == 0.0 ) ? 0.5 : 0.05*fabs( *pdMin );
+		*pdMin -= d;
+		*pdMax += d;
+	};
+}
+
 void CTMCGROUTView::PrepareDoubleGraph()
 {
 	CTMCGROUTDoc* pDoc = GetDocument();
@@ -682,13 +721,13 @@ void CTMCGROUTView::PrepareDoubleGraph()
 				tmcgrwin.psGraph[i].pPoint[j].x = j;
 				break;
 			}
-			if( xMin > tmcgrwin.psGraph[i].pPoint[j].x ) xMin = tmcgrwin.psGraph[i].pPoint[j].x;
-			if( xMax < tmcgrwin.psGraph[i].pPoint[j].x ) xMax = tmcgrwin.psGraph[i].pPoint[j].x;
+			if( _finite( tmcgrwin.psGraph[i].pPoint[j].x )&&( xMin > tmcgrwin.psGraph[i].pPoint[j].x ) ) xMin = tmcgrwin.psGraph[i].pPoint[j].x;
+			if( _finite( tmcgrwin.psGraph[i].pPoint[j].x )&&( xMax < tmcgrwin.psGraph[i].pPoint[j].x ) ) xMax = tmcgrwin.psGraph[i].pPoint[j].x;
 
 			switch(tmcgrwin.nYType)
 			{
 			case TMC_GROTS_TYPE_AMPL:
-				if(pDoc->grdoc.psGraph[i].pcExpr == NULL )
+				if( ( pDoc->grdoc.psGraph[i].pcExpr == NULL )||( pDoc->grdoc.psGraph[i].pSmatr != NULL ) )	// A-28
 				{
 					tmcgrwin.psGraph[i].pPoint[j].y = r14;
 					if( j == 2 )
@@ -724,7 +763,7 @@ void CTMCGROUTView::PrepareDoubleGraph()
 				};
 				break;
 			case TMC_GROTS_TYPE_WSVR:
-				if(pDoc->grdoc.psGraph[i].pcExpr == NULL )
+				if( ( pDoc->grdoc.psGraph[i].pcExpr == NULL )||( pDoc->grdoc.psGraph[i].pSmatr != NULL ) )	// A-28
 				{
 					s11 = r14;
 					if( fabs( s11 - 1.) < 0.0001	)
@@ -765,7 +804,7 @@ void CTMCGROUTView::PrepareDoubleGraph()
 				};
 				break;
 			case TMC_GROTS_TYPE_LDB:
-				if(pDoc->grdoc.psGraph[i].pcExpr == NULL )
+				if( ( pDoc->grdoc.psGraph[i].pcExpr == NULL )||( pDoc->grdoc.psGraph[i].pSmatr != NULL ) )	// A-28
 				{
 					if( r14 < DBL_MIN ) tmcgrwin.psGraph[i].pPoint[j].y = 0.;
 					else tmcgrwin.psGraph[i].pPoint[j].y = -20.*log10( r14 );
@@ -803,7 +842,7 @@ void CTMCGROUTView::PrepareDoubleGraph()
 				break;
 			default:
 			case TMC_GROTS_TYPE_FULL:
-				if(pDoc->grdoc.psGraph[i].pcExpr == NULL )
+				if( ( pDoc->grdoc.psGraph[i].pcExpr == NULL )||( pDoc->grdoc.psGraph[i].pSmatr != NULL ) )	// A-28
 				{
 					r11 = (double)( pDoc->grdoc.psGraph[i].pSmatr[j].x );
 					tmcgrwin.psGraph[i].pPoint[j].y = r11;
@@ -814,7 +853,7 @@ void CTMCGROUTView::PrepareDoubleGraph()
 				};
 				break;
 			case TMC_GROTS_TYPE_PHAS_R:
-				if(pDoc->grdoc.psGraph[i].pcExpr == NULL )
+				if( ( pDoc->grdoc.psGraph[i].pcExpr == NULL )||( pDoc->grdoc.psGraph[i].pSmatr != NULL ) )	// A-28
 				{
 					if( r14 > (2*PI) ) r14 -= (2*PI);
 					if( r14 > (2*PI) ) r14 -= (2*PI);
@@ -850,7 +889,7 @@ void CTMCGROUTView::PrepareDoubleGraph()
 				};
 				break;
 			case TMC_GROTS_TYPE_PHAS_G:
-				if(pDoc->grdoc.psGraph[i].pcExpr == NULL )
+				if( ( pDoc->grdoc.psGraph[i].pcExpr == NULL )||( pDoc->grdoc.psGraph[i].pSmatr != NULL ) )	// A-28
 				{
 					if( r14 > 360. ) r14 -= 360.;
 					if( r14 > 360. ) r14 -= 360.;
@@ -885,7 +924,7 @@ void CTMCGROUTView::PrepareDoubleGraph()
 				};
 				break;
 /*			case TMC_GR_TYPE_SFD:
-				if(pDoc->grdoc.psGraph[i].pcExpr == NULL )
+				if( ( pDoc->grdoc.psGraph[i].pcExpr == NULL )||( pDoc->grdoc.psGraph[i].pSmatr != NULL ) )	// A-28
 				{
 					tmcgrwin.psGraph[i].pPoint[j].y = 180./(3.141592653589)*cphase( pDoc->grdoc.psGraph[i].pSmatr[j] );
 				}
@@ -898,8 +937,8 @@ void CTMCGROUTView::PrepareDoubleGraph()
 
 			if( (tmcgrwin.sGrWin.nAFlagX)||( (tmcgrwin.psGraph[i].pPoint[j].x >= tmcgrwin.sGrWin.Xmin)&&(tmcgrwin.psGraph[i].pPoint[j].x <= tmcgrwin.sGrWin.Xmax) ) )
 			{
-				if( yMin > tmcgrwin.psGraph[i].pPoint[j].y ) yMin = tmcgrwin.psGraph[i].pPoint[j].y;
-				if( yMax < tmcgrwin.psGraph[i].pPoint[j].y ) yMax = tmcgrwin.psGraph[i].pPoint[j].y;
+				if( _finite( tmcgrwin.psGraph[i].pPoint[j].y )&&( yMin > tmcgrwin.psGraph[i].pPoint[j].y ) ) yMin = tmcgrwin.psGraph[i].pPoint[j].y;
+				if( _finite( tmcgrwin.psGraph[i].pPoint[j].y )&&( yMax < tmcgrwin.psGraph[i].pPoint[j].y ) ) yMax = tmcgrwin.psGraph[i].pPoint[j].y;
 			};
 			
 		};
@@ -917,6 +956,8 @@ void CTMCGROUTView::PrepareDoubleGraph()
 	tmcgrwin.sGrWin.Ymin = yMin;
 	tmcgrwin.sGrWin.Ymax = yMax;
 	}
+	TmcFixAxisRange( &tmcgrwin.sGrWin.Xmin, &tmcgrwin.sGrWin.Xmax );	// N-33
+	TmcFixAxisRange( &tmcgrwin.sGrWin.Ymin, &tmcgrwin.sGrWin.Ymax );
 
 }
 
@@ -1022,6 +1063,10 @@ void CTMCGROUTView::PrepareLogGraph()
 			if( tmcgrwin1.psGraph[i].piPoint != NULL ) delete  tmcgrwin1.psGraph[i].piPoint;
 		};
 		delete tmcgrwin1.psGraph;
+	};
+	for( i = 0; i < tmcgrwin.nGraph; i++ )	// S-41: u skrytyh grafikov nPointDraw ne zadan
+	{
+		if( !pDoc->grdoc.psGraph[i].OutFlag ) tmcgrwin.psGraph[i].nPointDraw = 0;
 	};
 	tmcgrwin1.nGraph = tmcgrwin.nGraph;
 	tmcgrwin1.psGraph = new TMC_GR_VIEW[tmcgrwin1.nGraph];
@@ -1662,8 +1707,21 @@ void CTMCGROUTView::OnEditDocument()
 		if( dlg.m_SFileName_19.GetLength() != 0 ) i++;
 		if( dlg.m_SFileName_20.GetLength() != 0 ) i++;
 		n = i;
+		int nTail = ( pDoc->grdoc.nGraph > 20 ) ? pDoc->grdoc.nGraph - 20 : 0;	// S-46: grafiki 21+ v dialoge ne vidny
+		CString *pcsTail = ( nTail > 0 ) ? new CString[ 2*nTail ] : NULL;
+		int *pnTail = ( nTail > 0 ) ? new int[ 5*nTail ] : NULL;
+		for( int k = 0; k < nTail; k++ )
+		{
+			pcsTail[2*k]   = pDoc->grdoc.psGraph[20+k].szGrapName;
+			pcsTail[2*k+1] = pDoc->grdoc.psGraph[20+k].szGrapPodp;
+			pnTail[5*k]   = pDoc->grdoc.psGraph[20+k].nInp1;
+			pnTail[5*k+1] = pDoc->grdoc.psGraph[20+k].nMod1;
+			pnTail[5*k+2] = pDoc->grdoc.psGraph[20+k].nInp2;
+			pnTail[5*k+3] = pDoc->grdoc.psGraph[20+k].nMod2;
+			pnTail[5*k+4] = pDoc->grdoc.psGraph[20+k].OutFlag;
+		};
 		pDoc->DocFileDelData();					 // delete old data and free memory
-		if( pDoc->DocFileNewData( n ) )          //allocation memory for new data and set standart data
+		if( pDoc->DocFileNewData( n + nTail ) )          //allocation memory for new data and set standart data	// S-46
 		{
 			i = 0;
 			if(  dlg.m_SFileName_1.GetLength() != 0 )
@@ -1886,6 +1944,16 @@ void CTMCGROUTView::OnEditDocument()
 				pDoc->grdoc.psGraph[i].OutFlag = dlg.m_OutGrFlag_20;
 				i++;
 			}
+			for( int k = 0; k < nTail; k++, i++ )	// S-46: grafiki 21+ - bez izmenenii
+			{
+				strncpy( pDoc->grdoc.psGraph[i].szGrapName, pcsTail[2*k], TMC_GROUT_MAXSTRING_BUF-1 );
+				strncpy( pDoc->grdoc.psGraph[i].szGrapPodp, pcsTail[2*k+1], TMC_GROUT_MAXSTRING_BUF-1 );
+				pDoc->grdoc.psGraph[i].nInp1 = pnTail[5*k];
+				pDoc->grdoc.psGraph[i].nMod1 = pnTail[5*k+1];
+				pDoc->grdoc.psGraph[i].nInp2 = pnTail[5*k+2];
+				pDoc->grdoc.psGraph[i].nMod2 = pnTail[5*k+3];
+				pDoc->grdoc.psGraph[i].OutFlag = pnTail[5*k+4];
+			};
 			pDoc->grdoc.PointDrawFlag = tmcgrwin.PointDrawFlag;
 			pDoc->grdoc.nXType  = tmcgrwin.nXType;
 			pDoc->grdoc.nYType  = tmcgrwin.nYType;
@@ -1897,8 +1965,10 @@ void CTMCGROUTView::OnEditDocument()
 			pDoc->grdoc.nAFlagY = tmcgrwin.sGrWin.nAFlagY;
 
 			pDoc->WriteDocFile();
-			ReadDocFileW();						// read data document 
+			ReadDocFileW();						// read data document
 		};
+		if( pcsTail != NULL ) delete []pcsTail;	// S-46
+		if( pnTail != NULL ) delete []pnTail;
 		RedrawViewGr();
 	};
 
@@ -2143,7 +2213,9 @@ void CTMCGROUTView::OnFileSaveAs()
 	CFileDialog dlg( FALSE, "tos", "*.tos");
 	if( dlg.DoModal() == IDOK )
 	{
+		CString csOldPath = pDoc->GetPathName();	// S-44
 		pDoc->SetPathName( dlg.GetPathName() );
+		pDoc->RebaseGraphPaths( csOldPath );	// S-44: otnositelnye imena grafikov - ot novoi papki
 		pDoc->WriteDocFile();
 		RedrawViewGr();	
 	};

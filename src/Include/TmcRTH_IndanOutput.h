@@ -18,6 +18,8 @@
 #include <TmcLibError.h>
 #include <FieldIntegrated.h>
 
+class CTmcRTH_BlockList;	// D-1
+
 
 class CTmcRTH_IndanOutput //: public CWnd
 {
@@ -68,7 +70,9 @@ public:
 	CFieldIntegrated& GetFieldIntegrated( void );
 	BOOL bIsFieldDistribution( void );
 	void PutSmatrix( void );
+	int PutSmatrixZero( CTmcRTH_BlockList *pcBl );	// D-1: zeros at the frequency of SMATRIX (1 - written, 0 - not needed, -1 - error)
 	CString csSMatrixError;		// A-21: oshibka poslednego PutSmatrix ("" - net oshibki)
+	CString csSMatrixWarning;	// B-22: preduprezhdenie poslednego PutSmatrix ("" - net)
 	void SetFreqAndTimeUnit( double dFr, double dTim );
 	void OnOffSoundEffects( void );
 	BOOL bSoundEffect;

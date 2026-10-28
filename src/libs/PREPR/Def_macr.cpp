@@ -20,6 +20,7 @@
 */
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>   // BUG-004: realloc
 
 #include <typedef.h>
 #include <error1.h>
@@ -34,37 +35,70 @@
 
 static int  _near fortran def_main_macdef( BUFFER _far *buf );
 
+static MACROS *s_pMacMain = NULL;   // BUG-004: one MACROS buffer for all #define
+
+extern char *szError;               // Prep_mn.cpp: the text of the error
+
+static void def_macro_message( const char *pszWhat, const char *pszName )   // S-21
+{
+  char szMsg[400];
+  snprintf( szMsg, sizeof(szMsg), "%s (macro %.200s)", pszWhat, pszName );
+  szMsg[sizeof(szMsg)-1] = '\0';
+  put_error_messege( szMsg );
+}
+
                 /*  substitute all macros*/
 int def_main_macro( BUFFER _far *buf )
  {
-  int p, p1, i_err;
-
-  p1 = buf->inp_p;
+  // BUG-004: without recursion and with one MACROS buffer (see the head of the file)
+  int  p1, i_err = BUF_NULL, nPos = 0, nMax = 0, k, pLast;
+  int *pnPos = NULL, *pnNew;
+                /*  the positions of all #define, as the recursion found them*/
+  for( p1 = def_macro( buf ); p1 >= 0; p1 = def_macro( buf ) )
+   {
+    if( nPos >= nMax )
+     {
+      nMax = nMax * 2 + 256;
+      if( (pnNew = (int *)realloc( pnPos, nMax * sizeof(int) )) == NULL )
+       {
+        free( pnPos );
+        put_error_messege( "preprocessor: not enough memory (list of #define)" );
+        return -1;
+        }
+      pnPos = pnNew;
+      }
+    pnPos[nPos++] = p1;
+    buf->inp_p = buf->ilex[p1];
+    }
                 /*  if not macro define return BUF_NULL*/
-  if( ( p1 =  def_macro( buf ) ) < 0 )  return( BUF_NULL );
+  if( nPos == 0 ) return( BUF_NULL );
+  pLast = buf->inp_p;
 
-  buf->inp_p = buf->ilex[p1];  /*  if there is macro define call def_main_macro*/
-  if( (i_err = def_main_macro( buf )) < 0) return( i_err);
+  if( (s_pMacMain = new MACROS[1] ) == NULL )
+   {
+    free( pnPos );
+    put_error_messege( "preprocessor: not enough memory (MACROS)" );
+    return -1;
+    }
+                   /*  substitute the macros from the last one*/
+  for( k = nPos - 1; k >= 0; k-- )
+   {
+    buf->inp_p = pnPos[k];
+    i_err = def_main_macdef( buf );
+    if( i_err < 0 ) break;
+    }
 
-  p = buf->inp_p;
-  buf->inp_p = p1;
-                   /*  substitute 1 macro*/
-  i_err = def_main_macdef( buf );
-
-  buf->inp_p = p;
+  delete []s_pMacMain;
+  s_pMacMain = NULL;
+  free( pnPos );
+  buf->inp_p = pLast;
   return( i_err );
-
   }
 
                    /*  substitute 1 macro define*/
 int  def_main_macdef( BUFFER _far *buf )
  {
-   MACROS *mac;
-   
-   if( (mac = new MACROS[1] ) == NULL )
-   {
-	   return -1;
-   };
+   MACROS *mac = s_pMacMain;   // BUG-004: it was new MACROS (~10 MB) for every #define
 
    int p1, i, n1;
 #ifdef __DEBUG
@@ -81,7 +115,7 @@ int  def_main_macdef( BUFFER _far *buf )
    p1 = buf->inp_p;
    if( buf_gets( mac->mac, BUF_STR_N_MAX, buf) != BUF_NULL ) 
    {
-	   delete []mac;
+	   ;   // BUG-004: MACROS is freed in def_main_macro
 	   return -1;
    };
    n1 = strlen( mac->mac );
@@ -89,7 +123,7 @@ int  def_main_macdef( BUFFER _far *buf )
 
    if( (i = def_separ_mac_name( buf, mac)) < 0 ) 
    {
-	   delete []mac;
+	   ;   // BUG-004: MACROS is freed in def_main_macro
 	   return( i );
    };
 
@@ -107,7 +141,7 @@ for( ind = 0; ind <= mac.j1; ind++ )
 */
     if( def_set_formal_param( buf, mac, i) < 0 ) 
 	{
-		delete []mac;
+		;   // BUG-004: MACROS is freed in def_main_macro
 		return( BUF_ERROR_NO_FORMAL_PARAM );
 	};
 
@@ -134,7 +168,7 @@ for( ind = 0; ind < mac.i2; ind++ )
 *****      substitute macros in buffer        ******
 */
 	i = def_subst_mac( buf, mac);
-	delete []mac;
+	;   // BUG-004: MACROS is freed in def_main_macro
 	return( i );
  }
 
@@ -169,6 +203,7 @@ int  def_subst_mac( BUFFER _far *buf, MACROS _far *mac)
        {
 	if( (i_err = def_buf_gets_param( buf, mac1+n1)) != BUF_NULL )
 	{
+		def_macro_message( szError, mac->m[ 0 ] );   // S-21
 		delete []mac1;
 		return( i_err);
 	};
@@ -177,7 +212,7 @@ int  def_subst_mac( BUFFER _far *buf, MACROS _far *mac)
 	n1 += (strlen( mac1+n1) + 1);
         if( *mac->m[j+1] == '\n')
          {
-          put_error_messege( "Fact parameter's" );
+          def_macro_message( "Fact parameters: a parameter or ';' is missing", mac->m[ 0 ] );   // S-21
 		  delete []mac1;
           return( BUF_ERROR_FACT_PARAM);
           }
@@ -192,11 +227,13 @@ int  def_subst_mac( BUFFER _far *buf, MACROS _far *mac)
 	if( mac->im1[j] >= 0 )
 	 if( buf_puts2( mac->m[mac->im1[j]], buf) != BUF_NULL ) 
 	 {
+		 def_macro_message( szError, mac->m[ 0 ] );   // S-21
 		 delete []mac1;
 		 return -1;
 	 };
         if( buf_puts2( mac->m1[j], buf) != BUF_NULL )
 		 {
+			 def_macro_message( szError, mac->m[ 0 ] );   // S-21
 			 delete []mac1;
 			 return -1;
 		 };
@@ -212,7 +249,7 @@ printf("\n after function def_subst_mac\n");
         if( buf->inp_p < 0 )
          {
 		  delete []mac1;
-          put_error_messege( "Small buffer" );
+          def_macro_message( "Small buffer (is the macro recursive?)", mac->m[ 0 ] );   // S-21
           return(BUF_EOF );
           }
 	};

@@ -183,13 +183,13 @@ void CTmcDialogStatistics::PrepareData( void )
 	{
 		int nnn = 1;
 		dWaveLenDelt = dWaveLen/dDelta;
-		m_nNumNode = ((double)((int)(( m_cParam.rXmax - m_cParam.rXmin )/m_cParam.rDelta)+1))*	// INT64
-			((int)(( m_cParam.rYmax - m_cParam.rYmin )/m_cParam.rDelta)+1);
+		m_nNumNode = ((double)m_cParam.CalcnX())*m_cParam.CalcnY();	// S-14: the nodes as the kernel counts them
 		if(m_cOut != NULL)
 		{
 			if(m_cOut->GetFieldIntegrated().bIsItegratedInMemory()) nnn = 3;
 		};
-		m_dMemory = ((int)((( m_dMemory + m_nBlock*sizeof(CTmcRTHNodeDiel)+m_nNumNode*nnn*(2.*sizeof(_real)+2.*sizeof(_real) ))*1000.)/(1024.*1024.)+0.5))/1000.;
+		// S-14: X - 6 voltages and 6 admittances a node (96 bytes), + 2 quadratures with FIELD_DISTRIBUTION_M
+		m_dMemory = ((int)((( m_dMemory + m_nBlock*sizeof(CTmcRTHNodeDiel)+m_nNumNode*(12.*sizeof(_real)+( ( nnn == 3 ) ? 2.*sizeof(_real) : 0. ) ) )*1000.)/(1024.*1024.)+0.5))/1000.;
 	};
 	dt       = m_cParam.rt/m_cParam.rTimeUnit;
 	if( fabs( (double)(m_cParam.rt*m_cParam.rFreq) ) < (1.e-38) )

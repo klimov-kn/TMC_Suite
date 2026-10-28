@@ -7,12 +7,24 @@
 #include "TmcRTHNodeDiel.h"
 #include "TmcRTH_Indan.h"
 #include "TmcRTHRectNode.h"
+// D-4: the missing neighbour of a corner node of a port is an explicit 0 (old: the node (0,0), pr1[0])
+static _ELEM_VAL_RTH g_rZeroNeighbour[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+// B-16: is the point (x, y) outside the region, more than half a step beyond its border? Such parts of a block
+// are dropped (old: they were pressed to the border column).
+static BOOL TmcB16Out( CTmcRTH_IndanParam &cParam, double x, double y )
+{
+	return ( x < cParam.rXmin - 0.5*cParam.rDelta )||( x > cParam.rXmax + 0.5*cParam.rDelta )||
+		( y < cParam.rYmin - 0.5*cParam.rDelta )||( y > cParam.rYmax + 0.5*cParam.rDelta );
+}
 #include <math.h>
 #include <limits.h>
 #include <float.h>
 #include <expr.h>
 #include "Pl_iofor.h"
 #include <TmcCalcTiming.h>	// TIMING
+FILE *TmcOutTGet( const char *pszName );	// T-5, T-9: TmcRTHRectNode.cpp
+FILE *TmcFopenWait( const char *pszName, const char *pszMode, BOOL bDenyWrite, int *pnErr );
+CString TmcOpenFailText( const char *pszName, int nErr );
 #include <thread>		// EPSFAST
 #include <atomic>		// EPSFAST
 #include <vector>		// EPSFAST
@@ -389,6 +401,12 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 				else cError = SetRect( pcNextBlockList, cParam, csCurrentPath );
 				i = 1;
 			};
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATS, strlen(CTMCRTH_INDANBLCK_RECTSTATS) ) == NULL )	// B-20: sigma, as Y (slot 3)
+			{
+				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_RECT, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
+				else cError = SetRect( pcNextBlockList, cParam, csCurrentPath );
+				i = 1;
+			};
 			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTMOVE, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == NULL )
 			{
 				cError = SetRect( pcNextBlockList, cParam, csCurrentPath );
@@ -418,6 +436,12 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 				else cError = SetCirc( pcNextBlockList, cParam);
 				i = 1;
 			};
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATS, strlen(CTMCRTH_INDANBLCK_CIRCSTATS) ) == NULL )	// B-20: sigma, as Y (slot 3)
+			{
+				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_CIRC, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
+				else cError = SetCirc( pcNextBlockList, cParam);
+				i = 1;
+			};
 			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCMOVE, strlen(CTMCRTH_INDANBLCK_CIRCMOVE) ) == NULL )
 			{
 				cError = SetCirc( pcNextBlockList, cParam);
@@ -442,6 +466,12 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 				i = 1;
 			};
 			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTY, strlen(CTMCRTH_INDANBLCK_POLYGSTTY) ) == NULL )
+			{
+				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_POLY, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
+				else cError = SetPoly( pcNextBlockList, cParam);
+				i = 1;
+			};
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTS, strlen(CTMCRTH_INDANBLCK_POLYGSTTS) ) == NULL )	// B-20: sigma, as Y (slot 3)
 			{
 				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_POLY, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
 				else cError = SetPoly( pcNextBlockList, cParam);
@@ -501,6 +531,41 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 		csBuf.Format(" ");
 		PutStatistics(csBuf);
 		return cError;
+	};
+
+	if( ( !cError.IsError() )&&( pcNodeDielOne != NULL )&&( nNumNode > 0 ) )	// A-6: the nodes of the block lie in the grid
+	{
+		int nXg = cParam.CalcnX();
+		TmcIdx nGrid = ((TmcIdx)nXg)*cParam.CalcnY();
+		TmcIdx k, g, gBad = -1;
+		double dD = 0.99999*cParam.dGetDelta();
+		for( k = 0; ( k < nNumNode )&&( gBad < 0 ); k++ )
+		{
+			g = pcNodeDielOne[k].nNodeGlobal;
+			if( ( g < 0 )||( g >= nGrid ) ) { gBad = g; break; };
+			switch( nType )	// the neighbours the port reads and the node "behind" it that is set to zero
+			{
+				case CTMCRTH_BLCKNTYPE_INPYTOP:
+					if( ( g - nXg < 0 )||( ( cParam.CalcY(g) < cParam.rYmax - dD )&&( g + nXg >= nGrid ) ) ) gBad = g;
+					break;
+				case CTMCRTH_BLCKNTYPE_INPYBOT:
+					if( ( g + nXg >= nGrid )||( ( cParam.CalcY(g) > cParam.rYmin + dD )&&( g - nXg < 0 ) ) ) gBad = g;
+					break;
+				case CTMCRTH_BLCKNTYPE_INPXRIGHT:
+					if( ( g - 1 < 0 )||( ( cParam.CalcX(g) < cParam.rXmax - dD )&&( g + 1 >= nGrid ) ) ) gBad = g;
+					break;
+				case CTMCRTH_BLCKNTYPE_INPXLEFT:
+					if( ( g + 1 >= nGrid )||( ( cParam.CalcX(g) > cParam.rXmin + dD )&&( g - 1 < 0 ) ) ) gBad = g;
+					break;
+			};
+		};
+		if( gBad >= 0 || ( k < nNumNode ) )
+		{
+			CString csBuf;
+			csBuf.Format("Block %d: node %.0f (row %.0f, column %.0f) or its neighbour is outside the grid %d x %d",
+				nBlock, (double)g, (double)( g/nXg ), (double)( g%nXg ), nXg, cParam.CalcnY() );
+			cError.PutErrorMessage(csBuf);
+		};
 	};
 
 	DeleteDublicateData();
@@ -604,8 +669,13 @@ int CTmcRTHNodeDiel::EpsFastEval( const char *pszExpr, double x, double y, CTmcR
 	y /=cParam.rLongUnit;
 	r = sqrt( x*x + y*y );
 	f = atan2__1( y, x)/cParam.rAngleUnit;
-	sprintf( szBuf1, "x=(%lg);y=(%lg);r=(%lg);f=(%lg);", x, y, r, f);
-	if( i1nte_atof_1( szBuf1, &r1 ) != 0 ) return -1;
+	// B-11, old (6 digits):
+	// sprintf( szBuf1, "x=(%lg);y=(%lg);r=(%lg);f=(%lg);", x, y, r, f);
+	// if( i1nte_atof_1( szBuf1, &r1 ) != 0 ) return -1;
+	expr_set_per( (char *)"x", 1, (_real)x );	// B-11: the full precision, without a string
+	expr_set_per( (char *)"y", 1, (_real)y );
+	expr_set_per( (char *)"r", 1, (_real)r );
+	expr_set_per( (char *)"f", 1, (_real)f );
 	if( i1nte_atof_1( szBuf, &r1 ) != 0 ) return -1;
 	*pr = (_real)r1;
 	return 0;
@@ -818,10 +888,14 @@ BOOL CTmcRTHNodeDiel::SetStatEpsFast( CTmcRTH_BlockList * pcNextBlockList, CTmcR
 				i = (int)(dFImax/(2*3.141592653589) + 1);
 				dFImax += i*(2*3.141592653589);
 			};
-			if( dFImax > (2*3.141592653589) )
+			// B-19: FImax up to 2*pi + 1e-12 is a full circle (full pi, the same constant as in the parser).
+			// Old (the exact 2*pi became ~1e-12, an empty block or a ray):
+			//   if( dFImax > (2*3.141592653589) )
+			//   { i = (int)(dFImax/(2*3.141592653589)); dFImax -= i*(2*3.141592653589); };
+			if( dFImax > (2*3.14159265358979323846 + 1e-12) )
 			{
-				i = (int)(dFImax/(2*3.141592653589));
-				dFImax -= i*(2*3.141592653589);
+				i = (int)(dFImax/(2*3.14159265358979323846));
+				dFImax -= i*(2*3.14159265358979323846);
 			};
 			dXmin = - pcNextBlockList->GetXmax() + pcNextBlockList->GetX0();
 			if( dXmin < cParam.rXmin ) dXmin = cParam.rXmin;
@@ -1145,6 +1219,14 @@ int CTmcRTHNodeDiel::EpsFastTypeOffset( void )	// EPSFAST: i_Type of SetYLineFor
 			i_Type = 4;
 		};
 ///////////////////////////////////////////////
+//		B-20: sigma (S/m) write in prYNode[3] (free until SetDielInNodeList, there it becomes Y)
+		if( ( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATS, strlen(CTMCRTH_INDANBLCK_RECTSTATS) ) == NULL )||
+			( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATS, strlen(CTMCRTH_INDANBLCK_CIRCSTATS) ) == NULL )||
+			( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTS, strlen(CTMCRTH_INDANBLCK_POLYGSTTS) ) == NULL ) )
+		{
+			i_Type = 3;
+		};
+///////////////////////////////////////////////
 	return i_Type;
 }
 
@@ -1329,10 +1411,14 @@ CTmcLibError &CTmcRTHNodeDiel::SetCirc( CTmcRTH_BlockList * pcNextBlockList, CTm
 		i = (int)(dFImax/(2*3.141592653589) + 1);
 		dFImax += i*(2*3.141592653589);
 	};
-	if( dFImax > (2*3.141592653589) )
+	// B-19: FImax up to 2*pi + 1e-12 is a full circle (full pi, the same constant as in the parser).
+	// Old (the exact 2*pi became ~1e-12, an empty block or a ray):
+	//   if( dFImax > (2*3.141592653589) )
+	//   { i = (int)(dFImax/(2*3.141592653589)); dFImax -= i*(2*3.141592653589); };
+	if( dFImax > (2*3.14159265358979323846 + 1e-12) )
 	{
-		i = (int)(dFImax/(2*3.141592653589));
-		dFImax -= i*(2*3.141592653589);
+		i = (int)(dFImax/(2*3.14159265358979323846));
+		dFImax -= i*(2*3.14159265358979323846);
 	};
 
 //	{
@@ -2192,7 +2278,10 @@ void CTmcRTHNodeDiel::SetYLineForDiel( CTmcRTH_IndanParam &cParam, _real *prYNod
 	double x, y, y_line, dDelta;
 	BOOL bIsFile;
 	
-	if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILE, strlen(CTMCRTH_INDANBLCK_FILE) ) == NULL )
+	if( ( strncmp( csBlock, CTMCRTH_INDANBLCK_FILE, strlen(CTMCRTH_INDANBLCK_FILE) ) == NULL )||	// B-17: N, B, Y from a file too
+		( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEN, strlen(CTMCRTH_INDANBLCK_FILEN) ) == NULL )||
+		( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEB, strlen(CTMCRTH_INDANBLCK_FILEB) ) == NULL )||
+		( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEY, strlen(CTMCRTH_INDANBLCK_FILEY) ) == NULL ) )
 	{
 		bIsFile = TRUE;
 	}
@@ -2389,13 +2478,15 @@ _real CTmcRTHNodeDiel::CalcEps( double x, double y, CTmcRTH_IndanParam &cParam )
 	y /=cParam.rLongUnit;
 	r = sqrt( x*x + y*y );
 	f = atan2__1( y, x)/cParam.rAngleUnit;
-	sprintf( szBuf1, "x=(%lg);y=(%lg);r=(%lg);f=(%lg);", x, y, r, f);
-	if( i1nte_atof_1( szBuf1, &r1 ) != 0 )
-	{
-		csBuf.Format("In{%s}%s", szBuf1, expr_get_error() );
-		cError.PutErrorMessage(csBuf);
-		return (_real)(0.0);
-	};
+	// B-11, old (6 digits):
+	// sprintf( szBuf1, "x=(%lg);y=(%lg);r=(%lg);f=(%lg);", x, y, r, f);
+	// if( i1nte_atof_1( szBuf1, &r1 ) != 0 )
+	// { csBuf.Format("In{%s}%s", szBuf1, expr_get_error() ); cError.PutErrorMessage(csBuf); return (_real)(0.0); };
+	expr_set_per( (char *)"x", 1, (_real)x );	// B-11: the full precision, without a string
+	expr_set_per( (char *)"y", 1, (_real)y );
+	expr_set_per( (char *)"r", 1, (_real)r );
+	expr_set_per( (char *)"f", 1, (_real)f );
+	szBuf1[0] = '\0';
 	if( i1nte_atof_1( szBuf, &r1 ) != 0 )
 	{
 		csBuf.Format("In{%s}%s; r=%lg;f=%lg; x=%lg; y=%lg",
@@ -2647,7 +2738,7 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 		switch( nType )
 		{
 			case CTMCRTH_BLCKNTYPE_INPXLEFT: 
-				u2 = pr1;
+				u2 = g_rZeroNeighbour;	// D-4 (old: u2 = pr1; - the node (0,0))
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal + 1)*6+3;
 				u4 = pr1 + (pcNodeDielOne[i].nNodeGlobal + nX)*6+3;
 //
@@ -2660,7 +2751,7 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 				}
 				break;
 			case CTMCRTH_BLCKNTYPE_INPXRIGHT: 
-				u2 = pr1;
+				u2 = g_rZeroNeighbour;	// D-4 (old: u2 = pr1; - the node (0,0))
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal - 1)*6+3;
 				u4 = pr1 + (pcNodeDielOne[i].nNodeGlobal + nX)*6+3;
 //
@@ -2673,7 +2764,7 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_INPYTOP:
-				u2 = pr1;
+				u2 = g_rZeroNeighbour;	// D-4 (old: u2 = pr1; - the node (0,0))
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal - nX)*6+3;
 				u4 = pr1 + (pcNodeDielOne[i].nNodeGlobal + 1)*6+3;
 //
@@ -2686,7 +2777,7 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_INPYBOT:
-				u2 = pr1;
+				u2 = g_rZeroNeighbour;	// D-4 (old: u2 = pr1; - the node (0,0))
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal + nX)*6+3;
 				u4 = pr1 + (pcNodeDielOne[i].nNodeGlobal + 1)*6+3;
 //
@@ -2772,7 +2863,7 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 			case CTMCRTH_BLCKNTYPE_INPXLEFT: 
 				u2 = pr1 + (pcNodeDielOne[i].nNodeGlobal - nX)*6+3;
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal + 1)*6+3;
-				u4 = pr1;
+				u4 = g_rZeroNeighbour;	// D-4 (old: u4 = pr1; - the node (0,0))
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rXmin + 0.99999*cParam.dGetDelta() ) )
 				{
@@ -2785,7 +2876,7 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 			case CTMCRTH_BLCKNTYPE_INPXRIGHT: 
 				u2 = pr1 + (pcNodeDielOne[i].nNodeGlobal - nX)*6+3;
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal - 1)*6+3;
-				u4 = pr1;
+				u4 = g_rZeroNeighbour;	// D-4 (old: u4 = pr1; - the node (0,0))
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rXmax - 0.99999*cParam.dGetDelta() ) )
 				{
@@ -2798,7 +2889,7 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 			case CTMCRTH_BLCKNTYPE_INPYTOP:
 				u2 = pr1 + (pcNodeDielOne[i].nNodeGlobal - 1)*6+3;
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal - nX)*6+3;
-				u4 = pr1;
+				u4 = g_rZeroNeighbour;	// D-4 (old: u4 = pr1; - the node (0,0))
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rYmax - 0.99999*cParam.dGetDelta() ) )
 				{
@@ -2811,7 +2902,7 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 			case CTMCRTH_BLCKNTYPE_INPYBOT:
 				u2 = pr1 + (pcNodeDielOne[i].nNodeGlobal - 1)*6+3;
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal + nX)*6+3;
-				u4 = pr1;
+				u4 = g_rZeroNeighbour;	// D-4 (old: u4 = pr1; - the node (0,0))
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rYmin + 0.99999*cParam.dGetDelta() ) )
 				{
@@ -2980,7 +3071,7 @@ void CTmcRTHNodeDiel::ExciteInputs1( CTmcLibError &cError1, double dWT, double d
 		switch( nType )
 		{
 			case CTMCRTH_BLCKNTYPE_INPXLEFT: 
-				u2 = pr1;
+				u2 = g_rZeroNeighbour;	// D-4 (old: u2 = pr1; - the node (0,0))
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal + 1)*6;
 				u4 = pr1 + (pcNodeDielOne[i].nNodeGlobal + nX)*6;
 //
@@ -2993,7 +3084,7 @@ void CTmcRTHNodeDiel::ExciteInputs1( CTmcLibError &cError1, double dWT, double d
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_INPXRIGHT: 
-				u2 = pr1;
+				u2 = g_rZeroNeighbour;	// D-4 (old: u2 = pr1; - the node (0,0))
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal - 1)*6;
 				u4 = pr1 + (pcNodeDielOne[i].nNodeGlobal + nX)*6;
 //
@@ -3006,7 +3097,7 @@ void CTmcRTHNodeDiel::ExciteInputs1( CTmcLibError &cError1, double dWT, double d
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_INPYTOP:
-				u2 = pr1;
+				u2 = g_rZeroNeighbour;	// D-4 (old: u2 = pr1; - the node (0,0))
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal - nX)*6;
 				u4 = pr1 + (pcNodeDielOne[i].nNodeGlobal + 1)*6;
 //
@@ -3019,7 +3110,7 @@ void CTmcRTHNodeDiel::ExciteInputs1( CTmcLibError &cError1, double dWT, double d
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_INPYBOT:
-				u2 = pr1;
+				u2 = g_rZeroNeighbour;	// D-4 (old: u2 = pr1; - the node (0,0))
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal + nX)*6;
 				u4 = pr1 + (pcNodeDielOne[i].nNodeGlobal + 1)*6;
 //
@@ -3103,7 +3194,7 @@ void CTmcRTHNodeDiel::ExciteInputs1( CTmcLibError &cError1, double dWT, double d
 			case CTMCRTH_BLCKNTYPE_INPXLEFT: 
 				u2 = pr1 + (pcNodeDielOne[i].nNodeGlobal - nX)*6;
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal + 1)*6;
-				u4 = pr1;
+				u4 = g_rZeroNeighbour;	// D-4 (old: u4 = pr1; - the node (0,0))
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rXmin + 0.99999*cParam.dGetDelta() ) )
 				{
@@ -3116,7 +3207,7 @@ void CTmcRTHNodeDiel::ExciteInputs1( CTmcLibError &cError1, double dWT, double d
 			case CTMCRTH_BLCKNTYPE_INPXRIGHT: 
 				u2 = pr1 + (pcNodeDielOne[i].nNodeGlobal - nX)*6;
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal - 1)*6;
-				u4 = pr1;
+				u4 = g_rZeroNeighbour;	// D-4 (old: u4 = pr1; - the node (0,0))
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rXmax - 0.99999*cParam.dGetDelta() ) )
 				{
@@ -3129,7 +3220,7 @@ void CTmcRTHNodeDiel::ExciteInputs1( CTmcLibError &cError1, double dWT, double d
 			case CTMCRTH_BLCKNTYPE_INPYTOP:
 				u2 = pr1 + (pcNodeDielOne[i].nNodeGlobal - 1)*6;
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal - nX)*6;
-				u4 = pr1;
+				u4 = g_rZeroNeighbour;	// D-4 (old: u4 = pr1; - the node (0,0))
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rYmax - 0.99999*cParam.dGetDelta() ) )
 				{
@@ -3142,7 +3233,7 @@ void CTmcRTHNodeDiel::ExciteInputs1( CTmcLibError &cError1, double dWT, double d
 			case CTMCRTH_BLCKNTYPE_INPYBOT:
 				u2 = pr1 + (pcNodeDielOne[i].nNodeGlobal - 1)*6;
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal + nX)*6;
-				u4 = pr1;
+				u4 = g_rZeroNeighbour;	// D-4 (old: u4 = pr1; - the node (0,0))
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rYmin + 0.99999*cParam.dGetDelta() ) )
 				{
@@ -3313,55 +3404,55 @@ void CTmcRTHNodeDiel::ExciteInputs2( CTmcLibError &cError1, double dWT, double d
 		switch( nType )
 		{
 			case CTMCRTH_BLCKNTYPE_INPXLEFT: 
-				u2 = pr1;
+				u2 = g_rZeroNeighbour;	// D-4 (old: u2 = pr1; - the node (0,0))
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal + 1)*6 + 1;
 				u4 = pr1 + (pcNodeDielOne[i].nNodeGlobal + nX)*6 + 1;
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rXmin + 0.99999*cParam.dGetDelta() ) )
 				{
-	              u3[-12+i11] = 0.0;
-		          u3[-12+1+i11] = 0.0;
-		          u3[-12+2+i11] = 0.0;
-		          u3[-12+3+i11] = 0.0;
+	              u3[-12+i11-1] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -1 - cells 1...4)
+		          u3[-12+1+i11-1] = 0.0;
+		          u3[-12+2+i11-1] = 0.0;
+		          u3[-12+3+i11-1] = 0.0;
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_INPXRIGHT: 
-				u2 = pr1;
+				u2 = g_rZeroNeighbour;	// D-4 (old: u2 = pr1; - the node (0,0))
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal - 1)*6 + 1;
 				u4 = pr1 + (pcNodeDielOne[i].nNodeGlobal + nX)*6 + 1;
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rXmax - 0.99999*cParam.dGetDelta() ) )
 				{
-	              u3[12-i11] = 0.0;
-		          u3[12+1-i11] = 0.0;
-		          u3[12+2-i11] = 0.0;
-		          u3[12+3-i11] = 0.0;
+	              u3[12-i11-1] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -1 - cells 1...4)
+		          u3[12+1-i11-1] = 0.0;
+		          u3[12+2-i11-1] = 0.0;
+		          u3[12+3-i11-1] = 0.0;
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_INPYTOP:
-				u2 = pr1;
+				u2 = g_rZeroNeighbour;	// D-4 (old: u2 = pr1; - the node (0,0))
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal - nX)*6 + 1;
 				u4 = pr1 + (pcNodeDielOne[i].nNodeGlobal + 1)*6 + 1;
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rYmax - 0.99999*cParam.dGetDelta() ) )
 				{
-	                u3[12*nX] = 0.0;
-					u3[12*nX+1] = 0.0;
-					u3[12*nX+2] = 0.0;
-					u3[12*nX+3] = 0.0;
+	                u3[12*nX-1] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -1 - cells 1...4)
+					u3[12*nX+1-1] = 0.0;
+					u3[12*nX+2-1] = 0.0;
+					u3[12*nX+3-1] = 0.0;
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_INPYBOT:
-				u2 = pr1;
+				u2 = g_rZeroNeighbour;	// D-4 (old: u2 = pr1; - the node (0,0))
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal + nX)*6 + 1;
 				u4 = pr1 + (pcNodeDielOne[i].nNodeGlobal + 1)*6 + 1;
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rYmin + 0.99999*cParam.dGetDelta() ) )
 				{
-	                u3[-12*nX] = 0.0;
-					u3[-12*nX+1] = 0.0;
-					u3[-12*nX+2] = 0.0;
-					u3[-12*nX+3] = 0.0;
+	                u3[-12*nX-1] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -1 - cells 1...4)
+					u3[-12*nX+1-1] = 0.0;
+					u3[-12*nX+2-1] = 0.0;
+					u3[-12*nX+3-1] = 0.0;
 				};
 				break;
 		};
@@ -3380,10 +3471,10 @@ void CTmcRTHNodeDiel::ExciteInputs2( CTmcLibError &cError1, double dWT, double d
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rXmin + 0.99999*cParam.dGetDelta() ) )
 				{
-	              u3[-12+i11] = 0.0;
-		          u3[-12+1+i11] = 0.0;
-		          u3[-12+2+i11] = 0.0;
-		          u3[-12+3+i11] = 0.0;
+	              u3[-12+i11-1] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -1 - cells 1...4)
+		          u3[-12+1+i11-1] = 0.0;
+		          u3[-12+2+i11-1] = 0.0;
+		          u3[-12+3+i11-1] = 0.0;
 				};
 					break;
 				case CTMCRTH_BLCKNTYPE_INPXRIGHT: 
@@ -3393,10 +3484,10 @@ void CTmcRTHNodeDiel::ExciteInputs2( CTmcLibError &cError1, double dWT, double d
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rXmax - 0.99999*cParam.dGetDelta() ) )
 				{
-	              u3[12-i11] = 0.0;
-		          u3[12+1-i11] = 0.0;
-		          u3[12+2-i11] = 0.0;
-		          u3[12+3-i11] = 0.0;
+	              u3[12-i11-1] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -1 - cells 1...4)
+		          u3[12+1-i11-1] = 0.0;
+		          u3[12+2-i11-1] = 0.0;
+		          u3[12+3-i11-1] = 0.0;
 				};
 					break;
 				case CTMCRTH_BLCKNTYPE_INPYTOP:
@@ -3406,10 +3497,10 @@ void CTmcRTHNodeDiel::ExciteInputs2( CTmcLibError &cError1, double dWT, double d
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rYmax - 0.99999*cParam.dGetDelta() ) )
 				{
-	                u3[12*nX] = 0.0;
-					u3[12*nX+1] = 0.0;
-					u3[12*nX+2] = 0.0;
-					u3[12*nX+3] = 0.0;
+	                u3[12*nX-1] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -1 - cells 1...4)
+					u3[12*nX+1-1] = 0.0;
+					u3[12*nX+2-1] = 0.0;
+					u3[12*nX+3-1] = 0.0;
 				};
 					break;
 				case CTMCRTH_BLCKNTYPE_INPYBOT:
@@ -3419,10 +3510,10 @@ void CTmcRTHNodeDiel::ExciteInputs2( CTmcLibError &cError1, double dWT, double d
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rYmin + 0.99999*cParam.dGetDelta() ) )
 				{
-	                u3[-12*nX] = 0.0;
-					u3[-12*nX+1] = 0.0;
-					u3[-12*nX+2] = 0.0;
-					u3[-12*nX+3] = 0.0;
+	                u3[-12*nX-1] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -1 - cells 1...4)
+					u3[-12*nX+1-1] = 0.0;
+					u3[-12*nX+2-1] = 0.0;
+					u3[-12*nX+3-1] = 0.0;
 				};
 					break;
 			};
@@ -3436,53 +3527,53 @@ void CTmcRTHNodeDiel::ExciteInputs2( CTmcLibError &cError1, double dWT, double d
 			case CTMCRTH_BLCKNTYPE_INPXLEFT: 
 				u2 = pr1 + (pcNodeDielOne[i].nNodeGlobal - nX)*6 + 1;
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal + 1)*6 + 1;
-				u4 = pr1;
+				u4 = g_rZeroNeighbour;	// D-4 (old: u4 = pr1; - the node (0,0))
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rXmin + 0.99999*cParam.dGetDelta() ) )
 				{
-	              u3[-12+i11] = 0.0;
-		          u3[-12+1+i11] = 0.0;
-		          u3[-12+2+i11] = 0.0;
-		          u3[-12+3+i11] = 0.0;
+	              u3[-12+i11-1] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -1 - cells 1...4)
+		          u3[-12+1+i11-1] = 0.0;
+		          u3[-12+2+i11-1] = 0.0;
+		          u3[-12+3+i11-1] = 0.0;
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_INPXRIGHT: 
 				u2 = pr1 + (pcNodeDielOne[i].nNodeGlobal - nX)*6 + 1;
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal - 1)*6 + 1;
-				u4 = pr1;
+				u4 = g_rZeroNeighbour;	// D-4 (old: u4 = pr1; - the node (0,0))
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rXmax - 0.99999*cParam.dGetDelta() ) )
 				{
-	              u3[12-i11] = 0.0;
-		          u3[12+1-i11] = 0.0;
-		          u3[12+2-i11] = 0.0;
-		          u3[12+3-i11] = 0.0;
+	              u3[12-i11-1] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -1 - cells 1...4)
+		          u3[12+1-i11-1] = 0.0;
+		          u3[12+2-i11-1] = 0.0;
+		          u3[12+3-i11-1] = 0.0;
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_INPYTOP:
 				u2 = pr1 + (pcNodeDielOne[i].nNodeGlobal - 1)*6 + 1;
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal - nX)*6 + 1;
-				u4 = pr1;
+				u4 = g_rZeroNeighbour;	// D-4 (old: u4 = pr1; - the node (0,0))
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rYmax - 0.99999*cParam.dGetDelta() ) )
 				{
-	                u3[12*nX] = 0.0;
-					u3[12*nX+1] = 0.0;
-					u3[12*nX+2] = 0.0;
-					u3[12*nX+3] = 0.0;
+	                u3[12*nX-1] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -1 - cells 1...4)
+					u3[12*nX+1-1] = 0.0;
+					u3[12*nX+2-1] = 0.0;
+					u3[12*nX+3-1] = 0.0;
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_INPYBOT:
 				u2 = pr1 + (pcNodeDielOne[i].nNodeGlobal - 1)*6 + 1;
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal + nX)*6 + 1;
-				u4 = pr1;
+				u4 = g_rZeroNeighbour;	// D-4 (old: u4 = pr1; - the node (0,0))
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rYmin + 0.99999*cParam.dGetDelta() ) )
 				{
-	                u3[-12*nX] = 0.0;
-					u3[-12*nX+1] = 0.0;
-					u3[-12*nX+2] = 0.0;
-					u3[-12*nX+3] = 0.0;
+	                u3[-12*nX-1] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -1 - cells 1...4)
+					u3[-12*nX+1-1] = 0.0;
+					u3[-12*nX+2-1] = 0.0;
+					u3[-12*nX+3-1] = 0.0;
 				};
 				break;
 		};
@@ -3504,10 +3595,10 @@ void CTmcRTHNodeDiel::ExciteInputs2( CTmcLibError &cError1, double dWT, double d
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rXmin + 0.99999*cParam.dGetDelta() ) )
 				{
-	              u3[-12+i11] = 0.0;
-		          u3[-12+1+i11] = 0.0;
-		          u3[-12+2+i11] = 0.0;
-		          u3[-12+3+i11] = 0.0;
+	              u3[-12+i11-1] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -1 - cells 1...4)
+		          u3[-12+1+i11-1] = 0.0;
+		          u3[-12+2+i11-1] = 0.0;
+		          u3[-12+3+i11-1] = 0.0;
 				};
 					break;
 				case CTMCRTH_BLCKNTYPE_INPXRIGHT: 
@@ -3517,10 +3608,10 @@ void CTmcRTHNodeDiel::ExciteInputs2( CTmcLibError &cError1, double dWT, double d
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rXmax - 0.99999*cParam.dGetDelta() ) )
 				{
-	              u3[12-i11] = 0.0;
-		          u3[12+1-i11] = 0.0;
-		          u3[12+2-i11] = 0.0;
-		          u3[12+3-i11] = 0.0;
+	              u3[12-i11-1] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -1 - cells 1...4)
+		          u3[12+1-i11-1] = 0.0;
+		          u3[12+2-i11-1] = 0.0;
+		          u3[12+3-i11-1] = 0.0;
 				};
 					break;
 				case CTMCRTH_BLCKNTYPE_INPYTOP:
@@ -3530,10 +3621,10 @@ void CTmcRTHNodeDiel::ExciteInputs2( CTmcLibError &cError1, double dWT, double d
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rYmax - 0.99999*cParam.dGetDelta() ) )
 				{
-	                u3[12*nX] = 0.0;
-					u3[12*nX+1] = 0.0;
-					u3[12*nX+2] = 0.0;
-					u3[12*nX+3] = 0.0;
+	                u3[12*nX-1] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -1 - cells 1...4)
+					u3[12*nX+1-1] = 0.0;
+					u3[12*nX+2-1] = 0.0;
+					u3[12*nX+3-1] = 0.0;
 				};
 					break;
 				case CTMCRTH_BLCKNTYPE_INPYBOT:
@@ -3543,10 +3634,10 @@ void CTmcRTHNodeDiel::ExciteInputs2( CTmcLibError &cError1, double dWT, double d
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rYmin + 0.99999*cParam.dGetDelta() ) )
 				{
-	                u3[-12*nX] = 0.0;
-					u3[-12*nX+1] = 0.0;
-					u3[-12*nX+2] = 0.0;
-					u3[-12*nX+3] = 0.0;
+	                u3[-12*nX-1] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -1 - cells 1...4)
+					u3[-12*nX+1-1] = 0.0;
+					u3[-12*nX+2-1] = 0.0;
+					u3[-12*nX+3-1] = 0.0;
 				};
 					break;
 			};
@@ -3646,55 +3737,55 @@ void CTmcRTHNodeDiel::ExciteInputs3( CTmcLibError &cError1, double dWT, double d
 		switch( nType )
 		{
 			case CTMCRTH_BLCKNTYPE_INPXLEFT: 
-				u2 = pr1;
+				u2 = g_rZeroNeighbour;	// D-4 (old: u2 = pr1; - the node (0,0))
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal + 1)*6 + 2;
 				u4 = pr1 + (pcNodeDielOne[i].nNodeGlobal + nX)*6 + 2;
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rXmin + 0.99999*cParam.dGetDelta() ) )
 				{
-	              u3[-12+i11] = 0.0;
-		          u3[-12+1+i11] = 0.0;
-		          u3[-12+2+i11] = 0.0;
-		          u3[-12+3+i11] = 0.0;
+	              u3[-12+i11-2] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -2 - cells 2...5)
+		          u3[-12+1+i11-2] = 0.0;
+		          u3[-12+2+i11-2] = 0.0;
+		          u3[-12+3+i11-2] = 0.0;
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_INPXRIGHT: 
-				u2 = pr1;
+				u2 = g_rZeroNeighbour;	// D-4 (old: u2 = pr1; - the node (0,0))
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal - 1)*6 + 2;
 				u4 = pr1 + (pcNodeDielOne[i].nNodeGlobal + nX)*6 + 2;
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rXmax - 0.99999*cParam.dGetDelta() ) )
 				{
-	              u3[12-i11] = 0.0;
-		          u3[12+1-i11] = 0.0;
-		          u3[12+2-i11] = 0.0;
-		          u3[12+3-i11] = 0.0;
+	              u3[12-i11-2] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -2 - cells 2...5)
+		          u3[12+1-i11-2] = 0.0;
+		          u3[12+2-i11-2] = 0.0;
+		          u3[12+3-i11-2] = 0.0;
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_INPYTOP:
-				u2 = pr1;
+				u2 = g_rZeroNeighbour;	// D-4 (old: u2 = pr1; - the node (0,0))
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal - nX)*6 + 2;
 				u4 = pr1 + (pcNodeDielOne[i].nNodeGlobal + 1)*6 + 2;
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rYmax - 0.99999*cParam.dGetDelta() ) )
 				{
-	                u3[12*nX] = 0.0;
-					u3[12*nX+1] = 0.0;
-					u3[12*nX+2] = 0.0;
-					u3[12*nX+3] = 0.0;
+	                u3[12*nX-2] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -2 - cells 2...5)
+					u3[12*nX+1-2] = 0.0;
+					u3[12*nX+2-2] = 0.0;
+					u3[12*nX+3-2] = 0.0;
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_INPYBOT:
-				u2 = pr1;
+				u2 = g_rZeroNeighbour;	// D-4 (old: u2 = pr1; - the node (0,0))
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal + nX)*6 + 2;
 				u4 = pr1 + (pcNodeDielOne[i].nNodeGlobal + 1)*6 + 2;
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rYmin + 0.99999*cParam.dGetDelta() ) )
 				{
-	                u3[-12*nX] = 0.0;
-					u3[-12*nX+1] = 0.0;
-					u3[-12*nX+2] = 0.0;
-					u3[-12*nX+3] = 0.0;
+	                u3[-12*nX-2] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -2 - cells 2...5)
+					u3[-12*nX+1-2] = 0.0;
+					u3[-12*nX+2-2] = 0.0;
+					u3[-12*nX+3-2] = 0.0;
 				};
 				break;
 		};
@@ -3713,10 +3804,10 @@ void CTmcRTHNodeDiel::ExciteInputs3( CTmcLibError &cError1, double dWT, double d
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rXmin + 0.99999*cParam.dGetDelta() ) )
 				{
-	              u3[-12+i11] = 0.0;
-		          u3[-12+1+i11] = 0.0;
-		          u3[-12+2+i11] = 0.0;
-		          u3[-12+3+i11] = 0.0;
+	              u3[-12+i11-2] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -2 - cells 2...5)
+		          u3[-12+1+i11-2] = 0.0;
+		          u3[-12+2+i11-2] = 0.0;
+		          u3[-12+3+i11-2] = 0.0;
 				};
 					break;
 				case CTMCRTH_BLCKNTYPE_INPXRIGHT: 
@@ -3726,10 +3817,10 @@ void CTmcRTHNodeDiel::ExciteInputs3( CTmcLibError &cError1, double dWT, double d
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rXmax - 0.99999*cParam.dGetDelta() ) )
 				{
-	              u3[12-i11] = 0.0;
-		          u3[12+1-i11] = 0.0;
-		          u3[12+2-i11] = 0.0;
-		          u3[12+3-i11] = 0.0;
+	              u3[12-i11-2] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -2 - cells 2...5)
+		          u3[12+1-i11-2] = 0.0;
+		          u3[12+2-i11-2] = 0.0;
+		          u3[12+3-i11-2] = 0.0;
 				};
 					break;
 				case CTMCRTH_BLCKNTYPE_INPYTOP:
@@ -3739,10 +3830,10 @@ void CTmcRTHNodeDiel::ExciteInputs3( CTmcLibError &cError1, double dWT, double d
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rYmax - 0.99999*cParam.dGetDelta() ) )
 				{
-	                u3[12*nX] = 0.0;
-					u3[12*nX+1] = 0.0;
-					u3[12*nX+2] = 0.0;
-					u3[12*nX+3] = 0.0;
+	                u3[12*nX-2] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -2 - cells 2...5)
+					u3[12*nX+1-2] = 0.0;
+					u3[12*nX+2-2] = 0.0;
+					u3[12*nX+3-2] = 0.0;
 				};
 					break;
 				case CTMCRTH_BLCKNTYPE_INPYBOT:
@@ -3752,10 +3843,10 @@ void CTmcRTHNodeDiel::ExciteInputs3( CTmcLibError &cError1, double dWT, double d
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rYmin + 0.99999*cParam.dGetDelta() ) )
 				{
-	                u3[-12*nX] = 0.0;
-					u3[-12*nX+1] = 0.0;
-					u3[-12*nX+2] = 0.0;
-					u3[-12*nX+3] = 0.0;
+	                u3[-12*nX-2] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -2 - cells 2...5)
+					u3[-12*nX+1-2] = 0.0;
+					u3[-12*nX+2-2] = 0.0;
+					u3[-12*nX+3-2] = 0.0;
 				};
 					break;
 			};
@@ -3773,49 +3864,49 @@ void CTmcRTHNodeDiel::ExciteInputs3( CTmcLibError &cError1, double dWT, double d
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rXmin + 0.99999*cParam.dGetDelta() ) )
 				{
-	              u3[-12+i11] = 0.0;
-		          u3[-12+1+i11] = 0.0;
-		          u3[-12+2+i11] = 0.0;
-		          u3[-12+3+i11] = 0.0;
+	              u3[-12+i11-2] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -2 - cells 2...5)
+		          u3[-12+1+i11-2] = 0.0;
+		          u3[-12+2+i11-2] = 0.0;
+		          u3[-12+3+i11-2] = 0.0;
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_INPXRIGHT: 
 				u2 = pr1 + (pcNodeDielOne[i].nNodeGlobal - nX)*6 + 2;
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal - 1)*6 + 2;
-				u4 = pr1;
+				u4 = g_rZeroNeighbour;	// D-4 (old: u4 = pr1; - the node (0,0))
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rXmax - 0.99999*cParam.dGetDelta() ) )
 				{
-	              u3[12-i11] = 0.0;
-		          u3[12+1-i11] = 0.0;
-		          u3[12+2-i11] = 0.0;
-		          u3[12+3-i11] = 0.0;
+	              u3[12-i11-2] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -2 - cells 2...5)
+		          u3[12+1-i11-2] = 0.0;
+		          u3[12+2-i11-2] = 0.0;
+		          u3[12+3-i11-2] = 0.0;
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_INPYTOP:
 				u2 = pr1 + (pcNodeDielOne[i].nNodeGlobal - 1)*6 + 2;
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal - nX)*6 + 2;
-				u4 = pr1;
+				u4 = g_rZeroNeighbour;	// D-4 (old: u4 = pr1; - the node (0,0))
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rYmax - 0.99999*cParam.dGetDelta() ) )
 				{
-	                u3[12*nX] = 0.0;
-					u3[12*nX+1] = 0.0;
-					u3[12*nX+2] = 0.0;
-					u3[12*nX+3] = 0.0;
+	                u3[12*nX-2] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -2 - cells 2...5)
+					u3[12*nX+1-2] = 0.0;
+					u3[12*nX+2-2] = 0.0;
+					u3[12*nX+3-2] = 0.0;
 				};
 				break;
 			case CTMCRTH_BLCKNTYPE_INPYBOT:
 				u2 = pr1 + (pcNodeDielOne[i].nNodeGlobal - 1)*6 + 2;
 				u3 = pr1 + (pcNodeDielOne[i].nNodeGlobal + nX)*6 + 2;
-				u4 = pr1;
+				u4 = g_rZeroNeighbour;	// D-4 (old: u4 = pr1; - the node (0,0))
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rYmin + 0.99999*cParam.dGetDelta() ) )
 				{
-	                u3[-12*nX] = 0.0;
-					u3[-12*nX+1] = 0.0;
-					u3[-12*nX+2] = 0.0;
-					u3[-12*nX+3] = 0.0;
+	                u3[-12*nX-2] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -2 - cells 2...5)
+					u3[-12*nX+1-2] = 0.0;
+					u3[-12*nX+2-2] = 0.0;
+					u3[-12*nX+3-2] = 0.0;
 				};
 				break;
 		};
@@ -3837,10 +3928,10 @@ void CTmcRTHNodeDiel::ExciteInputs3( CTmcLibError &cError1, double dWT, double d
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rXmin + 0.99999*cParam.dGetDelta() ) )
 				{
-	              u3[-12+i11] = 0.0;
-		          u3[-12+1+i11] = 0.0;
-		          u3[-12+2+i11] = 0.0;
-		          u3[-12+3+i11] = 0.0;
+	              u3[-12+i11-2] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -2 - cells 2...5)
+		          u3[-12+1+i11-2] = 0.0;
+		          u3[-12+2+i11-2] = 0.0;
+		          u3[-12+3+i11-2] = 0.0;
 				};
 					break;
 				case CTMCRTH_BLCKNTYPE_INPXRIGHT: 
@@ -3850,10 +3941,10 @@ void CTmcRTHNodeDiel::ExciteInputs3( CTmcLibError &cError1, double dWT, double d
 //
 				if( cParam.CalcX(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rXmax - 0.99999*cParam.dGetDelta() ) )
 				{
-	              u3[12-i11] = 0.0;
-		          u3[12+1-i11] = 0.0;
-		          u3[12+2-i11] = 0.0;
-		          u3[12+3-i11] = 0.0;
+	              u3[12-i11-2] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -2 - cells 2...5)
+		          u3[12+1-i11-2] = 0.0;
+		          u3[12+2-i11-2] = 0.0;
+		          u3[12+3-i11-2] = 0.0;
 				};
 					break;
 				case CTMCRTH_BLCKNTYPE_INPYTOP:
@@ -3863,10 +3954,10 @@ void CTmcRTHNodeDiel::ExciteInputs3( CTmcLibError &cError1, double dWT, double d
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) < ( cParam.rYmax - 0.99999*cParam.dGetDelta() ) )
 				{
-	                u3[12*nX] = 0.0;
-					u3[12*nX+1] = 0.0;
-					u3[12*nX+2] = 0.0;
-					u3[12*nX+3] = 0.0;
+	                u3[12*nX-2] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -2 - cells 2...5)
+					u3[12*nX+1-2] = 0.0;
+					u3[12*nX+2-2] = 0.0;
+					u3[12*nX+3-2] = 0.0;
 				};
 					break;
 				case CTMCRTH_BLCKNTYPE_INPYBOT:
@@ -3876,10 +3967,10 @@ void CTmcRTHNodeDiel::ExciteInputs3( CTmcLibError &cError1, double dWT, double d
 //
 				if( cParam.CalcY(pcNodeDielOne[i].nNodeGlobal) > ( cParam.rYmin + 0.99999*cParam.dGetDelta() ) )
 				{
-	                u3[-12*nX] = 0.0;
-					u3[-12*nX+1] = 0.0;
-					u3[-12*nX+2] = 0.0;
-					u3[-12*nX+3] = 0.0;
+	                u3[-12*nX-2] = 0.0;	// B-9: cells 0...3 of the node behind the port (old: offsets without -2 - cells 2...5)
+					u3[-12*nX+1-2] = 0.0;
+					u3[-12*nX+2-2] = 0.0;
+					u3[-12*nX+3-2] = 0.0;
 				};
 					break;
 			};
@@ -3923,17 +4014,16 @@ void CTmcRTHNodeDiel::OutputUpUo( double dUp, double dUo, CTmcLibError &cError1)
 	char *psForm;
 	__int64 qTm = TmcTimingNow();	// TIMING
 
-	int nOpenTry;	// A-8: ne zhdat vechno
-	for( nOpenTry = 0; (fp = fopen( csBlock, "a")) == NULL; nOpenTry++ )
+	BOOL bHeld = TRUE;
+	if( ( fp = TmcOutTGet( csBlock ) ) == NULL )	// T-5: the .t of the step is kept open by the kernel
 	{
-		if( nOpenTry > 2000 )
+		int nErr = 0;
+		bHeld = FALSE;
+		if( ( fp = TmcFopenWait( csBlock, "a", FALSE, &nErr ) ) == NULL )	// T-9: 20 s by the clock
 		{
-			CString csOpen;
-			csOpen.Format("Can't open file %s", (LPCSTR)(csBlock));
-			cError1.PutErrorMessage( csOpen );
+			cError1.PutErrorMessage( TmcOpenFailText( csBlock, nErr ) );
 			return;
 		};
-		Sleep(10);
 	};
 
 	psForm = GetnBFormat();
@@ -3953,8 +4043,8 @@ void CTmcRTHNodeDiel::OutputUpUo( double dUp, double dUo, CTmcLibError &cError1)
 #ifdef _VERSION_DEMO___
 	fprintf( fp, "   DemoVersion   ");
 #endif
-	
-	fclose( fp );
+
+	if( !bHeld ) fclose( fp );
 	if( m_pqSignalFileTicks != NULL ) *m_pqSignalFileTicks += TmcTimingNow() - qTm;	// TIMING
 	return;
 
@@ -4187,7 +4277,9 @@ void CTmcRTHNodeDiel::RunBlockNode( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int
 //					pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)ut1;
 					y = pcNodeDielOne[i].rY;
 //					if( y < (1.e-6) ) y = (1.e-6);
-					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
+					// B-8 (26.10.2026): the stub admittance of the node is in the slot 1 in X (the slot 0 is 2/a);
+					// to return the old variant: y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
+					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal + 1 ];
 //{		CString csBuf1;
 //		csBuf1.Format("y = %lg; y5 = %lg;", y, y5);
 //		AfxMessageBox(csBuf1);		
@@ -4335,7 +4427,9 @@ void CTmcRTHNodeDiel::RunBlockNode1( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 //					pcNodeDielOne[i].rU = ut1;
 					y = pcNodeDielOne[i].rY;
 //					if( y < (1.e-6) ) y = (1.e-6);
-					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
+					// B-8 (26.10.2026): the stub admittance of the node is in the slot 1 in X (the slot 0 is 2/a);
+					// to return the old variant: y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
+					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal + 1 ];
 					prU = prUNode1 + (6*pcNodeDielOne[i].nNodeGlobal + 1);
 					switch( pcNodeDielOne[i].nType )
 					{
@@ -4482,7 +4576,9 @@ void CTmcRTHNodeDiel::RunBlockNode2( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 //					pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)ut1;
 					y = pcNodeDielOne[i].rY;
 //					if( y < (1.e-6) ) y = (1.e-6);
-					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
+					// B-8 (26.10.2026): the stub admittance of the node is in the slot 1 in X (the slot 0 is 2/a);
+					// to return the old variant: y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
+					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal + 1 ];
 //{		CString csBuf1;
 //		csBuf1.Format("y = %lg; y5 = %lg;", y, y5);
 //		AfxMessageBox(csBuf1);		
@@ -4630,7 +4726,9 @@ void CTmcRTHNodeDiel::RunBlockNode3( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 //					pcNodeDielOne[i].rU = ut1;
 					y = pcNodeDielOne[i].rY;
 //					if( y < (1.e-6) ) y = (1.e-6);
-					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
+					// B-8 (26.10.2026): the stub admittance of the node is in the slot 1 in X (the slot 0 is 2/a);
+					// to return the old variant: y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
+					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal + 1 ];
 					prU = prUNode1 + (6*pcNodeDielOne[i].nNodeGlobal + 3);
 					switch( pcNodeDielOne[i].nType )
 					{
@@ -4952,6 +5050,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
 //	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
@@ -4960,6 +5059,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
 //	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
@@ -4972,6 +5072,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
 //	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
@@ -4989,6 +5090,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
 //	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
@@ -4997,6 +5099,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
 //	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
@@ -5009,6 +5112,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
 //	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
@@ -5092,6 +5196,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
 //	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
@@ -5100,6 +5205,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
 //	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
@@ -5111,6 +5217,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
 //	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
@@ -5126,6 +5233,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
 //	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
@@ -5134,6 +5242,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
 //	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
@@ -5145,6 +5254,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
 //	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
@@ -5152,6 +5262,16 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 				};
 		};
 */
+	{	// B-16: the nodes of the parts outside the region (marked -1) are dropped
+		TmcIdx a, b;
+		for( a = 0, b = 0; a < nNumNode; a++ )	// after DeleteDublicateData nNumNode is the number of nodes
+		{
+			if( pcNodeDielOne[a].nNodeGlobal < 0 ) continue;
+			if( a != b ) pcNodeDielOne[b] = pcNodeDielOne[a];
+			b++;
+		};
+		nNumNode = b;
+	};
 	return cError;
 }
 
@@ -5364,56 +5484,62 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMetal(CTmcRTH_BlockList *pcNextBlockList,
 
 	if( nY < nX )
 	{
-		for( i = 0, j = 0, njj = nX/(nY+1)+1; (i < nY)&&(j < nX) ; i++ )
+		for( i = 0, j = 0; (i < nY)&&(j < nX) ; i++ )	// B-4 (old: njj = nX/(nY+1)+1 - the staircase stopped halfway)
 		{
-			for( jj = 0; (jj < njj)&&(j < nX); j++, ii++, jj++ )
+			for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++, ii++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(0.0);
 			};
 			x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 			y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+			if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(0.0);
 			ii++;
 			};
-			for( jj = 0; (jj < njj)&&(j < nX); j++, ii++, jj++ )
+			for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++, ii++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(0.0);
 			};
 	}
 	else
 	{
-		for( i = 0, j = 0, njj = nY/(nX+1)+1; (i < nX)&&(j < nY) ; i++ )
+		for( i = 0, j = 0; (i < nX)&&(j < nY) ; i++ )	// B-4 (old: njj = nY/(nX+1)+1)
 		{
-			for( jj = 0; (jj < njj)&&(j < nY); j++, ii++, jj++ )
+			for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++, ii++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(0.0);
 			};
 				x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(0.0);
 				ii++;
 		};
-			for( jj = 0; (jj < njj)&&(j < nY); j++, ii++, jj++ )
+			for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++, ii++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(0.0);
 			};
@@ -5488,56 +5614,62 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMetal(CTmcRTH_BlockList *pcNextBlockList,
 
 	if( nY < nX )
 	{
-		for( i = 0, j = 0, njj = nX/(nY+1)+1; (i < nY)&&(j < nX) ; i++ )
+		for( i = 0, j = 0; (i < nY)&&(j < nX) ; i++ )	// B-4 (old: njj = nX/(nY+1)+1 - the staircase stopped halfway)
 		{
-			for( jj = 0; (jj < njj)&&(j < nX); j++, ii++, jj++ )
+			for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++, ii++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(0.0);
 			};
 			x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 			y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+			if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(0.0);
 			ii++;
 			};
-			for( jj = 0; (jj < njj)&&(j < nX); j++, ii++, jj++ )
+			for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++, ii++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(0.0);
 			};
 	}
 	else
 	{
-		for( i = 0, j = 0, njj = nY/(nX+1)+1; (i < nX)&&(j < nY) ; i++ )
+		for( i = 0, j = 0; (i < nX)&&(j < nY) ; i++ )	// B-4 (old: njj = nY/(nX+1)+1)
 		{
-			for( jj = 0; (jj < njj)&&(j < nY); j++, ii++, jj++ )
+			for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++, ii++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(0.0);
 			};
 				x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(0.0);
 				ii++;
 		};
-			for( jj = 0; (jj < njj)&&(j < nY); j++, ii++, jj++ )
+			for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++, ii++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(0.0);
 			};
@@ -5550,6 +5682,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMetal(CTmcRTH_BlockList *pcNextBlockList,
 		x = pcNextBlockList->GetXmin()*cos(r) + pcNextBlockList->GetX0();
 		y = pcNextBlockList->GetXmin()*sin(r) + pcNextBlockList->GetY0();
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+		if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(0.0);
 	};
@@ -5561,10 +5694,21 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMetal(CTmcRTH_BlockList *pcNextBlockList,
 		x = pcNextBlockList->GetXmax()*cos(r) + pcNextBlockList->GetX0();
 		y = pcNextBlockList->GetXmax()*sin(r) + pcNextBlockList->GetY0();
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+		if( TmcB16Out( cParam, x, y ) ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(0.0);
 	};
 
+	{	// B-16: the nodes of the parts outside the region (marked -1) are dropped
+		TmcIdx a, b;
+		for( a = 0, b = 0; a < nNumNode; a++ )	// after DeleteDublicateData nNumNode is the number of nodes
+		{
+			if( pcNodeDielOne[a].nNodeGlobal < 0 ) continue;
+			if( a != b ) pcNodeDielOne[b] = pcNodeDielOne[a];
+			b++;
+		};
+		nNumNode = b;
+	};
 	return cError;
 }
 
@@ -5598,7 +5742,10 @@ CTmcLibError & CTmcRTHNodeDiel::SetRectAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 
 	dXmax = pcNextBlockList->GetXmax() + pcNextBlockList->GetX0();
 	if( dXmax >= (cParam.rXmax - 2*cParam.rDelta) ) dXmax = cParam.rXmax - 2*cParam.rDelta;
-	r = (dXmax - cParam.rXmin)/cParam.rDelta - 0.5;
+	// B-10 (26.10.2026): +0.5 - the ring of the absorber is closed (the border on a node keeps its node).
+	// Was: r = ... - 0.5; then - 0.499999 (the same index for a border on a node - two corners without a node).
+	// To return the old variant: r = (dXmax - cParam.rXmin)/cParam.rDelta - 0.5;
+	r = (dXmax - cParam.rXmin)/cParam.rDelta + 0.5;
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -5622,7 +5769,8 @@ CTmcLibError & CTmcRTHNodeDiel::SetRectAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 
 	dYmax = pcNextBlockList->GetYmax() + pcNextBlockList->GetY0();
 	if( dYmax >= (cParam.rYmax - 2*cParam.rDelta) ) dYmax = cParam.rYmax - 2*cParam.rDelta;
-	r = (dYmax - cParam.rYmin)/cParam.rDelta - 0.5;
+	// B-10 (26.10.2026): +0.5 (was - 0.5, then - 0.499999; to return: r = (dYmax - cParam.rYmin)/cParam.rDelta - 0.5;)
+	r = (dYmax - cParam.rYmin)/cParam.rDelta + 0.5;
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -5642,7 +5790,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetRectAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	if( (nXmax - nXmin) < 2 )
 	{
 		CString csBuf;
-		csBuf.Format("Xmax - Xmin for block %d must be >= delta(%lg m) for type ABSORBER", nBlock, cParam.rDelta);
+		csBuf.Format("Xmax - Xmin for block %d must be >= 2*delta(%lg m) for type ABSORBER", nBlock, 2*cParam.rDelta);
 		cError.PutErrorMessage(csBuf);
 		return cError;
 	};
@@ -5658,7 +5806,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetRectAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	if( (nYmax - nYmin) < 2 )
 	{
 		CString csBuf;
-		csBuf.Format("Ymax - Ymin for block %d must be >= delta(%lg m) for type ABSORBER", nBlock, cParam.rDelta);
+		csBuf.Format("Ymax - Ymin for block %d must be >= 2*delta(%lg m) for type ABSORBER", nBlock, 2*cParam.rDelta);
 		cError.PutErrorMessage(csBuf);
 		return cError;
 	};
@@ -6103,10 +6251,11 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	int j, k, nX, nY, n_x, n_y;
 	TmcIdx i, ii;	// BIGBLOCK3
 	double r, x, y, x1, y1, dYAdmit;
+	BOOL bB16Out = FALSE;	// B-16
 //	CString csBuf1;
 	dYAdmit = SetAbsorberAdmitance( cParam.rFreq, cParam.rDelta );
-	n_x = (int)((cParam.rXmax - cParam.rXmin)/cParam.rDelta + 1 );
-	n_y = (int)((cParam.rYmax - cParam.rYmin)/cParam.rDelta + 1 );
+	n_x = cParam.CalcnX();	// B-2 (old: (int)((cParam.rXmax - cParam.rXmin)/cParam.rDelta + 1 ))
+	n_y = cParam.CalcnY();	// B-2 (old: (int)((cParam.rYmax - cParam.rYmin)/cParam.rDelta + 1 ))
 
 	if( ( pX = pcNextBlockList->GetpX() ) == NULL )
 	{				
@@ -6280,32 +6429,37 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 //	AfxMessageBox(csBuf1);		
 		if( nY < nX )
 		{
-			for( i = 0, j = 0, njj = nX/(nY+1)+1; (i < nY)&&(j < nX) ; i++ )
+			for( i = 0, j = 0; (i < nY)&&(j < nX) ; i++ )	// B-4 (old: njj = nX/(nY+1)+1 - the staircase stopped halfway)
 			{
-				for( jj = 0; (jj < njj)&&(j < nX); j++, jj++ )
+				for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++ )	// B-4 (old: jj < njj)
 				{
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+					bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 					if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 					if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 					if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 					if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -6315,26 +6469,31 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 				};
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+					bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 					if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 					if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 					if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 					if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -6343,30 +6502,35 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 //	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
 //	AfxMessageBox(csBuf1);		
 			};
-				for( jj = 0; (jj < njj)&&(j < nX); j++, jj++ )
+				for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++ )	// B-4 (old: jj < njj)
 				{
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+					bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 					if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 					if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 					if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 					if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -6378,32 +6542,37 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 		}
 		else
 		{
-			for( i = 0, j = 0, njj = nY/(nX+1)+1; (i < nX)&&(j < nY) ; i++ )
+			for( i = 0, j = 0; (i < nX)&&(j < nY) ; i++ )	// B-4 (old: njj = nY/(nX+1)+1)
 			{
-				for( jj = 0; (jj < njj)&&(j < nY); j++, jj++ )
+				for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++ )	// B-4 (old: jj < njj)
 				{
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+					bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 					if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 					if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 					if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 					if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -6414,26 +6583,31 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 				};
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+					bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 					if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 					if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 					if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 					if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -6442,30 +6616,35 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 //	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
 //	AfxMessageBox(csBuf1);		
 			};
-				for( jj = 0; (jj < njj)&&(j < nY); j++, jj++ )
+				for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++ )	// B-4 (old: jj < njj)
 				{
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+					bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 					if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 					if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 					if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 					if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -6500,6 +6679,16 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	};
 
 	DeleteDublicateData();
+	{	// B-16: the nodes of the parts outside the region (marked -1) are dropped
+		TmcIdx a, b;
+		for( a = 0, b = 0; a < nNumNode; a++ )	// after DeleteDublicateData nNumNode is the number of nodes
+		{
+			if( pcNodeDielOne[a].nNodeGlobal < 0 ) continue;
+			if( a != b ) pcNodeDielOne[b] = pcNodeDielOne[a];
+			b++;
+		};
+		nNumNode = b;
+	};
 	SetAbsorberNodeType( cParam );
 	return cError;
 }
@@ -6511,7 +6700,7 @@ void CTmcRTHNodeDiel::SetAbsorberNodeType( CTmcRTH_IndanParam &cParam )
 	int nx, nn;
 	TmcIdx n;	// INT64
 
-	nx = (int)((cParam.rXmax - cParam.rXmin)/cParam.rDelta + 1 );
+	nx = cParam.CalcnX();	// B-2 (old: (int)((cParam.rXmax - cParam.rXmin)/cParam.rDelta + 1 ))
 
 	for( i = 0; i < nNumNode; i++ ) 
 	{
@@ -6723,15 +6912,16 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	int j, k1, k2, nX, nY, n_x, n_y;
 	TmcIdx i, ii;	// BIGBLOCK3
 	double r, x, y, x1, y1, df, dYAdmit;
+	BOOL bB16Out = FALSE;	// B-16
 
 	dYAdmit = SetAbsorberAdmitance( cParam.rFreq, cParam.rDelta );
-	n_x = (int)((cParam.rXmax - cParam.rXmin)/cParam.rDelta + 1 );
-	n_y = (int)((cParam.rYmax - cParam.rYmin)/cParam.rDelta + 1 );
+	n_x = cParam.CalcnX();	// B-2 (old: (int)((cParam.rXmax - cParam.rXmin)/cParam.rDelta + 1 ))
+	n_y = cParam.CalcnY();	// B-2 (old: (int)((cParam.rYmax - cParam.rYmin)/cParam.rDelta + 1 ))
 
 							// calculated nNumNode
 	nNumNode = 0;
 	r = pcNextBlockList->GetXmin()*cos( pcNextBlockList->GetYmin() ) + pcNextBlockList->GetX0();
-	r = (r - cParam.rXmin)/cParam.rDelta;
+	r = (r - cParam.rXmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -6742,7 +6932,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	nX1 = (int)(r);
 
 	r = pcNextBlockList->GetXmin()*sin( pcNextBlockList->GetYmin() ) + pcNextBlockList->GetY0();
-	r = (r - cParam.rYmin)/cParam.rDelta;
+	r = (r - cParam.rYmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -6753,7 +6943,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	nY1 = (int)(r);
 
 	r = pcNextBlockList->GetXmax()*cos( pcNextBlockList->GetYmin() ) + pcNextBlockList->GetX0();
-	r = (r - cParam.rXmin)/cParam.rDelta;
+	r = (r - cParam.rXmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -6764,7 +6954,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	nX2 = (int)(r);	
 	
 	r = pcNextBlockList->GetXmax()*sin( pcNextBlockList->GetYmin() ) + pcNextBlockList->GetY0();
-	r = (r - cParam.rYmin)/cParam.rDelta;
+	r = (r - cParam.rYmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -6777,7 +6967,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	nNumNode += abs( nY1 - nY2 ) + abs( nX1 - nX2 );
 	
 	r = pcNextBlockList->GetXmin()*cos( pcNextBlockList->GetYmax() ) + pcNextBlockList->GetX0();
-	r = (r - cParam.rXmin)/cParam.rDelta;
+	r = (r - cParam.rXmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -6788,7 +6978,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	nX1 = (int)(r);
 
 	r = pcNextBlockList->GetXmin()*sin( pcNextBlockList->GetYmax() ) + pcNextBlockList->GetY0();
-	r = (r - cParam.rYmin)/cParam.rDelta;
+	r = (r - cParam.rYmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -6799,7 +6989,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	nY1 = (int)(r);
 
 	r = pcNextBlockList->GetXmax()*cos( pcNextBlockList->GetYmax() ) + pcNextBlockList->GetX0();
-	r = (r - cParam.rXmin)/cParam.rDelta;
+	r = (r - cParam.rXmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -6810,7 +7000,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	nX2 = (int)(r);	
 	
 	r = pcNextBlockList->GetXmax()*sin( pcNextBlockList->GetYmax() ) + pcNextBlockList->GetY0();
-	r = (r - cParam.rYmin)/cParam.rDelta;
+	r = (r - cParam.rYmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -6866,7 +7056,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 							// set Node
 	ii = 0;
 	r = pcNextBlockList->GetXmin()*cos( pcNextBlockList->GetYmin() ) + pcNextBlockList->GetX0();
-	r = (r - cParam.rXmin)/cParam.rDelta;
+	r = (r - cParam.rXmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -6877,7 +7067,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	nX1 = (int)(r);
 
 	r = pcNextBlockList->GetXmin()*sin( pcNextBlockList->GetYmin() ) + pcNextBlockList->GetY0();
-	r = (r - cParam.rYmin)/cParam.rDelta;
+	r = (r - cParam.rYmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -6888,7 +7078,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	nY1 = (int)(r);
 
 	r = pcNextBlockList->GetXmax()*cos( pcNextBlockList->GetYmin() ) + pcNextBlockList->GetX0();
-	r = (r - cParam.rXmin)/cParam.rDelta;
+	r = (r - cParam.rXmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -6899,7 +7089,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	nX2 = (int)(r);	
 	
 	r = pcNextBlockList->GetXmax()*sin( pcNextBlockList->GetYmin() ) + pcNextBlockList->GetY0();
-	r = (r - cParam.rYmin)/cParam.rDelta;
+	r = (r - cParam.rYmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -6933,32 +7123,37 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 
 	if( nY < nX )
 	{
-		for( i = 0, j = 0, njj = nX/(nY+1)+1; (i < nY)&&(j < nX) ; i++ )
+		for( i = 0, j = 0; (i < nY)&&(j < nX) ; i++ )	// B-4 (old: njj = nX/(nY+1)+1 - the staircase stopped halfway)
 		{
-			for( jj = 0; (jj < njj)&&(j < nX); j++, jj++ )
+			for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+				bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 				if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 				if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 				if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 				if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -6966,55 +7161,65 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 			};
 			x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 			y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+			bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 			if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 			if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 			if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 			if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			};
-			for( jj = 0; (jj < njj)&&(j < nX); j++, jj++ )
+			for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+				bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 				if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 				if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 				if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 				if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -7023,32 +7228,37 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	}
 	else
 	{
-		for( i = 0, j = 0, njj = nY/(nX+1)+1; (i < nX)&&(j < nY) ; i++ )
+		for( i = 0, j = 0; (i < nX)&&(j < nY) ; i++ )	// B-4 (old: njj = nY/(nX+1)+1)
 		{
-			for( jj = 0; (jj < njj)&&(j < nY); j++, jj++ )
+			for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+				bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 				if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 				if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 				if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 				if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -7056,55 +7266,65 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 			};
 			x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 			y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+			bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 			if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 			if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 			if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 			if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 		};
-			for( jj = 0; (jj < njj)&&(j < nY); j++, jj++ )
+			for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+				bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 				if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 				if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 				if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 				if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -7114,7 +7334,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 
 
 	r = pcNextBlockList->GetXmin()*cos( pcNextBlockList->GetYmax() ) + pcNextBlockList->GetX0();
-	r = (r - cParam.rXmin)/cParam.rDelta;
+	r = (r - cParam.rXmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7125,7 +7345,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	nX1 = (int)(r);
 
 	r = pcNextBlockList->GetXmin()*sin( pcNextBlockList->GetYmax() ) + pcNextBlockList->GetY0();
-	r = (r - cParam.rYmin)/cParam.rDelta;
+	r = (r - cParam.rYmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7136,7 +7356,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	nY1 = (int)(r);
 
 	r = pcNextBlockList->GetXmax()*cos( pcNextBlockList->GetYmax() ) + pcNextBlockList->GetX0();
-	r = (r - cParam.rXmin)/cParam.rDelta;
+	r = (r - cParam.rXmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7147,7 +7367,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	nX2 = (int)(r);	
 	
 	r = pcNextBlockList->GetXmax()*sin( pcNextBlockList->GetYmax() ) + pcNextBlockList->GetY0();
-	r = (r - cParam.rYmin)/cParam.rDelta;
+	r = (r - cParam.rYmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7181,32 +7401,37 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 
 	if( nY < nX )
 	{
-		for( i = 0, j = 0, njj = nX/(nY+1)+1; (i < nY)&&(j < nX) ; i++ )
+		for( i = 0, j = 0; (i < nY)&&(j < nX) ; i++ )	// B-4 (old: njj = nX/(nY+1)+1 - the staircase stopped halfway)
 		{
-			for( jj = 0; (jj < njj)&&(j < nX); j++, jj++ )
+			for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+				bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 				if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 				if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 				if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 				if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -7214,55 +7439,65 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 			};
 			x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 			y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+			bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 			if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 			if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 			if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 			if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			};
-			for( jj = 0; (jj < njj)&&(j < nX); j++, jj++ )
+			for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+				bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 				if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 				if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 				if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 				if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -7271,32 +7506,37 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	}
 	else
 	{
-		for( i = 0, j = 0, njj = nY/(nX+1)+1; (i < nX)&&(j < nY) ; i++ )
+		for( i = 0, j = 0; (i < nX)&&(j < nY) ; i++ )	// B-4 (old: njj = nY/(nX+1)+1)
 		{
-			for( jj = 0; (jj < njj)&&(j < nY); j++, jj++ )
+			for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+				bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 				if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 				if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 				if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 				if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -7304,55 +7544,65 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 			};
 			x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 			y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+			bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 			if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 			if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 			if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 			if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 		};
-			for( jj = 0; (jj < njj)&&(j < nY); j++, jj++ )
+			for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+				bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 				if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 				if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 				if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 				if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -7366,26 +7616,31 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	{
 		x = pcNextBlockList->GetXmin()*cos(r) + pcNextBlockList->GetX0();
 		y = pcNextBlockList->GetXmin()*sin(r) + pcNextBlockList->GetY0();
+		bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 		if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 		if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 		if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 		if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+		if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 		pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 		ii++;
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+		if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 		pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 		ii++;
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+		if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 		pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 		ii++;
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+		if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 		pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -7403,26 +7658,31 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	{
 		x = pcNextBlockList->GetXmax()*cos(r) + pcNextBlockList->GetX0();
 		y = pcNextBlockList->GetXmax()*sin(r) + pcNextBlockList->GetY0();
+		bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 		if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 		if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 		if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 		if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+		if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 		pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 		ii++;
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+		if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 		pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 		ii++;
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+		if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 		pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 		ii++;
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+		if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 		pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -7435,6 +7695,16 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 //		AfxMessageBox(csBuf1);
 //	};
 	DeleteDublicateData();
+	{	// B-16: the nodes of the parts outside the region (marked -1) are dropped
+		TmcIdx a, b;
+		for( a = 0, b = 0; a < nNumNode; a++ )	// after DeleteDublicateData nNumNode is the number of nodes
+		{
+			if( pcNodeDielOne[a].nNodeGlobal < 0 ) continue;
+			if( a != b ) pcNodeDielOne[b] = pcNodeDielOne[a];
+			b++;
+		};
+		nNumNode = b;
+	};
 	SetAbsorberNodeType( cParam );
 
 //	{
@@ -7462,15 +7732,16 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	int j, k1, k2, nX, nY, n_x, n_y;
 	TmcIdx i, ii;	// BIGBLOCK3
 	double r, x, y, x1, y1, df, dYAdmit;
+	BOOL bB16Out = FALSE;	// B-16
 
 	dYAdmit = 0.0;
-	n_x = (int)((cParam.rXmax - cParam.rXmin)/cParam.rDelta + 1 );
-	n_y = (int)((cParam.rYmax - cParam.rYmin)/cParam.rDelta + 1 );
+	n_x = cParam.CalcnX();	// B-2 (old: (int)((cParam.rXmax - cParam.rXmin)/cParam.rDelta + 1 ))
+	n_y = cParam.CalcnY();	// B-2 (old: (int)((cParam.rYmax - cParam.rYmin)/cParam.rDelta + 1 ))
 
 							// calculated nNumNode
 	nNumNode = 0;
 	r = pcNextBlockList->GetXmin()*cos( pcNextBlockList->GetYmin() ) + pcNextBlockList->GetX0();
-	r = (r - cParam.rXmin)/cParam.rDelta;
+	r = (r - cParam.rXmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7481,7 +7752,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	nX1 = (int)(r);
 
 	r = pcNextBlockList->GetXmin()*sin( pcNextBlockList->GetYmin() ) + pcNextBlockList->GetY0();
-	r = (r - cParam.rYmin)/cParam.rDelta;
+	r = (r - cParam.rYmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7492,7 +7763,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	nY1 = (int)(r);
 
 	r = pcNextBlockList->GetXmax()*cos( pcNextBlockList->GetYmin() ) + pcNextBlockList->GetX0();
-	r = (r - cParam.rXmin)/cParam.rDelta;
+	r = (r - cParam.rXmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7503,7 +7774,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	nX2 = (int)(r);	
 	
 	r = pcNextBlockList->GetXmax()*sin( pcNextBlockList->GetYmin() ) + pcNextBlockList->GetY0();
-	r = (r - cParam.rYmin)/cParam.rDelta;
+	r = (r - cParam.rYmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7516,7 +7787,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	nNumNode += abs( nY1 - nY2 ) + abs( nX1 - nX2 );
 	
 	r = pcNextBlockList->GetXmin()*cos( pcNextBlockList->GetYmax() ) + pcNextBlockList->GetX0();
-	r = (r - cParam.rXmin)/cParam.rDelta;
+	r = (r - cParam.rXmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7527,7 +7798,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	nX1 = (int)(r);
 
 	r = pcNextBlockList->GetXmin()*sin( pcNextBlockList->GetYmax() ) + pcNextBlockList->GetY0();
-	r = (r - cParam.rYmin)/cParam.rDelta;
+	r = (r - cParam.rYmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7538,7 +7809,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	nY1 = (int)(r);
 
 	r = pcNextBlockList->GetXmax()*cos( pcNextBlockList->GetYmax() ) + pcNextBlockList->GetX0();
-	r = (r - cParam.rXmin)/cParam.rDelta;
+	r = (r - cParam.rXmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7549,7 +7820,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	nX2 = (int)(r);	
 	
 	r = pcNextBlockList->GetXmax()*sin( pcNextBlockList->GetYmax() ) + pcNextBlockList->GetY0();
-	r = (r - cParam.rYmin)/cParam.rDelta;
+	r = (r - cParam.rYmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7605,7 +7876,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 							// set Node
 	ii = 0;
 	r = pcNextBlockList->GetXmin()*cos( pcNextBlockList->GetYmin() ) + pcNextBlockList->GetX0();
-	r = (r - cParam.rXmin)/cParam.rDelta;
+	r = (r - cParam.rXmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7616,7 +7887,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	nX1 = (int)(r);
 
 	r = pcNextBlockList->GetXmin()*sin( pcNextBlockList->GetYmin() ) + pcNextBlockList->GetY0();
-	r = (r - cParam.rYmin)/cParam.rDelta;
+	r = (r - cParam.rYmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7627,7 +7898,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	nY1 = (int)(r);
 
 	r = pcNextBlockList->GetXmax()*cos( pcNextBlockList->GetYmin() ) + pcNextBlockList->GetX0();
-	r = (r - cParam.rXmin)/cParam.rDelta;
+	r = (r - cParam.rXmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7638,7 +7909,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	nX2 = (int)(r);	
 	
 	r = pcNextBlockList->GetXmax()*sin( pcNextBlockList->GetYmin() ) + pcNextBlockList->GetY0();
-	r = (r - cParam.rYmin)/cParam.rDelta;
+	r = (r - cParam.rYmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7672,32 +7943,37 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 
 	if( nY < nX )
 	{
-		for( i = 0, j = 0, njj = nX/(nY+1)+1; (i < nY)&&(j < nX) ; i++ )
+		for( i = 0, j = 0; (i < nY)&&(j < nX) ; i++ )	// B-4 (old: njj = nX/(nY+1)+1 - the staircase stopped halfway)
 		{
-			for( jj = 0; (jj < njj)&&(j < nX); j++, jj++ )
+			for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+				bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 				if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 				if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 				if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 				if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -7705,55 +7981,65 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 			};
 			x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 			y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+			bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 			if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 			if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 			if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 			if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			};
-			for( jj = 0; (jj < njj)&&(j < nX); j++, jj++ )
+			for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+				bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 				if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 				if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 				if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 				if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -7762,32 +8048,37 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	}
 	else
 	{
-		for( i = 0, j = 0, njj = nY/(nX+1)+1; (i < nX)&&(j < nY) ; i++ )
+		for( i = 0, j = 0; (i < nX)&&(j < nY) ; i++ )	// B-4 (old: njj = nY/(nX+1)+1)
 		{
-			for( jj = 0; (jj < njj)&&(j < nY); j++, jj++ )
+			for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+				bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 				if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 				if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 				if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 				if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -7795,55 +8086,65 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 			};
 			x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 			y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+			bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 			if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 			if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 			if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 			if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 		};
-			for( jj = 0; (jj < njj)&&(j < nY); j++, jj++ )
+			for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+				bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 				if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 				if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 				if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 				if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -7853,7 +8154,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 
 
 	r = pcNextBlockList->GetXmin()*cos( pcNextBlockList->GetYmax() ) + pcNextBlockList->GetX0();
-	r = (r - cParam.rXmin)/cParam.rDelta;
+	r = (r - cParam.rXmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7864,7 +8165,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	nX1 = (int)(r);
 
 	r = pcNextBlockList->GetXmin()*sin( pcNextBlockList->GetYmax() ) + pcNextBlockList->GetY0();
-	r = (r - cParam.rYmin)/cParam.rDelta;
+	r = (r - cParam.rYmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7875,7 +8176,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	nY1 = (int)(r);
 
 	r = pcNextBlockList->GetXmax()*cos( pcNextBlockList->GetYmax() ) + pcNextBlockList->GetX0();
-	r = (r - cParam.rXmin)/cParam.rDelta;
+	r = (r - cParam.rXmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7886,7 +8187,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	nX2 = (int)(r);	
 	
 	r = pcNextBlockList->GetXmax()*sin( pcNextBlockList->GetYmax() ) + pcNextBlockList->GetY0();
-	r = (r - cParam.rYmin)/cParam.rDelta;
+	r = (r - cParam.rYmin)/cParam.rDelta + 0.5;	// B-26: rounded as in the polygon (old: no + 0.5)
 	if( fabs(r) >= INT_MAX ) 
 	{
 		CString csBuf;
@@ -7920,32 +8221,37 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 
 	if( nY < nX )
 	{
-		for( i = 0, j = 0, njj = nX/(nY+1)+1; (i < nY)&&(j < nX) ; i++ )
+		for( i = 0, j = 0; (i < nY)&&(j < nX) ; i++ )	// B-4 (old: njj = nX/(nY+1)+1 - the staircase stopped halfway)
 		{
-			for( jj = 0; (jj < njj)&&(j < nX); j++, jj++ )
+			for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+				bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 				if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 				if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 				if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 				if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -7953,55 +8259,65 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 			};
 			x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 			y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+			bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 			if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 			if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 			if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 			if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			};
-			for( jj = 0; (jj < njj)&&(j < nX); j++, jj++ )
+			for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+				bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 				if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 				if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 				if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 				if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -8010,32 +8326,37 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	}
 	else
 	{
-		for( i = 0, j = 0, njj = nY/(nX+1)+1; (i < nX)&&(j < nY) ; i++ )
+		for( i = 0, j = 0; (i < nX)&&(j < nY) ; i++ )	// B-4 (old: njj = nY/(nX+1)+1)
 		{
-			for( jj = 0; (jj < njj)&&(j < nY); j++, jj++ )
+			for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+				bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 				if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 				if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 				if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 				if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -8043,55 +8364,65 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 			};
 			x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 			y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+			bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 			if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 			if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 			if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 			if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 			pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+			if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 			pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 			pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 			pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 			ii++;
 		};
-			for( jj = 0; (jj < njj)&&(j < nY); j++, jj++ )
+			for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++ )	// B-4 (old: jj < njj)
 			{
 				x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 				y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+				bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 				if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 				if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 				if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 				if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 				ii++;
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+				if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 				pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -8105,26 +8436,31 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	{
 		x = pcNextBlockList->GetXmin()*cos(r) + pcNextBlockList->GetX0();
 		y = pcNextBlockList->GetXmin()*sin(r) + pcNextBlockList->GetY0();
+		bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 		if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 		if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 		if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 		if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+		if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 		pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 		ii++;
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+		if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 		pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 		ii++;
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+		if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 		pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 		ii++;
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+		if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 		pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -8142,26 +8478,31 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	{
 		x = pcNextBlockList->GetXmax()*cos(r) + pcNextBlockList->GetX0();
 		y = pcNextBlockList->GetXmax()*sin(r) + pcNextBlockList->GetY0();
+		bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 		if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 		if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 		if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 		if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+		if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 		pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 		ii++;
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+		if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 		pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 		ii++;
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+		if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 		pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 		ii++;
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+		if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 		pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 		pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 		pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -8174,7 +8515,18 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 //		AfxMessageBox(csBuf1);
 //	};
 	DeleteDublicateData();
+	{	// B-16: the nodes of the parts outside the region (marked -1) are dropped
+		TmcIdx a, b;
+		for( a = 0, b = 0; a < nNumNode; a++ )	// after DeleteDublicateData nNumNode is the number of nodes
+		{
+			if( pcNodeDielOne[a].nNodeGlobal < 0 ) continue;
+			if( a != b ) pcNodeDielOne[b] = pcNodeDielOne[a];
+			b++;
+		};
+		nNumNode = b;
+	};
 	SetAbsorberNodeType( cParam );
+	SetMagneticPolygonType( cParam );	// B-26: the edge of the region as for the magnetic polygon (old: not called)
 
 //	{
 //		CString csBuf1;
@@ -8203,10 +8555,11 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	int j, k, nX, nY, n_x, n_y;
 	TmcIdx i, ii;	// BIGBLOCK3
 	double r, x, y, x1, y1, dYAdmit;
+	BOOL bB16Out = FALSE;	// B-16
 //	CString csBuf1;
 	dYAdmit = 0.0;
-	n_x = (int)((cParam.rXmax - cParam.rXmin)/cParam.rDelta + 1 );
-	n_y = (int)((cParam.rYmax - cParam.rYmin)/cParam.rDelta + 1 );
+	n_x = cParam.CalcnX();	// B-2 (old: (int)((cParam.rXmax - cParam.rXmin)/cParam.rDelta + 1 ))
+	n_y = cParam.CalcnY();	// B-2 (old: (int)((cParam.rYmax - cParam.rYmin)/cParam.rDelta + 1 ))
 
 	if( ( pX = pcNextBlockList->GetpX() ) == NULL )
 	{				
@@ -8380,32 +8733,37 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 //	AfxMessageBox(csBuf1);		
 		if( nY < nX )
 		{
-			for( i = 0, j = 0, njj = nX/(nY+1)+1; (i < nY)&&(j < nX) ; i++ )
+			for( i = 0, j = 0; (i < nY)&&(j < nX) ; i++ )	// B-4 (old: njj = nX/(nY+1)+1 - the staircase stopped halfway)
 			{
-				for( jj = 0; (jj < njj)&&(j < nX); j++, jj++ )
+				for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++ )	// B-4 (old: jj < njj)
 				{
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+					bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 					if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 					if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 					if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 					if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -8415,26 +8773,31 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 				};
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+					bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 					if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 					if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 					if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 					if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -8443,30 +8806,35 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 //	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
 //	AfxMessageBox(csBuf1);		
 			};
-				for( jj = 0; (jj < njj)&&(j < nX); j++, jj++ )
+				for(  ; ( (j*nY) < ((i+1)*nX) )&&(j < nX); j++ )	// B-4 (old: jj < njj)
 				{
 					x = x1 + pcNextBlockList->GetX0() + j*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + i*i_step*cParam.rDelta;
+					bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 					if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 					if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 					if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 					if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -8478,32 +8846,37 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 		}
 		else
 		{
-			for( i = 0, j = 0, njj = nY/(nX+1)+1; (i < nX)&&(j < nY) ; i++ )
+			for( i = 0, j = 0; (i < nX)&&(j < nY) ; i++ )	// B-4 (old: njj = nY/(nX+1)+1)
 			{
-				for( jj = 0; (jj < njj)&&(j < nY); j++, jj++ )
+				for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++ )	// B-4 (old: jj < njj)
 				{
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+					bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 					if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 					if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 					if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 					if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -8514,26 +8887,31 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 				};
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+					bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 					if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 					if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 					if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 					if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -8542,30 +8920,35 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 //	csBuf1.Format("x = %lg; y = %lg; nNodeGlobal[%d] = %d", x, y, ii, pcNodeDielOne[ii].nNodeGlobal);
 //	AfxMessageBox(csBuf1);		
 			};
-				for( jj = 0; (jj < njj)&&(j < nY); j++, jj++ )
+				for(  ; ( (j*nX) < ((i+1)*nY) )&&(j < nY); j++ )	// B-4 (old: jj < njj)
 				{
 					x = x1 + pcNextBlockList->GetX0() + i*j_step*cParam.rDelta;
 					y = y1 + pcNextBlockList->GetY0() + j*i_step*cParam.rDelta;
+					bB16Out = TmcB16Out( cParam, x, y );	// B-16: before the clamp to the border
 					if( x >= (cParam.rXmax-2*cParam.rDelta) ) x = (cParam.rXmax-cParam.rDelta*2.01);
 					if( y >= (cParam.rYmax-2*cParam.rDelta) ) y = (cParam.rYmax-cParam.rDelta*2.01);
 					if( x <= (cParam.rXmin+cParam.rDelta) ) x = (cParam.rXmin+cParam.rDelta*1.01);
 					if( y <= (cParam.rYmin+cParam.rDelta) ) y = (cParam.rYmin+cParam.rDelta*1.01);
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
 					ii++;
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x), (_real)(y) )+n_x+1;
+					if( bB16Out ) pcNodeDielOne[ii].nNodeGlobal = -1;	// B-16: outside - dropped
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(dYAdmit);
 					pcNodeDielOne[ii].nType = CTMCRTH_BLCKNTYPE_ABSR_0000;
@@ -8600,6 +8983,16 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	};
 
 	DeleteDublicateData();
+	{	// B-16: the nodes of the parts outside the region (marked -1) are dropped
+		TmcIdx a, b;
+		for( a = 0, b = 0; a < nNumNode; a++ )	// after DeleteDublicateData nNumNode is the number of nodes
+		{
+			if( pcNodeDielOne[a].nNodeGlobal < 0 ) continue;
+			if( a != b ) pcNodeDielOne[b] = pcNodeDielOne[a];
+			b++;
+		};
+		nNumNode = b;
+	};
 	SetAbsorberNodeType( cParam );
 	SetMagneticPolygonType( cParam );
 	return cError;
@@ -8707,17 +9100,11 @@ void CTmcRTHNodeDiel::SaveFileRect( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH
 		return;
 	};
 	
-	int nOpenTry;	// A-8: ne zhdat vechno
-	for( nOpenTry = 0; ( fp = fopen( csFileNameEps , "wb") ) == NULL; nOpenTry++ )
+	int nOpenErr = 0;	// T-9: a busy file is waited for 20 s by the clock
+	if( ( fp = TmcFopenWait( csFileNameEps, "wb", FALSE, &nOpenErr ) ) == NULL )
 	{
-		if( nOpenTry > 2000 )
-		{
-			CString csOpen;
-			csOpen.Format("Can't open file %s", (LPCSTR)(csFileNameEps));
-			cError.PutErrorMessage( csOpen );
-			return;
-		};
-		Sleep( 10 );
+		cError.PutErrorMessage( TmcOpenFailText( csFileNameEps, nOpenErr ) );
+		return;
 	};
 	
 	fprintf( fp, "%s%c%c%s%s%c%c%s%lg%c%c%s%lg%c%c%s%lg%c%c%s%d%c%c%s%d%c%c%s%d%c%c%s%d%c%c%s%s%c%c%s%s%c%c", TMC_RTH_EPSFILE_ID_, 13, 10,
@@ -8870,21 +9257,27 @@ void CTmcRTHNodeDiel::AddFileEpsExtention()
 {
 	char szBuf[CTMCRTH_INDANSBUF];
 	int i, n;
-	
+	int nDot = -1;	// N-22
+
 	strcpy( szBuf, csFileNameEps);
 	n = strlen(szBuf);
-	
+
 	if( n == 0 ) return;
-	
+
 	for( i = 0; i < n; i++)
 	{
 		switch( szBuf[i] )
 		{
 			case '.':
-				return;
+				nDot = i;
+				break;
+			case '\\':
+			case '/':
+				nDot = -1;	// N-22: a dot in a folder name is not an extension
 				break;
 		};
 	};
+	if( nDot >= 0 ) return;
 
 	csFileNameEps += ".";
 	csFileNameEps += TMC_RTH_EPSFILE_EXT_;
@@ -8910,6 +9303,7 @@ BOOL CTmcRTHNodeDiel::IsFullName()
 
 	n = csFileNameEps.GetLength();
 	if( n == 0 ) return TRUE;
+	if( ( csFileNameEps[0] == '\\' )||( csFileNameEps[0] == '/' ) ) return TRUE;	// N-22
 	for( i = 0; i < n; i++ )
 	{
 		if( csFileNameEps[i] == ':' ) return TRUE;
@@ -8939,7 +9333,34 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 	csBufTr.Format("Block %d read file %s", nBlock, csEpsExpr);
 	PutTrace(csBufTr);
 
-	if( (pfData = fopen( csEpsExpr, "rb")) == NULL )
+	pfData = fopen( csEpsExpr, "rb" );
+	if( pfData == NULL )	// N-5: as RECT_STAT [name] writes it - in the task folder and with .eps
+	{
+		CString csTry, csName = csEpsExpr;
+		int nSep = -1, nDot = -1, k;
+		for( k = 0; k < csName.GetLength(); k++ )
+		{
+			if( ( csName[k] == '\\' )||( csName[k] == '/' ) ) nSep = k;
+			if( csName[k] == '.' ) nDot = k;
+		};
+		BOOL bFull = ( csName.GetLength() > 1 )&&( ( csName[1] == ':' )||( csName[0] == '\\' )||( csName[0] == '/' ) );
+		if( ( !bFull )&&( csCurrentPath.GetLength() > 0 ) )
+		{
+			csTry.Format( "%s\\%s", (LPCSTR)csCurrentPath, (LPCSTR)csName );
+			pfData = fopen( csTry, "rb" );
+		};
+		if( ( pfData == NULL )&&( nDot <= nSep ) )
+		{
+			csTry.Format( "%s.eps", (LPCSTR)csName );
+			pfData = fopen( csTry, "rb" );
+			if( ( pfData == NULL )&&( !bFull )&&( csCurrentPath.GetLength() > 0 ) )
+			{
+				csTry.Format( "%s\\%s.eps", (LPCSTR)csCurrentPath, (LPCSTR)csName );
+				pfData = fopen( csTry, "rb" );
+			};
+		};
+	};
+	if( pfData == NULL )
 	{
 		CString csBuf;
 		csBuf.Format("Can't open diel.data file {%s} for block %d", csEpsExpr, nBlock);
@@ -8980,7 +9401,23 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 		fclose( pfData );
 		return cError;
 	};
-	if( strncmp( ch + strlen(TMC_RTH_EPSFILE_TYPE_), CTMCRTH_INDANBLCK_RECTSTAT, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) != 0 )
+	// B-17: FILE takes RECT_STAT; FILE_N/_B/_Y take RECT_STAT_N/_B/_Y (written by RECT_STAT_N [name] ...) or RECT_STAT.
+	// Old: only RECT_STAT. A file of another quantity is an error.
+	const char *pszWant = CTMCRTH_INDANBLCK_RECTSTAT;
+	if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEN, strlen(CTMCRTH_INDANBLCK_FILEN) ) == 0 ) pszWant = CTMCRTH_INDANBLCK_RECTSTATN;
+	if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEB, strlen(CTMCRTH_INDANBLCK_FILEB) ) == 0 ) pszWant = CTMCRTH_INDANBLCK_RECTSTATB;
+	if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEY, strlen(CTMCRTH_INDANBLCK_FILEY) ) == 0 ) pszWant = CTMCRTH_INDANBLCK_RECTSTATY;
+	if( ( strncmp( ch + strlen(TMC_RTH_EPSFILE_TYPE_), CTMCRTH_INDANBLCK_RECTSTAT, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) != 0 )&&
+		( strncmp( ch + strlen(TMC_RTH_EPSFILE_TYPE_), pszWant, strlen(pszWant) ) != 0 ) )
+	{
+		CString csBuf;
+		csBuf.Format("bad type of the file {%s} for block %d (%s): it holds {%s}, the block needs {%s} or {%s}", csEpsExpr, nBlock,
+			(LPCSTR)csBlock, ch + strlen(TMC_RTH_EPSFILE_TYPE_), pszWant, CTMCRTH_INDANBLCK_RECTSTAT );
+		cError.PutErrorMessage(csBuf);
+		fclose( pfData );
+		return cError;
+	};
+	if( 0 )	// B-17: the old check (RECT_STAT only)
 	{
 		CString csBuf;
 		csBuf.Format("bad type {%s} in diel.data file {%s} for block %d", CTMCRTH_INDANBLCK_RECTSTAT, csEpsExpr, nBlock);
@@ -9009,7 +9446,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 	if( fabs((r - cParam.rDelta)/cParam.rDelta) > (1.e-5) )
 	{
 		CString csBuf;
-		csBuf.Format("bad {#PARAM delta = %lg} != {delta = %lg} in diel.data file {%s} for block %d", cParam.rDelta, r, TMC_RTH_EPSFILE_Delta_, csEpsExpr, nBlock);
+		csBuf.Format("bad {#PARAM delta = %lg} != {delta = %lg} in diel.data file {%s} for block %d", cParam.rDelta, r, (LPCSTR)csEpsExpr, nBlock);	// S-4
 		cError.PutErrorMessage(csBuf);
 		fclose( pfData );
 		return cError;
@@ -9278,19 +9715,19 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 			if( fread( &(pcNodeDielOne1[i].rY), nAccur, 1, pfData ) != 1 )
 			{
 				CString csBuf;
-				csBuf.Format("bad data array in diel.data file {%s} for block %d", TMC_RTH_EPSFILE_Delta_, csEpsExpr, nBlock);
+				csBuf.Format("bad data array in diel.data file {%s} for block %d", (LPCSTR)csEpsExpr, nBlock);	// S-4
 				cError.PutErrorMessage(csBuf);
 				fclose( pfData );
-				delete pcNodeDielOne1;
+				delete []pcNodeDielOne1;	// S-3
 				return cError;
 			};
 			if( TmcReadIdx32( &(pcNodeDielOne1[i].nNodeGlobal), pfData ) != 1 )
 			{
 				CString csBuf;
-				csBuf.Format("bad data node array in diel.data file {%s} for block %d", TMC_RTH_EPSFILE_Delta_, csEpsExpr, nBlock);
+				csBuf.Format("bad data node array in diel.data file {%s} for block %d", (LPCSTR)csEpsExpr, nBlock);	// S-4
 				cError.PutErrorMessage(csBuf);
 				fclose( pfData );
-				delete pcNodeDielOne1;
+				delete []pcNodeDielOne1;	// S-3
 				return cError;
 			};
 			if( !pbIsStop[0] )
@@ -9299,7 +9736,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 				csBuf.Format("User cancel calculated eps array thread in Block %d", nBlock);
 				cError.PutErrorMessage(csBuf);
 				fclose( pfData );
-				delete pcNodeDielOne1;
+				delete []pcNodeDielOne1;	// S-3
 				return cError;
 			};
 			if( jj == 10000 )
@@ -9323,20 +9760,20 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 						if( fread( &(fBuf), nAccur, 1, pfData ) != 1 )
 						{
 							CString csBuf;
-							csBuf.Format("bad data array in diel.data file {%s} for block %d", TMC_RTH_EPSFILE_Delta_, csEpsExpr, nBlock);
+							csBuf.Format("bad data array in diel.data file {%s} for block %d", (LPCSTR)csEpsExpr, nBlock);	// S-4
 							cError.PutErrorMessage(csBuf);
 							fclose( pfData );
-							delete pcNodeDielOne1;
+							delete []pcNodeDielOne1;	// S-3
 							return cError;
 						};
 						pcNodeDielOne1[i].rY = fBuf;
 						if( TmcReadIdx32( &(pcNodeDielOne1[i].nNodeGlobal), pfData ) != 1 )
 						{
 							CString csBuf;
-							csBuf.Format("bad data node array in diel.data file {%s} for block %d", TMC_RTH_EPSFILE_Delta_, csEpsExpr, nBlock);
+							csBuf.Format("bad data node array in diel.data file {%s} for block %d", (LPCSTR)csEpsExpr, nBlock);	// S-4
 							cError.PutErrorMessage(csBuf);
 							fclose( pfData );
-							delete pcNodeDielOne1;
+							delete []pcNodeDielOne1;	// S-3
 							return cError;
 						};
 						if( !pbIsStop[0] )
@@ -9345,7 +9782,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 							csBuf.Format("User cancel calculated eps array thread in Block %d", nBlock);
 							cError.PutErrorMessage(csBuf);
 							fclose( pfData );
-							delete pcNodeDielOne1;
+							delete []pcNodeDielOne1;	// S-3
 							return cError;
 						};
 						if( jj == 10000 )
@@ -9366,20 +9803,20 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 						if( fread( &(dBuf), nAccur, 1, pfData ) != 1 )
 						{
 							CString csBuf;
-							csBuf.Format("bad data array in diel.data file {%s} for block %d", TMC_RTH_EPSFILE_Delta_, csEpsExpr, nBlock);
+							csBuf.Format("bad data array in diel.data file {%s} for block %d", (LPCSTR)csEpsExpr, nBlock);	// S-4
 							cError.PutErrorMessage(csBuf);
 							fclose( pfData );
-							delete pcNodeDielOne1;
+							delete []pcNodeDielOne1;	// S-3
 							return cError;
 						};
 						pcNodeDielOne1[i].rY = (_real)(dBuf);
 						if( TmcReadIdx32( &(pcNodeDielOne1[i].nNodeGlobal), pfData ) != 1 )
 						{
 							CString csBuf;
-							csBuf.Format("bad data node array in diel.data file {%s} for block %d", TMC_RTH_EPSFILE_Delta_, csEpsExpr, nBlock);
+							csBuf.Format("bad data node array in diel.data file {%s} for block %d", (LPCSTR)csEpsExpr, nBlock);	// S-4
 							cError.PutErrorMessage(csBuf);
 							fclose( pfData );
-							delete pcNodeDielOne1;
+							delete []pcNodeDielOne1;	// S-3
 							return cError;
 						};
 						if( !pbIsStop[0] )
@@ -9388,7 +9825,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 							csBuf.Format("User cancel calculated eps array thread in Block %d", nBlock);
 							cError.PutErrorMessage(csBuf);
 							fclose( pfData );
-							delete pcNodeDielOne1;
+							delete []pcNodeDielOne1;	// S-3
 							return cError;
 						};
 						if( jj == 10000 )
@@ -9406,7 +9843,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 					CString csBuf;
 					csBuf.Format("nAccuracy = %d != 4 and != 8 for block %d", nAccur, nBlock);
 					cError.PutErrorMessage(csBuf);
-					delete pcNodeDielOne1;
+					delete []pcNodeDielOne1;	// S-3
 					fclose( pfData );
 					return cError;
 				};
@@ -9427,7 +9864,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 			CString csBuf;
 			csBuf.Format("User cancel calculated eps array thread in Block %d", nBlock);
 			cError.PutErrorMessage(csBuf);
-			delete pcNodeDielOne1;
+			delete []pcNodeDielOne1;	// S-3
 			return cError;
 		};
 		if( jj == 10000 )
@@ -9444,7 +9881,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 		CString csBuf;
 		csBuf.Format("nNumNode < 1 for block %d", nBlock);
 		cError.PutErrorMessage(csBuf);
-		delete pcNodeDielOne1;
+		delete []pcNodeDielOne1;	// S-3
 		return cError;
 	}
 
@@ -9455,7 +9892,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 		CString csBuf;
 		csBuf.Format("nNumNode <= 0 for block %d", nBlock);
 		cError.PutErrorMessage(csBuf);
-		delete pcNodeDielOne1;
+		delete []pcNodeDielOne1;	// S-3
 		return cError;
 	};
 	
@@ -9468,7 +9905,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 		csBuf.Format("Not enought memory for block %d", nBlock);
 		cError.PutErrorMessage(csBuf);
 		nNumNode = 0;
-		delete pcNodeDielOne1;
+		delete []pcNodeDielOne1;	// S-3
 		return cError;
 	};
 
@@ -9489,7 +9926,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 			CString csBuf;
 			csBuf.Format("User cancel calculated eps array thread in Block %d", nBlock);
 			cError.PutErrorMessage(csBuf);
-			delete pcNodeDielOne1;
+			delete []pcNodeDielOne1;	// S-3
 			return cError;
 		};
 		if( jj == 10000 )
@@ -9500,10 +9937,11 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 		};
 		jj++;
 	};
+	delete []pcNodeDielOne1;	// S-3: the temporary array of the block FILE is not needed any more
 
 	csBufTr.Format(" ");
 	PutTrace(csBufTr);
-	
+
 	return cError;
 }
 
@@ -9525,13 +9963,13 @@ double CTmcRTHNodeDiel::dAmplitude(CTmcRTH_IndanParam &cParam, double dtCurrent)
 	f = cParam.rFreq/cParam.rFreqUnit;
 	t = dtCurrent/cParam.rTimeUnit;
 
-	sprintf( szBuf1, "t=(%lg);f=(%lg);", t, f);
-	if( i1nte_atof_1( szBuf1, &r1 ) != 0 )
-	{
-		csBuf.Format("In{%s}%s", szBuf1, expr_get_error() );
-		cError.PutErrorMessage(csBuf);
-		return (double)(0.0);
-	};
+	// B-11, old (6 digits):
+	// sprintf( szBuf1, "t=(%lg);f=(%lg);", t, f);
+	// if( i1nte_atof_1( szBuf1, &r1 ) != 0 )
+	// { csBuf.Format("In{%s}%s", szBuf1, expr_get_error() ); cError.PutErrorMessage(csBuf); return (double)(0.0); };
+	expr_set_per( (char *)"t", 1, (_real)t );	// B-11: the full precision, without a string
+	expr_set_per( (char *)"f", 1, (_real)f );
+	szBuf1[0] = '\0';
 	if( i1nte_atof_1( szBuf, &r1 ) != 0 )
 	{
 		csBuf.Format("In{%s}%s; t=(%lg);f=(%lg);",
@@ -9559,13 +9997,13 @@ double CTmcRTHNodeDiel::dFaza(CTmcRTH_IndanParam &cParam, double dtCurrent)
 	f = cParam.rFreq/cParam.rFreqUnit;
 	t = dtCurrent/cParam.rTimeUnit;
 
-	sprintf( szBuf1, "t=(%lg);f=(%lg);", t, f);
-	if( i1nte_atof_1( szBuf1, &r1 ) != 0 )
-	{
-		csBuf.Format("In{%s}%s", szBuf1, expr_get_error() );
-		cError.PutErrorMessage(csBuf);
-		return (double)(0.0);
-	};
+	// B-11, old (6 digits):
+	// sprintf( szBuf1, "t=(%lg);f=(%lg);", t, f);
+	// if( i1nte_atof_1( szBuf1, &r1 ) != 0 )
+	// { csBuf.Format("In{%s}%s", szBuf1, expr_get_error() ); cError.PutErrorMessage(csBuf); return (double)(0.0); };
+	expr_set_per( (char *)"t", 1, (_real)t );	// B-11: the full precision, without a string
+	expr_set_per( (char *)"f", 1, (_real)f );
+	szBuf1[0] = '\0';
 	if( i1nte_atof_1( szBuf, &r1 ) != 0 )
 	{
 		csBuf.Format("In{%s}%s; t=(%lg);f=(%lg);",
@@ -9574,7 +10012,9 @@ double CTmcRTHNodeDiel::dFaza(CTmcRTH_IndanParam &cParam, double dtCurrent)
 		return (double)(0.0);
 	};
 
-	return -r1/cParam.rAngleUnit;
+	// B-5.1: degrees -> radians is a multiplication by rAngleUnit = pi/180 (old: return -r1/cParam.rAngleUnit;)
+	// B-5.2: the minus is the delay - meant
+	return -r1*cParam.rAngleUnit;
 }
 
 void CTmcRTHNodeDiel::CalculateYForInput(double dFreq, double dDelta)
@@ -9815,14 +10255,16 @@ void CTmcRTHNodeDiel::ReadSignalFile( void )
 
 	//  second pass: read the values
 	rewind( fp );
+	int nLineNo = 0;	// N-15: the number of the line in the file, not of the point
 	for( i = 0; ( i < n )&&( fgets( szLine, CTMCRTH_INDANSBUF, fp ) != NULL ) ; )
 	{
+		nLineNo++;
 		if( ( szLine[0] == '!' )||( szLine[0] == '#' ) ) continue;
 		if( sscanf( szLine, "%lg %lg", &t, &v ) != 2 ) continue;
 		if( ( i > 0 )&&( t <= pdSigT[i-1] ) )
 		{
 			CString csBuf;
-			csBuf.Format("time is not increasing in signal file {%s} at line %d", csFileNameSig, i+1);
+			csBuf.Format("time is not increasing in signal file {%s} at line %d", csFileNameSig, nLineNo);
 			cError.PutErrorMessage(csBuf);
 			DeleteSignalData();
 			fclose( fp );
@@ -9836,6 +10278,20 @@ void CTmcRTHNodeDiel::ReadSignalFile( void )
 
 	nSigN = i;
 	bSigFile = TRUE;
+	{	// N-15: the phase of the port is not used with a signal file - say so
+		char *pEnd;
+		const char *pF = csVy;
+		while( ( *pF == ' ' )||( *pF == '\t' ) ) pF++;
+		double dF = strtod( pF, &pEnd );
+		while( ( *pEnd == ' ' )||( *pEnd == '\t' ) ) pEnd++;
+		if( ( *pF != '\0' )&&( ( *pEnd != '\0' )||( dF != 0.0 ) ) )
+		{
+			CString csBuf;
+			csBuf.Format("WARNING: block %d: the phase {%s} is not used, the signal comes from the file {%s}", nBlock, (LPCSTR)csVy, (LPCSTR)csFileNameSig);
+			PutTrace( csBuf );
+			ConsolePrint( "%s", (LPCSTR)csBuf );
+		};
+	};
 	return;
 }
 

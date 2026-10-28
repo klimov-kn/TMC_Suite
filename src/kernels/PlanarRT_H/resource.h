@@ -292,6 +292,7 @@
 #define ID_VIEW_DIRECTIONALPATTERN      32818
 #define ID_CONFIG_VIEWER_DIRECTIONALPATTERN 32820
 #define ID_CONFIG_DIRECTIONALPATTERN    32821
+#define ID_CONFIG_GPU                   32822
 
 // Next default values for new objects
 // 
@@ -299,7 +300,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        133
-#define _APS_NEXT_COMMAND_VALUE         32822
+#define _APS_NEXT_COMMAND_VALUE         32823
 #define _APS_NEXT_CONTROL_VALUE         1028
 #define _APS_NEXT_SYMED_VALUE           102
 #endif

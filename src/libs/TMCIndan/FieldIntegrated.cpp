@@ -323,6 +323,18 @@ void CFieldIntegrated::InitAllFile( int nX1, int nY1, double dDelta1, double dXm
 	return;
 }
 
+// N-24: a file of the field distribution / directional pattern can't be opened - an error, not silence
+static void TmcFieldOpenError( CTmcLibError &cErr, const char *pszName, FILE *f1 = NULL, FILE *f2 = NULL, FILE *f3 = NULL )
+{
+	CString cs;
+	if( f1 != NULL ) fclose( f1 );
+	if( f2 != NULL ) fclose( f2 );
+	if( f3 != NULL ) fclose( f3 );
+	cs.Format( "Can't open file %s of FIELD_DISTRIBUTION: the file is used by another program or the folder is read-only", pszName );
+	cErr.PutErrorMessage( cs );
+	return;
+}
+
 void CFieldIntegrated::InitFile(CString csFileName)
 {
 //	{ 
@@ -346,9 +358,9 @@ void CFieldIntegrated::InitFile(CString csFileName)
 		return;
 	};
 
-	for( i = 0; ( fp = fopen( csFileName , "wb") ) == NULL; i++ ) 
+	for( i = 0; ( fp = fopen( csFileName , "wb") ) == NULL; i++ )
 	{
-		if( i > 2000  ) return;
+		if( i > 2000  ) { TmcFieldOpenError( cError, csFileName ); return; };	// N-24
 		Sleep( 10 );
 	};
 	
@@ -420,6 +432,7 @@ BOOL CFieldIntegrated::IsFullPath()
 	int i, n;
 
 	n = csFileAmplitude.GetLength();
+	if( ( n > 0 )&&( ( csFileAmplitude[0] == '\\' )||( csFileAmplitude[0] == '/' ) ) ) return TRUE;	// N-22
 
 	for( i = 0; i < n; i++ )
 	{
@@ -494,9 +507,9 @@ void CFieldIntegrated::Integrate(CString csFileName, _real *prUNode1, _real r1)
 		return;
 	};
 
-	for( i = 0; ( fp = fopen( csFileName , "r+b") ) == NULL; i++ ) 
+	for( i = 0; ( fp = fopen( csFileName , "r+b") ) == NULL; i++ )
 	{
-		if( i > 2000  ) return;
+		if( i > 2000  ) { TmcFieldOpenError( cError, csFileName ); return; };	// N-24
 		Sleep( 10 );
 	};
 	
@@ -574,24 +587,24 @@ void CFieldIntegrated::MakeFileAmplitudeAndFaza()
 		return;
 	};
 
-	for( i = 0; ( fpSin = fopen( csFileSin , "r+b") ) == NULL; i++ ) 
+	for( i = 0; ( fpSin = fopen( csFileSin , "r+b") ) == NULL; i++ )
 	{
-		if( i > 2000  ) return;
+		if( i > 2000  ) { TmcFieldOpenError( cError, csFileSin ); return; };	// N-24
 		Sleep( 10 );
 	};
-	for( i = 0; ( fpCos = fopen( csFileCos , "r+b") ) == NULL; i++ ) 
+	for( i = 0; ( fpCos = fopen( csFileCos , "r+b") ) == NULL; i++ )
 	{
-		if( i > 2000  ) return;
+		if( i > 2000  ) { TmcFieldOpenError( cError, csFileCos, fpSin ); return; };	// N-24
 		Sleep( 10 );
 	};
-	for( i = 0; ( fpFaz = fopen( csFileFaza , "w+b") ) == NULL; i++ ) 
+	for( i = 0; ( fpFaz = fopen( csFileFaza , "w+b") ) == NULL; i++ )
 	{
-		if( i > 2000  ) return;
+		if( i > 2000  ) { TmcFieldOpenError( cError, csFileFaza, fpSin, fpCos ); return; };	// N-24
 		Sleep( 10 );
 	};
-	for( i = 0; ( fpAmp = fopen( csFileAmplitude , "w+b") ) == NULL; i++ ) 
+	for( i = 0; ( fpAmp = fopen( csFileAmplitude , "w+b") ) == NULL; i++ )
 	{
-		if( i > 2000  ) return;
+		if( i > 2000  ) { TmcFieldOpenError( cError, csFileAmplitude, fpSin, fpCos, fpFaz ); return; };	// N-24
 		Sleep( 10 );
 	};
 
@@ -1004,14 +1017,14 @@ void CFieldIntegrated::MakeFileAmplitudeAndFazaFromMemory()
 	FILE *fpFaz, *fpAmp;
 	_real rSin, rCos, rAmp, rFaz;
 
-	for( i = 0; ( fpFaz = fopen( csFileFaza , "w+b") ) == NULL; i++ ) 
+	for( i = 0; ( fpFaz = fopen( csFileFaza , "w+b") ) == NULL; i++ )
 	{
-		if( i > 2000  ) return;
+		if( i > 2000  ) { TmcFieldOpenError( cError, csFileFaza ); return; };	// N-24
 		Sleep( 10 );
 	};
-	for( i = 0; ( fpAmp = fopen( csFileAmplitude , "w+b") ) == NULL; i++ ) 
+	for( i = 0; ( fpAmp = fopen( csFileAmplitude , "w+b") ) == NULL; i++ )
 	{
-		if( i > 2000  ) return;
+		if( i > 2000  ) { TmcFieldOpenError( cError, csFileAmplitude, fpFaz ); return; };	// N-24
 		Sleep( 10 );
 	};
 
@@ -1099,11 +1112,26 @@ void CFieldIntegrated::ExportToDirectionalPattern()
 		nCut = csBase.ReverseFind( '.' );
 		if( nCut > 0 ) csBase = csBase.Left( nCut );
 
+		int nDig, k2;	// N-21: as many digits after the point as the names need to differ
+		for( nDig = 0; nDig < 6; nDig++ )
+		{
+			BOOL bSame = FALSE;
+			for( k = 0; ( k < nFreqNum )&&( !bSame ); k++ )
+				for( k2 = k + 1; ( k2 < nFreqNum )&&( !bSame ); k2++ )
+				{
+					CString cs1, cs2;
+					cs1.Format( "%.*lf", nDig, dFreqList[k]/1.0e6 );
+					cs2.Format( "%.*lf", nDig, dFreqList[k2]/1.0e6 );
+					if( strcmp( cs1, cs2 ) == 0 ) bSame = TRUE;
+				};
+			if( !bSame ) break;
+		};
+
 		for( k = 0; k < nFreqNum; k++ )
 		{
 			nFreqCur = k;
 			dFreq    = dFreqList[k];
-			csOne.Format( "%s_%.0lfMHz.DAT", (const char *)csBase, dFreqList[k]/1.0e6 );
+			csOne.Format( "%s_%.*lfMHz.DAT", (const char *)csBase, nDig, dFreqList[k]/1.0e6 );
 			csFileDirectPattern = csOne;
 			MakeDirectionalPatternFile();
 			if( IsError() ) break;

@@ -2,6 +2,9 @@
 //
 
 #include "stdafx.h"
+#ifndef TMC_IS_SEP	// path separator: backslash or '/'
+#define TMC_IS_SEP(c) ( ((c) == '/') || ((c) == '\\') )
+#endif
 #include "TMCGROUT.h"
 #include <tmcgrviw.h>
 #include "DialogTtoS.h"
@@ -201,6 +204,16 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CDialogTtoS message handlers
 
+// S-47: pripisyvat papku dokumenta tolko k otnositelnomu imeni faila (ne k "C:\...", "\\server\...", "{...}")
+static BOOL TmcTtoSIsRelative( const CString &cs )
+{
+	const char *p = (const char *)cs;
+	if( p[0] == '{' ) return FALSE;
+	if( strchr( p, ':' ) != NULL ) return FALSE;
+	if( TMC_IS_SEP( p[0] )&&TMC_IS_SEP( p[1] ) ) return FALSE;
+	return TRUE;
+}
+
 INT_PTR CDialogTtoS::DoModal()
 {
 	// TODO: Add your specialized code here and/or call the base class
@@ -228,102 +241,102 @@ INT_PTR CDialogTtoS::DoModal()
 			i = 0;
 		};
 	};
-	if(  m_SFileName_1.GetLength() != 0 ) 
+	if( ( m_SFileName_1.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_1 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_1);
 		m_SFileName_1 = csBuf;
 	};
-	if(  m_SFileName_2.GetLength() != 0 ) 
+	if( ( m_SFileName_2.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_2 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_2);
 		m_SFileName_2 = csBuf;
 	};
-	if(  m_SFileName_3.GetLength() != 0 ) 
+	if( ( m_SFileName_3.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_3 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_3);
 		m_SFileName_3 = csBuf;
 	};
-	if(  m_SFileName_4.GetLength() != 0 ) 
+	if( ( m_SFileName_4.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_4 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_4);
 		m_SFileName_4 = csBuf;
 	};
-	if(  m_SFileName_5.GetLength() != 0 ) 
+	if( ( m_SFileName_5.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_5 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_5);
 		m_SFileName_5 = csBuf;
 	};
-	if(  m_SFileName_6.GetLength() != 0 ) 
+	if( ( m_SFileName_6.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_6 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_6);
 		m_SFileName_6 = csBuf;
 	};
-	if(  m_SFileName_7.GetLength() != 0 ) 
+	if( ( m_SFileName_7.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_7 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_7);
 		m_SFileName_7 = csBuf;
 	};
-	if(  m_SFileName_8.GetLength() != 0 ) 
+	if( ( m_SFileName_8.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_8 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_8);
 		m_SFileName_8 = csBuf;
 	};
-	if(  m_SFileName_9.GetLength() != 0 ) 
+	if( ( m_SFileName_9.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_9 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_9);
 		m_SFileName_9 = csBuf;
 	};
-	if(  m_SFileName_10.GetLength() != 0 ) 
+	if( ( m_SFileName_10.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_10 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_10);
 		m_SFileName_10 = csBuf;
 	};
-	if(  m_SFileName_11.GetLength() != 0 ) 
+	if( ( m_SFileName_11.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_11 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_11);
 		m_SFileName_11 = csBuf;
 	};
-	if(  m_SFileName_12.GetLength() != 0 ) 
+	if( ( m_SFileName_12.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_12 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_12);
 		m_SFileName_12 = csBuf;
 	};
-	if(  m_SFileName_13.GetLength() != 0 ) 
+	if( ( m_SFileName_13.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_13 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_13);
 		m_SFileName_13 = csBuf;
 	};
-	if(  m_SFileName_14.GetLength() != 0 ) 
+	if( ( m_SFileName_14.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_14 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_14);
 		m_SFileName_14 = csBuf;
 	};
-	if(  m_SFileName_15.GetLength() != 0 ) 
+	if( ( m_SFileName_15.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_15 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_15);
 		m_SFileName_15 = csBuf;
 	};
-	if(  m_SFileName_16.GetLength() != 0 ) 
+	if( ( m_SFileName_16.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_16 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_16);
 		m_SFileName_16 = csBuf;
 	};
-	if(  m_SFileName_17.GetLength() != 0 ) 
+	if( ( m_SFileName_17.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_17 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_17);
 		m_SFileName_17 = csBuf;
 	};
-	if(  m_SFileName_18.GetLength() != 0 ) 
+	if( ( m_SFileName_18.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_18 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_18);
 		m_SFileName_18 = csBuf;
 	};
-	if(  m_SFileName_19.GetLength() != 0 ) 
+	if( ( m_SFileName_19.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_19 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_19);
 		m_SFileName_19 = csBuf;
 	};
-	if(  m_SFileName_20.GetLength() != 0 ) 
+	if( ( m_SFileName_20.GetLength() != 0 )&&TmcTtoSIsRelative( m_SFileName_20 ) )	// S-47
 	{
 		csBuf.Format("%s\\%s", ch, m_SFileName_20);
 		m_SFileName_20 = csBuf;
