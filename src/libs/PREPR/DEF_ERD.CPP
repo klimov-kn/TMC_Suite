@@ -151,7 +151,6 @@ static char szDefine[] = "#define ";
 int load_vr_file( BUFFER *buf )
  {
   FILE *vr_mac;
-  char       FgetsBuff[BUFSIZ];
   char       *str;
 
   int p;
@@ -183,6 +182,7 @@ int load_vr_file( BUFFER *buf )
   /// препроцессор останавливался. Проверка строк `#define` (DEF_MSG_LINE) ниже сохранена.
   vr_mac = NULL;
 #if 0	// I-07: the old opening of the file
+  char       FgetsBuff[BUFSIZ];	// C4101: the buffer only of the old code below (I-07)
   if( (vr_mac = fopen( szVrName, "w")) == NULL)
    {
 	snprintf( str, BUF_STR_N_MAX, "Can't open file %s for writing (%u characters; no right to write into the task folder or the path is too long?)",

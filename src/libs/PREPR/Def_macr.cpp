@@ -112,7 +112,7 @@ int  def_main_macdef( BUFFER *buf )
 	   ;   // BUG-004: MACROS is freed in def_main_macro
 	   return -1;
    };
-   n1 = strlen( mac->mac );
+   n1 = (int)( strlen( mac->mac ) );
    // I-09: only the end of line is cut (old: mac->mac[n1-1] = '\0'; - the last character of a #define in the
    // last line of the file without the end of line was lost)
    if( ( n1 > 0 )&&( mac->mac[n1-1] == '\n' ) ) mac->mac[n1-1] = '\0';
@@ -172,7 +172,7 @@ int  def_subst_mac( BUFFER *buf, MACROS *mac)
 
     if( strcmp( mac1, mac->m[ 0 ]) == 0 )     /*  if mac1 is macros name*/
      {
-      n1 = strlen( mac1 );
+      n1 = (int)( strlen( mac1 ) );
       if( mac->j1 > 0 ) n1++;
 
 
@@ -186,7 +186,7 @@ int  def_subst_mac( BUFFER *buf, MACROS *mac)
 	};
 
 	mac->m[ j+1 ] = mac1+n1;
-	n1 += (strlen( mac1+n1) + 1);
+	n1 += (int)( (strlen( mac1+n1) + 1) );
         if( *mac->m[j+1] == '\n')
          {
           def_macro_message( "Fact parameters: a parameter or ';' is missing", mac->m[ 0 ] );   // S-21
@@ -248,7 +248,7 @@ int  def_set_formal_param( BUFFER *buf, MACROS *mac, int i)
 
   def_gets( mac1, ch);            /*  read string with after '@' in mac1*/
 
-  i += strlen( mac1 );
+  i += (int)( strlen( mac1 ) );
 
 
   mac->m1[0] = ch;
@@ -258,7 +258,7 @@ int  def_set_formal_param( BUFFER *buf, MACROS *mac, int i)
    {
     if( strcmp( mac1, mac->m[j+1]) == 0 )
      {
-      n = strlen( mac1 );
+      n = (int)( strlen( mac1 ) );
       mac->m1[ mac->i2 ] = ch;
       mac->im1[ mac->i2 ] = j+1;
       mac->i2++;
@@ -293,14 +293,14 @@ int  def_set_formal_param( BUFFER *buf, MACROS *mac, int i)
     i3 = i;
     ch = mac->mac + i;
     def_gets( mac1, ch);
-    i += strlen( mac1 );
+    i += (int)( strlen( mac1 ) );
 
     for( j = 0; j < mac->j1; j++)
      {
 
       if( strcmp( mac1, mac->m[ j+1 ]) == 0 )
        {
-        n = strlen( mac1 );
+        n = (int)( strlen( mac1 ) );
         mac->m1[mac->i2] = ch+1;
         mac->im1[mac->i2] = j+1;
         mac->i2++;

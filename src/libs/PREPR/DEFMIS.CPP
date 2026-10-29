@@ -292,7 +292,7 @@ int  def_sl( BUFFER *buf )
 		  return -1;
 	  };
       buf->inp_p = p1;
-      n1 = strlen(str);
+      n1 = (int)( strlen(str) );
       buf_dels( buf, n1+1);                    /*  delete coment*/
       if( buf_puts2(str1, buf) != BUF_NULL ) 
 	  {

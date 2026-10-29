@@ -319,8 +319,8 @@ double CTMCGrExpression::GetExpressionValueSFD( int nPoint )
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
-	n = strlen( ch );
-	for( i = 0; i < nVar; i++, n = strlen( ch ) )
+	n = (int)( strlen( ch ) );
+	for( i = 0; i < nVar; i++, n = (int)strlen( ch ) )
 	{
 		d = 180./(3.141592653589)*GetCPhase( i, nPoint);
 		snprintf( ch+n, TMC_GROUT_MAXSTRING_BUF-n, "(%.17g)%s", d, pszMaska[i+1] );	// S-48: bylo %lf
@@ -341,8 +341,8 @@ double CTMCGrExpression::GetExpressionValueSFR( int nPoint )
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
-	n = strlen( ch );
-	for( i = 0; i < nVar; i++, n = strlen( ch ) )
+	n = (int)( strlen( ch ) );
+	for( i = 0; i < nVar; i++, n = (int)strlen( ch ) )
 	{
 		d = GetCPhase( i, nPoint);
 		snprintf( ch+n, TMC_GROUT_MAXSTRING_BUF-n, "(%.17g)%s", d, pszMaska[i+1] );	// S-48: bylo %lf
@@ -363,8 +363,8 @@ double CTMCGrExpression::GetExpressionValueSM( int nPoint )
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
-	n = strlen( ch );
-	for( i = 0; i < nVar; i++, n = strlen( ch ) )
+	n = (int)( strlen( ch ) );
+	for( i = 0; i < nVar; i++, n = (int)strlen( ch ) )
 	{
 		d = cabsv( ppcSmatrix[i][nPoint] );
 		snprintf( ch+n, TMC_GROUT_MAXSTRING_BUF-n, "(%.17g)%s", d, pszMaska[i+1] );	// S-48: bylo %lf
@@ -385,8 +385,8 @@ double CTMCGrExpression::GetExpressionValueL( int nPoint )
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
-	n = strlen( ch );
-	for( i = 0; i < nVar; i++, n = strlen( ch ) )
+	n = (int)( strlen( ch ) );
+	for( i = 0; i < nVar; i++, n = (int)strlen( ch ) )
 	{
 		d = -20.*log10( cabsv( ppcSmatrix[i][nPoint] ) );
 		snprintf( ch+n, TMC_GROUT_MAXSTRING_BUF-n, "(%.17g)%s", d, pszMaska[i+1] );	// S-48: bylo %lf
@@ -407,8 +407,8 @@ double CTMCGrExpression::GetExpressionValueRe( int nPoint )	// A-28: znachenie v
 	GetExpressionValue( nPoint );
 
 	strcpy( ch, pszMaska[0] );
-	n = strlen( ch );
-	for( i = 0; i < nVar; i++, n = strlen( ch ) )
+	n = (int)( strlen( ch ) );
+	for( i = 0; i < nVar; i++, n = (int)strlen( ch ) )
 	{
 		if( pnPoint[i] <= nPoint ) return 0;
 		d = ppcSmatrix[i][nPoint].x;
@@ -430,8 +430,8 @@ double CTMCGrExpression::GetExpressionValueK( int nPoint )
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
-	n = strlen( ch );
-	for( i = 0; i < nVar; i++, n = strlen( ch ) )
+	n = (int)( strlen( ch ) );
+	for( i = 0; i < nVar; i++, n = (int)strlen( ch ) )
 	{
 		r11 = (double)(cabsv( ppcSmatrix[i][nPoint] ));
 		if( fabs( r11 - 1.) < 0.0001	)

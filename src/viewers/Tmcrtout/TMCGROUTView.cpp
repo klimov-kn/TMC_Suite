@@ -1279,7 +1279,7 @@ void CTMCGROUTView::OnEditGraphicsparameters()
 	dlg.m_dPointSize = dPointSize;
 	dlg.m_LossPoint = bLossPoint;
 
-	if( (ret = dlg.DoModal()) == 1)
+	if( (ret = (int)dlg.DoModal()) == 1)	// C4244: the dialog result fits int
 	{
 	tmcgrwin.sGrWin.Xmin =	dlg.m_XMin;
 	tmcgrwin.sGrWin.Xmax = dlg.m_XMax;
@@ -1590,7 +1590,7 @@ void CTMCGROUTView::OnEditDocument()
 		}
 	};	
 	
-	int ret = dlg.DoModal();
+	int ret = (int)( dlg.DoModal() );
 
 	if( ret == 1)
 	{
@@ -1877,7 +1877,7 @@ void CTMCGROUTView::OnEditAddcharacteristics()
 	ASSERT_VALID(pDoc);
 	strcpy( ch, pDoc->GetPathName() );
 
-	for( i = strlen(ch); i > 0; i-- )
+	for( i = (int)strlen(ch); i > 0; i-- )
 	{
 		if( ch[i] == '\\' )
 		{
@@ -2532,7 +2532,7 @@ void CTMCGROUTView::OnEditTosmatrix()
 		}
 	};	
 
-	int ret = dlg.DoModal();
+	int ret = (int)( dlg.DoModal() );
 
 	return;
 }

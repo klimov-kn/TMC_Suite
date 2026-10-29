@@ -360,9 +360,9 @@ void CFieldIntegrated::InitFile(CString csFileName)
 						TMC_GROFLD_DOCFILE_ID_Delta, dDelta, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Xmin, dXmin, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Ymin, dYmin, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_Accuracy, sizeof(_real),  13, 10,
-						TMC_GROFLD_DOCFILE_ID_LongUnit, cParam.csLongUnit, cParam.rLongUnit, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_TimeUnit, cParam.csTimeUnit, cParam.rTimeUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_Accuracy, (int)( sizeof(_real) ),  13, 10,
+						TMC_GROFLD_DOCFILE_ID_LongUnit, (LPCSTR)( cParam.csLongUnit ), cParam.rLongUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_TimeUnit, (LPCSTR)( cParam.csTimeUnit ), cParam.rTimeUnit, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nX, nX, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nY, nY);
 	for( i = 0; i < nY; i++)
@@ -509,9 +509,9 @@ void CFieldIntegrated::Integrate(CString csFileName, _real *prUNode1, _real r1)
 						TMC_GROFLD_DOCFILE_ID_Delta, dDelta, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Xmin, dXmin, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Ymin, dYmin, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_Accuracy, sizeof(_real),  13, 10,
-						TMC_GROFLD_DOCFILE_ID_LongUnit, cParam.csLongUnit, cParam.rLongUnit, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_TimeUnit, cParam.csTimeUnit, cParam.rTimeUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_Accuracy, (int)( sizeof(_real) ),  13, 10,
+						TMC_GROFLD_DOCFILE_ID_LongUnit, (LPCSTR)( cParam.csLongUnit ), cParam.rLongUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_TimeUnit, (LPCSTR)( cParam.csTimeUnit ), cParam.rTimeUnit, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nX, nX, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nY, nY);
 	for( i = 0, ii = 0; i < nY; i++)
@@ -600,9 +600,9 @@ void CFieldIntegrated::MakeFileAmplitudeAndFaza()
 						TMC_GROFLD_DOCFILE_ID_Delta, dDelta, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Xmin, dXmin, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Ymin, dYmin, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_Accuracy, sizeof(_real),  13, 10,
-						TMC_GROFLD_DOCFILE_ID_LongUnit, cParam.csLongUnit, cParam.rLongUnit, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_TimeUnit, cParam.csTimeUnit, cParam.rTimeUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_Accuracy, (int)( sizeof(_real) ),  13, 10,
+						TMC_GROFLD_DOCFILE_ID_LongUnit, (LPCSTR)( cParam.csLongUnit ), cParam.rLongUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_TimeUnit, (LPCSTR)( cParam.csTimeUnit ), cParam.rTimeUnit, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nX, nX, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nY, nY);
 	fprintf( fpCos, "%s%c%c%s%d%c%c%s%lg%c%c%s%lg%c%c%s%lg%c%c%s%lg%c%c%s%d%c%c%s%s %lg%c%c%s%s %lg%c%c%s%d%c%c%s%d", TMC_GROFLD_DOCFILE_ID, 13, 10,
@@ -611,9 +611,9 @@ void CFieldIntegrated::MakeFileAmplitudeAndFaza()
 						TMC_GROFLD_DOCFILE_ID_Delta, dDelta, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Xmin, dXmin, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Ymin, dYmin, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_Accuracy, sizeof(_real),  13, 10,
-						TMC_GROFLD_DOCFILE_ID_LongUnit, cParam.csLongUnit, cParam.rLongUnit, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_TimeUnit, cParam.csTimeUnit, cParam.rTimeUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_Accuracy, (int)( sizeof(_real) ),  13, 10,
+						TMC_GROFLD_DOCFILE_ID_LongUnit, (LPCSTR)( cParam.csLongUnit ), cParam.rLongUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_TimeUnit, (LPCSTR)( cParam.csTimeUnit ), cParam.rTimeUnit, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nX, nX, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nY, nY);
 	fprintf( fpFaz, "%s%c%c%s%d%c%c%s%lg%c%c%s%lg%c%c%s%lg%c%c%s%lg%c%c%s%d%c%c%s%s %lg%c%c%s%s %lg%c%c%s%d%c%c%s%d", TMC_GROFLD_DOCFILE_ID, 13, 10,
@@ -622,9 +622,9 @@ void CFieldIntegrated::MakeFileAmplitudeAndFaza()
 						TMC_GROFLD_DOCFILE_ID_Delta, dDelta, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Xmin, dXmin, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Ymin, dYmin, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_Accuracy, sizeof(_real),  13, 10,
-						TMC_GROFLD_DOCFILE_ID_LongUnit, cParam.csLongUnit, cParam.rLongUnit, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_TimeUnit, cParam.csTimeUnit, cParam.rTimeUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_Accuracy, (int)( sizeof(_real) ),  13, 10,
+						TMC_GROFLD_DOCFILE_ID_LongUnit, (LPCSTR)( cParam.csLongUnit ), cParam.rLongUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_TimeUnit, (LPCSTR)( cParam.csTimeUnit ), cParam.rTimeUnit, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nX, nX, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nY, nY);
 	fprintf( fpAmp, "%s%c%c%s%d%c%c%s%lg%c%c%s%lg%c%c%s%lg%c%c%s%lg%c%c%s%d%c%c%s%s %lg%c%c%s%s %lg%c%c%s%d%c%c%s%d", TMC_GROFLD_DOCFILE_ID, 13, 10,
@@ -633,9 +633,9 @@ void CFieldIntegrated::MakeFileAmplitudeAndFaza()
 						TMC_GROFLD_DOCFILE_ID_Delta, dDelta, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Xmin, dXmin, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Ymin, dYmin, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_Accuracy, sizeof(_real),  13, 10,
-						TMC_GROFLD_DOCFILE_ID_LongUnit, cParam.csLongUnit, cParam.rLongUnit, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_TimeUnit, cParam.csTimeUnit, cParam.rTimeUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_Accuracy, (int)( sizeof(_real) ),  13, 10,
+						TMC_GROFLD_DOCFILE_ID_LongUnit, (LPCSTR)( cParam.csLongUnit ), cParam.rLongUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_TimeUnit, (LPCSTR)( cParam.csTimeUnit ), cParam.rTimeUnit, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nX, nX, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nY, nY);
 
@@ -1020,9 +1020,9 @@ void CFieldIntegrated::MakeFileAmplitudeAndFazaFromMemory()
 						TMC_GROFLD_DOCFILE_ID_Delta, dDelta, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Xmin, dXmin, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Ymin, dYmin, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_Accuracy, sizeof(_real),  13, 10,
-						TMC_GROFLD_DOCFILE_ID_LongUnit, cParam.csLongUnit, cParam.rLongUnit, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_TimeUnit, cParam.csTimeUnit, cParam.rTimeUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_Accuracy, (int)( sizeof(_real) ),  13, 10,
+						TMC_GROFLD_DOCFILE_ID_LongUnit, (LPCSTR)( cParam.csLongUnit ), cParam.rLongUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_TimeUnit, (LPCSTR)( cParam.csTimeUnit ), cParam.rTimeUnit, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nX, nX, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nY, nY);
 	fprintf( fpAmp, "%s%c%c%s%d%c%c%s%lg%c%c%s%lg%c%c%s%lg%c%c%s%lg%c%c%s%d%c%c%s%s %lg%c%c%s%s %lg%c%c%s%d%c%c%s%d", TMC_GROFLD_DOCFILE_ID, 13, 10,
@@ -1031,9 +1031,9 @@ void CFieldIntegrated::MakeFileAmplitudeAndFazaFromMemory()
 						TMC_GROFLD_DOCFILE_ID_Delta, dDelta, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Xmin, dXmin, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Ymin, dYmin, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_Accuracy, sizeof(_real),  13, 10,
-						TMC_GROFLD_DOCFILE_ID_LongUnit, cParam.csLongUnit, cParam.rLongUnit, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_TimeUnit, cParam.csTimeUnit, cParam.rTimeUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_Accuracy, (int)( sizeof(_real) ),  13, 10,
+						TMC_GROFLD_DOCFILE_ID_LongUnit, (LPCSTR)( cParam.csLongUnit ), cParam.rLongUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_TimeUnit, (LPCSTR)( cParam.csTimeUnit ), cParam.rTimeUnit, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nX, nX, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nY, nY);
 
@@ -1917,7 +1917,7 @@ void CFieldIntegrated::AddDirectionalPatternFileOneEmitter(double &x, double &y,
 
 	nEmitterInFile++;
 	csBuf.Format("1.");
-	if( fprintf( fp, "%d   X = %lg mm; Y = %lg mm; Amplitude = %lg; Faza = %lg degree; FiMin = %lg degree; FiMax = %lg degree; %s\n", nEmitterInFile, x*1000., y*1000., aEz*koef, fEz/3.141592653589*180., dFimin, dFimax, csBuf ) < 0 ) 
+	if( fprintf( fp, "%d   X = %lg mm; Y = %lg mm; Amplitude = %lg; Faza = %lg degree; FiMin = %lg degree; FiMax = %lg degree; %s\n", nEmitterInFile, x*1000., y*1000., aEz*koef, fEz/3.141592653589*180., dFimin, dFimax, (LPCSTR)( csBuf ) ) < 0 ) 
 	{
 		cError.PutErrorMessage("Error when add emitter to output data file for directional pattern");
 		fclose(fp);
@@ -1926,7 +1926,7 @@ void CFieldIntegrated::AddDirectionalPatternFileOneEmitter(double &x, double &y,
 
 	nEmitterInFile++;
 	csBuf.Format("cos(f)");
-	if( fprintf( fp, "%d   X = %lg mm; Y = %lg mm; Amplitude = %lg; Faza = %lg degree; FiMin = %lg degree; FiMax = %lg degree; %s\n", nEmitterInFile, x*1000., y*1000., aHy*koef, fHy/3.141592653589*180., dFimin, dFimax, csBuf ) < 0 ) 
+	if( fprintf( fp, "%d   X = %lg mm; Y = %lg mm; Amplitude = %lg; Faza = %lg degree; FiMin = %lg degree; FiMax = %lg degree; %s\n", nEmitterInFile, x*1000., y*1000., aHy*koef, fHy/3.141592653589*180., dFimin, dFimax, (LPCSTR)( csBuf ) ) < 0 ) 
 	{
 		cError.PutErrorMessage("Error when add emitter to output data file for directional pattern");
 		fclose(fp);
@@ -1935,7 +1935,7 @@ void CFieldIntegrated::AddDirectionalPatternFileOneEmitter(double &x, double &y,
 
 	nEmitterInFile++;
 	csBuf.Format("sin(f)");
-	if( fprintf( fp, "%d   X = %lg mm; Y = %lg mm; Amplitude = %lg; Faza = %lg degree; FiMin = %lg degree; FiMax = %lg degree; %s\n", nEmitterInFile, x*1000., y*1000., aHx*koef, fHx/3.141592653589*180., dFimin, dFimax, csBuf ) < 0 ) 
+	if( fprintf( fp, "%d   X = %lg mm; Y = %lg mm; Amplitude = %lg; Faza = %lg degree; FiMin = %lg degree; FiMax = %lg degree; %s\n", nEmitterInFile, x*1000., y*1000., aHx*koef, fHx/3.141592653589*180., dFimin, dFimax, (LPCSTR)( csBuf ) ) < 0 ) 
 	{
 		cError.PutErrorMessage("Error when add emitter to output data file for directional pattern");
 		fclose(fp);

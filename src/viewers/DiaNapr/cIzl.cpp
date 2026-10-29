@@ -240,7 +240,7 @@ double cIzl::dGetDirectionalPatternEmitter(double dAngle)
 	};
 
 
-	sprintf( szBuf1, "(%s);", csEmitterDirectPat);
+	sprintf( szBuf1, "(%s);", (LPCSTR)( csEmitterDirectPat ));
 	if( i1nte_atof_1( szBuf1, &r1 ) != 0 )
 	{
 		return 0.0;

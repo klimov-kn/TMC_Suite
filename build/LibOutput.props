@@ -10,7 +10,7 @@
 
   <PropertyGroup>
     <!-- Куда класть готовый .lib (одна папка на платформу) -->
-    <OutDir>$(TmcRoot)dist\$(PlatformFolder)\lib\</OutDir>
+    <OutDir>$(TmcDist)\lib\</OutDir>
   </PropertyGroup>
 
 </Project>

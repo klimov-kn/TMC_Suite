@@ -10,7 +10,7 @@
 
   <PropertyGroup>
     <!-- Куда класть готовый .exe (одна папка на платформу) -->
-    <OutDir>$(TmcRoot)dist\$(PlatformFolder)\bin\</OutDir>
+    <OutDir>$(TmcDist)\bin\</OutDir>
   </PropertyGroup>
 
 </Project>

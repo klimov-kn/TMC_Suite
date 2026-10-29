@@ -103,7 +103,7 @@ BOOL CPlanRT_HDoc::RunExeFile( char *lpszNameExe )
 	CString theString;
 
 	sprintf( szCommandLine, "\"%s\"", lpszNameExe);
-	i = strlen( szCommandLine );
+	i = (int)( strlen( szCommandLine ) );
 
 	theString = GetPathName();
 	if( strlen(theString) == 0 )
@@ -112,7 +112,7 @@ BOOL CPlanRT_HDoc::RunExeFile( char *lpszNameExe )
 	};
 	
 	szCommandLine[i] = ' ';
-	sprintf( szCommandLine + i + 1, "\"%s\"", theString);
+	sprintf( szCommandLine + i + 1, "\"%s\"", (LPCSTR)( theString ));
 
 	for( i = 0; ( i < N_BUF_MAX )&&( szCommandLine[i] == ' ' ); i++)
 	{
@@ -196,7 +196,7 @@ BOOL CPlanRT_HDoc::CreatProc(char * lpszComLine)
 
 	strncpy( szCurrentDir, GetPathName(), N_BUF_MAX - 1 );
 	szCurrentDir[N_BUF_MAX - 1] = '\0';
-	for( i = strlen(szCurrentDir)-1; i >= 0; i-- )
+	for( i = (int)strlen(szCurrentDir)-1; i >= 0; i-- )
 	{
 		if( szCurrentDir[i] == '\\' )
 		{
@@ -644,7 +644,7 @@ BOOL CPlanRT_HDoc::RunExeFile(char *lpszNameExe, char *lpszArgCommLine)
 	CString theString;
 
 	sprintf( szCommandLine, "\"%s\"", lpszNameExe);
-	i = strlen( szCommandLine );
+	i = (int)( strlen( szCommandLine ) );
 
 	theString.Format( "%s", lpszArgCommLine);
 	if( strlen(theString) == 0 )
@@ -653,7 +653,7 @@ BOOL CPlanRT_HDoc::RunExeFile(char *lpszNameExe, char *lpszArgCommLine)
 	};
 	
 	szCommandLine[i] = ' ';
-	sprintf( szCommandLine + i + 1, "\"%s\"", theString);
+	sprintf( szCommandLine + i + 1, "\"%s\"", (LPCSTR)( theString ));
 
 	for( i = 0; ( i < N_BUF_MAX )&&( szCommandLine[i] == ' ' ); i++)
 	{

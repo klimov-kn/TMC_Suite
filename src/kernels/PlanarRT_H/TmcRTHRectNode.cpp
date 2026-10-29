@@ -670,7 +670,7 @@ void CTmcRTHRectNode::RunKernel( void )
 			nBuf = (int)( (dTCurrent/cParam.rTimeUnit)*100 + 0.5 );
 			csBuf.Format("nT:%d;Time:%lg%s", nTCurrent, nBuf*0.01, cParam.csTimeUnit );
 			PutStatistics(csBuf);
-			ii = ltime_current - ltime_start;
+			ii = (int)( ltime_current - ltime_start );
 			if( ii <= 60 )
 			{
 				csBuf.Format("Run Step %d  ElapsTime: %2d", cIndan.GetnStep(), ii );
@@ -809,7 +809,7 @@ void CTmcRTHRectNode::InitNodeArray( void )
 	};
 	pTemp  = (void *)prUNode1Temp;
 	pTemp1 = (char *)prUNode1Temp;
-	ii = (int)pTemp;
+	ii = (int)(INT_PTR)pTemp;	// C4311: only the low bits of the address are used (alignment by 32)
 	i = 32 - (ii - (ii/32)*32);
 	pTemp1 += i;
 	prUNode1 = (_ELEM_VAL_RTH *) pTemp1;
@@ -828,7 +828,7 @@ void CTmcRTHRectNode::InitNodeArray( void )
 	};
 	pTemp  = (void *)prYNodeTemp;
 	pTemp1 = (char *)prYNodeTemp;
-	ii = (int)pTemp;
+	ii = (int)(INT_PTR)pTemp;	// C4311: only the low bits of the address are used (alignment by 32)
 	i = 32 - (ii - (ii/32)*32);
 	pTemp1 += i;
 	prYNode = (_real *) pTemp1;
@@ -1311,7 +1311,7 @@ void CTmcRTHRectNode::DeleteOutputFile( void )
 	remove(cOut->csFileNameTopology);
 	fprintf( fp, "%s\n!File name %s\n%s%lg\n%s%d\n!nT\tnBlock\tUp\tUo",
 		TMC_GROTS_FILEOUT_ID,
-		cOut->csFileName,
+		(LPCSTR)( cOut->csFileName ),
 		TMC_GROTS_FLOUTFreq_ID, cParam.rFreq,
 		TMC_GROTS_FLOUTInpNum_ID, -2);
 	fflush( fp );
@@ -1851,9 +1851,9 @@ void CTmcRTHRectNode::PutField( TmcIdx ii )	// INT64
 						TMC_GROFLD_DOCFILE_ID_Delta, dDelta, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Xmin, dXmin, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Ymin, dYmin, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_Accuracy, sizeof(_real),  13, 10,
-						TMC_GROFLD_DOCFILE_ID_LongUnit, cParam.csLongUnit, cParam.rLongUnit, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_TimeUnit, cParam.csTimeUnit, cParam.rTimeUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_Accuracy, (int)( sizeof(_real) ),  13, 10,
+						TMC_GROFLD_DOCFILE_ID_LongUnit, (LPCSTR)( cParam.csLongUnit ), cParam.rLongUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_TimeUnit, (LPCSTR)( cParam.csTimeUnit ), cParam.rTimeUnit, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nX, nX, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nY, nY);
 	for( i = 0; i < nY; i++)
@@ -1984,7 +1984,7 @@ void CTmcRTHRectNode::PutTopology()
 	};
 	
 	fprintf( fp, "%s%c%c%s%c%c%s%d%c%c%s%lg%c%c%s%lg%c%c%s%lg%c%c%s%lg%c%c%s%d%c%c%s%d", TMC_RTH_FILETOP_ID, 13, 10,
-						csBuf, 13, 10,
+						(LPCSTR)( csBuf ), 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nT, nTCurrent, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_T, dTCurrent, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Delta, dDelta, 13, 10,

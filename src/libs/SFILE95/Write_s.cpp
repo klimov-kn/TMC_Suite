@@ -210,7 +210,7 @@ static int Write_GRID( S_INDEX *si, int extrapol_flag )
    int ret_code = 0, i;
    INT_1 length, sFlag = (INT_1)extrapol_flag;
 
-   length = sizeof(INT_1) + 3*sizeof(double)*(extrapol_flag+1);
+   length = (short)( sizeof(INT_1) + 3*sizeof(double)*(extrapol_flag+1) );
    ret_code = write_S( &length, (size_t)sizeof(INT_1) );
 
    /* extrapolation flag 0 - no, 1 - two grids, 2 - three grids */

@@ -297,7 +297,7 @@ int ChooseString1( char *pszBuf, char *pszIdentifInput, char *pszIdentifMode, in
 					pszBuf[ j ] = '\0';
 					sscanf( pszBuf + i + strlen(pszIdentifInput), "%d", pnInp );
 					sscanf( pszBuf + j + strlen(pszIdentifMode), "%d", pnMod );
-					return j + strlen(pszIdentifMode);
+					return j + (int)strlen(pszIdentifMode);
 				};
 			};
 			return 0;

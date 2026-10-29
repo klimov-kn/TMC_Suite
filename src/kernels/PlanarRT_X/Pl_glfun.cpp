@@ -440,6 +440,7 @@ void ReadSystemType( void )
 
 	VersionInformation.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 
+#pragma warning( suppress : 4996 )	// GetVersionEx: only Win9x / NT are told apart (every supported Windows is NT)
 	if( GetVersionEx( &VersionInformation ) )
 	{
 		switch( VersionInformation.dwPlatformId )

@@ -75,7 +75,7 @@ _real  inte_atof( char  *string )
 	_real d;
   expr_set_error_cod( 0 );
 
-  d = inte_inter( string, strlen( string ));
+  d = inte_inter( string, (int)strlen( string ));
   if(expr_get_error_cod() == ERROR_RETURN) 
   {
 	  d = inte_get_inter_value();

@@ -577,7 +577,7 @@ int CTmcASetColor::DoModal(COLORREF *c20Color1)
 	};
 	m_Color1 = 0;
 	m_Color2 = 19;
-	return CDialog::DoModal();
+	return (int)CDialog::DoModal();	// C4244: the dialog result fits int
 }
 
 void CTmcASetColor::OnColorLevelChange() 

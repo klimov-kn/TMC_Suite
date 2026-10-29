@@ -484,7 +484,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 	SetnType();
 	SetYLineForDiel( cParam, prYNode );
 	SetYForInput( cParam );
-	pcNextBlockList->SetnMemory( sizeof(CTmcRTHNodeDiel)+(sizeof(sTmcRTHNodeDielOne))*((TmcIdx)nNumNode) );	// BIGBLOCK
+	pcNextBlockList->SetnMemory( (int)( sizeof(CTmcRTHNodeDiel)+(sizeof(sTmcRTHNodeDielOne))*((TmcIdx)nNumNode) ) ); // BIGBLOCK; C4267: int, as the setter takes	// BIGBLOCK
 	DeleteStatDielData();
 //		CString csBuf1;
 	{
@@ -5047,7 +5047,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMetal(CTmcRTH_BlockList *pcNextBlockList,
 		return cError;
 	};
 
-	int i_step, j_step, njj, jj;
+	int i_step, j_step;
 	int nX1, nX2, nY1, nY2;
 	int j, k1, k2, nX, nY;
 	TmcIdx i, ii;	// BIGBLOCK3
@@ -5985,7 +5985,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	};
 
 	double *pX, *pY;
-	int nXY, i_step, j_step, njj, jj;
+	int nXY, i_step, j_step;
 	int nX1, nX2, nY1, nY2;
 	int j, k, nX, nY, n_x, n_y;
 	TmcIdx i, ii;	// BIGBLOCK3
@@ -6625,7 +6625,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 		return cError;
 	};
 
-	int i_step, j_step, njj, jj;
+	int i_step, j_step;
 	int nX1, nX2, nY1, nY2;
 	int j, k1, k2, nX, nY, n_x, n_y;
 	TmcIdx i, ii;	// BIGBLOCK3
@@ -7429,7 +7429,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 		return cError;
 	};
 
-	int i_step, j_step, njj, jj;
+	int i_step, j_step;
 	int nX1, nX2, nY1, nY2;
 	int j, k1, k2, nX, nY, n_x, n_y;
 	TmcIdx i, ii;	// BIGBLOCK3
@@ -8236,7 +8236,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	};
 
 	double *pX, *pY;
-	int nXY, i_step, j_step, njj, jj;
+	int nXY, i_step, j_step;
 	int nX1, nX2, nY1, nY2;
 	int j, k, nX, nY, n_x, n_y;
 	TmcIdx i, ii;	// BIGBLOCK3
@@ -8778,14 +8778,14 @@ void CTmcRTHNodeDiel::SaveFileRect( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH
 	};
 	
 	fprintf( fp, "%s%c%c%s%s%c%c%s%lg%c%c%s%lg%c%c%s%lg%c%c%s%d%c%c%s%d%c%c%s%d%c%c%s%d%c%c%s%s%c%c%s%s%c%c", TMC_RTH_EPSFILE_ID_, 13, 10,
-						TMC_RTH_EPSFILE_TYPE_, csBlock, 13, 10,
+						TMC_RTH_EPSFILE_TYPE_, (LPCSTR)( csBlock ), 13, 10,
 						TMC_RTH_EPSFILE_Delta_, cParam.rDelta, 13, 10,
 						TMC_RTH_EPSFILE_XMIN_, dXmin, 13, 10,
 						TMC_RTH_EPSFILE_YMIN_, dYmin, 13, 10,
 						TMC_RTH_EPSFILE_NX_, nX, 13, 10,
 						TMC_RTH_EPSFILE_NY_, nY,  13, 10,
 						TMC_RTH_EPSFILE_NPoint_, nNumNode1, 13, 10,
-						TMC_RTH_EPSFILE_NAccur_, sizeof(_real), 13, 10,
+						TMC_RTH_EPSFILE_NAccur_, (int)( sizeof(_real) ), 13, 10,
 						TMC_RTH_EPSFILE_NdFrmt_, "NULL", 13, 10,
 						TMC_RTH_EPSFILE_VlFrmt_, "NULL", 13, 10);
 	
@@ -8869,7 +8869,7 @@ void CTmcRTHNodeDiel::SeachEpsFileName( CString csCurrentPath )
 	int i, n;
 	
 	strcpy( szBuf, csEpsExpr);
-	n = strlen(szBuf);
+	n = (int)( strlen(szBuf) );
 	
 	if( szBuf[0] != '[' ) return;
 	
@@ -8913,7 +8913,7 @@ void CTmcRTHNodeDiel::AddFileEpsExtention()
 	int nDot = -1;	// N-22
 
 	strcpy( szBuf, csFileNameEps);
-	n = strlen(szBuf);
+	n = (int)( strlen(szBuf) );
 
 	if( n == 0 ) return;
 
@@ -9800,7 +9800,7 @@ void CTmcRTHNodeDiel::SeachSignalFileName( void )
 	if( strlen( csVx ) < 1 ) return;
 
 	strcpy( szBuf, csVx );
-	n = strlen( szBuf );
+	n = (int)( strlen( szBuf ) );
 	if( szBuf[0] != '[' ) return;
 
 	for( i = 1; i < n; i++ )
@@ -9862,7 +9862,7 @@ void CTmcRTHNodeDiel::ReadSignalFile( void )
 	{
 		if( strncmp( szLine, "#FREQ", 5 ) == 0 )
 		{
-			int nL = strlen( szLine );
+			int nL = (int)( strlen( szLine ) );
 			for( ; ( nL > 0 )&&( ( szLine[nL-1] == 10 )||( szLine[nL-1] == 13 ) ) ; nL-- );
 			szLine[nL] = 0;
 			csSigFreq.Format("%s", szLine + 5);

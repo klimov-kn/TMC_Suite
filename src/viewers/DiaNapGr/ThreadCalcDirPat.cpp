@@ -110,7 +110,7 @@ void CThreadCalcDirPat::OnTimer(UINT_PTR nIDEvent)
 					int ii;
 					ltime_start = pDlg->ltime_start;
 					time( &ltime_current );
-					ii = ltime_current - ltime_start;
+					ii = (int)( ltime_current - ltime_start );
 					if( ii <= 60 )
 					{
 						m_csElapsTime.Format("%2d", ii );

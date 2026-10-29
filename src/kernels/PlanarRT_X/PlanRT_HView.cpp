@@ -1106,7 +1106,7 @@ void CPlanRT_HView::OnConfigSetup()
 	char szCurrentDir[N_BUF_MAX];
 	int i;
 	strcpy( szCurrentDir, pDoc->GetPathName() );
-	for( i = strlen(szCurrentDir)-1; i >= 0; i-- )
+	for( i = (int)strlen(szCurrentDir)-1; i >= 0; i-- )
 	{
 		if( szCurrentDir[i] == '\\' )
 		{

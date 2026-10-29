@@ -375,7 +375,7 @@ void c2DArray::WriteData()
 		{
 			csBuf.Format("1.");
 		};
-		if( fprintf( fp, "%d   X = %lg mm; Y = %lg mm; Amplitude = %lg; Faza = %lg degree; FiMin = %lg degree; FiMax = %lg degree; %s\n", i+1, x, y, a, f, dFiMin, dFiMax, csBuf ) < 0 ) 
+		if( fprintf( fp, "%d   X = %lg mm; Y = %lg mm; Amplitude = %lg; Faza = %lg degree; FiMin = %lg degree; FiMax = %lg degree; %s\n", i+1, x, y, a, f, dFiMin, dFiMax, (LPCSTR)( csBuf ) ) < 0 ) 
 		{
 			bIsError = TRUE;
 			sprintf( szError, "Error when write emitter N %d to output data file %s", i+1, szFileNameOut);

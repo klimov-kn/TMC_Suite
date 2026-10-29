@@ -3125,7 +3125,7 @@ void CFldViewView::SetTplFileName()
 	
 	strcpy( szBuf, pDoc->GetPathName() );
 	
-	for( i = strlen( szBuf ); szBuf[i] != '.'; i-- ) 
+	for( i = (int)strlen( szBuf ); szBuf[i] != '.'; i-- ) 
 	{
 		if( i <= 0 ) 
 		{

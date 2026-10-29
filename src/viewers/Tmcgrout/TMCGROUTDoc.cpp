@@ -135,7 +135,7 @@ void CTMCGROUTDoc::CreatProc(char * lpszComLine)
 	int i;
 
 	strcpy( szCurrentDir, GetPathName() );
-	for( i = strlen(szCurrentDir)-1; i >= 0; i-- )
+	for( i = (int)strlen(szCurrentDir)-1; i >= 0; i-- )
 	{
 		if( szCurrentDir[i] == '\\' )
 		{
@@ -327,7 +327,7 @@ void CTMCGROUTDoc::ReadGraph( int nGr )
  char ch[TMC_GROUT_MAXSTRING_BUF];
 
  strncpy( grdoc.psGraph[nGr].szFileName, GetPathName(), TMC_GROUT_MAXSTRING_BUF-1 ); grdoc.psGraph[nGr].szFileName[TMC_GROUT_MAXSTRING_BUF-1] = '\0';	// BUG-023
- for( i = strlen(grdoc.psGraph[nGr].szFileName)-1; i >= 0; i-- )
+ for( i = (int)strlen(grdoc.psGraph[nGr].szFileName)-1; i >= 0; i-- )
  {
  	if( grdoc.psGraph[nGr].szFileName[i] == '\\' )
 	{
@@ -338,7 +338,7 @@ void CTMCGROUTDoc::ReadGraph( int nGr )
 
  if( (fd = fopen(GetPathName(), "r")) == NULL )
  {
-	 sprintf( ch, "when open file %s", GetPathName());
+	 sprintf( ch, "when open file %s", (LPCSTR)( GetPathName() ));
 	 put_error_messege(ch);
 	 return ;
  };
@@ -347,7 +347,7 @@ void CTMCGROUTDoc::ReadGraph( int nGr )
  {
 	 if(fgets(ch, TMC_GROUT_MAXSTRING_BUF, fd) == NULL)
 	 {
-		 sprintf( ch, "when read line number %d in data file %s", i, GetPathName());
+		 sprintf( ch, "when read line number %d in data file %s", i, (LPCSTR)( GetPathName() ));
 		 put_error_messege(ch);
 		 fclose(fd);
 		 return;
@@ -381,7 +381,7 @@ if( sscanf( ch,"%s %s %d %d %d %d %d",grdoc.psGraph[nGr].szGrapName,
 		{
 			if( sscanf( ch, "%s",  grdoc.psGraph[nGr].szGrapName) != 1 )
 			{
-				 sprintf( ch, "when read line number %d in data file %s", nGr, GetPathName());
+				 sprintf( ch, "when read line number %d in data file %s", nGr, (LPCSTR)( GetPathName() ));
 				 put_error_messege(ch);
 				 return ;
 			};
@@ -509,14 +509,14 @@ BOOL CTMCGROUTDoc::WriteDocFile()
 
  if( (fd = fopen(GetPathName(), "w")) == NULL )
  {
-	 sprintf( ch, "when open file for write %s", GetPathName());
+	 sprintf( ch, "when open file for write %s", (LPCSTR)( GetPathName() ));
 	 put_error_messege(ch);
 	 return TRUE;
  };
 
  if(fprintf(fd,"%s\n!Graphics parameters\n", TMC_GROUT_DOCFILE_ID ) <= 0  )
 	 {
-		 sprintf( ch, "when write in data file %s", GetPathName());
+		 sprintf( ch, "when write in data file %s", (LPCSTR)( GetPathName() ));
 		 put_error_messege(ch);
 		 fclose(fd);
 		 return TRUE;
@@ -524,7 +524,7 @@ BOOL CTMCGROUTDoc::WriteDocFile()
 
  if(sprintf(ch,"%s %lg\n%s %s\n%s %d; %d;\n%s %d\n%s %d\n%s %lg\n%s %lg\n%s %lg\n%s %lg\n%s %d\n%s %d\n%s %s\n%s %s;%ld;%ld;%ld;%ld;%ld;%d;%d;%d;%d;\n%s %d;\n%s %d;\n%s %d;\n%s %d;\n%s %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d;\n",
 			TMC_GROUT_DOCFILE_ID_dXAxiesUnit, dXAxiesUserUnit,
-			TMC_GROUT_DOCFILE_ID_dXAxiesName, csXAxiesUserName,
+			TMC_GROUT_DOCFILE_ID_dXAxiesName, (LPCSTR)( csXAxiesUserName ),
 			TMC_GROUT_DOCFILE_ID_PointDrawFlag , grdoc.PointDrawFlag, bLossPoint,
 			TMC_GROUT_DOCFILE_ID_nXType,	 grdoc.nXType,
 			TMC_GROUT_DOCFILE_ID_nYType,	 grdoc.nYType,
@@ -534,7 +534,7 @@ BOOL CTMCGROUTDoc::WriteDocFile()
 			TMC_GROUT_DOCFILE_ID_Ymax,	 grdoc.Ymax,
 			TMC_GROUT_DOCFILE_ID_nAFlagX,	 grdoc.nAFlagX,
 			TMC_GROUT_DOCFILE_ID_nAFlagY,	 grdoc.nAFlagY,
-			TMC_TOPVIEW_DOCFILE_ID_EDITORFLNM, csEditorName,
+			TMC_TOPVIEW_DOCFILE_ID_EDITORFLNM, (LPCSTR)( csEditorName ),
 			TMC_TOPVIEW_DOCFILE_ID_sDrawTextFont, lfInitial.lfFaceName,
 								lfInitial.lfHeight,
 								lfInitial.lfWidth,
@@ -567,14 +567,14 @@ BOOL CTMCGROUTDoc::WriteDocFile()
 			sGrDoc[ 14 ].LineColor, sGrDoc[ 14 ].LineType, sGrDoc[ 14 ].LineWidth,
 			sGrDoc[ 15 ].LineColor, sGrDoc[ 15 ].LineType, sGrDoc[ 15 ].LineWidth ) <= 0  )
 	 {
-		 sprintf( ch, "when write in data file %s", GetPathName());
+		 sprintf( ch, "when write in data file %s", (LPCSTR)( GetPathName() ));
 		 put_error_messege(ch);
 		 fclose(fd);
 		 return TRUE;
 	 };
  if(fprintf(fd,"%s", ch) <= 0  )
 	 {
-		 sprintf( ch, "when write in data file %s", GetPathName());
+		 sprintf( ch, "when write in data file %s", (LPCSTR)( GetPathName() ));
 		 put_error_messege(ch);
 		 fclose(fd);
 		 return TRUE;
@@ -582,7 +582,7 @@ BOOL CTMCGROUTDoc::WriteDocFile()
 // save graphics default parameters 
  if(sprintf(ch,"%s %lg%s %s%s %d; %d;%s %d%s %d%s %lg%s %lg%s %lg%s %lg%s %d%s %d%s %s%s %s;%ld;%ld;%ld;%ld;%ld;%d;%d;%d;%d;%s %d;%s %d;%s %d;%s %d;%s %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d; %d;",
 			TMC_GROUT_DOCFILE_ID_dXAxiesUnit, dXAxiesUserUnit,
-			TMC_GROUT_DOCFILE_ID_dXAxiesName, csXAxiesUserName,
+			TMC_GROUT_DOCFILE_ID_dXAxiesName, (LPCSTR)( csXAxiesUserName ),
 			TMC_GROUT_DOCFILE_ID_PointDrawFlag , grdoc.PointDrawFlag, bLossPoint,
 			TMC_GROUT_DOCFILE_ID_nXType,	 grdoc.nXType,
 			TMC_GROUT_DOCFILE_ID_nYType,	 grdoc.nYType,
@@ -592,7 +592,7 @@ BOOL CTMCGROUTDoc::WriteDocFile()
 			TMC_GROUT_DOCFILE_ID_Ymax,	 grdoc.Ymax,
 			TMC_GROUT_DOCFILE_ID_nAFlagX,	 grdoc.nAFlagX,
 			TMC_GROUT_DOCFILE_ID_nAFlagY,	 grdoc.nAFlagY,
-			TMC_TOPVIEW_DOCFILE_ID_EDITORFLNM, csEditorName,
+			TMC_TOPVIEW_DOCFILE_ID_EDITORFLNM, (LPCSTR)( csEditorName ),
 			TMC_TOPVIEW_DOCFILE_ID_sDrawTextFont, lfInitial.lfFaceName,
 								lfInitial.lfHeight,
 								lfInitial.lfWidth,
@@ -625,7 +625,7 @@ BOOL CTMCGROUTDoc::WriteDocFile()
 			sGrDoc[ 14 ].LineColor, sGrDoc[ 14 ].LineType, sGrDoc[ 14 ].LineWidth,
 			sGrDoc[ 15 ].LineColor, sGrDoc[ 15 ].LineType, sGrDoc[ 15 ].LineWidth ) <= 0  )
 	 {
-		 sprintf( ch, "when write in data file %s", GetPathName());
+		 sprintf( ch, "when write in data file %s", (LPCSTR)( GetPathName() ));
 		 put_error_messege(ch);
 		 fclose(fd);
 		 return TRUE;
@@ -633,9 +633,9 @@ BOOL CTMCGROUTDoc::WriteDocFile()
 	AfxGetApp()->WriteProfileString( TMC_GROTS_DOCFILE_ID, TMC_GROTS_DOCFILE_ID, ch);
 
 
- if(fprintf(fd,"!Graphics data\n!file name : %s\n!Data file for draw S-matrix graphics\n!SFileName GraphicsName DrawFlag Input1 Mod1 Input2 Mod2\n", GetPathName() ) <= 0  )
+ if(fprintf(fd,"!Graphics data\n!file name : %s\n!Data file for draw S-matrix graphics\n!SFileName GraphicsName DrawFlag Input1 Mod1 Input2 Mod2\n", (LPCSTR)( GetPathName() ) ) <= 0  )
 	 {
-		 sprintf( ch, "when write data file %s", GetPathName());
+		 sprintf( ch, "when write data file %s", (LPCSTR)( GetPathName() ));
 		 put_error_messege(ch);
 		 fclose(fd);
 		 return TRUE;
@@ -661,7 +661,7 @@ BOOL CTMCGROUTDoc::WriteDocFile()
 									  grdoc.psGraph[i].nInp2,
 									  grdoc.psGraph[i].nMod2 ) <= 0  )
 	 {
-		 sprintf( ch, "when write line number %d in data file %s", i, GetPathName());
+		 sprintf( ch, "when write line number %d in data file %s", i, (LPCSTR)( GetPathName() ));
 		 put_error_messege(ch);
 		 fclose(fd);
 		 return TRUE;
@@ -711,14 +711,14 @@ void CTMCGROUTDoc::MakeDocFileName( void )
 		SetPathName( GetTitle(), FALSE );
 		if( (fd = fopen(GetPathName(), "w")) == NULL )
 		{
-			sprintf( ch, "when open file for write %s", GetPathName());
+			sprintf( ch, "when open file for write %s", (LPCSTR)( GetPathName() ));
 			put_error_messege(ch);
 			return ;
 		};
 
 	 if(fprintf(fd,"%s\n!Graphics parameters\n", TMC_GROUT_DOCFILE_ID ) <= 0  )
 		 {
-			 sprintf( ch, "when write data file %s", GetPathName());
+			 sprintf( ch, "when write data file %s", (LPCSTR)( GetPathName() ));
 			 put_error_messege(ch);
 			 fclose(fd);
 			 return ;
@@ -745,7 +745,7 @@ void CTMCGROUTDoc::MakeDocFileName( void )
 		SFileNameToDatFileName( ch1 );
 		// FALSE: не добавлять рабочий путь во MRU (пользователь открыл .s/.soc).
 		SetPathName( ch1, FALSE );
-		for( i = strlen(ch)-1; i >= 0; i-- )
+		for( i = (int)strlen(ch)-1; i >= 0; i-- )
 		{
 			if( ch[i] == '\\' )	break;
 		};
@@ -753,14 +753,14 @@ void CTMCGROUTDoc::MakeDocFileName( void )
 
 		if( (fd = fopen(GetPathName(), "w")) == NULL )
 		{
-			sprintf( ch, "when open file for write %s", GetPathName());
+			sprintf( ch, "when open file for write %s", (LPCSTR)( GetPathName() ));
 			put_error_messege(ch);
 			return ;
 		};
 
 	 if(fprintf(fd,"%s\n!Graphics parameters\n", TMC_GROUT_DOCFILE_ID ) <= 0  )
 		 {
-			 sprintf( ch, "when write line number %d in data file %s", i, GetPathName());
+			 sprintf( ch, "when write line number %d in data file %s", i, (LPCSTR)( GetPathName() ));
 			 put_error_messege(ch);
 			 fclose(fd);
 			 return ;
@@ -777,15 +777,15 @@ void CTMCGROUTDoc::MakeDocFileName( void )
 				TMC_GROUT_DOCFILE_ID_nAFlagX,	 grdoc.nAFlagX,
 				TMC_GROUT_DOCFILE_ID_nAFlagY,	 grdoc.nAFlagY) <= 0  )
 		 {
-			 sprintf( ch, "when write line number %d in data file %s", i, GetPathName());
+			 sprintf( ch, "when write line number %d in data file %s", i, (LPCSTR)( GetPathName() ));
 			 put_error_messege(ch);
 			 fclose(fd);
 			 return ;
 		 };
 
-	 if(fprintf(fd,"!Graphics data\n!file name : %s\n!Data file for draw S-matrix graphics\n!SFileName GraphicsName DrawFlag Input1 Mod1 Input2 Mod2\n", GetPathName() ) <= 0  )
+	 if(fprintf(fd,"!Graphics data\n!file name : %s\n!Data file for draw S-matrix graphics\n!SFileName GraphicsName DrawFlag Input1 Mod1 Input2 Mod2\n", (LPCSTR)( GetPathName() ) ) <= 0  )
 		 {
-			 sprintf( ch, "when write line number %d in data file %s", i, GetPathName());
+			 sprintf( ch, "when write line number %d in data file %s", i, (LPCSTR)( GetPathName() ));
 			 put_error_messege(ch);
 			 fclose(fd);
 			 return ;
@@ -793,7 +793,7 @@ void CTMCGROUTDoc::MakeDocFileName( void )
 
 		if(fprintf( fd,"%s %s 1 1 1 1 1\n", ch+i, ch+i ) <= 0  )
 		{
-			sprintf( ch, "when write in data file %s", GetPathName());
+			sprintf( ch, "when write in data file %s", (LPCSTR)( GetPathName() ));
 			put_error_messege(ch);
 			fclose(fd);
 			return ;
@@ -852,7 +852,7 @@ void CTMCGROUTDoc::SFileNameToDatFileName( char *ch)
 {
 	int i;
 
-	for( i = strlen(ch); i > 0; )		// N-33: tochka - tolko v imeni faila, ne v papke
+	for( i = (int)strlen(ch); i > 0; )		// N-33: tochka - tolko v imeni faila, ne v papke
 	{
 		if( TMC_IS_SEP( ch[i-1] ) ) { i = 0; break; };
 		if( ch[--i] == '.' ) break;
@@ -860,7 +860,7 @@ void CTMCGROUTDoc::SFileNameToDatFileName( char *ch)
 
 	if( ( i == 0 )&&( ch[0] != '.' ) )
 	{
-		i = strlen(ch);		// N-33: dalee ch + i + 1 - posle dobavlennoi tochki
+		i = (int)( strlen(ch) );		// N-33: dalee ch + i + 1 - posle dobavlennoi tochki
 		strcpy( ch + strlen(ch), ".soc");
 	}
 	else
@@ -950,20 +950,20 @@ void CTMCGROUTDoc::AddGraphicsInDoc( char *szSFileName )
 
  if( (fd = fopen(GetPathName(), "a")) == NULL )
  {
-	 sprintf( ch, "when open file for add %s to %s", szSFileName, GetPathName());
+	 sprintf( ch, "when open file for add %s to %s", szSFileName, (LPCSTR)( GetPathName() ));
 	 put_error_messege(ch);
 	 return ;
  };
 
  MakeRelatPathSFile( szSFileName );
 
- for( i = strlen( szSFileName ); i > -1; i-- )
+ for( i = (int)strlen( szSFileName ); i > -1; i-- )
 	 if( szSFileName[i] == '\\' ) break;
 
 
  if(fprintf(fd,"\n!New S_Matrix file was add.\n%s %s 1 1 1 1 1\n", szSFileName, szSFileName + i + 1 ) <= 0  )
  {
-	 sprintf( ch, "when write line number %s in data file %s", szSFileName, GetPathName());
+	 sprintf( ch, "when write line number %s in data file %s", szSFileName, (LPCSTR)( GetPathName() ));
 	 put_error_messege(ch);
 	 fclose(fd);
 	 return ;
@@ -1113,7 +1113,7 @@ void CTMCGROUTDoc::ReadGraph1( int nGr, char *szFileName, int *nPoint, double **
  CString csFileName;
 
  strncpy( grdoc.psGraph[nGr].szFileName, GetPathName(), TMC_GROUT_MAXSTRING_BUF-1 ); grdoc.psGraph[nGr].szFileName[TMC_GROUT_MAXSTRING_BUF-1] = '\0';	// BUG-023
- for( i = strlen(grdoc.psGraph[nGr].szFileName)-1; i >= 0; i-- )
+ for( i = (int)strlen(grdoc.psGraph[nGr].szFileName)-1; i >= 0; i-- )
  {
  	if( grdoc.psGraph[nGr].szFileName[i] == '\\' )
 	{
@@ -1122,9 +1122,9 @@ void CTMCGROUTDoc::ReadGraph1( int nGr, char *szFileName, int *nPoint, double **
 	};
  };
 
- n = strlen(grdoc.psGraph[nGr].szFileName);
+ n = (int)( strlen(grdoc.psGraph[nGr].szFileName) );
  grdoc.psGraph[nGr].szFileName[n]   = '\\';
- i1 = strlen( szFileName ); 
+ i1 = (int)( strlen( szFileName ) ); 
  for( i = 0; i < i1; i++)
  {
 	 if( (szFileName[i] == ':')||( ( i == 0 )&&TMC_IS_SEP( szFileName[0] )&&TMC_IS_SEP( szFileName[1] ) )
@@ -1265,7 +1265,7 @@ void CTMCGROUTDoc::SetOneReadGraphParameters(char *ch)
 	 del_bl2(ch);
 	 if( ch[0] == '#' ) 
 	 {
-		 if( strncmp( ch, TMC_GROTS_DOCFILE_ID, strlen(TMC_GROTS_DOCFILE_ID) ) == 0 )    ;
+		 if( strncmp( ch, TMC_GROTS_DOCFILE_ID, strlen(TMC_GROTS_DOCFILE_ID) ) == 0 )    { }	// W-02: file signature line - nothing to read (C4390)
 		 if( strncmp( ch, TMC_GROUT_DOCFILE_ID_dXAxiesName, strlen(TMC_GROUT_DOCFILE_ID_dXAxiesName) ) == 0 )
 		 {
 			 csXAxiesUserName.Format( "%s", ch + strlen(TMC_GROUT_DOCFILE_ID_dXAxiesName) );

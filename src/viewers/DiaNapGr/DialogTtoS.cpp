@@ -223,7 +223,7 @@ INT_PTR CDialogTtoS::DoModal()
 	int i;
 	strcpy( ch, m_DocFileName );
 
-	for( i = strlen(ch); i > 0; i-- )
+	for( i = (int)strlen(ch); i > 0; i-- )
 	{
 		if( ch[i] == '.' )
 		{
@@ -233,7 +233,7 @@ INT_PTR CDialogTtoS::DoModal()
 	};
 	m_SFileName.Format( "%s.s", ch );
 	
-	for( i = strlen(ch); i > 0; i-- )
+	for( i = (int)strlen(ch); i > 0; i-- )
 	{
 		if( ch[i] == '\\' )
 		{
@@ -354,7 +354,7 @@ void CDialogTtoS::OnChangeSfilename()
 	int i;
 	strcpy( ch, m_DocFileName );
 
-	for( i = strlen(ch); i > 0; i-- )
+	for( i = (int)strlen(ch); i > 0; i-- )
 	{
 		if( ch[i] == '\\' )
 		{
@@ -383,7 +383,7 @@ void CDialogTtoS::OnAddCharacteristics()
 	int i;
 	strcpy( ch, m_DocFileName );
 
-	for( i = strlen(ch); i > 0; i-- )
+	for( i = (int)strlen(ch); i > 0; i-- )
 	{
 		if( ch[i] == '\\' )
 		{

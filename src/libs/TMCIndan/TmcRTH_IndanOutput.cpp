@@ -420,7 +420,7 @@ void CTmcRTH_IndanOutput::ReadSmatrix( CString &csCh )
 	
 	char szBuf[CTMCRTH_INDANSBUF];
 	char szBuf1[CTMCRTH_INDANSBUF];
-	int i, j, n;
+	int i, n;
 	double r;
 	CString csBuf;
 

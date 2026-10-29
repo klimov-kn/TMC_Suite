@@ -135,7 +135,7 @@ void CTmcGLText::DrawString( CString cs, double x, double y, double z )
     char ch[TMC_GROUT_MAXSTRING_BUF];
 	unsigned char    *lpBitmap;
 
-	sprintf( ch, "%s", cs );
+	sprintf( ch, "%s", (LPCSTR)( cs ) );
 	if( wglGetCurrentDC() == NULL ) return;
     if( (lpBitmap = createStringBitmapFont( wglGetCurrentDC(), ch, &size) ) == NULL ) return;
 	
