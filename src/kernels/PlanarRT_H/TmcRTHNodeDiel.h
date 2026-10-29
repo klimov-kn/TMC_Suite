@@ -144,6 +144,30 @@ private:
 	CTmcLibError & SetRectMetal( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH_IndanParam &cParam );
 	double SetInputAdmitance( double dFreq, double dDelta );
 	double SetAbsorberAdmitance( double dFreq, double dDelta );
+	/// @brief Р-1: пересчитывает нагрузку узлов поглотителя по среде, в которой стоит каждый узел.
+	///
+	/// По (7.54) диссертации набег alpha берётся из дисперсии той среды, где стоит граница: для узла с
+	/// шлейфом y (полный шлейф узла после `SetDielInNodeList`) нагрузка
+	/// `y0 = sin(acos((2 + |y|/2)*cos(a) - 1 - y/2))/sin(a)`, a = sqrt(2)*pi*Delta*f/c — так же, как у
+	/// входа по W (Д-5). Узлы в вакууме (y = 0) не трогаются: нагрузка та же, что раньше. Вызывается один
+	/// раз после сборки проводимостей, до передачи узлов на видеокарту. Только для блоков ABSORBER.
+	/// @param[in] cParam   параметры шага (частота, шаг сетки)
+	/// @param[in] prYNode  проводимости узлов сетки
+	/// @param[in] nStride  число ячеек prYNode на узел (2 в H, 6 в X)
+	/// @param[in] nSlot    ячейка шлейфа узла (0 в H, 1 в X)
+	/// @param[in] nNodes   число узлов сетки (границы массива)
+	/// Узел, в среде которого волна на этой сетке не распространяется (|arg| > 1: плотная плазма eps < 0),
+	/// сохраняет прежнюю нагрузку и считается в `nAbsorberNoWave` (ядро выдаёт предупреждение).
+	/// @return Ошибка блока (как у прочих методов; сам пересчёт ошибок не выдаёт).
+	/// @see https://www.tamic.ru/docs/theory/boundaries.html#absorber
+public:	// R-1: called by CTmcRTHRectNode
+	CTmcLibError &SetAbsorberLoadByMedium( CTmcRTH_IndanParam &cParam, _real *prYNode, int nStride, int nSlot, TmcIdx nNodes );
+	/// @brief Р-1: число узлов поглотителя, у которых в их среде волна не распространяется (оставлена прежняя нагрузка).
+	/// @return Число таких узлов после `SetAbsorberLoadByMedium` (0 — у прочих блоков).
+	TmcIdx GetAbsorberNoWave( void ) { return nAbsorberNoWave; }
+	/// Р-1: узлы поглотителя без распространяющейся волны в их среде (считает `SetAbsorberLoadByMedium`).
+	TmcIdx nAbsorberNoWave;
+private:
 	double dY1_InputAdmitance;
 	double dWidthWaveg;
 	void OutputUpUo( double dUp, double dUo, CTmcLibError &cError1);

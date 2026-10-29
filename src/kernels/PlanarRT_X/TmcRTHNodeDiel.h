@@ -65,6 +65,34 @@ class CTmcRTHNodeDiel : public CWnd
 // Construction						 
 public:
 	void GpuView( int &nType1, TmcIdx &nNum1, sTmcRTHNodeDielOne *&p1 ) { nType1 = nType; nNum1 = nNumNode; p1 = pcNodeDielOne; }	// GPU: read access for TmcGpuX.h
+	/// @brief Б-1: блок — порт плоской волны (`INPUT_X`/`INPUT_Y MAGNETIC`), который сам пересчитывает все свои узлы.
+	/// @return TRUE — порт MAGNETIC; FALSE — волноводный порт или не порт.
+	BOOL IsPlaneWavePort( void );
+	/// @brief Б-1: ещё раз восстанавливает узлы порта плоской волны после блоков METAL/ABSORBER/MAGNETIC.
+	///
+	/// В общем узле стенки и края порта остаётся значение порта (как в ядре H, где порт и стенка пишут
+	/// разные ячейки подтакта). Значения — сохранённые `SaveInputNodes` после возбуждения порта.
+	/// @param[in,out] pr  массив напряжений сетки (6 ячеек на узел)
+	void RestorePlaneWavePortNodes( _ELEM_VAL_RTH *pr );
+	/// @brief Б-8.2: узел поглотителя или стенки MAGNETIC в подмагниченной плазме — по (7.55) диссертации.
+	///
+	/// Четырёхпараметрическая схема (7.15) с весами линий узла границы, приведёнными к объёмному узлу,
+	/// полными шлейфами y5, y6, y7 и нагрузкой (4*w/Lw)*y0. Только при Y3 != 0 (поле B в узле); иначе узел
+	/// считает прежний код (без поля схемы совпадают).
+	/// @param[in,out] prUNode1 напряжения сетки (6 ячеек на узел)
+	/// @param[in]     prYNode  коэффициенты узлов
+	/// @param[in]     nX       узлов по X
+	/// @param[in]     i        номер узла блока
+	/// @param[in]     k        подтакт 0..3 (пишется ячейка k, читается (k+3)%4)
+	/// @return TRUE — узел посчитан здесь; FALSE — узел без поля или тип не по (7.55).
+	/// @see https://www.tamic.ru/docs/theory/boundaries.html#absorber
+	BOOL RunWallNodePlasma( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int nX, TmcIdx i, int k );
+	/// @brief Б-8.2: есть ли в блоке ABSORBER/MAGNETIC узлы подмагниченной плазмы (тогда расчёт — на процессоре).
+	/// @param[in] prYNode коэффициенты узлов сетки (6 на узел; ячейка 3 = Y3, не 0 — в узле поле B)
+	/// @return TRUE — есть хотя бы один такой узел; FALSE — нет или блок другого типа.
+	BOOL HasMagnetizedWallNodes( _real *prYNode );
+	/// Б-8.2: история узлов (7.55) обнулена (первый подтакт шага).
+	BOOL m_bB82Init;
 	void ExciteInputs(  CTmcLibError &cError1, double dWT, double dT, _ELEM_VAL_RTH *pr1, int nX, CTmcRTH_IndanParam &cParam, double dtCurrent );
 	void ExciteInputs1( CTmcLibError &cError1, double dWT, double dT, _ELEM_VAL_RTH *pr1, int nX, CTmcRTH_IndanParam &cParam, double dtCurrent );
 	void ExciteInputs2( CTmcLibError &cError1, double dWT, double dT, _ELEM_VAL_RTH *pr1, int nX, CTmcRTH_IndanParam &cParam, double dtCurrent );
@@ -156,6 +184,30 @@ private:
 	CTmcLibError & SetRectMetal( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH_IndanParam &cParam );
 	double SetInputAdmitance( double dFreq, double dDelta );
 	double SetAbsorberAdmitance( double dFreq, double dDelta );
+	/// @brief Р-1: пересчитывает нагрузку узлов поглотителя по среде, в которой стоит каждый узел.
+	///
+	/// По (7.54) диссертации набег alpha берётся из дисперсии той среды, где стоит граница: для узла с
+	/// шлейфом y (полный шлейф узла после `SetDielInNodeList`) нагрузка
+	/// `y0 = sin(acos((2 + |y|/2)*cos(a) - 1 - y/2))/sin(a)`, a = sqrt(2)*pi*Delta*f/c — так же, как у
+	/// входа по W (Д-5). Узлы в вакууме (y = 0) не трогаются: нагрузка та же, что раньше. Вызывается один
+	/// раз после сборки проводимостей, до передачи узлов на видеокарту. Только для блоков ABSORBER.
+	/// @param[in] cParam   параметры шага (частота, шаг сетки)
+	/// @param[in] prYNode  проводимости узлов сетки
+	/// @param[in] nStride  число ячеек prYNode на узел (2 в H, 6 в X)
+	/// @param[in] nSlot    ячейка шлейфа узла (0 в H, 1 в X)
+	/// @param[in] nNodes   число узлов сетки (границы массива)
+	/// Узел, в среде которого волна на этой сетке не распространяется (|arg| > 1: плотная плазма eps < 0),
+	/// сохраняет прежнюю нагрузку и считается в `nAbsorberNoWave` (ядро выдаёт предупреждение).
+	/// @return Ошибка блока (как у прочих методов; сам пересчёт ошибок не выдаёт).
+	/// @see https://www.tamic.ru/docs/theory/boundaries.html#absorber
+public:	// R-1: called by CTmcRTHRectNode
+	CTmcLibError &SetAbsorberLoadByMedium( CTmcRTH_IndanParam &cParam, _real *prYNode, int nStride, int nSlot, TmcIdx nNodes );
+	/// @brief Р-1: число узлов поглотителя, у которых в их среде волна не распространяется (оставлена прежняя нагрузка).
+	/// @return Число таких узлов после `SetAbsorberLoadByMedium` (0 — у прочих блоков).
+	TmcIdx GetAbsorberNoWave( void ) { return nAbsorberNoWave; }
+	/// Р-1: узлы поглотителя без распространяющейся волны в их среде (считает `SetAbsorberLoadByMedium`).
+	TmcIdx nAbsorberNoWave;
+private:
 	double dY1_InputAdmitance;
 	double dWidthWaveg;
 	void OutputUpUo( double dUp, double dUo, CTmcLibError &cError1);

@@ -105,7 +105,7 @@ _real  expr_inter( char   *lex, int n )
    {
     d =  atof( lex );
     lex[n] = ch;
-    if( d > FLT_MAX )
+    if( d > REAL_MAX )	// I-03 (old: FLT_MAX)
      {
       expr_set_error_cod( ERROR_OVERFLOW );
       return( (_real)FLT_MAX );
@@ -170,6 +170,10 @@ if( expr_is_per( lex, n) == 0 )                         /*is string var?*/
     return( expr_inter( lex+1, n-2) );
     };
 
+  // I-04: compare a name only if the substring is not shorter than it (old: lex[4..6] = 0 for any n)
+  /// I-04: имя функции длины 4, 5, 6 сравнивается, только если подстрока не короче (n >= 4, 5, 6).
+  if( n >= 4 )
+  {
   ch = lex[4];
   lex[4] = '\0';
 
@@ -183,7 +187,10 @@ if( expr_is_per( lex, n) == 0 )                         /*is string var?*/
     };
 
   lex[4] = ch;
+  };
 
+ if( n >= 5 )	// I-04
+ {
  ch=*(lex+5);
  *(lex+5)='\0';
 
@@ -196,7 +203,10 @@ if( expr_is_per( lex, n) == 0 )                         /*is string var?*/
        };
   };
   *(lex+5)=ch;
+ };
 
+ if( n >= 6 )	// I-04
+ {
  ch=*(lex+6);
  *(lex+6)='\0';
 
@@ -209,6 +219,7 @@ if( expr_is_per( lex, n) == 0 )                         /*is string var?*/
        };
   };
   *(lex+6)=ch;
+ };
 
 
   expr_set_error_cod( ERROR_FUNCTION );                 /*set error cod*/

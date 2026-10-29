@@ -658,8 +658,9 @@ void CTmcBoundaryTpl::SetCircleStat(CTmcRTH_BlockList *pcBlList, CTmcLibError &c
 	{
 		x1 = pcBlList->GetXmax()*cos(f);
 		y1 = pcBlList->GetXmax()*sin(f);
-		x2 = pcBlList->GetXmax()*cos(f+df);
-		y2 = pcBlList->GetXmax()*sin(f+df);
+		// I-37: the end of the segment is not beyond Ymax (old: f+df - the last segment went out of the sector)
+		x2 = pcBlList->GetXmax()*cos( ( f+df > pcBlList->GetYmax() ) ? pcBlList->GetYmax() : f+df );
+		y2 = pcBlList->GetXmax()*sin( ( f+df > pcBlList->GetYmax() ) ? pcBlList->GetYmax() : f+df );
 		if( fabs( x1 - x2 ) < fabs( y1 - y2 ) )
 		{
 			pX1[ i ] = x1;
@@ -749,8 +750,9 @@ void CTmcBoundaryTpl::SetCircleStat(CTmcRTH_BlockList *pcBlList, CTmcLibError &c
 		df = (pcBlList->GetYmax() - pcBlList->GetYmin());
 		x1 = pcBlList->GetXmin()*cos(f);
 		y1 = pcBlList->GetXmin()*sin(f);
-		x2 = pcBlList->GetXmin()*cos(f+df);
-		y2 = pcBlList->GetXmin()*sin(f+df);
+		// I-37: the end of the segment is not beyond Ymax
+		x2 = pcBlList->GetXmin()*cos( ( f+df > pcBlList->GetYmax() ) ? pcBlList->GetYmax() : f+df );
+		y2 = pcBlList->GetXmin()*sin( ( f+df > pcBlList->GetYmax() ) ? pcBlList->GetYmax() : f+df );
 		pX1[ i ] = x1;
 		pY1[ i ] = y1;
 		pX2[ i ] = x1;
@@ -765,8 +767,9 @@ void CTmcBoundaryTpl::SetCircleStat(CTmcRTH_BlockList *pcBlList, CTmcLibError &c
 	{
 		x1 = pcBlList->GetXmin()*cos(f);
 		y1 = pcBlList->GetXmin()*sin(f);
-		x2 = pcBlList->GetXmin()*cos(f+df);
-		y2 = pcBlList->GetXmin()*sin(f+df);
+		// I-37: the end of the segment is not beyond Ymax
+		x2 = pcBlList->GetXmin()*cos( ( f+df > pcBlList->GetYmax() ) ? pcBlList->GetYmax() : f+df );
+		y2 = pcBlList->GetXmin()*sin( ( f+df > pcBlList->GetYmax() ) ? pcBlList->GetYmax() : f+df );
 		pX1[ i ] = x1;
 		pY1[ i ] = y1;
 		pX2[ i ] = x1;

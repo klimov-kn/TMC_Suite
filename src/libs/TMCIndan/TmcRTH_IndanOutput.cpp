@@ -577,6 +577,7 @@ void CTmcRTH_IndanOutput::PutSmatrix()
 	{
 		csSMatrixError.Format("S-matrix: %s", (LPCTSTR)cTtoS.GetErrorMessage() );
 	};
+	if( !cTtoS.IsError() ) csSMatrixWarning = cTtoS.GetWarningMessage();	// B-3.3: zero pairs in the SMATRIX window
 //		CString csBuf1;
 //		csBuf1.Format("Error: %s; T-FileName = %s; S-FileName = %s; Tmin = %lg; Tmax = %lg; Frequence = %lg;", cTtoS.GetErrorMessage(), csFileName, csFileNameSMatrix, dTmin, dTmax, dFreq);
 	return;

@@ -27,7 +27,8 @@ static CTmcGpuH g_cGpuH;	// GPU: the grid on the video card while RunKernel runs
 #define TMC_OUTT_WAIT_MS	20000
 #define TMC_OUTT_MAX		16
 
-static struct { CString csName; FILE *fp; } s_aOutT[TMC_OUTT_MAX];
+/// Запись таблицы открытых файлов `.t`: `csName` — полное имя файла, `fp` — открытый поток (NULL — свободна).
+static struct { CString csName; /**< имя файла */ FILE *fp; /**< поток; NULL — запись свободна */ } s_aOutT[TMC_OUTT_MAX];
 static std::mutex s_mxOutT;
 
 static long long TmcNowMs( void )
@@ -967,6 +968,23 @@ void CTmcRTHRectNode::InitDielArray( void )
 	m_cTiming.Add( TMCT_BLOCKGEOM, qTm );			// TIMING
 	qTm = TmcTimingNow();						// TIMING
 	SetDielInNodeList();
+	// R-1: the absorber load by the medium of its nodes - after the admittances are final, before the GPU copy
+	for( int iR1 = 0; ( iR1 < nDiel )&&( !IsError() )&&( pcNodeDiel != NULL ); iR1++ )
+		cError = pcNodeDiel[iR1].SetAbsorberLoadByMedium( cParam, prYNode, 2, 0, nNumNode );
+	{	// R-1: absorber nodes in a medium without a propagating wave keep the old (vacuum) load - a warning
+		TmcIdx nNoWave = 0;
+		for( int iR1 = 0; ( iR1 < nDiel )&&( pcNodeDiel != NULL ); iR1++ ) nNoWave += pcNodeDiel[iR1].GetAbsorberNoWave();
+		if( nNoWave > 0 )
+		{
+			CString csW;
+			csW.Format("WARNING: %.0f absorber nodes are in a medium where the wave does not propagate on this grid "
+				"(a dense plasma eps < 0 or k*Delta too large) - they keep the load of the vacuum; the absorber "
+				"does not absorb there, move it out of such a medium", (double)nNoWave );
+			ConsolePrint( "%s", (LPCSTR)csW );
+			PutTrace( csW );
+			SetRunWarning( csW );
+		};
+	};
 	m_cTiming.Add( TMCT_ADMITTANCE, qTm );		// TIMING
 	qTm = TmcTimingNow();						// TIMING
 	PutTopology();
@@ -1166,6 +1184,10 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 	}
 	else
 	{
+		/// З-2 (автор 29.10): поправок на конечную задержку шлейфа ДВЕ и они разные — для шлейфа КЗ (2.45), для шлейфа
+		/// ХХ (2.43) книги К. Н. Климова «Численное электродинамическое моделирование неоднородной плазмы» (гл. 2,
+		/// стр. 39–40); обе верны каждая для своего случая. Один общий koef1 для обоих шлейфов неверен, поэтому
+		/// поправка выключена (koef1 = 1). Включать — только раздельно для КЗ и ХХ.
 //		koef1 = koef1/tan( koef1 );found
 		koef1 = 1.;
 	};
@@ -2164,6 +2186,10 @@ void CTmcRTHRectNode::RunKernel1TGpu( void )
 	CTmcRTH_IndanOutput *cOut;
 	BOOL bWhole;
 
+	// J-5: /Time on the card - the queue is asynchronous: Pass/Blocks only enqueue, the wait for them is in
+	// PortsDown of the next sub-step and is counted as EXCITE; only the sum EXCITE + SCATTER is meaningful.
+	/// Время /Time на видеокарте: «возбуждение» включает ожидание ядер прошлого подтакта (очередь OpenCL
+	/// асинхронна), поэтому показательна только сумма «возбуждение + рассеяние».
 	for( k = 0; k < 2; k++ )
 	{
 		qTm0 = TmcTimingNow();

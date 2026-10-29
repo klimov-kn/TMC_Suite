@@ -1111,7 +1111,11 @@ void CTMCGROUTDoc::ReadGraph1( int nGr, char *szFileName, int *nPoint, double **
  i1 = strlen( szFileName ); 
  for( i = 0; i < i1; i++)
  {
-	 if( (szFileName[i] == ':')||( ( i == 0 )&&TMC_IS_SEP( szFileName[0] )&&TMC_IS_SEP( szFileName[1] ) ) )	// N-33: i UNC \\server\...
+	 if( (szFileName[i] == ':')||( ( i == 0 )&&TMC_IS_SEP( szFileName[0] )&&TMC_IS_SEP( szFileName[1] ) )
+#ifndef _WIN32
+		||( ( i == 0 )&&( szFileName[0] == '/' ) )	// I-23: POSIX absolute path /home/...
+#endif
+		)	// N-33: i UNC \\server\...	// N-33: i UNC \\server\...
 	 {
 		 n = -1;
 		 break ;

@@ -777,6 +777,9 @@ void CTMCGROUTView::PrepareDoubleGraph()
 				}
 				else
 				{
+					// Z-18 (author 29.10): left as is.
+					/// З-18 (ответ автора 29.10.2026): кривая-формула `{...}` вместо имени `.DAT` получает КСВ
+					/// (код перенесён из TMCGROUT); предполагалось, что сюда никто не попадёт, — оставлено как есть.
 					tmcgrwin.psGraph[i].pPoint[j].y = pDoc->grdoc.psGraph[i].pcExpr->GetExpressionValueK( j );
 				};
 				break;
@@ -2296,10 +2299,10 @@ void CTMCGROUTView::OnFileSaveAs()
 	// TODO: Add your command handler code here
 	CTMCGROUTDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
-	CFileDialog dlg( FALSE, "tos", "*.tos");
+	CFileDialog dlg( FALSE, "dop", "*.dop");	// I-31: the document of TMC_DN is .dop (old: "tos", "*.tos")
 	if( dlg.DoModal() == IDOK )
 	{
-		CString csOldPath = pDoc->GetPathName();	// S-44
+		CString csOldPath = pDoc->GetPathName();	// S-44	// S-44
 		pDoc->SetPathName( dlg.GetPathName() );
 		pDoc->RebaseGraphPaths( csOldPath );	// S-44: otnositelnye imena grafikov - ot novoi papki
 		pDoc->WriteDocFile();

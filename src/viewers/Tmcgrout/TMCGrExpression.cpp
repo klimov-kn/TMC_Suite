@@ -300,7 +300,7 @@ double CTMCGrExpression::GetExpressionValue( int nPoint )
 	double d = 0.0;	// S-48
 
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
-	if( (pnPoint[0] < nPoint)||( nPoint < 0 ) ) return 0;
+	if( (pnPoint[0] <= nPoint)||( nPoint < 0 ) ) return 0;	// I-14 (old: pnPoint[0] < nPoint - one past the array)
 
 	snprintf( ch, TMC_GROUT_MAXSTRING_BUF, "{f=(%.17g)}", ppdFreq[0][nPoint] );	// S-48, A-28: bylo %lf (1e-12 -> 0)
 	if( i1nte_atof_1( ch, &d ) != 0 ) d = 0.0;	// S-48: oshibka - tolko v etoi tochke (ne zalipaet)
@@ -314,7 +314,7 @@ double CTMCGrExpression::GetExpressionValueSFD( int nPoint )
 	double d = 0.0;	// S-48
 
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
-	if( (pnPoint[0] < nPoint)||( nPoint < 0 ) ) return 0;
+	if( (pnPoint[0] <= nPoint)||( nPoint < 0 ) ) return 0;	// I-14 (old: pnPoint[0] < nPoint - one past the array)
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
@@ -336,7 +336,7 @@ double CTMCGrExpression::GetExpressionValueSFD_User( int nPoint )
 	double d = 0.0;	// S-48
 
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
-	if( (pnPoint[0] < nPoint)||( nPoint < 0 ) ) return 0;
+	if( (pnPoint[0] <= nPoint)||( nPoint < 0 ) ) return 0;	// I-14 (old: pnPoint[0] < nPoint - one past the array)
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
@@ -358,7 +358,7 @@ double CTMCGrExpression::GetExpressionValueSFR( int nPoint )
 	double d = 0.0;	// S-48
 
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
-	if( (pnPoint[0] < nPoint)||( nPoint < 0 ) ) return 0;
+	if( (pnPoint[0] <= nPoint)||( nPoint < 0 ) ) return 0;	// I-14 (old: pnPoint[0] < nPoint - one past the array)
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
@@ -380,7 +380,7 @@ double CTMCGrExpression::GetExpressionValueSFR_User( int nPoint )
 	double d = 0.0;	// S-48
 
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
-	if( (pnPoint[0] < nPoint)||( nPoint < 0 ) ) return 0;
+	if( (pnPoint[0] <= nPoint)||( nPoint < 0 ) ) return 0;	// I-14 (old: pnPoint[0] < nPoint - one past the array)
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
@@ -402,7 +402,7 @@ double CTMCGrExpression::GetExpressionValueSM( int nPoint )
 	double d = 0.0;	// S-48
 
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
-	if( (pnPoint[0] < nPoint)||( nPoint < 0 ) ) return 0;
+	if( (pnPoint[0] <= nPoint)||( nPoint < 0 ) ) return 0;	// I-14 (old: pnPoint[0] < nPoint - one past the array)
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
@@ -424,7 +424,7 @@ double CTMCGrExpression::GetExpressionValueL( int nPoint )
 	double d = 0.0;	// S-48
 
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
-	if( (pnPoint[0] < nPoint)||( nPoint < 0 ) ) return 0;
+	if( (pnPoint[0] <= nPoint)||( nPoint < 0 ) ) return 0;	// I-14 (old: pnPoint[0] < nPoint - one past the array)
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
@@ -446,7 +446,7 @@ double CTMCGrExpression::GetExpressionValueK( int nPoint )
 	double d = 0.0, r11;	// S-48
 
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
-	if( (pnPoint[0] < nPoint)||( nPoint < 0 ) ) return 0;
+	if( (pnPoint[0] <= nPoint)||( nPoint < 0 ) ) return 0;	// I-14 (old: pnPoint[0] < nPoint - one past the array)
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
@@ -471,7 +471,7 @@ int g_nTmcPhaseUnwrap = 0;	// D-8: 0 - monotonically decreasing (default), 1 - s
 double CTMCGrExpression::GetCPhase( int i, int nPoint )
 {
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
-	if( (pnPoint[0] < nPoint)||( nPoint < 0 ) ) return 0;
+	if( (pnPoint[0] <= nPoint)||( nPoint < 0 ) ) return 0;	// I-14 (old: pnPoint[0] < nPoint - one past the array)
 
 	int j, n;
 	double d, d1;
@@ -490,10 +490,14 @@ double CTMCGrExpression::GetCPhase( int i, int nPoint )
 	return d1-2*3.141592653589*n;
 }
 
+// Z-16 (author 29.10): no unwrapping in the user units - meant.
+/// З-16 (ответ автора 29.10.2026): при оси X в единицах пользователя фаза НЕ разворачивается —
+/// так задумано: неизвестно, что это за единицы и где в них переход через 2*pi (или pi), поэтому
+/// разворот там делать нельзя. Флажок разворота (Д-8) на эту функцию не действует.
 double CTMCGrExpression::GetCPhase_User( int i, int nPoint )
 {
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
-	if( (pnPoint[0] < nPoint)||( nPoint < 0 ) ) return 0;
+	if( (pnPoint[0] <= nPoint)||( nPoint < 0 ) ) return 0;	// I-14 (old: pnPoint[0] < nPoint - one past the array)
 
 	return cphase( ppcSmatrix[i][nPoint] );
 }

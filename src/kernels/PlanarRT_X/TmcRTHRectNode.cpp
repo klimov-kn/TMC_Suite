@@ -27,7 +27,8 @@ static CTmcGpuX g_cGpuX;	// GPU: the grid on the video card while RunKernel runs
 #define TMC_OUTT_WAIT_MS	20000
 #define TMC_OUTT_MAX		16
 
-static struct { CString csName; FILE *fp; } s_aOutT[TMC_OUTT_MAX];
+/// Запись таблицы открытых файлов `.t`: `csName` — полное имя файла, `fp` — открытый поток (NULL — свободна).
+static struct { CString csName; /**< имя файла */ FILE *fp; /**< поток; NULL — запись свободна */ } s_aOutT[TMC_OUTT_MAX];
 static std::mutex s_mxOutT;
 
 static long long TmcNowMs( void )
@@ -743,6 +744,14 @@ void CTmcRTHRectNode::RunRestoreInputs( void )
     int i;
     for( i = 0; i < nDiel; i++ ) pcNodeDiel[i].RestoreInputNodes( prUNode1 );
 }
+// B-1 (29.10.2026): after the blocks - the nodes of the plane-wave ports once more (the port wins in the nodes
+// shared with a MAGNETIC wall, as in the kernel H; old: the wall overwrote the edge nodes of the port)
+/// Б-1: после блоков ещё раз восстанавливает узлы портов плоской волны (`RestorePlaneWavePortNodes`).
+void CTmcRTHRectNode::RunRestorePlaneWaveInputs( void )
+{
+    int i;
+    for( i = 0; i < nDiel; i++ ) pcNodeDiel[i].RestorePlaneWavePortNodes( prUNode1 );
+}
 /* ==== END BUG12 PORTFIX (RectNode) ==== */
 
 void CTmcRTHRectNode::RunKernel1T( void )
@@ -761,6 +770,7 @@ void CTmcRTHRectNode::RunKernel1T( void )
 	qTm0 = TmcTimingNow(); m_cTiming.cur.q[TMCT_SCATTER] += qTm0 - qTm1;		// TIMING
 	RunRestoreInputs();
 	RunBlockNode();
+	RunRestorePlaneWaveInputs();	// B-1: the plane-wave port wins over the walls
 	qTm1 = TmcTimingNow(); m_cTiming.cur.q[TMCT_BLOCKNODE] += qTm1 - qTm0;	// TIMING
 	PutField( 0 );
 	m_cTiming.cur.q[TMCT_FIELDFILE] += TmcTimingNow() - qTm1;				// TIMING
@@ -778,6 +788,7 @@ void CTmcRTHRectNode::RunKernel1T( void )
 	qTm0 = TmcTimingNow(); m_cTiming.cur.q[TMCT_SCATTER] += qTm0 - qTm1;		// TIMING
 	RunRestoreInputs();
 	RunBlockNode1();
+	RunRestorePlaneWaveInputs();	// B-1: the plane-wave port wins over the walls
 	qTm1 = TmcTimingNow(); m_cTiming.cur.q[TMCT_BLOCKNODE] += qTm1 - qTm0;	// TIMING
 	PutField( 1 );
 	m_cTiming.cur.q[TMCT_FIELDFILE] += TmcTimingNow() - qTm1;				// TIMING
@@ -795,6 +806,7 @@ void CTmcRTHRectNode::RunKernel1T( void )
 	qTm0 = TmcTimingNow(); m_cTiming.cur.q[TMCT_SCATTER] += qTm0 - qTm1;		// TIMING
 	RunRestoreInputs();
 	RunBlockNode2();
+	RunRestorePlaneWaveInputs();	// B-1: the plane-wave port wins over the walls
 	qTm1 = TmcTimingNow(); m_cTiming.cur.q[TMCT_BLOCKNODE] += qTm1 - qTm0;	// TIMING
 	PutField( 2 );
 	m_cTiming.cur.q[TMCT_FIELDFILE] += TmcTimingNow() - qTm1;				// TIMING
@@ -812,6 +824,7 @@ void CTmcRTHRectNode::RunKernel1T( void )
 	qTm0 = TmcTimingNow(); m_cTiming.cur.q[TMCT_SCATTER] += qTm0 - qTm1;		// TIMING
 	RunRestoreInputs();
 	RunBlockNode3();
+	RunRestorePlaneWaveInputs();	// B-1: the plane-wave port wins over the walls
 	qTm1 = TmcTimingNow(); m_cTiming.cur.q[TMCT_BLOCKNODE] += qTm1 - qTm0;	// TIMING
 	PutField( 3 );
 	m_cTiming.cur.q[TMCT_FIELDFILE] += TmcTimingNow() - qTm1;				// TIMING
@@ -1016,6 +1029,23 @@ void CTmcRTHRectNode::InitDielArray( void )
 	m_cTiming.Add( TMCT_BLOCKGEOM, qTm );			// TIMING
 	qTm = TmcTimingNow();						// TIMING
 	SetDielInNodeList();
+	// R-1: the absorber load by the medium of its nodes - after the admittances are final, before the GPU copy
+	for( int iR1 = 0; ( iR1 < nDiel )&&( !IsError() )&&( pcNodeDiel != NULL ); iR1++ )
+		cError = pcNodeDiel[iR1].SetAbsorberLoadByMedium( cParam, prYNode, 6, 1, nNumNode );
+	{	// R-1: absorber nodes in a medium without a propagating wave keep the old (vacuum) load - a warning
+		TmcIdx nNoWave = 0;
+		for( int iR1 = 0; ( iR1 < nDiel )&&( pcNodeDiel != NULL ); iR1++ ) nNoWave += pcNodeDiel[iR1].GetAbsorberNoWave();
+		if( nNoWave > 0 )
+		{
+			CString csW;
+			csW.Format("WARNING: %.0f absorber nodes are in a medium where the wave does not propagate on this grid "
+				"(a dense plasma eps < 0 or k*Delta too large) - they keep the load of the vacuum; the absorber "
+				"does not absorb there, move it out of such a medium", (double)nNoWave );
+			ConsolePrint( "%s", (LPCSTR)csW );
+			PutTrace( csW );
+			SetRunWarning( csW );
+		};
+	};
 	m_cTiming.Add( TMCT_ADMITTANCE, qTm );		// TIMING
 	qTm = TmcTimingNow();						// TIMING
 	PutTopology();
@@ -1282,6 +1312,10 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 	}
 	else
 	{
+		/// З-2 (автор 29.10): поправок на конечную задержку шлейфа ДВЕ и они разные — для шлейфа КЗ (2.45), для шлейфа
+		/// ХХ (2.43) книги К. Н. Климова «Численное электродинамическое моделирование неоднородной плазмы» (гл. 2,
+		/// стр. 39–40); обе верны каждая для своего случая. Один общий koef1 для обоих шлейфов неверен, поэтому
+		/// поправка выключена (koef1 = 1). Включать — только раздельно для КЗ и ХХ.
 //		koef1 = koef1/tan( koef1 );found
 		koef1 = 1.;
 	};
@@ -1340,6 +1374,14 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 			prYNode[ ii + 3 ] = (_real)(0.0);
 		};
 
+		// Z-8 (author 29.10): Delta eps and the plasma N that cancel exactly (the sum is 0) - the node is the vacuum
+		// (old: the plasma branch with wp^2 = 0 gave y5 = 0/0 at B = 0, NaN in the whole field).
+		/// З-8: если добавка диэлектрика и плазма в узле в сумме дали ровно 0, узел — вакуум (ветка диэлектрика).
+		if( ( fabs(d_N_ElectronConcentr) > DBL_MIN )&&( d_EpsAdd - d_N_ElectronConcentr*koef_N == 0.0 ) )
+		{
+			d_EpsAdd = 0.0;
+			d_N_ElectronConcentr = 0.0;
+		};
 		if( (d_EpsAdd < 0.0) || ( fabs(d_N_ElectronConcentr) > DBL_MIN ) )
 		{
 			if( fabs( d_N_ElectronConcentr ) > DBL_MIN )
@@ -1379,6 +1421,7 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 		}
 		else
 		{
+			/// З-1 (автор 29.10): Delta eps в пределах 0,004 от 4 сдвигается до 3,996 / 4,004 — защита от расходимости схемы при Delta eps = 4.
 			if( fabs( d_EpsAdd - 4.) < 0.004 )
 			{
 				if( d_EpsAdd < 4. )	d_EpsAdd = (_ELEM_VAL_RTH)3.996;
@@ -2604,6 +2647,10 @@ void CTmcRTHRectNode::RunKernel1TGpu( void )
 	CTmcRTH_IndanOutput *cOut;
 	BOOL bWhole;
 
+	// J-5: /Time on the card - the queue is asynchronous: Pass/Blocks only enqueue, the wait for them is in
+	// PortsDown of the next sub-step and is counted as EXCITE; only the sum EXCITE + SCATTER is meaningful.
+	/// Время /Time на видеокарте: «возбуждение» включает ожидание ядер прошлого подтакта (очередь OpenCL
+	/// асинхронна), поэтому показательна только сумма «возбуждение + рассеяние».
 	for( k = 0; k < 4; k++ )
 	{
 		qTm0 = TmcTimingNow();
@@ -2619,7 +2666,7 @@ void CTmcRTHRectNode::RunKernel1TGpu( void )
 		if( IsError() ) return;
 		if( !g_cGpuX.PortsUp( prUNode1 ) ) { cError.PutErrorMessage( g_cGpuX.csError ); return; };
 		qTm1 = TmcTimingNow(); m_cTiming.cur.q[TMCT_EXCITE] += qTm1 - qTm0;
-		if( ( !g_cGpuX.Pass( k ) )||( !g_cGpuX.Restore() )||( !g_cGpuX.Blocks( k ) ) ) { cError.PutErrorMessage( g_cGpuX.csError ); return; };
+		if( ( !g_cGpuX.Pass( k ) )||( !g_cGpuX.Restore() )||( !g_cGpuX.Blocks( k ) )||( !g_cGpuX.RestorePlane() ) ) { cError.PutErrorMessage( g_cGpuX.csError ); return; };	// B-1: RestorePlane
 		qTm0 = TmcTimingNow(); m_cTiming.cur.q[TMCT_SCATTER] += qTm0 - qTm1;
 //  the whole grid is needed only for FIELDS and inside the directional pattern window
 		cOut = cIndan.GetOutput();

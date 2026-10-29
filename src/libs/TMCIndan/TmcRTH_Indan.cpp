@@ -458,13 +458,20 @@ void CTmcRTH_Indan::ReadParamSection( int nStep1 )
 		}
 		else
 		{
+			// B-15 (author 29.10): every step is an independent task - a step without #PARAM is an error
+			// (old: the step silently repeated the parameters of the previous step).
+			csBuf.Format("Missing section %s in %d step. Every step is an independent task: write X_MIN, X_MAX, Y_MIN, "
+				"Y_MAX, DELTA, TIME, FREQ in the section %s of every step", CTMCRTH_INDANMET_PARAM, nStep1,
+				CTMCRTH_INDANMET_PARAM);
+			cError.PutErrorMessage(csBuf);
 			ClosePreprFile();
 			return;
 		};
 	};
+	cParam.BeginSection();	// A-13, B-15: which parameters this step writes
 	for( ; GetLineSection( csCh ) != EOF;  )
 	{
-		if( IsError() ) 
+		if( IsError() )
 		{
 			ClosePreprFile();
 			return;
@@ -920,6 +927,17 @@ void MainPrepr( CString csTplFileNamePrepr,	CString csTplFileName, CString csCur
 //	char *ch;
 	char szSourceFileName[512];
 	char szTargetFileName[512];
+
+	// J-1: the paths must fit the buffers (old: strcpy without a check wrote past the 512 bytes on the stack)
+	if( ( strlen( csTplFileName ) >= sizeof(szSourceFileName) )||( strlen( csTplFileNamePrepr ) >= sizeof(szTargetFileName) )||
+		( strlen( csCurrentPath ) >= BUF_STR_N_MAX ) )
+	{
+		delete []szPathName;
+		delete []szError;
+		cError.PutErrorMessage("The path of the task is too long for the preprocessor (more than 511 characters): "
+			"move the task to a shorter folder");
+		return;
+	};
 	
 	strcpy( szSourceFileName, csTplFileName);
 	strcpy( szTargetFileName, csTplFileNamePrepr);

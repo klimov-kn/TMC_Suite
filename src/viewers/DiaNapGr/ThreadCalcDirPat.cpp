@@ -11,7 +11,17 @@
 #include "TMCGROUTDoc.h"
 #include "TMCGROUTView.h"
 
-#include "ThreadCalcDirPat.h"
+#include "threadcalcdirpat.h"
+
+// I-33: the percent of the progress is 100*iN/nAngle (old: iN/10 - right only for 1000 angles)
+/// @brief I-33: дол€ посчитанных углов текущей ƒЌ, проценты.
+/// @param[in] a  рассчитываема€ диаграмма
+/// @return 100*iN/nAngle; 0 Ч сетка углов не задана.
+static double TmcDnPercent( c2DArray &a )
+{
+	int n = a.GetnAngle();
+	return ( n > 0 ) ? 100.*a.iN/n : 0.;
+}
 
 extern volatile LONG g_lTmcDnCalcRunning;	// A-30: tmcgroutview.cpp
 
@@ -89,8 +99,10 @@ void CThreadCalcDirPat::OnTimer(UINT_PTR nIDEvent)
 			}
 			else
 			{
-				m_csStatistics.Format("%#5.3lg%%", ((double)(pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ].iN/10.)) );
-				m_csStatisticsAll.Format("%#5.3lg%%", ((double)((pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ].iN/10.+pDoc->nGraphCurrent*100)/pDoc->grdoc.nGraph)) );
+				// I-33: проценты Ч 100*iN/nAngle дл€ любой сетки углов (было iN/10 Ч только дл€ 1000 углов;
+				// у сетки из 400 углов полоса доходила до 40%). ¬рем€ нормировки ( Ќƒ) в ходе не отражаетс€.
+				m_csStatistics.Format("%#5.3lg%%", TmcDnPercent( pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ] ) );
+				m_csStatisticsAll.Format("%#5.3lg%%", ( TmcDnPercent( pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ] )+pDoc->nGraphCurrent*100 )/pDoc->grdoc.nGraph );
 				m_CurrentDirPat = pDoc->nGraphCurrent + 1;
 				m_NAllDirPat = pDoc->grdoc.nGraph;
 				m_nEmitters = pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ].GetnIzl();
@@ -117,8 +129,8 @@ void CThreadCalcDirPat::OnTimer(UINT_PTR nIDEvent)
 				};
 				
 				UpdateData(FALSE);
-				m_Progress.SetPos( pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ].iN/10 );
-				m_ProgressAll.SetPos( (int)(pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ].iN/10.+pDoc->nGraphCurrent*100)/pDoc->grdoc.nGraph  );
+				m_Progress.SetPos( (int)TmcDnPercent( pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ] ) );	// I-33
+				m_ProgressAll.SetPos( (int)( TmcDnPercent( pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ] )+pDoc->nGraphCurrent*100 )/pDoc->grdoc.nGraph  );
 			};
 		};
 	};

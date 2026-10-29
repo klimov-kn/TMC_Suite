@@ -16,6 +16,27 @@ static BOOL TmcB16Out( CTmcRTH_IndanParam &cParam, double x, double y )
 	return ( x < cParam.rXmin - 0.5*cParam.rDelta )||( x > cParam.rXmax + 0.5*cParam.rDelta )||
 		( y < cParam.rYmin - 0.5*cParam.rDelta )||( y > cParam.rYmax + 0.5*cParam.rDelta );
 }
+// R-2: neighbours of a node along the sides (1 below, 2 right, 3 above, 4 left), in steps Delta.
+/// —двиги соседей узла по сторонам в шагах сетки: 1 Ч снизу, 2 Ч справа, 3 Ч сверху, 4 Ч слева
+/// (нумераци€ рисунка автора к –-2).
+static const double g_dR2SideX[4] = { 0., 1., 0., -1. };
+/// —двиги соседей по Y (в паре с g_dR2SideX).
+static const double g_dR2SideY[4] = { -1., 0., 1., 0. };
+/// @brief –-2: вес узла диэлектрика круга или многоугольника по числу соседей по сторонам, попавших в блок.
+///
+/// ѕравило автора (29.10.2026), одно дл€ всех примитивов Ч оно же у пр€моугольника (SetRect):
+/// 4 соседа Ч узел внутри, вес 1; 3 Ч узел на стороне, 1/2 (половина его €чейки в блоке);
+/// 2 Ч угол, 1/4 (так же и два противоположных соседа Ч блок толщиной в один узел); 1 Ч вес 1.
+/// ƒругих весов нет (3/4 не бывает). 0 соседей автор не называл Ч прин€то 1.
+/// @param[in] nSide число соседей (x +- Delta, y), (x, y +- Delta) внутри блока, 0..4
+/// @return дол€ проводимостей и шлейфов блока, которую получает узел.
+/// @see https://www.tamic.ru/docs/code/kernel-h.html#blocks
+static _real TmcR2NodeWeight( int nSide )
+{
+	if( nSide == 3 ) return (_real)(0.5);
+	if( nSide == 2 ) return (_real)(0.25);
+	return (_real)(1.0);
+}
 #include <math.h>
 #include <limits.h>
 #include <float.h>
@@ -53,6 +74,8 @@ CTmcRTHNodeDiel::CTmcRTHNodeDiel()
 	nNumNode = 0;
 	pcNodeDielOne = NULL;
 	dYInput = 0.;
+	m_bB82Init = FALSE;	// B-8.2
+	nAbsorberNoWave = 0;	// R-1
 	dTmin = -INT_MAX;					// T_min for excite input block
 	dTmax =  INT_MAX;					// T_max for excite input block
 	dXCenter = 0.0;						// x for center block
@@ -570,6 +593,7 @@ BOOL CTmcRTHNodeDiel::EpsFastNode( sEpsFastJob *pJob, int i, int j, _real *prY )
 	double x, y, x1, y1, rRxy, rFxy, rRxy1, rFxy1, d;
 	double *pX, *pY;
 	int k, k1, nXY;
+	int nSideFast;	// R-2: side neighbours of the node in the polygon
 	BOOL bIn;
 
 	switch( pJob->nShape )
@@ -591,6 +615,20 @@ BOOL CTmcRTHNodeDiel::EpsFastNode( sEpsFastJob *pJob, int i, int j, _real *prY )
 			if( !( ( rRxy >= pJob->dRRmin )&&( rRxy <= pJob->dRRmax)&&
 				( rFxy >= pJob->dFImin )&&( rFxy <= pJob->dFImax )&&
 				pJob->pParam->IsnInRegion( pJob->pnXIdx[i] + pJob->pnYRow[j] ) ) ) return FALSE;
+			// R-2 (author 29.10): the same weight as in SetCirc - by the side neighbours (old: diagonal points,
+			// under #if 0 below).
+			for( k = 0, k1 = 0; k < 4; k++ )
+			{
+				x1 = x + g_dR2SideX[k]*d;
+				y1 = y + g_dR2SideY[k]*d;
+				rRxy1 = x1*x1 + y1*y1;
+				rFxy1 = atan2__1( y1, x1);
+				if( ( rRxy1 >= pJob->dRRmin )&&( rRxy1 <= pJob->dRRmax)&&
+					( rFxy1 >= pJob->dFImin )&&( rFxy1 <= pJob->dFImax )) k1++;
+			};
+			*prY = TmcR2NodeWeight( k1 );
+			return TRUE;
+#if 0	// R-2: the old weight
 			*prY = (_real)(0.0);
 			x1 = x - d;
 			y1 = y - d;
@@ -617,6 +655,7 @@ BOOL CTmcRTHNodeDiel::EpsFastNode( sEpsFastJob *pJob, int i, int j, _real *prY )
 			if( ( rRxy1 >= pJob->dRRmin )&&( rRxy1 <= pJob->dRRmax)&&
 				( rFxy1 >= pJob->dFImin )&&( rFxy1 <= pJob->dFImax )) *prY += (_real)(0.25);
 			return TRUE;
+#endif
 
 		case EPSFAST_POLY:
 			x = pJob->pdX[i];
@@ -635,6 +674,18 @@ BOOL CTmcRTHNodeDiel::EpsFastNode( sEpsFastJob *pJob, int i, int j, _real *prY )
 				};
 			};
 			if( !bIn ) return FALSE;
+			// R-2 (author 29.10): the same weight as in SetPoly - by the side neighbours (old: diagonal points,
+			// under #if 0 below).
+			for( k = 0, nSideFast = 0; k < 4; k++ )
+			{
+				x1 = x + g_dR2SideX[k]*d;
+				y1 = y + g_dR2SideY[k]*d;
+				for( k1 = 2; k1 < nXY; k1++ )
+					if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) ) { nSideFast++; break; };
+			};
+			*prY = TmcR2NodeWeight( nSideFast );
+			return TRUE;
+#if 0	// R-2: the old weight
 			*prY = (_real)(0.0);
 			x1 = x - d;
 			y1 = y - d;
@@ -653,6 +704,7 @@ BOOL CTmcRTHNodeDiel::EpsFastNode( sEpsFastJob *pJob, int i, int j, _real *prY )
 			for( k1 = 2; k1 < nXY; k1++ )
 				if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) ) { *prY += (_real)(0.25); break; };
 			return TRUE;
+#endif
 	};
 	return FALSE;
 }
@@ -1418,6 +1470,23 @@ CTmcLibError &CTmcRTHNodeDiel::SetCirc( CTmcRTH_BlockList * pcNextBlockList, CTm
 				pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x+pcNextBlockList->GetX0()), (_real)(y+pcNextBlockList->GetY0()) );
 				pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 				pcNodeDielOne[ii].rY = (_real)(0.0);
+				// R-2 (author 29.10): weight by the side neighbours in the sector (old: 0.25 for each diagonal point
+				// (x +- Delta, y +- Delta) - the circle lost half a step of radius; the old code is below under #if 0).
+				/// –-2: вес узла Ч по числу соседей по сторонам, попавших в сектор (TmcR2NodeWeight).
+				{
+					int kS, nSide;
+					for( kS = 0, nSide = 0; kS < 4; kS++ )
+					{
+						x1 = x + g_dR2SideX[kS]*cParam.rDelta;
+						y1 = y + g_dR2SideY[kS]*cParam.rDelta;
+						rRxy1 = x1*x1 + y1*y1;
+						rFxy1 = atan2__1( y1, x1);
+						if( ( rRxy1 >= dRRmin )&&( rRxy1 <= dRRmax)&&
+							( rFxy1 >= dFImin )&&( rFxy1 <= dFImax )) nSide++;
+					};
+					pcNodeDielOne[ii].rY = TmcR2NodeWeight( nSide );
+				};
+#if 0	// R-2: the old weight (to return it: delete the block above and this #if 0 / #endif)
 				x1 = x - cParam.rDelta;
 				y1 = y - cParam.rDelta;
 				rRxy1 = x1*x1 + y1*y1;
@@ -1454,6 +1523,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetCirc( CTmcRTH_BlockList * pcNextBlockList, CTm
 				{
 					pcNodeDielOne[ii].rY += (_real)(0.25);
 				};
+#endif
 //		CString csBuf1;
 				ii++;
 			};
@@ -1624,11 +1694,32 @@ CTmcLibError &CTmcRTHNodeDiel::SetPoly( CTmcRTH_BlockList * pcNextBlockList, CTm
 					pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)(x+pcNextBlockList->GetX0()), (_real)(y+pcNextBlockList->GetY0()) );
 					pcNodeDielOne[ii].rU = (_ELEM_VAL_RTH)(0.0);
 					pcNodeDielOne[ii].rY = (_real)(0.0);
+					// R-2 (author 29.10): weight by the side neighbours in the polygon (old: 0.25 for each diagonal
+					// point inside the polygon; the old code is below under #if 0).
+					/// –-2: вес узла Ч по числу соседей по сторонам внутри многоугольника (TmcR2NodeWeight).
+					{
+						int kS, nSide;
+						for( kS = 0, nSide = 0; kS < 4; kS++ )
+						{
+							x1 = x + g_dR2SideX[kS]*cParam.rDelta;
+							y1 = y + g_dR2SideY[kS]*cParam.rDelta;
+							for( k1 = 2; k1 < nXY; k1++ )
+							{
+								if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) )
+								{
+									nSide++;
+									k1 = nXY;
+								};
+							};
+						};
+						pcNodeDielOne[ii].rY = TmcR2NodeWeight( nSide );
+					};
+#if 0	// R-2: the old weight (to return it: delete the block above and this #if 0 / #endif)
 					x1 = x - cParam.rDelta;
 					y1 = y - cParam.rDelta;
 					for( k1 = 2; k1 < nXY; k1++ )
 					{
-						if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) ) 
+						if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) )
 						{
 							pcNodeDielOne[ii].rY += (_real)(0.25);
 							k1 = nXY;
@@ -1638,7 +1729,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetPoly( CTmcRTH_BlockList * pcNextBlockList, CTm
 					y1 = y + cParam.rDelta;
 					for( k1 = 2; k1 < nXY; k1++ )
 					{
-						if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) ) 
+						if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) )
 						{
 							pcNodeDielOne[ii].rY += (_real)(0.25);
 							k1 = nXY;
@@ -1648,7 +1739,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetPoly( CTmcRTH_BlockList * pcNextBlockList, CTm
 					y1 = y + cParam.rDelta;
 					for( k1 = 2; k1 < nXY; k1++ )
 					{
-						if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) ) 
+						if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) )
 						{
 							pcNodeDielOne[ii].rY += (_real)(0.25);
 							k1 = nXY;
@@ -1658,12 +1749,13 @@ CTmcLibError &CTmcRTHNodeDiel::SetPoly( CTmcRTH_BlockList * pcNextBlockList, CTm
 					y1 = y - cParam.rDelta;
 					for( k1 = 2; k1 < nXY; k1++ )
 					{
-						if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) ) 
+						if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) )
 						{
 							pcNodeDielOne[ii].rY += (_real)(0.25);
 							k1 = nXY;
 						};
 					};
+#endif
 					ii++;
 					k = nXY;
 				};
@@ -2367,7 +2459,77 @@ void CTmcRTHNodeDiel::RestoreInputNodes( _ELEM_VAL_RTH *pr )
         for( c = 0; c < 6; c++ ) pr[6*g+c] = prInputSave[6*i+c];
     }
 }
+// B-1 (29.10.2026): the port of the plane wave wins over the walls in the shared nodes (as in the kernel H)
+BOOL CTmcRTHNodeDiel::IsPlaneWavePort( void )
+{
+    if( (nType != CTMCRTH_BLCKNTYPE_INPXLEFT )&&
+        (nType != CTMCRTH_BLCKNTYPE_INPXRIGHT)&&
+        (nType != CTMCRTH_BLCKNTYPE_INPYTOP  )&&
+        (nType != CTMCRTH_BLCKNTYPE_INPYBOT  )) return FALSE;
+    return ( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG ) == 0 );
+}
+void CTmcRTHNodeDiel::RestorePlaneWavePortNodes( _ELEM_VAL_RTH *pr )
+{
+    if( !IsPlaneWavePort() ) return;
+    RestoreInputNodes( pr );
+}
 /* ==== END BUG12 PORTFIX ==== */
+
+// B-8.2 (author 29.10): an absorber / MAGNETIC wall node in a magnetized plasma by (7.55) of the dissertation
+BOOL CTmcRTHNodeDiel::RunWallNodePlasma( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int nX, TmcIdx i, int k )
+{
+	TmcIdx n = pcNodeDielOne[i].nNodeGlobal;
+	_real *pY = prYNode + 6*n;
+	if( pY[3] == 0.0 ) return FALSE;				// no B: the old two-layer code (the same scheme)
+	double Lw, w, Sw;
+	int s1 = (k+3)%4, s2 = (k+2)%4, s3 = (k+1)%4;
+	double u1 = prUNode1[ 6*(n -  1) + s1 ], u2 = prUNode1[ 6*(n + nX) + s1 ];
+	double u3 = prUNode1[ 6*(n +  1) + s1 ], u4 = prUNode1[ 6*(n - nX) + s1 ];
+	// the weights of the lines of the node (as in the two-layer formulas below), Lw - their sum, w - load share
+	switch( pcNodeDielOne[i].nType )
+	{
+		case CTMCRTH_BLCKNTYPE_ABSR_0011: Sw = u3+u4+0.5*(u2+u1); Lw = 3; w = 0.5; break;
+		case CTMCRTH_BLCKNTYPE_ABSR_0110: Sw = u1+u4+0.5*(u2+u3); Lw = 3; w = 0.5; break;
+		case CTMCRTH_BLCKNTYPE_ABSR_0111: Sw = u4+0.5*(u1+u3);      Lw = 2; w = 1.0; break;
+		case CTMCRTH_BLCKNTYPE_ABSR_1001: Sw = u3+u2+0.5*(u1+u4); Lw = 3; w = 0.5; break;
+		case CTMCRTH_BLCKNTYPE_ABSR_1011: Sw = u3+0.5*(u2+u4);      Lw = 2; w = 1.0; break;
+		case CTMCRTH_BLCKNTYPE_ABSR_1100: Sw = u1+u2+0.5*(u4+u3); Lw = 3; w = 0.5; break;
+		case CTMCRTH_BLCKNTYPE_ABSR_1101: Sw = u2+0.5*(u1+u3);      Lw = 2; w = 1.0; break;
+		case CTMCRTH_BLCKNTYPE_ABSR_1110: Sw = u1+0.5*(u2+u4);      Lw = 2; w = 1.0; break;
+		case CTMCRTH_BLCKNTYPE_ABSR_1111_1: Sw = 0.5*(u1+u2); Lw = 1; w = 1.5; break;
+		case CTMCRTH_BLCKNTYPE_ABSR_1111_2: Sw = 0.5*(u2+u3); Lw = 1; w = 1.5; break;
+		case CTMCRTH_BLCKNTYPE_ABSR_1111_3: Sw = 0.5*(u3+u4); Lw = 1; w = 1.5; break;
+		case CTMCRTH_BLCKNTYPE_ABSR_1111_4: Sw = 0.5*(u1+u4); Lw = 1; w = 1.5; break;
+		default: return FALSE;						// 0000, 1111 (zero) and bad types - the old code
+	};
+	if( !m_bB82Init )							// the first sub-step: the own history is zero
+	{
+		for( TmcIdx j = 0; j < nNumNode; j++ )
+			pcNodeDielOne[j].rU_Cur1 = pcNodeDielOne[j].rU_Cur2 = pcNodeDielOne[j].rU_Cur3 = (_ELEM_VAL_RTH)(0.0);
+		m_bB82Init = TRUE;
+	};
+	double U1 = prUNode1[ 6*n + s1 ], U2 = prUNode1[ 6*n + s2 ], U3 = prUNode1[ 6*n + s3 ];
+	double U4 = pcNodeDielOne[i].rU_Cur1;		// U^(tau-4): its cell is already rewritten by the common pass
+	double R1 = pcNodeDielOne[i].rU_Cur2, R2 = pcNodeDielOne[i].rU_Cur3;	// R^(tau-1), R^(tau-2)
+	double Leff = 4.*w/Lw*pcNodeDielOne[i].rY;	// the load (7.54) brought to the bulk node; 0 for MAGNETIC
+	double r = 4./Lw*Sw + pY[1]*U1 + pY[2]*U2 + Leff*U2;
+	double Y0 = 2./( 4. + fabs( pY[1] ) + pY[2] + pY[3]/2. + Leff );
+	prUNode1[ 6*n + k ] = (_ELEM_VAL_RTH)( -U4 - 2*U2 + pY[4]*(U3 + U1)
+		+ Y0*( r + R2 - pY[4]*R1 + pY[3]*U2 - pY[5]*(U1 + U3) ) );
+	pcNodeDielOne[i].rU_Cur3 = (_ELEM_VAL_RTH)R1;	// shift of the own history
+	pcNodeDielOne[i].rU_Cur2 = (_ELEM_VAL_RTH)r;
+	pcNodeDielOne[i].rU_Cur1 = (_ELEM_VAL_RTH)U3;
+	return TRUE;
+}
+
+BOOL CTmcRTHNodeDiel::HasMagnetizedWallNodes( _real *prYNode )
+{
+	if( ( nType != CTMCRTH_BLCKNTYPE_ABSORBER )&&( nType != CTMCRTH_BLCKNTYPE_MAGNETIC ) ) return FALSE;
+	if( ( pcNodeDielOne == NULL )||( prYNode == NULL ) ) return FALSE;
+	for( TmcIdx i = 0; i < nNumNode; i++ )
+		if( ( pcNodeDielOne[i].nNodeGlobal >= 0 )&&( prYNode[ 6*pcNodeDielOne[i].nNodeGlobal + 3 ] != 0.0 ) ) return TRUE;
+	return FALSE;
+}
 
 void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT, _ELEM_VAL_RTH *pr1, int nX, CTmcRTH_IndanParam &cParam, double dtCurrent )
 {
@@ -3721,6 +3883,46 @@ double CTmcRTHNodeDiel::SetAbsorberAdmitance( double dFreq, double dDelta )
 }
 
 
+// R-1 (author 29.10): the absorber load by the medium of its nodes, (7.54) (old: always the vacuum, dYInput = 0)
+CTmcLibError &CTmcRTHNodeDiel::SetAbsorberLoadByMedium( CTmcRTH_IndanParam &cParam, _real *prYNode, int nStride, int nSlot, TmcIdx nNodes )
+{
+	if( cError.IsError() ) return cError;
+	if( nType != CTMCRTH_BLCKNTYPE_ABSORBER ) return cError;
+	if( ( pcNodeDielOne == NULL )||( prYNode == NULL ) ) return cError;
+
+	TmcIdx i, n;
+	double y, dArg, dA_111, dKeep = dYInput;
+	dA_111 = sqrt(2.)*PI___*cParam.rDelta*cParam.rFreq/C0___;
+	nAbsorberNoWave = 0;
+	for( i = 0; i < nNumNode; i++ )
+	{
+		n = pcNodeDielOne[i].nNodeGlobal;
+		if( ( n < 0 )||( n >= nNodes ) ) continue;	// B-16: dropped nodes
+		y = prYNode[ n*nStride + nSlot ];
+		if( ( nStride == 6 )&&( prYNode[ n*6 + 3 ] != 0.0 ) )	// B-8.2: a magnetized plasma - alpha by (7.40)
+		{
+			double y5 = -prYNode[ n*6 + 1 ], y67 = prYNode[ n*6 + 3 ]/2., q = prYNode[ n*6 + 4 ]/2.;
+			double S = 4. + y5 + y67, cw = cos(dA_111);
+			double A = 2.*( 1. - 2.*y67/S - 2.*y5*q/S ), B = 2.*( y5/S + y67*q/S - q ), C = 4.*q/S, D = 2./S;
+			double dCos = ( cos(2.*dA_111) + B*cw + A/2. )/( 2.*D*cw - C ) - 1.;
+			if( !( dCos >= -1. && dCos <= 1. ) ) { nAbsorberNoWave++; continue; };
+			pcNodeDielOne[i].rY = (_real)( sin( acos( dCos ) )/sin( dA_111 ) );
+			continue;
+		};
+		if( y == 0.0 ) continue;				// vacuum: the load is the same as before
+		dArg = (2+fabs(y)/2.)*cos(dA_111) - 1. - y/2.;
+		if( !( dArg >= -1. && dArg <= 1. ) )
+		{
+			nAbsorberNoWave++;	// no propagating wave in this medium - the old (vacuum) load, a warning
+			continue;
+		};
+		dYInput = y;
+		pcNodeDielOne[i].rY = (_real)SetAbsorberAdmitance( cParam.rFreq, cParam.rDelta );
+	};
+	dYInput = dKeep;
+	return cError;
+}
+
 CTmcLibError & CTmcRTHNodeDiel::SetRectMetal(CTmcRTH_BlockList *pcNextBlockList, CTmcRTH_IndanParam &cParam)
 {
 	if( cError.IsError() ) return cError;
@@ -3907,6 +4109,7 @@ void CTmcRTHNodeDiel::RunBlockNode( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int
 					// to return the old variant: y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
 					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal + 1 ];
 //{		CString csBuf1;
+					if( RunWallNodePlasma( prUNode1, prYNode, nX, i, 0 ) ) continue;	// B-8.2: (7.55) in a magnetized plasma
 					prU = prUNode1 + (6*pcNodeDielOne[i].nNodeGlobal + 0);
 					switch( pcNodeDielOne[i].nType )
 					{
@@ -4052,6 +4255,7 @@ void CTmcRTHNodeDiel::RunBlockNode1( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 					// B-8 (26.10.2026): the stub admittance of the node is in the slot 1 in X (the slot 0 is 2/a);
 					// to return the old variant: y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
 					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal + 1 ];
+					if( RunWallNodePlasma( prUNode1, prYNode, nX, i, 1 ) ) continue;	// B-8.2: (7.55) in a magnetized plasma
 					prU = prUNode1 + (6*pcNodeDielOne[i].nNodeGlobal + 1);
 					switch( pcNodeDielOne[i].nType )
 					{
@@ -4201,6 +4405,7 @@ void CTmcRTHNodeDiel::RunBlockNode2( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 					// to return the old variant: y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
 					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal + 1 ];
 //{		CString csBuf1;
+					if( RunWallNodePlasma( prUNode1, prYNode, nX, i, 2 ) ) continue;	// B-8.2: (7.55) in a magnetized plasma
 					prU = prUNode1 + (6*pcNodeDielOne[i].nNodeGlobal + 2);
 					switch( pcNodeDielOne[i].nType )
 					{
@@ -4346,6 +4551,7 @@ void CTmcRTHNodeDiel::RunBlockNode3( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 					// B-8 (26.10.2026): the stub admittance of the node is in the slot 1 in X (the slot 0 is 2/a);
 					// to return the old variant: y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal ];
 					y5 = prYNode[ 6*pcNodeDielOne[i].nNodeGlobal + 1 ];
+					if( RunWallNodePlasma( prUNode1, prYNode, nX, i, 3 ) ) continue;	// B-8.2: (7.55) in a magnetized plasma
 					prU = prUNode1 + (6*pcNodeDielOne[i].nNodeGlobal + 3);
 					switch( pcNodeDielOne[i].nType )
 					{
@@ -5551,6 +5757,8 @@ CTmcLibError & CTmcRTHNodeDiel::SetRectMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	
 	dYmin = pcNextBlockList->GetYmin() + pcNextBlockList->GetY0();
 	if( dYmin < (cParam.rYmin + cParam.rDelta) ) dYmin = cParam.rYmin + cParam.rDelta;
+	/// «-4 (автор 29.10): нижн€€ граница округл€етс€ вниз (-0,5), к верхней добавл€етс€ шаг Ч кра€ сдвигаютс€ в
+	/// противоположные стороны, и область стенки получаетс€ симметричной. “ак и задумано, не ошибка.
 	r = (dYmin - cParam.rYmin)/cParam.rDelta - 0.5;
 	if( fabs(r) >= INT_MAX ) 
 	{
@@ -9488,6 +9696,7 @@ void CTmcRTHNodeDiel::CalculateYForInput(double dFreq, double dDelta)
 	}
 	else
 	{
+		/// «-1 (автор 29.10): W в пределах 0,004 от 4 сдвигаетс€ до 3,996 / 4,004 Ч защита от расходимости схемы при Delta eps = 4.
 		if( fabs( y_line - 4.) < 0.004 )
 		{
 			if( y_line < 4. )	y_line = (_ELEM_VAL_RTH)3.996;
@@ -9504,6 +9713,8 @@ void CTmcRTHNodeDiel::CalculateYForInput(double dFreq, double dDelta)
 	return;
 }
 
+/// «-5 (автор 29.10): пороги у левого (1,5 шага) и правого (2,5 шага) краЄв разные потому же, что в «-4:
+/// кра€ сдвигаютс€ в противоположные стороны (правый край области Ч на запасном столбце, Ѕ-2.2).
 void CTmcRTHNodeDiel::SetMagneticPolygonType( CTmcRTH_IndanParam &cParam )
 {
 	TmcIdx i;	// BIGBLOCK3

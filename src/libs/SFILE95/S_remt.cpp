@@ -88,7 +88,7 @@ int read_S_matrix_element_TMC( int *in1, int *mod1, int *in2, int *mod2, char *f
 
    if( ( f = new double[nP] ) == NULL )
    {
-	   delete s;
+	   delete []s;
 	   Free_GRID_Index( &si, extrapol_flag );
 	   free_mem( frq.f );	// N-31: utechka
 	   free_mem( id );
@@ -400,7 +400,7 @@ void SMatrixElementHFSS_FreqArrayAllocation( double **f1, _complex **sss, int *n
 	};
 	if( ( (*sss) = new _complex[(*nPoint)] ) == NULL )
 	{
-		delete (*f1);
+		delete [](*f1);
 		*f1 = NULL;
 		*nPoint = -1;
 		return;
@@ -450,9 +450,9 @@ void SMatrixElementHFSS_FreqArrayRead( int *in1, int *mod1, int *in2, int *mod2,
 
 	if( (nInpMod1 < 0)||(nInpMod2 < 0) )
 	{
-		delete f;
+		delete []f;
 		*f1 = NULL;
-		delete s;
+		delete []s;
 		*sss = NULL; *nPoint = -1;	// S-34
 		delete []ch;
 		fclose( fp );
@@ -464,9 +464,9 @@ void SMatrixElementHFSS_FreqArrayRead( int *in1, int *mod1, int *in2, int *mod2,
 	{
 		if( fscanf( fp, "%lg", f+i ) != 1)
 		{
-			delete f;
+			delete []f;
 			*f1 = NULL;
-			delete s;
+			delete []s;
 			*sss = NULL; *nPoint = -1;	// S-34
 			delete []ch;
 			fclose( fp );
@@ -477,9 +477,9 @@ void SMatrixElementHFSS_FreqArrayRead( int *in1, int *mod1, int *in2, int *mod2,
 		{
 			if( fscanf( fp, "%lg%lg", &dBuf, &dBuf1 ) != 2)
 			{
-				delete f;
+				delete []f;
 				*f1 = NULL;
-				delete s;
+				delete []s;
 				*sss = NULL; *nPoint = -1;	// S-34
 				delete []ch;
 				fclose( fp );
@@ -690,7 +690,7 @@ void SMatrixElementCST_FreqArrayAllocation( double **f1, _complex **sss, int *nP
 	};
 	if( ( (*sss) = new _complex[(*nPoint)] ) == NULL )
 	{
-		delete (*f1);
+		delete [](*f1);
 		*f1 = NULL;
 		*nPoint = -1;
 		return;
@@ -730,24 +730,36 @@ void SMatrixElementCST_FreqArrayRead( int *in1, int *mod1, int *in2, int *mod2, 
 
 	if( fgets( ch, nSize, fp )== NULL )
 	{
-		delete f;
+		delete []f;
 		*f1 = NULL;
-		delete s;
+		delete []s;
 		*sss = NULL; *nPoint = -1;	// S-34
 		delete []ch;
 		fclose( fp );
 		return;
 	};
-	for( i = 0, ii = 0, j = 0, in1_1 = 0, in2_1 = 0; (j = ChooseString1( ch + i, "WavePort", "):Mode(", &nInp, &nMod )) > 0; i += j, ii++ ) 
+	// I-11: the pair not found is an error (old: in1_1 = 0, in2_1 = 0 - the first column silently)
+	for( i = 0, ii = 0, j = 0, in1_1 = -1, in2_1 = -1; (j = ChooseString1( ch + i, "WavePort", "):Mode(", &nInp, &nMod )) > 0; i += j, ii++ )
 	{
 		if( (nInp == *in1)&&(nMod == *mod1) ) in1_1 = ii;
 		if( (nInp == *in2)&&(nMod == *mod2) ) in2_1 = ii;
 	};
+	/// I-11: пары Ђвход, модаї нет в заголовке CST Ч ошибка чтени€, как у HFSS (раньше Ч первый столбец).
+	if( ( in1_1 < 0 )||( in2_1 < 0 ) )
+	{
+		delete []f;
+		*f1 = NULL;
+		delete []s;
+		*sss = NULL; *nPoint = -1;
+		delete []ch;
+		fclose( fp );
+		return;
+	};
 	if( fgets( ch, nSize, fp )== NULL )
 	{
-		delete f;
+		delete []f;
 		*f1 = NULL;
-		delete s;
+		delete []s;
 		*sss = NULL; *nPoint = -1;	// S-34
 		delete []ch;
 		fclose( fp );
@@ -758,15 +770,18 @@ void SMatrixElementCST_FreqArrayRead( int *in1, int *mod1, int *in2, int *mod2, 
 	{
 		if( fscanf( fp, "%lg", &r ) != 1 )
 		{
-			delete f;
+			delete []f;
 			*f1 = NULL;
-			delete s;
+			delete []s;
 			*sss = NULL; *nPoint = -1;	// S-34
 			delete []ch;
 			fclose( fp );
 			return;
 		};
 
+		// Z-21 (author 29.10): the CST frequency is taken as is; its units are not known yet.
+		/// «-21 (ответ автора 29.10.2026): частота CST берЄтс€ без пересчЄта; в каких единицах она
+		/// в файлах CST, автор не знает Ч уточнить по руководству CST.
 		f[ i ] = r;
 
 		for( j = 0; j < (*nMatrixSize)*(*nMatrixSize); j++ )

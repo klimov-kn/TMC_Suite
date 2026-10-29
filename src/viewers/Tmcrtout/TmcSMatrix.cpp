@@ -50,6 +50,7 @@ void CTmcSMatrix::DeleteData()
 	csTFileName.Format("");
 	csSFileName.Format("");
 	csError.Format("No error");
+	csWarning.Format("");	// B-3.3
 	dTmin = 0.0;
 	dTmax = 0.0;
 	dFreq = 0.0;
@@ -103,6 +104,17 @@ void CTmcSMatrix::Save(CString csSFileName1, double dFreq1)
 	if( IsError() ) return;
 	
 	csSFileName.Format("%s", csSFileName1);
+	// I-27 (K-6): the point is written under dFreq1, but S is calculated at FREQ of the .t - a warning on mismatch
+	/// I-27: частота записи отличаетс€ от частоты расчЄта из `.t` больше чем на 1e-5 (отн.: в .t частота записана %lg Ч 6 знаков) Ч предупреждение.
+	if( ( dFreq > 0.0 )&&( fabs( dFreq1 - dFreq ) > 1e-5*dFreq ) )
+	{
+		CString csW;
+		csW.Format( "S of file {%s} is calculated at FREQ = %lg Hz of the .t, but is written under the frequency "
+			"%lg Hz (the X value of the row); if X is a frequency, put the FREQ of the task there",
+			(LPCSTR)csTFileName, dFreq, dFreq1 );
+		if( csWarning.GetLength() > 0 ) csWarning += "; ";
+		csWarning += csW;
+	};
 	dFreq = dFreq1;
 	Save();
 
@@ -604,6 +616,33 @@ void CTmcSMatrix::MakeSmatrix()
 				pcSmatrix[i].y = ( dIm*scUp.x - dRe*scUp.y )/dUp2;
 			};
 		};
+	};
+
+	// B-3.3 (author 29.10): pairs of zero samples in the window (the wave has not come yet) - a warning only,
+	// the average is not changed (they enter it as 0, see TtoSOneInputOnePoint).
+	/// Ѕ-3.3: считаютс€ пары соседних отсчЄтов, у которых оба значени€ равны 0, в столбцах Up и Uo
+	/// каждого входа; если такие есть Ч предупреждение с входом, где их больше всего.
+	if( !IsError() )
+	{
+		int n, i, k, nZero, nMax = 0, nInMax = 0, nInWith = 0;
+		for( n = 0; n < nInput; n++ )
+		{
+			for( k = 0, nZero = 0; k < 2; k++ )	// k = 0 - Up, 1 - Uo
+				for( i = 1; i < nPoint; i++ )
+					if( ( fabs( pdTsignal[k+2*n+(i-1)*nInput*2] ) < 10*DBL_MIN )&&( fabs( pdTsignal[k+2*n+i*nInput*2] ) < 10*DBL_MIN ) )
+					{
+						// Up of an input that is not excited is 0 everywhere - not counted
+						if( ( k == 0 )&&( n != nLineInSMatrix ) ) continue;
+						nZero++;
+					};
+			if( nZero > 0 ) nInWith++;
+			if( nZero > nMax ) { nMax = nZero; nInMax = n; };
+		};
+		if( nMax > 0 )
+			csWarning.Format( "the SMATRIX window Tmin=%lg; Tmax=%lg of file {%s} contains pairs of zero samples "
+				"(the wave has not come yet): %d of %d pairs at input %d (inputs with such pairs: %d). They enter the "
+				"average as 0 and decrease |S|; if this is not meant, move Tmin of SMATRIX to the steady state",
+				dTmin, dTmax, (LPCSTR)csTFileName, nMax, nPoint - 1, nInMax + 1, nInWith );
 	};
 
 	// D-1: S that is not a number (the field diverged) is an error - not NaN in the .s

@@ -193,6 +193,29 @@ void CTmcRTH_DialogBlock::PrepareData( void )
 		csYminText.Format("Tmin");
 		csYmaxText.Format("Tmax");
 	};
+	// J-3: the plasma blocks of the X kernel (RECT_STAT_N/_B/_Y/_S, CIRCLE_STAT_*, FILE_N/_B/_Y) - the labels by
+	// the beginning of the name (old: the fields of the borders were empty for them)
+	if( csXminText.GetLength() == 0 )
+	{
+		if( ( strncmp( m_csString, "RECT_", 5 ) == 0 )||( strncmp( m_csString, "FILE", 4 ) == 0 ) )
+		{
+			dYmin = m_pcBlockList->GetYmin()/m_pcParam->rGetLongUnit();
+			dYmax = m_pcBlockList->GetYmax()/m_pcParam->rGetLongUnit();
+			csXminText.Format("Xmin");
+			csXmaxText.Format("Xmax");
+			csYminText.Format("Ymin");
+			csYmaxText.Format("Ymax");
+		}
+		else if( strncmp( m_csString, "CIRCLE_", 7 ) == 0 )
+		{
+			dYmin = m_pcBlockList->GetYmin()/m_pcParam->rAngleUnit;
+			dYmax = m_pcBlockList->GetYmax()/m_pcParam->rAngleUnit;
+			csXminText.Format("Rmin");
+			csXmaxText.Format("Rmax");
+			csYminText.Format("FImin");
+			csYmaxText.Format("FImax");
+		};
+	};
 	pX = m_pcBlockList->GetpX();
 	pY = m_pcBlockList->GetpY();
 	if( pX == NULL ) return;

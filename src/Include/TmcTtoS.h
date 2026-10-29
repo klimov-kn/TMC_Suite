@@ -33,6 +33,9 @@ public:
 public:
 	void SaveSmatrixToFileS( void );
 	CString & GetErrorMessage( void );
+	/// @brief Ѕ-3.3: предупреждение последнего преобразовани€ (`CTmcSMatrix::GetWarningMessage`).
+	/// @return —сылка на строку; пуста€ Ч предупреждений нет.
+	CString & GetWarningMessage( void ) { return cSMatrix.GetWarningMessage(); }	// B-3.3
 	void MakeSmatrixFromFileT( void );
 	BOOL IsError( void );
 	void TtoS( CString csTfn, CString csSfn, double dTmin1, double dTmax1,  double dFreq1 );

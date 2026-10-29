@@ -3641,7 +3641,7 @@ void CFldViewView::PrepareBoundaryTpl()
 	{
 		pdTopXinp = new double[nInputNum];
 		pdTopYinp = new double[nInputNum];
-		if( (pdTopXinp == NULL)||(pdTopXinp == NULL) )
+		if( (pdTopXinp == NULL)||(pdTopYinp == NULL) )	// I-36 (old: pdTopXinp twice)
 		{
 			if( pdTopXinp != NULL ) delete []pdTopXinp;
 			pdTopXinp = NULL;

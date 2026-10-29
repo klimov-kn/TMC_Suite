@@ -75,6 +75,8 @@ int save_S_matrix_element( int in1, char *filename, _complex *sss, double f1, in
 	   // can't read s-matrix file
 	   // create new s-matrix file
 	   set_frequency( f1*(1.e-9), 0.0, 1 );
+	   // I-13: f1 is in Hz; f1*1e-9 is right only for the units GHz - otherwise the point is set in Hz directly
+	   if( get_frq_unit( get_frq_item_code() ) != (_real)(1.e9) ) set_frq_element( (_real)f1, 0 );
        set_current_frq_num( 0 );
 	   extrapol_flag = 0;
 	   id1.num = nInput;
@@ -169,6 +171,8 @@ int save_S_matrix_element( int in1, char *filename, _complex *sss, double f1, in
 		if( !bIsFreqInMatrix )
 		{
 		   set_frequency( f1*(1.e-9), 0.0, 1 );
+		   // I-13: the same as above - not GHz: the frequency in Hz directly
+		   if( get_frq_unit( get_frq_item_code() ) != (_real)(1.e9) ) set_frq_element( (_real)f1, 0 );
 	       set_current_frq_num( 0 );
 		   extrapol_flag = 0;
 		   id1.num = nInput;

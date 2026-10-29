@@ -29,6 +29,10 @@
 #include <typedef.h>
 #include <expr.h>
 
+// I-03: the overflow limit is the limit of _real (DBL_MAX for double), both signs (old: FLT_MAX, from above only)
+/// I-03: предел переполнения — предел типа `_real` (REAL_MAX: DBL_MAX для double, FLT_MAX для float).
+#define TMC_EXPR_MAX REAL_MAX
+
 #define RADIAN      (_real)1.0
 #define GRADUS      (_real)(PI/180.0)
 
@@ -87,24 +91,24 @@ _real  expr_comp( int cod, char   *oper1, int n1, char   *oper2, int n2 )
 		     return((_real)0);
 		     };
 		   rl = pow( op1, op2 );
-		   if( fabs( rl ) > FLT_MAX )
+		   if( fabs( rl ) > TMC_EXPR_MAX )	// I-03 (old: FLT_MAX)
 		    {
 		     expr_set_error_cod( ERROR_OVERFLOW );
 		     return((_real)FLT_MAX);
 		     };
 		   return( (_real)rl );
 		   };
-		 if( op2 > (_real)fabs(log(FLT_MAX)/log(op1)) )
+		 if( op2 > (_real)fabs(log(TMC_EXPR_MAX)/log(op1)) )	// I-03 (old: FLT_MAX)
 		  {
 		   rl = pow( op1, op2 );   // S-19: for 0 < x < 1 the limit above is wrong (0.5^200 is small)
-		   if( (op1 < (_real)1)&&(rl <= FLT_MAX) ) return( (_real)rl );
+		   if( (op1 < (_real)1)&&(rl <= TMC_EXPR_MAX) ) return( (_real)rl );
 		   expr_set_error_cod( ERROR_OVERFLOW );
 		   return((_real)FLT_MAX);
 		   };
 		 return( (_real)pow( op1, op2) );
      case '+'  :                               /*if cod := op1+op2*/
 		 rl= (double)op1+(double)op2;
-		 if( rl > FLT_MAX )
+		 if( fabs( rl ) > TMC_EXPR_MAX )	// I-03 (old: rl > FLT_MAX)
 		  {
 		   expr_set_error_cod( ERROR_OVERFLOW );
 		   return( (_real)FLT_MAX );
@@ -112,7 +116,7 @@ _real  expr_comp( int cod, char   *oper1, int n1, char   *oper2, int n2 )
 		 return( (_real)rl );
      case '-'  :                               /*if cod := op1-op2*/
 		 rl = (double)op1-(double)op2;
-		 if( rl > FLT_MAX )
+		 if( fabs( rl ) > TMC_EXPR_MAX )	// I-03 (old: rl > FLT_MAX)
 		  {
 		   expr_set_error_cod( ERROR_OVERFLOW );
 		   return( (_real)FLT_MAX );
@@ -120,7 +124,7 @@ _real  expr_comp( int cod, char   *oper1, int n1, char   *oper2, int n2 )
 		 return( (_real)rl );
      case '*'  :                               /*if cod := op1*op2*/
 		 rl = (double)op1*(double)op2;
-		 if( rl > FLT_MAX )
+		 if( fabs( rl ) > TMC_EXPR_MAX )	// I-03 (old: rl > FLT_MAX)
 		  {
 		   expr_set_error_cod( ERROR_OVERFLOW );
 		   return( (_real)FLT_MAX );
@@ -132,14 +136,14 @@ _real  expr_comp( int cod, char   *oper1, int n1, char   *oper2, int n2 )
 		   return((_real)FLT_MAX);
 		   };
 		 rl = (double)op1/(double)op2;
-		 if( rl > FLT_MAX )
+		 if( fabs( rl ) > TMC_EXPR_MAX )	// I-03 (old: rl > FLT_MAX)
 		  {
 		   expr_set_error_cod( ERROR_OVERFLOW );
 		   return( (_real)FLT_MAX );
 		   };
 		 return( (_real)rl );
      case EXP  :                              /*if cod := exp(op1)*/
-                  if( op1 > (_real)log(FLT_MAX))
+                  if( op1 > (_real)log(TMC_EXPR_MAX))	// I-03 (old: FLT_MAX)
                    {
 		    expr_set_error_cod( -cod );
                     return( (_real)FLT_MAX );
@@ -180,14 +184,14 @@ _real  expr_comp( int cod, char   *oper1, int n1, char   *oper2, int n2 )
 		   };
 		 return( (_real)sqrt(op1) );
      case SINH :                               /*if cod := sinh(op1)*/
-		 if( op1 > (_real)log(FLT_MAX))
+		 if( fabs(op1) > (_real)log(TMC_EXPR_MAX))	// I-03 (old: op1 > log(FLT_MAX))
 		  {
 		   expr_set_error_cod( -cod );
 		   return( (_real)FLT_MAX );
 		   };
 		 return( (_real)sinh(op1));
      case COSH :                               /*if cod := cosh(op1)*/
-		 if( op1 > (_real)log(FLT_MAX))
+		 if( fabs(op1) > (_real)log(TMC_EXPR_MAX))	// I-03 (old: op1 > log(FLT_MAX))
 		  {
 		   expr_set_error_cod( -cod );
 		   return( (_real)FLT_MAX );

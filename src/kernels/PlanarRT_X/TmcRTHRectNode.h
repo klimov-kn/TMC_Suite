@@ -94,6 +94,9 @@ private:
 	void RunScatteringNode3( void );
 	void RunSaveInputs( void );		// BUG12 portfix
 	void RunRestoreInputs( void );	// BUG12 portfix
+	/// @brief Б-1: после блоков ещё раз восстанавливает узлы портов плоской волны (в общем узле со стенкой —
+	///        значение порта, как в ядре H).
+	void RunRestorePlaneWaveInputs( void );	// B-1
 	CTmcRTH_IndanParam cParam;
 	void DeleteDielArray( void );
 	void InitDielArray( void );

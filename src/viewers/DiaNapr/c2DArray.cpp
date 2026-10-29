@@ -977,7 +977,7 @@ void c2DArray::OptimizationInit(char *szFileRequiDirPat, int nIzl1)
 void c2DArray::SetIzl(int i, double dXcoord_mm, double dYcoord_mm, double dAmplitud, double dFaza_gradus)
 {
 	if( bIsError ) return;
-	if( (i < 0)||(i > nIzl) )
+	if( (i < 0)||(i >= nIzl) )	// I-30 (old: i > nIzl - one past the array)
 	{
 		bIsError = TRUE;
 		sprintf( szError, "Error when set emitter %d", i);
@@ -1034,6 +1034,10 @@ void c2DArray::MakeDeviation(char *szSourceFile, char *szDistinationFile, double
 	return;
 }
 
+// Z-20 (author 29.10): rand() without srand - the same set on every run, for now.
+/// З-20 (ответ автора 29.10.2026): rand() задаёт случайные ошибки излучателей по фазе и амплитуде;
+/// srand не вызывается — при каждом запуске набор одинаковый. Пока так и оставлено; в планах — выбор
+/// между повторяемым набором и новым при каждом расчёте (AUDIT_ОСТАТОК_2026-10-26, «Планы», п. 3).
 double c2DArray::GetRnd(double dMedium, double dDelta)
 {
 
@@ -1144,7 +1148,7 @@ void c2DArray::CopyIzlSector( c2DArray &cSource, int i )	// A-31
 void c2DArray::GetIzl(int i, double *dXmm, double *dYmm, double *dAmpl, double *dFazaDegree)
 {
 	if( bIsError ) return;
-	if( (i < 0)||(i > nIzl) )
+	if( (i < 0)||(i >= nIzl) )	// I-30 (old: i > nIzl)
 	{
 		bIsError = TRUE;
 		sprintf( szError, "Error when get emitter %d", i);
@@ -1276,6 +1280,10 @@ double c2DArray::GetdMax()
 	return dMax;
 }
 
+// Z-19 (author 29.10): the threshold 400 - the aperture antennas.
+/// З-19 (ответ автора 29.10.2026): КИП считается для апертурных антенн значительной площади;
+/// порог nMaxTemporary = 400 излучателей взят как граница такого случая. Почему опорная решётка КИП
+/// берётся без ДН и секторов излучателей — автор не ответил.
 BOOL c2DArray::IsCalculateKip()
 {
 	return (nIzl > nMaxTemporary);

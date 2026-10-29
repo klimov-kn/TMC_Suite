@@ -872,6 +872,9 @@ void CTMCGROUTDoc::SFileNameToDatFileName( char *ch)
 	if( ( fd = fopen( ch, "r") ) == NULL ) return ;
 	fclose( fd );
 	
+	// Z-17 (author 29.10): .$OC keeps the previous .soc safe.
+	/// З-17 (ответ автора 29.10.2026): если рядом уже есть документ `.soc`, новый документ пишется в
+	/// `.$OC`, чтобы при создании нового файла не испортить прежний `.soc` — он остаётся цел.
 	strcpy( ch + i + 1, "$OC" ); 
 	return ;
 }
@@ -1124,7 +1127,11 @@ void CTMCGROUTDoc::ReadGraph1( int nGr, char *szFileName, int *nPoint, double **
  i1 = strlen( szFileName ); 
  for( i = 0; i < i1; i++)
  {
-	 if( (szFileName[i] == ':')||( ( i == 0 )&&TMC_IS_SEP( szFileName[0] )&&TMC_IS_SEP( szFileName[1] ) ) )	// N-33: i UNC \\server\...
+	 if( (szFileName[i] == ':')||( ( i == 0 )&&TMC_IS_SEP( szFileName[0] )&&TMC_IS_SEP( szFileName[1] ) )
+#ifndef _WIN32
+		||( ( i == 0 )&&( szFileName[0] == '/' ) )	// I-23: POSIX absolute path /home/...
+#endif
+		)	// N-33: i UNC \\server\...	// N-33: i UNC \\server\...
 	 {
 		 n = -1;
 		 break ;
@@ -1178,6 +1185,16 @@ void CTMCGROUTDoc::ReadGraph1Expession( int nGr, char *szExpression )
 	int       *pnPoint;
 	double   **ppFreq;
 	_complex **ppSmatr;
+	// Z-15 (author 29.10): "{{...}}" is a writing error, not a mode - no curve, the error in the caption
+	// (old: the "GraphDifferent" curve without values on the dB axis).
+	/// З-15: формула пишется в ОДНИХ фигурных скобках; «{{...}}» — ошибка записи: кривая не строится,
+	/// в подписи — сообщение об ошибке (как у прочих ошибок формул).
+	if( ( szExpression[0] == '{' )&&( szExpression[1] == '{' ) )
+	{
+		snprintf( grdoc.psGraph[nGr].szGrapPodp, TMC_GROUT_MAXSTRING_BUF,
+			"Error_expression_double_braces_write_one_pair_{...}_%s", szExpression );
+		return;
+	};
 	if( (grdoc.psGraph[nGr].pcExpr  = new CTMCGrExpression( szExpression ) ) == NULL )
 	{
 	 put_error_messege("memory allocation error for Expression class");

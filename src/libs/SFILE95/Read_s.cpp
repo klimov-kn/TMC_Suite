@@ -189,7 +189,7 @@ int read_S_matrix( char *szFileName, S_INDEX **si, int *extrapol_flag,
              {
               len = ((*id)[i].dim)*((*id)[i].dim);
               if( ( (*sss)[i] = (_complex *)alloc_mem_err( (long)sizeof(_complex)*len ) ) == NULL )
-                ret_code = i;
+                ret_code = ( i > 0 ) ? i : -1;	// I-10: at i = 0 it was 0 = "no error" and the read went into NULL
              }
 #ifdef _HIGH_ACCURACY
            lpdTmp = (double *)(*sss)[i];
@@ -199,7 +199,7 @@ int read_S_matrix( char *szFileName, S_INDEX **si, int *extrapol_flag,
              {
               if( ( lpdTmp = (double *)alloc_mem_err( (long)2*sizeof(double)*len ) ) == NULL )
                 {
-                 ret_code = i;
+                 ret_code = ( i > 0 ) ? i : -1;	// I-10
                  free_mem( (*sss)[i] );
                 }
              }
@@ -404,11 +404,11 @@ static int Read_GRID( S_INDEX **si, int *extrapol_flag )
            if( ( (*si)[i].S_name = (char *)alloc_mem_err( (long)sizeof(char)*FILENAME_MAX ) ) == NULL)
              {
               free_mem( (*si)[i].tpl_name );
-              ret_code = i;
+              ret_code = ( i > 0 ) ? i : -1;	// I-10: at i = 0 it was 0 = "no error"
              }
           }
         else
-           ret_code = i;
+           ret_code = ( i > 0 ) ? i : -1;	// I-10
        }
 
      if( ret_code != 0 )

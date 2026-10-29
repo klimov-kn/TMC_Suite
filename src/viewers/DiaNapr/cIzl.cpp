@@ -146,6 +146,26 @@ BOOL cIzl::bIsAngleInDiapazon(double dAngle)
 {
 	if( strlen(csEmitterDirectPat) < 1 )	return TRUE;
 
+	// B-12c (29.10): the sector as [FiMin mod 2pi; +width], the angle mod 2pi (fmod); the fields are not changed.
+	// Old (below under #if 0): the sector containing both 0 and 180 degrees was empty.
+	/// Ѕ-12 (3): сектор задаЄтс€ началом s = FiMin mod 2*pi и шириной w = FiMax - FiMin (w < 0 Ч сектор
+	/// через 0, к нему прибавл€етс€ 2*pi; w >= 2*pi Ч полный круг). Ќаправление в секторе, если
+	/// (dAngle - s) mod 2*pi <= w (с допуском 1e-12 на кра€ Ч кра€ сектора вход€т, как раньше).
+	{
+		const double d2Pi = 2.*3.14159265358979323846;
+		double dW = dFimax - dFimin, dS, dA;
+		if( dW < 0. ) dW += d2Pi;
+		if( dW >= d2Pi - 1e-12 ) return TRUE;
+		dS = fmod( dFimin, d2Pi );
+		if( dS < 0. ) dS += d2Pi;
+		dA = fmod( dAngle - dS, d2Pi );
+		if( dA < 0. ) dA += d2Pi;
+		if( dA <= dW + 1e-12 ) return TRUE;
+		if( dA >= d2Pi - 1e-12 ) return TRUE;	// the angle equal to the start up to rounding
+		return FALSE;
+	}
+#if 0	// B-12c: the old check (to return it: delete the block above and this #if 0 / #endif)
+
 	dAnglePrived( dFimin );
 	dAnglePrived( dFimax );
 	dAnglePrived( dAngle );
@@ -163,6 +183,7 @@ BOOL cIzl::bIsAngleInDiapazon(double dAngle)
 	if( (dAngle >= dFimin)&&(dAngle <= dFimax) ) return TRUE;
 
 	return FALSE;
+#endif
 }
 
 void cIzl::dAnglePrived(double &dAngle)

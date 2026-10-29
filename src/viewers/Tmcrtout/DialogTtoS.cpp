@@ -781,5 +781,10 @@ void CDialogTtoS::ConvertOne( CString csTFile, double dXValue )
 	cTtoS.TtoS( csTFile, m_SFileName, m_dTmin*dTUnit, m_dTmax*dTUnit, dXValue );
 	m_csError = cTtoS.GetErrorMessage();
 	m_bLastError = cTtoS.IsError();
+	if( ( !m_bLastError )&&( cTtoS.GetWarningMessage().GetLength() > 0 ) )	// B-3.3: zero pairs in the window
+	{
+		m_csError.Format( "S-matrix is written. WARNING: %s", (LPCSTR)cTtoS.GetWarningMessage() );
+		g_csTtoSWarning = m_csError;
+	};
 	return;
 }

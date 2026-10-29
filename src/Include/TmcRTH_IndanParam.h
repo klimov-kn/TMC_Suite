@@ -68,6 +68,27 @@
 #define CTMCRTH_TIME_ID   "TIME "
 #define CTMCRTH_XMIN_ID   "X_MIN "
 #define CTMCRTH_XMAX_ID   "X_MAX "
+// A-13, B-15: bits of the parameters read in the #PARM section of the step (CTmcRTH_IndanParam::nSeenInSection)
+/// Бит «X_MIN прочитан в секции шага» (А-13, Б-15).
+#define TMC_PARAM_SEEN_XMIN   0x001u
+/// Бит «X_MAX прочитан».
+#define TMC_PARAM_SEEN_XMAX   0x002u
+/// Бит «Y_MIN прочитан».
+#define TMC_PARAM_SEEN_YMIN   0x004u
+/// Бит «Y_MAX прочитан».
+#define TMC_PARAM_SEEN_YMAX   0x008u
+/// Бит «DELTA прочитан».
+#define TMC_PARAM_SEEN_DELTA  0x010u
+/// Бит «TIME прочитан».
+#define TMC_PARAM_SEEN_TIME   0x020u
+/// Бит «FREQ прочитан».
+#define TMC_PARAM_SEEN_FREQ   0x040u
+/// Бит «HEIGHT прочитан» (необязательный, единица длины).
+#define TMC_PARAM_SEEN_HEIGHT 0x080u
+/// Бит «DELTA_T прочитан» (необязательный, единица времени).
+#define TMC_PARAM_SEEN_DELTAT 0x100u
+/// Параметры, обязательные в каждом шаге (Б-15): X_MIN, X_MAX, Y_MIN, Y_MAX, DELTA, TIME, FREQ.
+#define TMC_PARAM_SEEN_REQUIRED 0x07Fu
 #define CTMCRTH_YMIN_ID   "Y_MIN "
 #define CTMCRTH_YMAX_ID   "Y_MAX "
 #define CTMCRTH_HEIGHT_ID "HEIGHT "
@@ -118,6 +139,19 @@ public:
 	int nYGrid;
 	double rXmaxUser;	// B-2: X_MAX, Y_MAX as written in the task (rXmax, rYmax are moved to the reserve column)
 	double rYmaxUser;
+	/// @brief А-13, Б-15: какие параметры уже прочитаны в секции `#PARM` текущего шага (биты `TMC_PARAM_SEEN_*`).
+	///
+	/// Сбрасывается `BeginSection` перед каждой секцией. По нему `IsCorrectly` проверяет, что в шаге заданы
+	/// все обязательные параметры (Б-15), а строки единиц — что единица стоит выше своих величин (А-13).
+	unsigned nSeenInSection;	// A-13, B-15
+	/// @brief А-13, Б-15: начало секции `#PARM` очередного шага — сброс `nSeenInSection`.
+	void BeginSection( void ) { nSeenInSection = 0; }
+	/// @brief А-13: ошибка, если величина, на которую действует единица, уже прочитана в этой секции.
+	/// @param[in] csCh   строка единицы (для сообщения)
+	/// @param[in] nMask  биты величин, на которые действует эта единица
+	/// @param[in] pszIds названия этих величин (для сообщения)
+	/// @return TRUE — порядок верный.
+	BOOL CheckUnitBeforeValues( CString &csCh, unsigned nMask, const char *pszIds );
 	CTmcRTH_IndanParam& operator=( CTmcRTH_IndanParam& cParam );
 	double rGetLongUnit( void );
 	CString csGetLongUnit( void );

@@ -108,7 +108,7 @@ class CTmcGpuX
 public:
 	CTmcGpuX() : bOn( false ), ctx( NULL ), idDev( NULL ), q( NULL ), prg( NULL ), kPass( NULL ), kMetal( NULL ), kAbs( NULL ),
 		kGather( NULL ), kScatter( NULL ), mBIdx( NULL ), mBTyp( NULL ), mBRy( NULL ), mBRu( NULL ),
-		mPIdx( NULL ), mPPos( NULL ), mRIdx( NULL ), mRPos( NULL ), mPPk( NULL ), nX( 0 ), nY( 0 ), nN( 0 ), nPort( 0 ), nRest( 0 )
+		mPIdx( NULL ), mPPos( NULL ), mRIdx( NULL ), mRPos( NULL ), mPPk( NULL ), mQIdx( NULL ), mQPos( NULL ), nX( 0 ), nY( 0 ), nN( 0 ), nPort( 0 ), nRest( 0 ), nPlane( 0 )
 	{ for( int c = 0; c < 6; c++ ) { mU[c] = NULL; mY[c] = NULL; } }
 	~CTmcGpuX() {}	// the end of the process frees the card (no OpenCL calls from static destructors)
 
@@ -190,7 +190,7 @@ public:
 		}
 		dev = vd[nDev];
 
-		std::vector<cl_long> vIdx, vWin, vPortNodes;
+		std::vector<cl_long> vIdx, vWin, vPortNodes, vPlaneNodes;	// B-1: vPlaneNodes - nodes of the plane-wave ports
 		std::vector<cl_int> vTyp;
 		std::vector<double> vRy, vRu;
 		vSeg.clear();
@@ -208,10 +208,13 @@ public:
 					if( ( p[i].nNodeGlobal < 0 )||( p[i].nNodeGlobal >= nN ) ) { csInfo = "CPU (a port node is outside the grid)"; return false; }
 					AddWindow( vWin, p[i].nNodeGlobal );
 					vPortNodes.push_back( p[i].nNodeGlobal );
+					if( pDiel[b].IsPlaneWavePort() ) vPlaneNodes.push_back( p[i].nNodeGlobal );	// B-1
 				}
 				continue;
 			}
 			if( ( nT != CTMCRTH_BLCKNTYPE_METAL )&&( nT != CTMCRTH_BLCKNTYPE_ABSORBER )&&( nT != CTMCRTH_BLCKNTYPE_MAGNETIC ) ) continue;
+			// B-8.2: an absorber / MAGNETIC node in a magnetized plasma (7.55) is not on the card - the CPU
+			if( pDiel[b].HasMagnetizedWallNodes( prY ) ) { csInfo = "CPU (a magnetized plasma at an absorber or a MAGNETIC wall)"; return false; }
 			if( nNum <= 0 ) continue;
 			Seg s;
 			s.nBlock = b; s.bMetal = ( nT == CTMCRTH_BLCKNTYPE_METAL ); s.nOff = (TmcIdx)vIdx.size(); s.nNum = nNum;
@@ -243,8 +246,15 @@ public:
 		for( TmcIdx i = 0; i < nPort; i++ ) vWinPos[i] = i;
 		for( TmcIdx i = 0; i < nRest; i++ )
 			vRestPos[i] = std::lower_bound( vWin.begin(), vWin.end(), vPortNodes[i] ) - vWin.begin();
+		// B-1: the nodes of the plane-wave ports and their places in pk (restored once more after the blocks)
+		std::sort( vPlaneNodes.begin(), vPlaneNodes.end() );
+		vPlaneNodes.erase( std::unique( vPlaneNodes.begin(), vPlaneNodes.end() ), vPlaneNodes.end() );
+		nPlane = (TmcIdx)vPlaneNodes.size();
+		std::vector<cl_long> vPlanePos( nPlane );
+		for( TmcIdx i = 0; i < nPlane; i++ )
+			vPlanePos[i] = std::lower_bound( vWin.begin(), vWin.end(), vPlaneNodes[i] ) - vWin.begin();
 
-		double dNeed = 96.0*nN + 20.0*vIdx.size() + 64.0*nPort;
+		double dNeed = 96.0*nN + 28.0*vIdx.size() + 64.0*nPort;	// J-4: 28 bytes per block node (old: 20)
 		if( 8.0*nN > (double)dev.nMaxAlloc || dNeed > 0.92*dev.nGlobalMem )
 		{
 			csInfo.Format( "CPU (the grid needs %.2f GB, card %s has %.2f GB)", dNeed/1073741824.0, dev.sName.c_str(), dev.nGlobalMem/1073741824.0 );
@@ -261,11 +271,15 @@ public:
 			if( e == CL_SUCCESS ) prg = ocl.clCreateProgramWithSource( ctx, 1, &g_szTmcGpuXSrc, NULL, &e );
 			if( e == CL_SUCCESS ) e = ocl.clBuildProgram( prg, 1, &dev.idDevice, "", NULL, NULL );
 			if( e != CL_SUCCESS ) { csInfo.Format( "CPU (OpenCL start on %s failed: %s)", dev.sName.c_str(), TmcOclErr( e ) ); ReleaseAll(); return false; }
-			kPass = ocl.clCreateKernel( prg, "xpass", &e );
-			kMetal = ocl.clCreateKernel( prg, "xmetal", &e );
-			kAbs = ocl.clCreateKernel( prg, "xabs", &e );
-			kGather = ocl.clCreateKernel( prg, "xgather", &e );
-			kScatter = ocl.clCreateKernel( prg, "xscatter", &e );
+			// J-4: every clCreateKernel is checked (old: the result was not checked, a NULL kernel ran on)
+			cl_int eK[5];
+			kPass = ocl.clCreateKernel( prg, "xpass", &eK[0] );
+			kMetal = ocl.clCreateKernel( prg, "xmetal", &eK[1] );
+			kAbs = ocl.clCreateKernel( prg, "xabs", &eK[2] );
+			kGather = ocl.clCreateKernel( prg, "xgather", &eK[3] );
+			kScatter = ocl.clCreateKernel( prg, "xscatter", &eK[4] );
+			for( int iK = 0; iK < 5; iK++ ) if( eK[iK] != CL_SUCCESS ) { e = eK[iK]; break; }
+			if( e != CL_SUCCESS ) { csInfo.Format( "CPU (OpenCL start on %s failed: %s)", dev.sName.c_str(), TmcOclErr( e ) ); ReleaseAll(); return false; }
 			idDev = dev.idDevice;
 		}
 
@@ -281,6 +295,7 @@ public:
 			vPk.resize( 6*nPort ); vPortIdx = vWin;
 		}
 		if( nRest > 0 ) { mRIdx = Buf( 8*nRest, &vPortNodes[0] ); mRPos = Buf( 8*nRest, &vRestPos[0] ); }
+		if( nPlane > 0 ) { mQIdx = Buf( 8*nPlane, &vPlaneNodes[0] ); mQPos = Buf( 8*nPlane, &vPlanePos[0] ); }	// B-1
 		if( csError.IsEmpty() ) Upload( prU, mU );
 		if( csError.IsEmpty() ) Upload( prY, mY );
 		if( csError.IsEmpty() ) { e = ocl.clFinish( q ); if( e != CL_SUCCESS ) csError.Format( "upload: %s", TmcOclErr( e ) ); }
@@ -335,6 +350,15 @@ public:
 	{
 		if( nRest == 0 ) return true;
 		return Scatter( mRIdx, mRPos, nRest );
+	}
+
+	// B-1: RunRestorePlaneWaveInputs - after the blocks, the nodes of the plane-wave ports once more
+	/// @brief Б-1: после `Blocks` ещё раз восстанавливает узлы портов плоской волны (как `RunRestorePlaneWaveInputs`).
+	/// @return `true` — успех или таких портов нет; `false` — ошибка, текст в `csError`.
+	bool RestorePlane( void )
+	{
+		if( nPlane == 0 ) return true;
+		return Scatter( mQIdx, mQPos, nPlane );
 	}
 
 	// RunBlockNode (k = 0) .. RunBlockNode3 (k = 3)
@@ -417,8 +441,12 @@ private:
 	cl_program prg;
 	cl_kernel kPass, kMetal, kAbs, kGather, kScatter;
 	cl_mem mU[6], mY[6], mBIdx, mBTyp, mBRy, mBRu, mPIdx, mPPos, mRIdx, mRPos, mPPk;
+	/// Б-1: узлы портов плоской волны и их места в `mPPk` (для `RestorePlane`).
+	cl_mem mQIdx, mQPos;
 	int nX, nY;
 	TmcIdx nN, nPort, nRest;
+	/// Б-1: узлов портов плоской волны.
+	TmcIdx nPlane;
 	std::vector<Seg> vSeg;
 	std::vector<cl_long> vPortIdx;
 	std::vector<double> vPk;
@@ -487,14 +515,14 @@ private:
 
 	void Release( void )
 	{
-		cl_mem *ms[] = { &mBIdx, &mBTyp, &mBRy, &mBRu, &mPIdx, &mPPos, &mRIdx, &mRPos, &mPPk };
+		cl_mem *ms[] = { &mBIdx, &mBTyp, &mBRy, &mBRu, &mPIdx, &mPPos, &mRIdx, &mRPos, &mPPk, &mQIdx, &mQPos };
 		if( q != NULL ) ocl.clFinish( q );
 		for( int c = 0; c < 6; c++ )
 		{
 			if( mU[c] != NULL ) { ocl.clReleaseMemObject( mU[c] ); mU[c] = NULL; }
 			if( mY[c] != NULL ) { ocl.clReleaseMemObject( mY[c] ); mY[c] = NULL; }
 		}
-		for( int i = 0; i < 9; i++ ) if( *ms[i] != NULL ) { ocl.clReleaseMemObject( *ms[i] ); *ms[i] = NULL; }
+		for( int i = 0; i < 11; i++ ) if( *ms[i] != NULL ) { ocl.clReleaseMemObject( *ms[i] ); *ms[i] = NULL; }	// B-1: 9 -> 11
 		bOn = false;	// nPort/nRest are set by Begin (ReleaseAll inside Begin must not clear them)
 	}
 

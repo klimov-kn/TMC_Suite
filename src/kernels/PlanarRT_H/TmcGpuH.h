@@ -233,7 +233,7 @@ public:
 		nPort = (TmcIdx)vPort.size();
 
 		// memory
-		double dNeed = 32.0*nN + 20.0*vIdx.size() + 24.0*nPort;
+		double dNeed = 32.0*nN + 28.0*vIdx.size() + 24.0*nPort;	// J-4: 28 bytes per block node (old: 20)
 		if( 8.0*nN > (double)dev.nMaxAlloc || dNeed > 0.92*dev.nGlobalMem )
 		{
 			csInfo.Format( "CPU (the grid needs %.2f GB, card %s has %.2f GB)", dNeed/1073741824.0, dev.sName.c_str(), dev.nGlobalMem/1073741824.0 );
@@ -250,11 +250,15 @@ public:
 			if( e == CL_SUCCESS ) prg = ocl.clCreateProgramWithSource( ctx, 1, &g_szTmcGpuHSrc, NULL, &e );
 			if( e == CL_SUCCESS ) e = ocl.clBuildProgram( prg, 1, &dev.idDevice, "", NULL, NULL );
 			if( e != CL_SUCCESS ) { csInfo.Format( "CPU (OpenCL start on %s failed: %s)", dev.sName.c_str(), TmcOclErr( e ) ); ReleaseAll(); return false; }
-			kPass = ocl.clCreateKernel( prg, "hpass", &e );
-			kMetal = ocl.clCreateKernel( prg, "hmetal", &e );
-			kAbs = ocl.clCreateKernel( prg, "habs", &e );
-			kGather = ocl.clCreateKernel( prg, "hgather", &e );
-			kScatter = ocl.clCreateKernel( prg, "hscatter", &e );
+			// J-4: every clCreateKernel is checked (old: the result was not checked, a NULL kernel ran on)
+			cl_int eK[5];
+			kPass = ocl.clCreateKernel( prg, "hpass", &eK[0] );
+			kMetal = ocl.clCreateKernel( prg, "hmetal", &eK[1] );
+			kAbs = ocl.clCreateKernel( prg, "habs", &eK[2] );
+			kGather = ocl.clCreateKernel( prg, "hgather", &eK[3] );
+			kScatter = ocl.clCreateKernel( prg, "hscatter", &eK[4] );
+			for( int iK = 0; iK < 5; iK++ ) if( eK[iK] != CL_SUCCESS ) { e = eK[iK]; break; }
+			if( e != CL_SUCCESS ) { csInfo.Format( "CPU (OpenCL start on %s failed: %s)", dev.sName.c_str(), TmcOclErr( e ) ); ReleaseAll(); return false; }
 			idDev = dev.idDevice;
 		}
 
@@ -429,7 +433,7 @@ private:
 	{
 		cl_int e;
 		cl_mem m = ocl.clCreateBuffer( ctx, CL_MEM_READ_WRITE | ( pInit ? CL_MEM_COPY_HOST_PTR : 0 ), nBytes ? nBytes : 8, (void *)pInit, &e );
-		if( e != CL_SUCCESS ) { csError.Format( "buffer of %.2f GB: %s", nBytes/1073741824.0, TmcOclErr( e ) ); return NULL; }
+		if( e != CL_SUCCESS ) { if( csError.IsEmpty() ) csError.Format( "buffer of %.2f GB: %s", nBytes/1073741824.0, TmcOclErr( e ) ); return NULL; }	// J-4: the first error is kept (as in X)
 		return m;
 	}
 

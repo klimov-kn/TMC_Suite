@@ -1193,7 +1193,7 @@ void CFieldIntegrated::ReadParamFromFile()
 		||(dXminA != dXminF) 
 		||(dYminA != dYminF) 
 		||(dLongUnitA != dLongUnitF) 
-		||(dTimeUnitA != dTimeUnitA) )
+		||(dTimeUnitA != dTimeUnitF) )	// I-02: the typo dTimeUnitA != dTimeUnitA (always false)
 	{
 		CString csBuf;
 		csBuf.Format("Data in file {%s} and data in file {%s} is different ", csFileAmplitude, csFileFaza);
@@ -1375,6 +1375,9 @@ void CFieldIntegrated::SetDirectionalPatternParamDefault()
 
 	if( dDirPatXmax < -0.9*FLT_MAX )
 	{
+		/// Б-14 (автор 29.10): контур несимметричен — 10 шагов от X_MIN/Y_MIN и 8 от X_MAX/Y_MAX (nX включает
+		/// запасной столбец, Б-2.2). На ДН это не влияет: контур — решётка, каждая сторона которой излучает в свою
+		/// полуплоскость. Оставлено как есть, ключ контура не вводится.
 		dDirPatXmax = dXmin + (nX-10)*dDelta;
 	};
 
@@ -1789,7 +1792,9 @@ void CFieldIntegrated::ReadAmplitudaAndFazaEz(double x, double y, double &aEz, d
 			return;
 		};
 		aEz = prAmp[ iSlot ];
-		fEz = prFaz[ iSlot ];
+		// I-01: the phase is stored in ANGLE_UNIT - back to radians (old: fEz = prFaz[ iSlot ]; - wrong for gradus)
+		/// I-01: фаза в массиве — в единицах ANGLE_UNIT (atan2/rAngleUnit), дальше нужна в радианах.
+		fEz = prFaz[ iSlot ]*cParam.rAngleUnit;
 		return;		
 	};
 
@@ -1876,7 +1881,8 @@ void CFieldIntegrated::ReadAmplitudaAndFazaEz(double x, double y, double &aEz, d
 	};
 
 	aEz = rBufA;
-	fEz = rBufF;
+	// I-01: the .FAZ file is in ANGLE_UNIT - back to radians (old: fEz = rBufF;)
+	fEz = rBufF*cParam.rAngleUnit;
 
 	fclose( pfDataF );
 	fclose( pfDataA );
@@ -1903,6 +1909,10 @@ void CFieldIntegrated::AddDirectionalPatternFileOneEmitter(double &x, double &y,
 //	CString csBuf1;
 
 	dDkL = (dDelta*dFreq/299792458);
+	/// З-13 (автор 29.10): калибровка СЕТОЧНОЙ функции Грина двумерной задачи. «/3» — точка контура даёт три
+	/// излучателя, образующих элемент Гюйгенса: электрический вибратор (Ez, ДН «1.») и магнитный ток (Hx, Hy,
+	/// ДН «sin(f)», «cos(f)»); на каждой стороне контура элемент свой и смотрит наружу, ориентация (cos/sin) —
+	/// по типу границы (З-14).
 	koef = sqrt(dDelta/3.*0.999996/0.9361811)*dDkL/sqrt(dFreq/299792458);
 
 	nEmitterInFile++;

@@ -44,6 +44,7 @@ CTmcRTH_IndanParam::CTmcRTH_IndanParam()
 	nYGrid = 0;
 	rXmaxUser = 0.0;
 	rYmaxUser = 0.0;
+	nSeenInSection = 0;	// A-13, B-15
 	return;
 }
 
@@ -95,6 +96,7 @@ void CTmcRTH_IndanParam::DeleteData( void )
 	nYGrid = 0;
 	rXmaxUser = 0.0;
 	rYmaxUser = 0.0;
+	nSeenInSection = 0;	// A-13, B-15
 	return;
 }
 
@@ -242,6 +244,7 @@ void CTmcRTH_IndanParam::ReadXmax( CString &csCh )
 		return;
 	};
 	rXmax = (_real)(r * rLongUnit);
+	nSeenInSection |= TMC_PARAM_SEEN_XMAX;	// A-13, B-15
 	rXmaxUser = rXmax;	// B-2: the grid is calculated again
 	nXGrid = 0;
 	
@@ -277,6 +280,7 @@ void CTmcRTH_IndanParam::ReadXmin( CString &csCh )
 		return;
 	};
 	rXmin = (_real)(r * rLongUnit);
+	nSeenInSection |= TMC_PARAM_SEEN_XMIN;	// A-13, B-15
 	nXGrid = 0;	// B-2: the grid is calculated again
 	
 	return;
@@ -312,6 +316,7 @@ void CTmcRTH_IndanParam::ReadYmax( CString &csCh )
 		return;
 	};
 	rYmax = (_real)(r * rLongUnit);
+	nSeenInSection |= TMC_PARAM_SEEN_YMAX;	// A-13, B-15
 	rYmaxUser = rYmax;	// B-2: the grid is calculated again
 	nYGrid = 0;
 	
@@ -348,6 +353,7 @@ void CTmcRTH_IndanParam::ReadYmin( CString &csCh )
 		return;
 	};
 	rYmin = (_real)(r * rLongUnit);
+	nSeenInSection |= TMC_PARAM_SEEN_YMIN;	// A-13, B-15
 	nYGrid = 0;	// B-2: the grid is calculated again
 	
 	return;
@@ -447,6 +453,7 @@ void CTmcRTH_IndanParam::ReadDelta( CString &csCh )
 		return;
 	};
 	rDelta = (_real)(r * rLongUnit);
+	nSeenInSection |= TMC_PARAM_SEEN_DELTA;	// A-13, B-15
 	nXGrid = 0;	// B-2: the grid is calculated again
 	nYGrid = 0;
 	rt = (_real)(rDelta*sqrt(0.5*MU0___*EPS0___));
@@ -505,6 +512,7 @@ void CTmcRTH_IndanParam::ReadTime( CString &csCh )
 		return;
 	};
 	rTmax = (_real)(r * rTimeUnit);
+	nSeenInSection |= TMC_PARAM_SEEN_TIME;	// A-13, B-15
 	
 	return;
 }
@@ -517,6 +525,7 @@ void CTmcRTH_IndanParam::ReadFreqUnit( CString &csCh )
 	int i;
 	CString csBuf;
 
+	if( !CheckUnitBeforeValues( csCh, TMC_PARAM_SEEN_FREQ, CTMCRTH_FREQ_ID ) ) return;	// A-13
 	strcpy( szBuf, csCh );
 	i = (int)(strlen(CTMCRTH_FREQUNIT_ID));
 
@@ -571,6 +580,8 @@ void CTmcRTH_IndanParam::ReadLongUnit( CString &csCh )
 	int i;
 	CString csBuf;
 
+	if( !CheckUnitBeforeValues( csCh, TMC_PARAM_SEEN_XMIN|TMC_PARAM_SEEN_XMAX|TMC_PARAM_SEEN_YMIN|TMC_PARAM_SEEN_YMAX|
+		TMC_PARAM_SEEN_DELTA|TMC_PARAM_SEEN_HEIGHT, "X_MIN, X_MAX, Y_MIN, Y_MAX, DELTA, HEIGHT" ) ) return;	// A-13
 	strcpy( szBuf, csCh );
 	i = (int)(strlen(CTMCRTH_LONGUNIT_ID));
 
@@ -620,6 +631,7 @@ void CTmcRTH_IndanParam::ReadTimeUnit( CString &csCh )
 	int i;
 	CString csBuf;
 
+	if( !CheckUnitBeforeValues( csCh, TMC_PARAM_SEEN_TIME|TMC_PARAM_SEEN_DELTAT, "TIME, DELTA_T" ) ) return;	// A-13
 	strcpy( szBuf, csCh );
 	i = (int)(strlen(CTMCRTH_TIMEUNIT_ID));
 
@@ -733,6 +745,26 @@ void CTmcRTH_IndanParam::IsCorrectly( CTmcLibError &cError1 )
 		return;
 	}
 	
+	// B-15 (author 29.10): every step is an independent task - all of X_MIN, X_MAX, Y_MIN, Y_MAX, DELTA, TIME, FREQ
+	// must be in its #PARM section (old: the missing ones were taken from the previous step).
+	/// Ѕ-15: в секции `#PARM` каждого шага об€зательны X_MIN, X_MAX, Y_MIN, Y_MAX, DELTA, TIME, FREQ.
+	if( ( nSeenInSection & TMC_PARAM_SEEN_REQUIRED ) != TMC_PARAM_SEEN_REQUIRED )
+	{
+		CString csMiss;
+		static const struct { unsigned n; const char *psz; } aReq[] = {
+			{ TMC_PARAM_SEEN_XMIN, "X_MIN" }, { TMC_PARAM_SEEN_XMAX, "X_MAX" }, { TMC_PARAM_SEEN_YMIN, "Y_MIN" },
+			{ TMC_PARAM_SEEN_YMAX, "Y_MAX" }, { TMC_PARAM_SEEN_DELTA, "DELTA" }, { TMC_PARAM_SEEN_TIME, "TIME" },
+			{ TMC_PARAM_SEEN_FREQ, "FREQ" } };
+		for( unsigned k = 0; k < sizeof(aReq)/sizeof(aReq[0]); k++ )
+			if( !( nSeenInSection & aReq[k].n ) ) { if( csMiss.GetLength() > 0 ) csMiss += ", "; csMiss += aReq[k].psz; };
+		csBuf.Format("Section %s: missing %s. Every step is an independent task: write X_MIN, X_MAX, Y_MIN, Y_MAX, "
+			"DELTA, TIME, FREQ in the section %s of every step (they are not taken from the previous step)",
+			CTMCRTH_INDANMET_PARAM, (LPCSTR)csMiss, CTMCRTH_INDANMET_PARAM);
+		cError.PutErrorMessage(csBuf);
+		cError1 = cError;
+		return;
+	};
+
 	if( rYmin >= rYmax )
 	{
 		csBuf.Format("Section %s Ymin(%lg) >= Ymax(%lg)", CTMCRTH_INDANMET_PARAM, rYmin, rYmax);
@@ -798,6 +830,8 @@ void CTmcRTH_IndanParam::IsCorrectly( CTmcLibError &cError1 )
 	if( nXGrid <= 0 )
 	{
 		int nX111 = (int)( ( rXmaxUser - rXmin )/rDelta + 1e-7 ) + 1;
+		/// Ѕ-2.2 (автор 29.10): запасной столбец задуман Ч сетка на один узел больше заданной области
+		/// (последний узел на шаг дальше X_MAX, то же по Y).
 		rXmax = rXmin + nX111*rDelta;
 		nXGrid = nX111 + 1;
 	};
@@ -812,6 +846,17 @@ void CTmcRTH_IndanParam::IsCorrectly( CTmcLibError &cError1 )
 
 	
 	return;
+}
+
+// A-13 (author 29.10): a unit after its value is an error (old: the value was silently read in the previous unit)
+BOOL CTmcRTH_IndanParam::CheckUnitBeforeValues( CString &csCh, unsigned nMask, const char *pszIds )
+{
+	if( ( nSeenInSection & nMask ) == 0 ) return TRUE;
+	CString csBuf;
+	csBuf.Format("{%s}: the unit is written after its value (%s) in the section %s. A unit acts only on the lines "
+		"below it - move the line of the unit above the values", (LPCSTR)csCh, pszIds, CTMCRTH_INDANMET_PARAM);
+	cError.PutErrorMessage(csBuf);
+	return FALSE;
 }
 
 void CTmcRTH_IndanParam::ReadFreq( CString &csCh )
@@ -844,6 +889,7 @@ void CTmcRTH_IndanParam::ReadFreq( CString &csCh )
 		return;
 	};
 	rFreq = (_real)(r * rFreqUnit);
+	nSeenInSection |= TMC_PARAM_SEEN_FREQ;	// A-13, B-15
 	
 	return;
 }
@@ -1113,6 +1159,7 @@ void CTmcRTH_IndanParam::ReadHeight( CString &csCh )
 		return;
 	};
 	rHeight = (_real)(r * rLongUnit);
+	nSeenInSection |= TMC_PARAM_SEEN_HEIGHT;	// A-13
 	
 	return;
 }
@@ -1147,6 +1194,7 @@ void CTmcRTH_IndanParam::ReadDeltaTMechanical( CString &csCh )
 		return;
 	};
 	rDeltaTMechanical = (_real)(r * rTimeUnit);
+	nSeenInSection |= TMC_PARAM_SEEN_DELTAT;	// A-13
 	SetDeltaT( rDeltaTMechanical );
 	
 	return;
@@ -1185,16 +1233,13 @@ void CTmcRTH_IndanParam::ReadBUnit( CString &csCh )
 		rBUnit = (_real)(CTMCRTH_BUNIT_UTl);
 		return;
 	};
-	if( strcmp( szBuf, CTMCRTH_BUNIT_mTl ) == 0 )
+	// J-6: the multipliers of B_UNIT are not applied in the calculation (B is always in Tl) - not Tl is an error
+	// (old: mTl and mkTl were accepted and the values were silently taken as Tl)
+	if( ( strcmp( szBuf, CTMCRTH_BUNIT_mTl ) == 0 )||( strcmp( szBuf, CTMCRTH_BUNIT_mkTl ) == 0 ) )
 	{
-		csBUnit.Format( "%s", szBuf);
-		rBUnit = (_real)(CTMCRTH_BUNIT_UmTl);
-		return;
-	};
-	if( strcmp( szBuf, CTMCRTH_BUNIT_mkTl ) == 0 )
-	{
-		csBUnit.Format( "%s", szBuf);
-		rBUnit = (_real)(CTMCRTH_BUNIT_UmkTl);
+		csBuf.Format("{%s}: the kernel calculates B only in Tl (B_UNIT %s;) - write B in Tl and B_UNIT %s;",
+			(LPCSTR)csCh, CTMCRTH_BUNIT_Tl, CTMCRTH_BUNIT_Tl);
+		cError.PutErrorMessage(csBuf);
 		return;
 	};
 
@@ -1227,22 +1272,20 @@ void CTmcRTH_IndanParam::ReadNUnit( CString &csCh )
 	strcpy( szBuf, csBuf );
 	expr_del_Blanks2( szBuf );
 
+	// Bug #16: the fields of N (old: csBUnit/rBUnit - a copy of ReadBUnit)
 	if( strcmp( szBuf, CTMCRTH_NUNIT_m3 ) == 0 )
 	{
-		csBUnit.Format( "%s", szBuf);
-		rBUnit = (_real)(CTMCRTH_NUNIT_Um3);
+		csNUnit.Format( "%s", szBuf);
+		rNUnit = (_real)(CTMCRTH_NUNIT_Um3);
 		return;
 	};
-	if( strcmp( szBuf, CTMCRTH_NUNIT_cm3 ) == 0 )
+	// J-6: the multipliers of N_UNIT are not applied in the calculation (N is always in m^-3) - not m3 is an error
+	// (old: cm3 and mm3 were accepted and the values were silently taken as m^-3)
+	if( ( strcmp( szBuf, CTMCRTH_NUNIT_cm3 ) == 0 )||( strcmp( szBuf, CTMCRTH_NUNIT_mm3 ) == 0 ) )
 	{
-		csBUnit.Format( "%s", szBuf);
-		rBUnit = (_real)(CTMCRTH_NUNIT_Ucm3);
-		return;
-	};
-	if( strcmp( szBuf, CTMCRTH_NUNIT_mm3 ) == 0 )
-	{
-		csBUnit.Format( "%s", szBuf);
-		rBUnit = (_real)(CTMCRTH_NUNIT_Umm3);
+		csBuf.Format("{%s}: the kernel calculates N only in m^-3 (N_UNIT %s;) - write N in m^-3 and N_UNIT %s;",
+			(LPCSTR)csCh, CTMCRTH_NUNIT_m3, CTMCRTH_NUNIT_m3);
+		cError.PutErrorMessage(csBuf);
 		return;
 	};
 

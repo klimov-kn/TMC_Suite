@@ -178,6 +178,11 @@ int load_vr_file( BUFFER *buf )
   if( GetCurrentPath()[0] != '\0' ) _snprintf( szVrName, sizeof(szVrName), "%s\\%s", GetCurrentPath(), name_vr_mac_file );
   else                              _snprintf( szVrName, sizeof(szVrName), "%s", name_vr_mac_file );
   szVrName[sizeof(szVrName)-1] = '\0';
+  // I-07: the file is not written - nobody reads it (old: fopen "w" below; no right to write -> error -11)
+  /// I-07: временный файл макросов не пишется: его никто не читает; без права записи в папку задания
+  /// препроцессор останавливался. Проверка строк `#define` (DEF_MSG_LINE) ниже сохранена.
+  vr_mac = NULL;
+#if 0	// I-07: the old opening of the file
   if( (vr_mac = fopen( szVrName, "w")) == NULL)
    {
 	snprintf( str, BUF_STR_N_MAX, "Can't open file %s for writing (%u characters; no right to write into the task folder or the path is too long?)",
@@ -187,6 +192,7 @@ int load_vr_file( BUFFER *buf )
     return( -11 );
     }
   setbuf( vr_mac, FgetsBuff );
+#endif
 
   p = buf->inp_p;
   buf->inp_p = 0;
@@ -198,7 +204,7 @@ int load_vr_file( BUFFER *buf )
       if( buf_gets( str, BUF_STR_N_MAX, buf) != BUF_NULL )
         {
          put_error_messege( DEF_MSG_LINE );   // S-17
-         fclose( vr_mac );
+         if( vr_mac != NULL ) fclose( vr_mac );	// I-07
 		 delete []str;
          return -1;
         }
@@ -208,11 +214,11 @@ int load_vr_file( BUFFER *buf )
 	if( (str[ i ] == '\n')&&(str[ i+1 ] != '\0' ) )
 	 {
 	  str[ i ] = '\0';
-	  fprintf( vr_mac, "%s\\\\ \n", str1);
+	  if( vr_mac != NULL ) fprintf( vr_mac, "%s\\\\ \n", str1);	// I-07
 	  str1 = str + i + 1;
 	  }
 	}
-      fprintf( vr_mac, "%s\n", str1);
+      if( vr_mac != NULL ) fprintf( vr_mac, "%s\n", str1);	// I-07
       }
     else
      {
@@ -220,7 +226,7 @@ int load_vr_file( BUFFER *buf )
       }
     }
 
- fclose( vr_mac );
+ if( vr_mac != NULL ) fclose( vr_mac );	// I-07
  delete []str;
  return BUF_NULL;
  }

@@ -485,6 +485,7 @@ void CPlanRT_HView::OnRunAll()
 	if( pThread == NULL )
 	{
 		PutTrace( "Can't open thread for read data" );
+		bIsReadData = FALSE;	// J-2: as in OnRunStep (old: not reset - every next Run was ignored)
 		return;
 	};
 	pDoc->SetRunThreadHandle( pThread->m_hThread );

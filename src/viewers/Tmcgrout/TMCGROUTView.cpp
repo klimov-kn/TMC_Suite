@@ -678,6 +678,9 @@ void CTMCGROUTView::PrepareDoubleGraph()
 				}
 				else
 				{
+					// Z-15: the "{{...}}" branch is removed - such a formula is rejected by the document (ReadGraph1Expession).
+					tmcgrwin.psGraph[i].pPoint[j].y = pDoc->grdoc.psGraph[i].pcExpr->GetExpressionValueL( j );
+#if 0	// Z-15: the old branch (to return it: replace the line above with this block)
 					if( pDoc->grdoc.psGraph[i].pcExpr->IsGraphDifferent() )
 					{
 					}
@@ -685,6 +688,7 @@ void CTMCGROUTView::PrepareDoubleGraph()
 					{
 						tmcgrwin.psGraph[i].pPoint[j].y = pDoc->grdoc.psGraph[i].pcExpr->GetExpressionValueL( j );
 					};
+#endif
 				};
 				break;
 			default:

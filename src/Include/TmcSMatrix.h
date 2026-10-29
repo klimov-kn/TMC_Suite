@@ -36,6 +36,13 @@ public:
 	void Save(CString csSFileName1, double dFreq1);
 	void Save( CString csSFileName1 );
 	CString & GetErrorMessage( void );
+	/// @brief Б-3.3: возвращает предупреждение последнего `MakeSmatrix` (пустая строка — предупреждений нет).
+	///
+	/// Предупреждение выдаётся, если в окно попали пары отсчётов, у которых оба значения равны 0
+	/// (волна до входа ещё не дошла): они входят в среднее как ноль и занижают |S|. Усреднение при этом
+	/// не меняется — окно выбирает пользователь (ответ автора 29.10.2026).
+	/// @return Ссылка на строку объекта.
+	CString & GetWarningMessage( void ) { return csWarning; }	// B-3.3
 	void ReadTFile( CString csTFile, double dTmin1, double dTmax1 );
 	BOOL IsError( void );
 	virtual ~CTmcSMatrix();
@@ -71,6 +78,8 @@ private:
 	double * pdTsignal;
 	double * pdTime;
 	CString csError;
+	/// Б-3.3: предупреждение о нулевых парах отсчётов в окне; пустая строка — нет.
+	CString csWarning;	// B-3.3
 	CString csTFileName;
 	double dTmin;
 	double dTmax;

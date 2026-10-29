@@ -48,6 +48,8 @@ int expr_del_Blanks1( char *ch )
 				break;
 			case '\n':
 				break;
+			case '\r':	// I-05: the end of line of Windows is a blank too (old: not removed - parse error)
+				break;
 			default:
 				ch[i1] = ch[i];
 				i1++;

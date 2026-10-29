@@ -176,8 +176,14 @@ char * main_preproc( char *szTargetFileName, char *szSourceFileName )
 		return prep_error( i_err );	// S-17
 	};
     }
-  else prep_error( i_err );   // S-17: #include error without a text
+  else
+  {
+	// I-08: an #include error - the result file is not written (old: prep_error( i_err ); and the file was written)
+	delete []str;
+	return prep_error( i_err );   // S-17: #include error without a text
+  };
 
+  // Ўаг 6: запись буфера в файл результата (I-08: только без ошибок; раньше Ч и после ошибки #include).
   buf.inp_p = 0;
   if( (pfOut = fopen( szTargetFileName, "w" )) == NULL ) 
   {

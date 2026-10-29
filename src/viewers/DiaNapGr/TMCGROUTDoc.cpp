@@ -740,6 +740,18 @@ void CTMCGROUTDoc::MakeDocFileName( void )
 		return ;
 	};
 	fclose( fd );
+	// I-32: the label #TMCGROTS is common with TMCROS - a .tos (the document of TMCROS) is not opened here
+	/// I-32: файл .tos Ч документ TMCROS с той же меткой `#TMCGROTS`; TMC_DN его не открывает.
+	{
+		size_t nLen = strlen( ch );
+		if( ( nLen > 4 )&&( ch[nLen-4] == '.' )&&( ( ch[nLen-3] | 0x20 ) == 't' )&&( ( ch[nLen-2] | 0x20 ) == 'o' )&&( ( ch[nLen-1] | 0x20 ) == 's' ) )
+		{
+			char ch2[TMC_GROUT_MAXSTRING_BUF];
+			snprintf( ch2, TMC_GROUT_MAXSTRING_BUF, "%s is a document of TMCROS (signals), not of TMC_DN - open it in TMCROS", ch );
+			put_error_messege( ch2 );
+			return ;
+		};
+	};
 	if( !IsDocFileName( ch ) )
 	{
 		char ch1[TMC_GROUT_MAXSTRING_BUF];
@@ -1124,7 +1136,11 @@ void CTMCGROUTDoc::ReadGraph1( int nGr, char *szFileName, int *nPoint, double **
  i1 = strlen( szFileName ); 
  for( i = 0; i < i1; i++)
  {
-	 if( (szFileName[i] == ':')||( ( i == 0 )&&TMC_IS_SEP( szFileName[0] )&&TMC_IS_SEP( szFileName[1] ) ) )	// N-33: i UNC \\server\...
+	 if( (szFileName[i] == ':')||( ( i == 0 )&&TMC_IS_SEP( szFileName[0] )&&TMC_IS_SEP( szFileName[1] ) )
+#ifndef _WIN32
+		||( ( i == 0 )&&( szFileName[0] == '/' ) )	// I-23: POSIX absolute path /home/...
+#endif
+		)	// N-33: i UNC \\server\...	// N-33: i UNC \\server\...
 	 {
 		 n = -1;
 		 break ;

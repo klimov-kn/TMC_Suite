@@ -110,8 +110,10 @@ void CTmcWideband::ApplyWindow()
 		};
 		nPoint = n;
 	};
+	/// I-26: импульс или многотон Ч по точкам окна, которые и разлагаютс€ (раньше Ч по всей записи).
+	DetectSignalKind();	// I-26
 
-	if( bContinuous ) return;	// a multi-tone does not die away by its nature
+	if( bContinuous ) return;	// a multi-tone does not die away by its nature	// a multi-tone does not die away by its nature
 
 	{
 		double dPeak = 0.0, dHead = 0.0, dTail = 0.0, dR;
@@ -763,6 +765,13 @@ void CTmcWideband::FindFrequencies()
 //  Port mismatch. The kernel sets the port admittance once, from FREQ, so
 //  at every other frequency the port itself reflects. The same formula as
 //  in CTmcRTHNodeDiel::SetInputAdmitance.
+//  Ѕ-22 (1), ответ автора 29.10.2026 Ч ќ√–јЌ»„≈Ќ»я поправки (оставлены как есть, это свойство
+//  многочастотного режима): (1) Y(f) порта Ч по ширине апертуры без W порта и без магнитных стенок,
+//  которые учитывает нагрузка порта в €дре; (2) FixMismatch ставит Gamma возбуждЄнного порта на оба
+//  порта (чЄтна€/нечЄтна€ волны) Ч точно только дл€ одинаковых портов и симметричного устройства
+//  (S11 = S22); у портов разной ширины или несимметричной структуры поправка приближЄнна€.
+//  ¬ будущем Ч многоканальный вход (частотный мультиплексор со своей
+//  согласованной Y на каждую частоту) и многоканальное возбуждение; тогда эта поправка не нужна.
 double CTmcWideband::PortGamma( double dF, int nPort1 )
 {
 	double dA, dY1, dY0, dDelta, dAper, dF0;
@@ -1014,8 +1023,9 @@ void CTmcWideband::Process( CString csTFile, CString csSFile,
 
 	ReadHeader();
 	ReadSignals();
-	DetectSignalKind();
-	ApplyWindow();		// B-22
+	// I-26: the kind of the signal is detected inside ApplyWindow, by the points of the window
+	// (old: DetectSignalKind(); here - by the whole record before the window)
+	ApplyWindow();		// B-22		// B-22
 	FindFrequencies();
 	MakeAndSave();
 	return;

@@ -113,7 +113,9 @@ int  def_main_macdef( BUFFER *buf )
 	   return -1;
    };
    n1 = strlen( mac->mac );
-   mac->mac[n1-1] = '\0';
+   // I-09: only the end of line is cut (old: mac->mac[n1-1] = '\0'; - the last character of a #define in the
+   // last line of the file without the end of line was lost)
+   if( ( n1 > 0 )&&( mac->mac[n1-1] == '\n' ) ) mac->mac[n1-1] = '\0';
 
    if( (i = def_separ_mac_name( buf, mac)) < 0 ) 
    {
