@@ -18,10 +18,14 @@
 ; ============================================================================
 
 #define AppName "TMC Suite"
-#define AppVer "1.1"
+#define AppVer "1.3"
 #define AppPublisher "К. Н. Климов"
 #define AppURL "http://www.tamic.ru"
 #define AppYear "2026"
+; папка программ относительно SourceDir (ISCC /DDistDir=<папка> — собрать из другой сборки)
+#ifndef DistDir
+  #define DistDir "dist"
+#endif
 
 [Setup]
 AppId={{B7E9F3A2-1C4D-4E8A-9F2B-6D5A8C3E1B07}
@@ -61,11 +65,34 @@ Name: "ru"; MessagesFile: "compiler:Languages\Russian.isl"
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
+[Dirs]
+; ---------------------------------------------------------------------------
+;  Права на запись в папку программы для ОБЫЧНЫХ пользователей.
+;
+;  Программа при открытии .tpl создаёт рядом с ним файл препроцессора
+;  "<имя>.tpl~$Prepr$~", а также пишет результаты счёта (.s, .t, .lst и т.п.)
+;  в ту же папку, где лежит .tpl (см. src\libs\TMCIndan\TmcRTH_Indan.cpp:84).
+;  Если .tpl лежит внутри {app} (например, {app}\samples), то запись в
+;  C:\Program Files\... обычному пользователю запрещена, и 64-битное приложение
+;  НЕ получает редирект в VirtualStore -> файл не создаётся -> .tpl не
+;  открывается. Под администратором всё работает, но требовать админ на каждый
+;  запуск неправильно.
+;
+;  Решение: установщик (он идёт с правами админа, PrivilegesRequired=admin)
+;  ОДИН РАЗ при установке выдаёт встроенной группе "Пользователи" право
+;  Modify на {app} со всеми подпапками. После этого приложение полноценно
+;  работает под обычной учётной записью, БЕЗ запроса прав администратора.
+;
+;  users-modify = группа "Пользователи" (S-1-5-32-545) получает доступ Modify,
+;  который наследуется всеми файлами и подпапками {app}.
+; ---------------------------------------------------------------------------
+Name: "{app}"; Permissions: users-modify
+
 [Files]
 ; --- 64-битные программы ---
-Source: "dist\win64\bin\*"; DestDir: "{app}\bin\win64"; Flags: ignoreversion recursesubdirs; Check: Want64
-; --- 32-битные программы ---
-Source: "dist\win32\bin\*"; DestDir: "{app}\bin\win32"; Flags: ignoreversion recursesubdirs; Check: Want32
+Source: "{#DistDir}\win64\bin\*"; Excludes: "*.pdb,*.idb,*.ilk"; DestDir: "{app}\bin\win64"; Flags: ignoreversion recursesubdirs; Check: Want64
+; --- 32-битные программы (отладочные .pdb не ставятся) ---
+Source: "{#DistDir}\win32\bin\*"; Excludes: "*.pdb,*.idb,*.ilk"; DestDir: "{app}\bin\win32"; Flags: ignoreversion recursesubdirs; Check: Want32
 ; --- документация: руководство пользователя (Sphinx HTML) ---
 Source: "docs\user-manual\sphinx\_build\html\*"; DestDir: "{app}\docs\user-manual"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; --- образцы данных ---
@@ -73,6 +100,7 @@ Source: "samples\SAMPLE_R\*"; DestDir: "{app}\samples\SAMPLE_R"; Flags: ignoreve
 ; --- лицензионное соглашение ---
 Source: "installer\LICENSE_ru.txt"; DestDir: "{app}"; DestName: "LICENSE_ru.txt"; Flags: ignoreversion
 Source: "LICENSE"; DestDir: "{app}"; DestName: "LICENSE.txt"; Flags: ignoreversion
+Source: "NOTICE"; DestDir: "{app}"; DestName: "NOTICE.txt"; Flags: ignoreversion
 ; --- иконки соцсетей и сплэш (во временную папку, не устанавливаются) ---
 Source: "installer\assets\github.bmp"; Flags: dontcopy
 Source: "installer\assets\researchgate.bmp"; Flags: dontcopy
@@ -318,7 +346,7 @@ begin
   startX := L + (W - total) div 2;
   if startX < L then startX := L;
   yIcons := y0 + ScaleY(50);
-  AddIcon(startX,            yIcons, 'github.bmp',       'https://github.com/knklimov/tmcsuit');
+  AddIcon(startX,            yIcons, 'github.bmp',       'https://github.com/klimov-kn/TMC_Suite');
   AddIcon(startX + step,     yIcons, 'researchgate.bmp', 'https://www.researchgate.net/profile/Konstantin-Klimov');
   AddIcon(startX + 2 * step, yIcons, 'linkedin.bmp',     'https://www.linkedin.com/in/konstantinklimov');
   AddIcon(startX + 3 * step, yIcons, 'elibrary.bmp',     'https://www.elibrary.ru/author_items.asp?authorid=121878');

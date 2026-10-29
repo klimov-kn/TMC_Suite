@@ -8,7 +8,7 @@ C++ · MFC · OpenGL · Windows (32/64-bit)
 
 **English** · [Русский](#tmc-suite-русская-версия)
 
-<img src="docs/screenshots/FieldView/field-3d.png" alt="FieldView — electromagnetic field visualization" width="720">
+<img src=".github/images/field-3d.png" alt="FieldView — electromagnetic field visualization" width="720">
 
 </div>
 
@@ -29,8 +29,8 @@ for both **win32** and **win64**.
 ### Computational kernels
 | Program | Executable | Purpose |
 |---|---|---|
-| **PlanarRT_H** | `tmc_rth.exe` | Ray-tracing solver, H-polarization |
-| **PlanarRT_X** | `tmc_rtx.exe` | Ray-tracing solver, X-mode (incl. magnetized plasma) |
+| **PlanarRT_H** | `tmc_rth.exe` | Time-domain Rt-network solver, H-polarization |
+| **PlanarRT_X** | `tmc_rtx.exe` | Time-domain Rt-network solver, X-mode (incl. magnetized plasma) |
 
 ### Viewers & visualization
 | Program | Purpose |
@@ -47,16 +47,31 @@ for both **win32** and **win64**.
 
 | Field visualization (FieldView) | Scattering matrix (TMCGROUT) |
 |---|---|
-| ![FieldView](docs/screenshots/FieldView/main-window-clean.png) | ![TMCGROUT](docs/screenshots/TMCGROUT/main-window.png) |
+| ![FieldView](.github/images/fieldview.png) | ![TMCGROUT](.github/images/tmcgrout.png) |
 
 | Radiation pattern (TMC_DN) | Solver (PlanarRT_X) |
 |---|---|
-| ![TMC_DN](docs/screenshots/TMC_DN/main-window.png) | ![PlanarRT_X](docs/screenshots/PlanarRT_X/main-window.png) |
+| ![TMC_DN](.github/images/tmc_dn.png) | ![PlanarRT_X](.github/images/planarrt_x.png) |
 
 ## Input format
 
 Simulations are described in **`.tpl`** text files (the TAMIC input language): geometry, materials,
 sources, frequency sweeps and output requests.
+
+## What's new in 1.3
+
+- **Wideband computation:** the incident wave can be read from a `.sig` file, and the whole band is
+  processed in one run (kernel S-matrix and TMCROS).
+- **Radiation pattern on the domain border** and multi-frequency radiation patterns.
+- **GPU computation** (OpenCL, `/GPU` key, menu *Config → Compute on GPU*, win64).
+- **Faster block building** — parallel computation of ε and plasma over the processor cores.
+- **Grids and single blocks larger than 2³¹ nodes** — both limits removed: 64-bit grid node indices and
+  64-bit block node counters.
+- **Computation timing** — `/Time` key and the *Calc. time…* line in the statistics window;
+  kernel exit codes 0/1/2/3 and progress output to the console in `/Ar`, `/Arb` modes.
+- **171 fixed defects** (Nos. 19–189) — see [`CHANGELOG.md`](CHANGELOG.md) and the closed Issues.
+- Code refactoring (dead code and unused files removed, documenting comments), a build without
+  warnings, the Apache 2.0 license.
 
 ## Download
 
@@ -64,27 +79,30 @@ Ready-made builds are published in [Releases](../../releases):
 
 | File | For |
 |---|---|
-| `TMC_Suite_Setup.exe` | **most users** — installer with the programs, the documentation and Start menu shortcuts |
-| `TMC_Suite_v1.0_x86.rar` · `_x64.rar` · `_x86-x64.rar` | those who prefer an archive to an installer |
+| `TMC_Suite_Setup.exe` | **most users** — installer with the programs, samples and Start menu shortcuts |
+| `TMC_Suite_v1.3_x86.zip` · `_x64.zip` · `_x86-x64.zip` | those who prefer an archive to an installer |
 
-The archives unpack into the ready `dist\win32\bin` and `dist\win64\bin` layout, so the paths
-used throughout the documentation work as written.
+The archives unpack into the ready `dist\win32\bin` and `dist\win64\bin` layout.
 
 ## Building (Windows)
 
-The package is built with **Microsoft Visual Studio / MSBuild**. Source is shared; build outputs are
-kept per-platform.
+The package is built with **Microsoft Visual Studio 2026 / MSBuild** (toolset v145). Source is
+shared; build outputs are kept per-platform. The solution `src/tamic.slnx` builds all 12 projects
+in dependency order.
 
 ```bat
 :: win32
-msbuild <Solution>.sln /p:Platform=Win32 /p:Configuration=Release
+msbuild src\tamic.slnx /p:Platform=Win32 /p:Configuration=Release
 
 :: win64
-msbuild <Solution>.sln /p:Platform=x64 /p:Configuration=Release
+msbuild src\tamic.slnx /p:Platform=x64 /p:Configuration=Release
 ```
 
-> **Build order matters.** Build all 6 libraries first, then the viewers, then the kernels, then
-> FieldView. See the full step-by-step guide in the documentation (`docs/build-guide/`).
+Release output goes to `dist\win32\` and `dist\win64\`, Debug output to `dist\<platform>\debug\`.
+The build completes without errors and without warnings in all four configurations.
+
+> **Build order matters** when projects are built one by one: all 6 libraries first, then the
+> viewers, then the kernels, then FieldView. See [`BUILD_ORDER.md`](BUILD_ORDER.md).
 
 ## Ports to other systems
 
@@ -101,8 +119,9 @@ the file formats stay compatible in every direction.
 
 ## Documentation
 
-Full documentation (in Russian) lives in [`docs/`](docs/): API reference, build guide, user manuals
-with screenshots, architecture notes and training materials.
+Documentation (in Russian) — user manuals, the `.tpl` language reference, the code reference and
+the build guide — is published on the project website [www.tamic.ru](https://www.tamic.ru).
+Comments in the source code link to the corresponding pages of the website.
 
 ## Author & links
 
@@ -112,7 +131,7 @@ with screenshots, architecture notes and training materials.
 
 ## License
 
-See [`LICENSE`](LICENSE).
+[Apache License 2.0](LICENSE). See also [`NOTICE`](NOTICE).
 
 ---
 ---
@@ -144,8 +163,8 @@ C++ · MFC · OpenGL · Windows (32/64 бита)
 ### Счётные ядра
 | Программа | Исполняемый файл | Назначение |
 |---|---|---|
-| **PlanarRT_H** | `tmc_rth.exe` | Расчётное ядро, H-поляризация |
-| **PlanarRT_X** | `tmc_rtx.exe` | Расчётное ядро, X-мода (в т.ч. замагниченная плазма) |
+| **PlanarRT_H** | `tmc_rth.exe` | Расчётное ядро (Rt-сети во временной области), H-поляризация |
+| **PlanarRT_X** | `tmc_rtx.exe` | Расчётное ядро (Rt-сети во временной области), X-мода (в т.ч. замагниченная плазма) |
 
 ### Вьюверы и визуализация
 | Программа | Назначение |
@@ -162,16 +181,31 @@ C++ · MFC · OpenGL · Windows (32/64 бита)
 
 | Визуализация полей (FieldView) | Матрица рассеяния (TMCGROUT) |
 |---|---|
-| ![FieldView](docs/screenshots/FieldView/main-window-clean.png) | ![TMCGROUT](docs/screenshots/TMCGROUT/main-window.png) |
+| ![FieldView](.github/images/fieldview.png) | ![TMCGROUT](.github/images/tmcgrout.png) |
 
 | Диаграмма направленности (TMC_DN) | Счётное ядро (PlanarRT_X) |
 |---|---|
-| ![TMC_DN](docs/screenshots/TMC_DN/main-window.png) | ![PlanarRT_X](docs/screenshots/PlanarRT_X/main-window.png) |
+| ![TMC_DN](.github/images/tmc_dn.png) | ![PlanarRT_X](.github/images/planarrt_x.png) |
 
 ## Формат входных данных
 
 Задачи описываются в текстовых файлах **`.tpl`** (входной язык TAMIC): геометрия, материалы,
 источники, частотные развёртки и запросы на вывод.
+
+## Что нового в версии 1.3
+
+- **Многочастотный расчёт:** падающая волна читается из файла `.sig`, вся полоса обрабатывается
+  за один проход (S-матрица в ядре и в TMCROS).
+- **Диаграмма направленности по границе области** и многочастотная ДН.
+- **Расчёт на видеокарте** (OpenCL, ключ `/GPU`, меню *Config → Compute on GPU*, win64).
+- **Ускорение построения блоков** — параллельный расчёт ε и плазмы по ядрам процессора.
+- **Сетки и отдельные блоки больше 2³¹ узлов** — сняты оба ограничения: 64-битные индексы узлов сетки
+  и счётчики узлов блока.
+- **Замер времени расчёта** — ключ `/Time` и строка *Calc. time…* в окне статистики; коды возврата
+  ядер 0/1/2/3 и вывод хода расчёта в консоль в режимах `/Ar`, `/Arb`.
+- **171 исправленный дефект** (№ 19–189) — см. [`CHANGELOG.md`](CHANGELOG.md) и закрытые Issues.
+- Рефакторинг кода (удалены мёртвый код и неиспользуемые файлы, документирующие комментарии),
+  сборка без предупреждений, лицензия Apache 2.0.
 
 ## Загрузка
 
@@ -179,27 +213,30 @@ C++ · MFC · OpenGL · Windows (32/64 бита)
 
 | Файл | Кому |
 |---|---|
-| `TMC_Suite_Setup.exe` | **большинству пользователей** — установщик с программами, документацией и ярлыками в меню «Пуск» |
-| `TMC_Suite_v1.0_x86.rar` · `_x64.rar` · `_x86-x64.rar` | кто предпочитает архив установщику |
+| `TMC_Suite_Setup.exe` | **большинству пользователей** — установщик с программами, образцами заданий и ярлыками в меню «Пуск» |
+| `TMC_Suite_v1.3_x86.zip` · `_x64.zip` · `_x86-x64.zip` | кто предпочитает архив установщику |
 
-Архивы разворачиваются в готовую структуру `dist\win32\bin` и `dist\win64\bin` — пути из
-документации заработают как написано.
+Архивы разворачиваются в готовую структуру `dist\win32\bin` и `dist\win64\bin`.
 
 ## Сборка (Windows)
 
-Пакет собирается в **Microsoft Visual Studio / MSBuild**. Исходники общие, результаты сборки —
-раздельные по платформам.
+Пакет собирается в **Microsoft Visual Studio 2026 / MSBuild** (набор инструментов v145). Исходники
+общие, результаты сборки — раздельные по платформам. Решение `src/tamic.slnx` собирает все
+12 проектов в порядке зависимостей.
 
 ```bat
 :: win32
-msbuild <Solution>.sln /p:Platform=Win32 /p:Configuration=Release
+msbuild src\tamic.slnx /p:Platform=Win32 /p:Configuration=Release
 
 :: win64
-msbuild <Solution>.sln /p:Platform=x64 /p:Configuration=Release
+msbuild src\tamic.slnx /p:Platform=x64 /p:Configuration=Release
 ```
 
-> **Важен порядок сборки.** Сначала все 6 библиотек, затем вьюверы, затем счётные ядра, затем
-> FieldView. Подробная пошаговая инструкция — в документации (`docs/build-guide/`).
+Release кладёт файлы в `dist\win32\` и `dist\win64\`, Debug — в `dist\<платформа>\debug\`.
+Сборка проходит без ошибок и без предупреждений во всех четырёх конфигурациях.
+
+> **Важен порядок сборки**, если проекты собираются по одному: сначала все 6 библиотек, затем
+> вьюверы, затем счётные ядра, затем FieldView. См. [`BUILD_ORDER.md`](BUILD_ORDER.md).
 
 ## Сборки для других систем
 
@@ -216,8 +253,9 @@ Windows-версии, скомпилированные другим компил
 
 ## Документация
 
-Полная документация (на русском) — в папке [`docs/`](docs/): описание API, инструкция по сборке,
-руководства пользователя со скриншотами, архитектура и учебные материалы.
+Документация на русском языке — руководства пользователя, справочник языка `.tpl`, описание кода
+и инструкция по сборке — публикуется на сайте проекта [www.tamic.ru](https://www.tamic.ru).
+Комментарии в исходном коде ссылаются на соответствующие страницы сайта.
 
 ## Автор и ссылки
 
@@ -227,4 +265,4 @@ Windows-версии, скомпилированные другим компил
 
 ## Лицензия
 
-См. файл [`LICENSE`](LICENSE).
+[Лицензия Apache 2.0](LICENSE). См. также [`NOTICE`](NOTICE).

@@ -3,24 +3,36 @@
 Краткая карта сборки: что и в каком порядке компилировать. Каждая фаза выполняется
 дважды — для **win32** и для **win64**.
 
-Подробная пошаговая инструкция со скриншотами, точными названиями пунктов меню и
-разбором ошибок — в [`docs/build-guide/`](docs/build-guide/):
-[win32](docs/build-guide/win32/) · [win64](docs/build-guide/win64/).
+Подробная пошаговая инструкция со скриншотами публикуется на сайте проекта
+[www.tamic.ru](https://www.tamic.ru).
 
 ---
 
-## Стратегия: сначала win32, потом win64
+## Быстрый путь: одно общее решение
 
-Исторически пакет собирался под win16 и win32, поэтому 32-битная сборка ближе к
-исходному состоянию кода. Рекомендуемая последовательность:
+Все 12 проектов собираются разом через общее решение `src/tamic.slnx` — оно задаёт
+порядок зависимостей автоматически:
 
-1. Пройти все четыре фазы под **win32** и получить шесть работающих программ.
-2. Только после этого переключиться на **x64** и пройти фазы заново.
-3. Ошибки 64-битной компиляции разбирать по одной. Перечень уже внесённых правок
-   портирования — в [`docs/build-guide/win64/08-porting-changes.md`](docs/build-guide/win64/08-porting-changes.md).
+```bat
+msbuild src\tamic.slnx /p:Platform=Win32 /p:Configuration=Release
+msbuild src\tamic.slnx /p:Platform=x64   /p:Configuration=Release
+```
 
-Собирать win64 параллельно с неготовым win32 не стоит: непонятно, ошибка вызвана
-разрядностью или незавершённой настройкой.
+Или в Visual Studio: открыть `src\tamic.slnx` → выбрать конфигурацию и платформу →
+**Сборка → Пересобрать решение**. Сборка проходит **без ошибок и без предупреждений** во всех
+четырёх конфигурациях (Release и Debug, x64 и Win32).
+
+Куда кладутся результаты:
+
+| Конфигурация | Библиотеки | Программы |
+|---|---|---|
+| Release | `dist\<платформа>\lib` | `dist\<платформа>\bin` |
+| Debug | `dist\<платформа>\debug\lib` | `dist\<платформа>\debug\bin` |
+
+`<платформа>` — `win32` или `win64`. Отладочная сборка не затирает выпуск: имена файлов у них
+одинаковые, а папки разные.
+
+Ниже — сборка по одному проекту (по фазам).
 
 ---
 
@@ -28,16 +40,10 @@
 
 1. Установить **Visual Studio Community 2026 (v18.6)** с рабочей нагрузкой
    *Desktop development with C++* и компонентом **MFC**. Набор инструментов
-   компилятора — **v145**. Полный список — в
-   [`01-requirements.md`](docs/build-guide/win32/01-requirements.md).
+   компилятора — **v145**.
 2. Убедиться, что ко всем проектам подключены property sheets из [`build/`](build/):
    `Common.props`, `LibOutput.props`, `ExeOutput.props`. Они задают пути к заголовкам,
    библиотекам и папкам вывода, поэтому жёстких путей в проектах нет.
-3. Создать папки результатов:
-   ```
-   dist\win32\lib   dist\win32\bin
-   dist\win64\lib   dist\win64\bin
-   ```
 
 **Переключение платформы** — выпадающий список вверху окна Visual Studio, рядом с
 кнопкой запуска: `Win32` → результат в `dist\win32\`, `x64` → в `dist\win64\`.
@@ -51,7 +57,7 @@
 
 | № | Библиотека | Папка исходников | Результат |
 |---|---|---|---|
-| 1.1 | sfile95 | `src\libs\SFILE95` (решение `Sfile95.sln`) | `dist\<платформа>\lib\sfile95.lib` |
+| 1.1 | sfile95 | `src\libs\SFILE95` | `dist\<платформа>\lib\sfile95.lib` |
 | 1.2 | complex | `src\libs\complex` | `dist\<платформа>\lib\complex.lib` |
 | 1.3 | exprint | `src\libs\exprint` | `dist\<платформа>\lib\exprint.lib` |
 | 1.4 | TMCLibError | `src\libs\TMCLibError` | `dist\<платформа>\lib\TMCLibError.lib` |
@@ -79,30 +85,16 @@
 ## Фаза 3 — Счётные ядра (2 программы)
 
 Оба ядра линкуются с пятью библиотеками: **sfile95, prepr, exprint, TMCIndan, TMCLibError**
-(Компоновщик → Ввод → Дополнительные зависимости).
+(уже указаны в проектах: Компоновщик → Ввод → Дополнительные зависимости).
 
-### 3.1 `tmc_rth.exe` — H-поляризация
+| № | Программа | Папка исходников | Результат |
+|---|---|---|---|
+| 3.1 | `tmc_rth.exe` — H-поляризация | `src\kernels\PlanarRT_H` | `dist\<платформа>\bin\tmc_rth.exe` |
+| 3.2 | `tmc_rtx.exe` — X-мода | `src\kernels\PlanarRT_X` | `dist\<платформа>\bin\tmc_rtx.exe` |
 
-- Папка: `src\kernels\PlanarRT_H`
-- Результат: `dist\<платформа>\bin\tmc_rth.exe`
-- Действие: **Clean** → **Build**
-
-### 3.2 `tmc_rtx.exe` — X-мода
-
-⚠️ **Сначала задать макросы, иначе проект не соберётся.**
-
-Свойства проекта → **C/C++ → Preprocessor → Preprocessor Definitions**, добавить:
-
-```
-ELECTRON_Q___;ELECTRON_M___;CTMCRTH_INDANBLCK_FILEY;CTMCRTH_INDANBLCK_RECTSTATY;CTMCRTH_INDANBLCK_CIRCSTATY;CTMCRTH_INDANBLCK_POLYGSTTY;%(PreprocessorDefinitions)
-```
-
-Макросы задаются **только в свойствах этого проекта** и не добавляются в общие
-заголовки: `Typerth.h` и `Tmcgrviw.h` используются также H-модой и вьюверами.
-
-- Папка: `src\kernels\PlanarRT_X`
-- Результат: `dist\<платформа>\bin\tmc_rtx.exe`
-- Действие: **Clean** → **Build**
+Дополнительных макросов X-моде больше не нужно: физические константы и имена блоков плазмы
+определены в общих заголовках (`Typerth.h`, `Tmcgrviw.h`). Расчёт на видеокарте (только win64)
+подключает OpenCL во время работы — отдельных библиотек для сборки не требуется.
 
 ✅ **Проверка:** оба ядра собрались и запускаются.
 
@@ -111,8 +103,7 @@ ELECTRON_Q___;ELECTRON_M___;CTMCRTH_INDANBLCK_FILEY;CTMCRTH_INDANBLCK_RECTSTATY;
 ## Фаза 4 — FieldView
 
 Визуализатор полей, требует **OpenGL** (используются системные библиотеки Windows —
-`opengl32.lib`, `glu32.lib`; отдельная установка GLEW/GLFW не нужна). Подробности —
-в [`06-build-fieldview.md`](docs/build-guide/win32/06-build-fieldview.md).
+`opengl32.lib`, `glu32.lib`; отдельная установка GLEW/GLFW не нужна).
 
 - Папка: `src\fieldview`
 - Результат: `dist\win32\bin\FieldView.exe` и `dist\win64\bin\FieldView.exe`
@@ -132,15 +123,4 @@ dist\win64\lib\   6 файлов .lib
 dist\win64\bin\   6 файлов .exe
 ```
 
-Если сборка падает — раздел «Решение проблем»:
-[win32](docs/build-guide/win32/07-troubleshooting.md) ·
-[win64](docs/build-guide/win64/07-troubleshooting.md).
-Перечень исправленных дефектов — в [`CHANGELOG.md`](CHANGELOG.md).
-
----
-
-## Альтернатива: одно общее решение
-
-Все 12 проектов можно собрать разом через общее решение `src/tamic.slnx` — оно
-задаёт правильный порядок зависимостей автоматически. См.
-[`09-solution-all.md`](docs/build-guide/09-solution-all.md).
+Перечень изменений и исправленных дефектов — в [`CHANGELOG.md`](CHANGELOG.md).
