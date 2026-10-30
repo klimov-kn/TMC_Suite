@@ -14,18 +14,7 @@ body:
     attributes:
       label: Версия пакета
       description: Указана в окне «О программе», либо имя скачанного файла
-      placeholder: "1.3.0"
-    validations:
-      required: true
-
-  - type: dropdown
-    id: platform
-    attributes:
-      label: Разрядность
-      options:
-        - 64 бита (x64)
-        - 32 бита (x86)
-        - проверял на обеих
+      placeholder: "5.0.0"
     validations:
       required: true
 

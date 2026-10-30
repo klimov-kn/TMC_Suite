@@ -10,8 +10,11 @@ E-polarized waves, magnetized plasma models) are described in the doctoral
 thesis of K. N. Klimov (2007). When you publish results obtained with this
 software, please cite the author.
 
-Third-party components:
-  - OpenCL headers (src/Include/CL: cl.h, cl_platform.h, cl_version.h) -
-    Copyright (c) 2008-2020 The Khronos Group Inc., Apache License 2.0.
-  - Microsoft Foundation Classes and the C/C++ runtime are linked statically
-    from Microsoft Visual Studio under its license terms.
+Third-party components distributed with the binary packages keep their own
+licenses (see the folder "licenses"):
+  - Qt 6 - GNU LGPL v3 (dynamically linked, unmodified);
+  - Open CASCADE Technology (TPL Designer) - GNU LGPL v2.1 with the OCCT exception;
+  - MinGW-w64 runtime libraries - their own licenses (see "licenses").
+Source code of third parties included in this repository:
+  - OpenCL headers (src/Include/CL) - Copyright (c) 2008-2020 The Khronos Group Inc.,
+    Apache License 2.0.
