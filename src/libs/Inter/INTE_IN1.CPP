@@ -19,20 +19,31 @@
 **
 */
 
+/// @file INTE_IN1.CPP
+/// @brief Разбор программы интерпретатора: последовательности `;`, блоки `{...}`, точка входа `inte_atof`.
+///
+/// Часть библиотеки `exprint` (Inter). Подстрока сначала пробуется как выражение Expr;
+/// если вычислитель не распознал её (`ERROR_FUNCTION`), — как оператор (`inte_oper`).
+/// @see https://www.tamic.ru/docs/code/lib-inter.html#grammar
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
 
-#include <typedef.h>
-#include <tmc_lib.h>
-#include <inter.h>
+#include <Typedef.h>
+#include <TMC_LIB.H>
+#include <INTER.H>
 
+/// Разделитель операторов.
 #define INTER_BLANCK ';'
+/// Открывающая скобка блока.
 #define INTER_BRACKET1 '{'
+/// Закрывающая скобка блока.
 #define INTER_BRACKET2 '}'
+/// Открывающая круглая скобка (учитывается при поиске `;` вне скобок).
 #define INTER_BRACKET11 '('
+/// Закрывающая круглая скобка.
 #define INTER_BRACKET12 ')'
 
 int expr_del_Blanks1( char *ch )
@@ -75,7 +86,7 @@ _real  inte_atof( char  *string )
 	_real d;
   expr_set_error_cod( 0 );
 
-  d = inte_inter( string, (int)strlen( string ));
+  d = inte_inter( string, strlen( string ));
   if(expr_get_error_cod() == ERROR_RETURN) 
   {
 	  d = inte_get_inter_value();
@@ -98,12 +109,15 @@ _real  inte_inter( char   *lex, int n )
   if( ( n == 1 )&&( lex[0] == INTER_BLANCK ) ) return 0;
   if( n == 0 ) return 0;
 
+  // Блок {...} целиком: выполнить содержимое
   if( ( lex[0] == INTER_BRACKET1) && ( lex[n-1] == INTER_BRACKET2) )   /*for expression in bracket*/
    {
     return( inte_inter( lex+1, n-2) );
     };
 
   j = 0;
+  // Первая «;» вне скобок делит строку: левая часть выполняется, затем правая;
+  // результат — значение правой части (или левой, если «;» последняя)
     for( i = 0, j = 0, j1 = 0; i < n; i++)                /* select blanck  */
      {                                               
       switch( lex[i] )                                  
@@ -128,6 +142,7 @@ _real  inte_inter( char   *lex, int n )
        };
 
   			                            				/*is string arif expression?*/
+  // Сначала — как арифметическое выражение; не распознано — как оператор
   d = expr_inter( lex, n );                             
   if( expr_get_error_cod() == 0 ) return d;             /*is string bad arif expression?*/
   if( expr_get_error_cod() != ERROR_FUNCTION ) return (_real)0;

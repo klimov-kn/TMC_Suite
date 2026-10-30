@@ -1,7 +1,15 @@
 // TmcDialogStatistics.cpp : implementation file
 //
 
-#include "stdafx.h"
+/// @file TmcDialogStatistics.cpp
+/// @brief Окно Statistics: расчёт показываемых величин шага, листание блоков, вызов отчёта о времени.
+///
+/// Часть модуля «Оболочка счётного ядра». Реализация `CTmcDialogStatistics`.
+/// В ядре X отличается от одноимённого файла ядра H только оценкой памяти узлов
+/// (`PrepareData`): 12 значений `_real` на узел вместо 4.
+/// @see https://www.tamic.ru/docs/code/kernel-shell.html#x-differences
+/// @see https://www.tamic.ru/docs/code/kernel-shell.html#statistics
+#include "StdAfx.h"
 #include "PlanRT_H.h"
 #include "TmcDialogStatistics.h"
 #include "TmcRTH_DialogBlock.h"
@@ -84,6 +92,7 @@ void CTmcDialogStatistics::OnViewBlockInformation()
 
 	DeleteData();
 
+	// Копия списка блоков: окно Block показывает элементы массива по номеру.
 	if( (pcBlockList = new CTmcRTH_BlockList[m_nBlock] ) == NULL ) return;
 	
 	int i;
@@ -100,6 +109,8 @@ void CTmcDialogStatistics::OnViewBlockInformation()
 
 	CTmcRTH_DialogBlock cDlg;
 
+	// Окно блока возвращает в cDlg.i номер следующего блока к показу (Next/Previous);
+	// номер за концом списка прижимается к последнему, отрицательный (OK) завершает.
 	for( i = 0; ; i = cDlg.i)
 	{
 		if( i >= m_nBlock) 
@@ -127,6 +138,7 @@ void CTmcDialogStatistics::OnViewBlockInformation()
 }
 
 
+// Кнопки окна. IDC_TMCSTATISTICSVIEWBLOCKLIST имеет номер 2 (= IDCANCEL), это кнопка Cancel.
 BEGIN_MESSAGE_MAP(CTmcDialogStatistics, CDialog)
 	//{{AFX_MSG_MAP(CTmcDialogStatistics)
 		// NOTE: the ClassWizard will add message map macros here
@@ -160,6 +172,7 @@ void CTmcDialogStatistics::PrepareData( void )
 
 	CTmcRTH_BlockList *pcBlockList1 = m_cTopol.GetBlockList();
 	
+	// Память блоков (байты) — сумма, накопленная списком блоков.
 	if( pcBlockList1 != NULL )
 	{
 		m_dMemory = pcBlockList1->GetnMemoryAll();
@@ -171,6 +184,7 @@ void CTmcDialogStatistics::PrepareData( void )
 	}
 	else
 	{
+		// Длина волны и размеры области в длинах волн (округление до 0,001).
 		dWaveLen = (C0___/m_cParam.rFreq)/m_cParam.rLongUnit;
 		dXsizeWL = ((int)(( m_cParam.rXmax - m_cParam.rXmin )*1000/(C0___/m_cParam.rFreq)+0.5))/1000.;
 		dYsizeWL = ((int)(( m_cParam.rYmax - m_cParam.rYmin )*1000/(C0___/m_cParam.rFreq)+0.5))/1000.;
@@ -188,6 +202,7 @@ void CTmcDialogStatistics::PrepareData( void )
 		{
 			if(m_cOut->GetFieldIntegrated().bIsItegratedInMemory()) nnn = 3;
 		};
+		// Оценка памяти, МБ: блоки + узлы ядра X (по 12 значений _real; +2 при интегрировании поля в памяти).
 		// S-14: X - 6 voltages and 6 admittances a node (96 bytes), + 2 quadratures with FIELD_DISTRIBUTION_M
 		m_dMemory = ((int)((( m_dMemory + m_nBlock*sizeof(CTmcRTHNodeDiel)+m_nNumNode*(12.*sizeof(_real)+( ( nnn == 3 ) ? 2.*sizeof(_real) : 0. ) ) )*1000.)/(1024.*1024.)+0.5))/1000.;
 	};
@@ -203,6 +218,8 @@ void CTmcDialogStatistics::PrepareData( void )
 		dTsizeWL1 = (int)(( m_cParam.rTmax - m_cParam.rTmin )*(m_cParam.rFreq)+0.5);
 	};
 
+	// Ошибка фазовой скорости Rt-сетки на частоте шага: omega*dt -> относительное отклонение, %
+	// (усечение до 4 знаков после запятой).
 	dwt0 = fabs(m_cParam.rt*m_cParam.rFreq*2*PI___);
 	if( dwt0 < FLT_MIN ) 
 	{

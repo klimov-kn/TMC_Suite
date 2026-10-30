@@ -13,11 +13,19 @@
  *  OVERLAY: NO
 */
 
+/// @file CMPLXALL.CPP
+/// @brief Реализация функций комплексной арифметики (библиотека `complex`).
+///
+/// Единственный файл библиотеки `complex`. Все функции объявлены и описаны
+/// в complex1.h; здесь — только определения. Функции чистые, без глобального
+/// состояния, потокобезопасны.
+/// @see https://www.tamic.ru/docs/code/lib-complex.html
+
 #include <stdlib.h>
 #include <math.h>
 
-#include <typedef.h>
-#include <complex1.h>
+#include <Typedef.h>
+#include <COMPLEX1.H>
 
              /* return the imaginary component of a complex number */
 
@@ -57,6 +65,7 @@ _real cabsv( _complex z )
 
                 /* return the complex conjugate */
 
+/// Ноль типа `_real` для сравнений в `cphase`.
 #define ZERO (_real)0.
 
 _real cphase( _complex z )
@@ -79,6 +88,7 @@ _real cphase( _complex z )
       return( fi );
      }
 
+   // atan даёт угол в (-pi/2, pi/2); по квадранту он переводится в диапазон (-2*pi, 0)
    fi = (_real)atan( z.y/ z.x );
    if( (z.y > ZERO) && (z.x > ZERO) )   fi = fi - (_real)(2.0*PI);
    if( (z.y > ZERO) && (z.x < ZERO) )   fi = fi - PI;

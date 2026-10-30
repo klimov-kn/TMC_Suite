@@ -1,9 +1,14 @@
 // TmcRTH_DialogBlock.cpp : implementation file
 //
 
-#include "stdafx.h"
+/// @file TmcRTH_DialogBlock.cpp
+/// @brief Окно Block: заполнение полей по блоку топологии и кнопки листания.
+///
+/// Часть модуля «Оболочка счётного ядра». Реализация `CTmcRTH_DialogBlock`.
+/// @see https://www.tamic.ru/docs/code/kernel-shell.html#statistics
+#include "StdAfx.h"
 #include "PlanRT_H.h"
-#include <tmcgrviw.h>
+#include <Tmcgrviw.h>
 #include "TmcRTH_DialogBlock.h"
 #include "TmcRTH_Indan.h"
 
@@ -153,6 +158,7 @@ void CTmcRTH_DialogBlock::PrepareData( void )
 	dY0 = m_pcBlockList->GetY0()/m_pcParam->rGetLongUnit();
 	dXmin = m_pcBlockList->GetXmin()/m_pcParam->rGetLongUnit();
 	dXmax = m_pcBlockList->GetXmax()/m_pcParam->rGetLongUnit();
+	// Подписи и единицы четырёх полей границ — по типу блока.
 	if( (strcmp( m_csString, CTMCRTH_INDANBLCK_RECTSTAT ) == 0)||
 		(strcmp( m_csString, CTMCRTH_INDANBLCK_RECTMOVE ) == 0)||
 		(strcmp( m_csString, CTMCRTH_INDANBLCK_FILE ) == 0) )

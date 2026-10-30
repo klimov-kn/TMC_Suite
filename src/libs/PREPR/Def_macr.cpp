@@ -18,27 +18,49 @@
 **  OVERLAY       : YES
 **
 */
+/// @file Def_macr.cpp
+/// @brief Макросы `#define`: разбор определения, разрезание тела, подстановка в текст.
+///
+/// Часть модуля «Библиотека prepr». `def_main_macro()` находит все определения и
+/// раскрывает их от последнего к первому; для каждого `def_main_macdef()` разбирает
+/// заголовок (`def_separ_mac_name`), тело (`def_set_formal_param`), удаляет строку
+/// определения и подставляет макрос во все вызовы ниже неё (`def_subst_mac`).
+/// @see https://www.tamic.ru/docs/code/lib-prepr.html#define
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>   // BUG-004: realloc
 
-#include <typedef.h>
-#include <error1.h>
+#include <Typedef.h>
+#include <Error1.h>
 
-#include "prepr1.h"
+#include "Prepr1.h"
 
 
 
+/// Разделитель заголовка и тела макроса: `#define имя п1; п2; @тело`.
 #define  DEF_SEPARATOR '@'
 
 /* #define _DEBUG*/
 
+/// @brief Раскрывает один макрос, определение которого начинается после `buf->inp_p`.
+///
+/// Разбирает определение в общую структуру `s_pMacMain`, удаляет запись `#define` из
+/// текста и подставляет макрос во все вызовы ниже.
+/// @param[in,out] buf  буфер; `inp_p` — узел перед `#define`
+/// @return `BUF_NULL` — успех; отрицательный код ошибки разбора или подстановки.
+/// @warning Последний символ записи отбрасывается как перевод строки: определение в
+///          последней строке файла без перевода строки теряет последний символ тела.
 static int  def_main_macdef( BUFFER *buf );
 
+/// Общая рабочая структура макроса на время `def_main_macro()` (~10 МБ); `NULL` вне прохода.
 static MACROS *s_pMacMain = NULL;   // BUG-004: one MACROS buffer for all #define
 
+/// Текст ошибки препроцессора (определён в prep_mn.cpp).
 extern char *szError;               // Prep_mn.cpp: the text of the error
 
+/// @brief Пишет ошибку вида «`<текст> (macro <имя>)`», имя обрезается до 200 символов.
+/// @param[in] pszWhat  текст ошибки
+/// @param[in] pszName  имя макроса
 static void def_macro_message( const char *pszWhat, const char *pszName )   // S-21
 {
   char szMsg[400];
@@ -112,7 +134,7 @@ int  def_main_macdef( BUFFER *buf )
 	   ;   // BUG-004: MACROS is freed in def_main_macro
 	   return -1;
    };
-   n1 = (int)( strlen( mac->mac ) );
+   n1 = strlen( mac->mac );
    // I-09: only the end of line is cut (old: mac->mac[n1-1] = '\0'; - the last character of a #define in the
    // last line of the file without the end of line was lost)
    if( ( n1 > 0 )&&( mac->mac[n1-1] == '\n' ) ) mac->mac[n1-1] = '\0';
@@ -164,6 +186,9 @@ int  def_subst_mac( BUFFER *buf, MACROS *mac)
   int p1, n1, j, i_err;
 
 
+  // Просмотр текста по лексемам. Найден вызов: читаются фактические параметры, вызов
+  // удаляется, на его место пишутся фрагменты тела вперемежку со значениями параметров;
+  // просмотр продолжается с начала подставленного текста (вложенные вызовы раскрываются).
   while( buf->inp_p >= 0)
    {
     p1 = buf->inp_p;
@@ -172,7 +197,7 @@ int  def_subst_mac( BUFFER *buf, MACROS *mac)
 
     if( strcmp( mac1, mac->m[ 0 ]) == 0 )     /*  if mac1 is macros name*/
      {
-      n1 = (int)( strlen( mac1 ) );
+      n1 = strlen( mac1 );
       if( mac->j1 > 0 ) n1++;
 
 
@@ -186,7 +211,7 @@ int  def_subst_mac( BUFFER *buf, MACROS *mac)
 	};
 
 	mac->m[ j+1 ] = mac1+n1;
-	n1 += (int)( (strlen( mac1+n1) + 1) );
+	n1 += (strlen( mac1+n1) + 1);
         if( *mac->m[j+1] == '\n')
          {
           def_macro_message( "Fact parameters: a parameter or ';' is missing", mac->m[ 0 ] );   // S-21
@@ -241,6 +266,8 @@ int  def_set_formal_param( BUFFER *buf, MACROS *mac, int i)
 	  return -1;
   };
 
+  // Первая лексема тела (сразу после '@') обрабатывается отдельно: если это формальный
+  // параметр, он вырезается и фрагмент 0 получает его номер.
   i++;
   mac->i2 = 0;
   i3 = i;
@@ -248,7 +275,7 @@ int  def_set_formal_param( BUFFER *buf, MACROS *mac, int i)
 
   def_gets( mac1, ch);            /*  read string with after '@' in mac1*/
 
-  i += (int)( strlen( mac1 ) );
+  i += strlen( mac1 );
 
 
   mac->m1[0] = ch;
@@ -258,7 +285,7 @@ int  def_set_formal_param( BUFFER *buf, MACROS *mac, int i)
    {
     if( strcmp( mac1, mac->m[j+1]) == 0 )
      {
-      n = (int)( strlen( mac1 ) );
+      n = strlen( mac1 );
       mac->m1[ mac->i2 ] = ch;
       mac->im1[ mac->i2 ] = j+1;
       mac->i2++;
@@ -288,19 +315,21 @@ int  def_set_formal_param( BUFFER *buf, MACROS *mac, int i)
     };
 
 
+  // Остальные лексемы: на месте найденного формального параметра ставится '\0' (конец
+  // предыдущего фрагмента), имя параметра вырезается, следующий фрагмент получает его номер.
   for( i1 = i, mac->i2 = 1; mac->mac[ i ] != '\0'; )
    {
     i3 = i;
     ch = mac->mac + i;
     def_gets( mac1, ch);
-    i += (int)( strlen( mac1 ) );
+    i += strlen( mac1 );
 
     for( j = 0; j < mac->j1; j++)
      {
 
       if( strcmp( mac1, mac->m[ j+1 ]) == 0 )
        {
-        n = (int)( strlen( mac1 ) );
+        n = strlen( mac1 );
         mac->m1[mac->i2] = ch+1;
         mac->im1[mac->i2] = j+1;
         mac->i2++;
@@ -350,6 +379,9 @@ int  def_separ_mac_name( BUFFER *buf, MACROS *mac)
   ib = 4;
   mac->m[ 0 ] = mac->mac;
 
+  // Автомат по символам после "#define " (с позиции 8); имя и параметры сдвигаются
+  // к началу mac->mac без пробелов. Состояния ib: 4 — пробелы до имени, 0 — имя,
+  // 1 — пробелы до параметра, 2 — имя параметра, 3 — пробелы после имени параметра.
   for( i = 8; mac->mac[ i ] != DEF_SEPARATOR; i++)
    {
 

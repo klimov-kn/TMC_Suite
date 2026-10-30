@@ -1,22 +1,27 @@
 // ThreadCalcDirPat.cpp : implementation file
 //
 
-#include "stdafx.h"
-#include "tmcgrout.h"
+/// @file ThreadCalcDirPat.cpp
+/// @brief Р РµР°Р»РёР·Р°С†РёСЏ РѕРєРЅР° РїСЂРѕРіСЂРµСЃСЃР° СЂР°СЃС‡С‘С‚Р° Р”Рќ (`CThreadCalcDirPat`).
+///
+/// Р§Р°СЃС‚СЊ РјРѕРґСѓР»СЏ В«Р’СЊСЋРІРµСЂ TMC_DNВ». РћРїРёСЃР°РЅРёРµ РјРµС‚РѕРґРѕРІ вЂ” РІ `threadcalcdirpat.h`.
+/// @see https://www.tamic.ru/docs/code/tmc-dn.html#thread
+#include "StdAfx.h"
+#include "TMCGROUT.H"
 
 
-#include <tmcgrviw.h>
+#include <Tmcgrviw.h>
 #include "MainFrm.h"
-#include "..\\DiaNapr\\c2DArray.h"
+#include "..//DiaNapr//c2DArray.h"
 #include "TMCGROUTDoc.h"
 #include "TMCGROUTView.h"
 
-#include "threadcalcdirpat.h"
+#include "ThreadCalcDirPat.h"
 
 // I-33: the percent of the progress is 100*iN/nAngle (old: iN/10 - right only for 1000 angles)
-/// @brief I-33: доля посчитанных углов текущей ДН, проценты.
-/// @param[in] a  рассчитываемая диаграмма
-/// @return 100*iN/nAngle; 0 — сетка углов не задана.
+/// @brief I-33: РґРѕР»СЏ РїРѕСЃС‡РёС‚Р°РЅРЅС‹С… СѓРіР»РѕРІ С‚РµРєСѓС‰РµР№ Р”Рќ, РїСЂРѕС†РµРЅС‚С‹.
+/// @param[in] a  СЂР°СЃСЃС‡РёС‚С‹РІР°РµРјР°СЏ РґРёР°РіСЂР°РјРјР°
+/// @return 100*iN/nAngle; 0 вЂ” СЃРµС‚РєР° СѓРіР»РѕРІ РЅРµ Р·Р°РґР°РЅР°.
 static double TmcDnPercent( c2DArray &a )
 {
 	int n = a.GetnAngle();
@@ -99,8 +104,8 @@ void CThreadCalcDirPat::OnTimer(UINT_PTR nIDEvent)
 			}
 			else
 			{
-				// I-33: проценты — 100*iN/nAngle для любой сетки углов (было iN/10 — только для 1000 углов;
-				// у сетки из 400 углов полоса доходила до 40%). Время нормировки (КНД) в ходе не отражается.
+				// I-33: РїСЂРѕС†РµРЅС‚С‹ вЂ” 100*iN/nAngle РґР»СЏ Р»СЋР±РѕР№ СЃРµС‚РєРё СѓРіР»РѕРІ (Р±С‹Р»Рѕ iN/10 вЂ” С‚РѕР»СЊРєРѕ РґР»СЏ 1000 СѓРіР»РѕРІ;
+				// Сѓ СЃРµС‚РєРё РёР· 400 СѓРіР»РѕРІ РїРѕР»РѕСЃР° РґРѕС…РѕРґРёР»Р° РґРѕ 40%). Р’СЂРµРјСЏ РЅРѕСЂРјРёСЂРѕРІРєРё (РљРќР”) РІ С…РѕРґРµ РЅРµ РѕС‚СЂР°Р¶Р°РµС‚СЃСЏ.
 				m_csStatistics.Format("%#5.3lg%%", TmcDnPercent( pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ] ) );
 				m_csStatisticsAll.Format("%#5.3lg%%", ( TmcDnPercent( pDoc->pcDirectionalPattern[ pDoc->nGraphCurrent ] )+pDoc->nGraphCurrent*100 )/pDoc->grdoc.nGraph );
 				m_CurrentDirPat = pDoc->nGraphCurrent + 1;
@@ -110,7 +115,7 @@ void CThreadCalcDirPat::OnTimer(UINT_PTR nIDEvent)
 					int ii;
 					ltime_start = pDlg->ltime_start;
 					time( &ltime_current );
-					ii = (int)( ltime_current - ltime_start );
+					ii = ltime_current - ltime_start;
 					if( ii <= 60 )
 					{
 						m_csElapsTime.Format("%2d", ii );

@@ -1,3 +1,10 @@
+/// @file DialogTtoS.h
+/// @brief Окно To S-matrix (`IDD_DIALOG3`) в копии TMC_DN: пересчёт сигналов `.t` в S-матрицу `.s` на одной частоте.
+///
+/// Часть модуля «Вьювер TMC_DN» (наследие TMCROS, вариант без многочастотной обработки).
+/// Открывает `CTMCGROUTView::OnEditTosmatrix`; в меню Qt6-версии TMC_DN команды нет, поэтому
+/// окно собирается, но пользователю недоступно.
+/// @see https://www.tamic.ru/docs/code/tmcros.html#dialog-ttos
 #if !defined(AFX_DIALOGTTOS_H__5B981521_D4E1_11D3_A945_00A94DC10000__INCLUDED_)
 #define AFX_DIALOGTTOS_H__5B981521_D4E1_11D3_A945_00A94DC10000__INCLUDED_
 
@@ -13,17 +20,34 @@
 #include "TmcTtoS.h"
 
 
+/// @brief Окно пересчёта «время -> S»: до 20 файлов `.t`, у каждого — признак обработки и частота записи в `.s`.
+///
+/// Создаётся на стеке обработчиком `OnEditTosmatrix`, который заполняет строки файлами
+/// графиков документа и окно времени — текущим диапазоном оси X. Каждый отмеченный файл
+/// пересчитывает `CTmcTtoS` на одной частоте (многочастотных файлов эта копия не знает).
+/// Все результаты дописываются в один файл `m_SFileName`. Пересчёт останавливается на первом
+/// файле с ошибкой; текст ошибки виден в поле окна.
+/// @note Потоки: только главный поток; пересчёт идёт синхронно.
+/// @see https://www.tamic.ru/docs/code/tmcros.html#dialog-ttos
 class CDialogTtoS : public CDialog
 {
 // Construction
 public:
+	/// Множитель перевода единиц оси X во время, с/единицу (1e-12 для пс ... 1 для с и для номера такта); задаёт вид.
 	double dTUnit;
+	/// @brief Создаёт окно: все строки отмечены и пусты, окно времени 0..0, автозаполнение частот 1e10 Гц с шагом 1e8 Гц.
+	/// @param[in] pParent родительское окно; NULL — главное окно
 	CDialogTtoS(CWnd* pParent = NULL);   // standard constructor
+	/// Путь файла документа: по нему строятся имя `.s` по умолчанию и папка для относительных имён `.t`.
 	CString	m_DocFileName;
 
 // Dialog Data
 	//{{AFX_DATA(CDialogTtoS)
+	/// Номер разметки окна в ресурсах.
 	enum { IDD = IDD_DIALOG3 };
+	/// @name Признак обработки
+	///@{
+	/// TRUE — пересчитывать файл строки окна (номер — в имени поля); по умолчанию — признак показа графика.
 	BOOL	m_OutGrFlag_1;
 	BOOL	m_OutGrFlag_10;
 	BOOL	m_OutGrFlag_11;
@@ -44,7 +68,12 @@ public:
 	BOOL	m_OutGrFlag_7;
 	BOOL	m_OutGrFlag_8;
 	BOOL	m_OutGrFlag_9;
+	///@}
+	/// Путь к файлу `.s` результата; по умолчанию — путь документа с расширением `.s`; до 300 символов.
 	CString	m_SFileName;
+	/// @name Файл сигналов
+	///@{
+	/// Путь к файлу `.t` строки окна (номер — в имени поля); относительное имя дополняется папкой документа в `DoModal`; пусто — строка пропускается.
 	CString	m_SFileName_1;
 	CString	m_SFileName_10;
 	CString	m_SFileName_11;
@@ -65,9 +94,17 @@ public:
 	CString	m_SFileName_7;
 	CString	m_SFileName_8;
 	CString	m_SFileName_9;
+	///@}
+	/// Конец окна времени в единицах оси X (`m_csTimeUnit`).
 	double	m_dTmax;
+	/// Начало окна времени в единицах оси X.
 	double	m_dTmin;
+	/// Подпись единиц времени (`ps`, `ns`, `mks`, `ms`, `s`; пусто — ось X в номерах тактов), только для показа.
 	CString	m_csTimeUnit;
+	/// @name Частота записи
+	///@{
+	/// Частота, под которой результат строки окна (номер — в имени поля) записывается в `.s`, Гц;
+	/// в TMC_DN вид заполняет её полем `dFreq` графика, которое при расчёте ДН не задаётся.
 	double	m_dXValue1;
 	double	m_dXValue2;
 	double	m_dXValue3;
@@ -88,8 +125,12 @@ public:
 	double	m_dXValue18;
 	double	m_dXValue19;
 	double	m_dXValue20;
+	///@}
+	/// Начальная частота автозаполнения столбца частот, Гц (по умолчанию 1e10).
 	double	m_dXmin;
+	/// Шаг автозаполнения столбца частот, Гц (по умолчанию 1e8).
 	double	m_dDx;
+	/// Текст результата последнего пересчёта: `No error`, текст ошибки или предупреждение (только для показа).
 	CString	m_csError;
 	//}}AFX_DATA
 
@@ -98,8 +139,12 @@ public:
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CDialogTtoS)
 	public:
+	/// @brief Перед показом задаёт имя `.s` по умолчанию (путь документа с расширением `.s`) и дополняет относительные имена `.t` папкой документа.
+	/// @return `IDOK` или `IDCANCEL`.
 	virtual INT_PTR DoModal();
 	protected:
+	/// @brief Обмен данными полей с элементами окна (DDX), ограничение длины строк 300 символами.
+	/// @param[in,out] pDX контекст обмена
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
@@ -108,11 +153,17 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CDialogTtoS)
+	/// @brief Кнопка выбора файла `.s` результата (окно выбора в папке документа, фильтр `*.s`).
 	afx_msg void OnChangeSfilename();
+	/// @brief Кнопка добавления файла `.t`: выбранный путь ставится в первую пустую строку (если пустых нет — не ставится).
 	afx_msg void OnAddCharacteristics();
+	/// @brief Кнопка пересчёта: `CTmcTtoS::TtoS` для каждой отмеченной непустой строки по порядку 1..20, до первой ошибки; окно остаётся открытым.
 	afx_msg void OnExportCharacteristics();
+	/// @brief Кнопка автозаполнения: частоты строк 1..20 = `m_dXmin + k*m_dDx`, k = 0..19.
 	afx_msg void OnExportFillxvalue();
+	/// @brief OK: выполняет пересчёт (`OnExportCharacteristics`) и закрывает окно (в том числе после ошибки).
 	virtual void OnOK();
+	/// @brief Кнопка удаления: сразу удаляет файл `m_SFileName` (без подтверждения). Нужна, потому что пересчёт дописывает точки в существующий `.s`.
 	afx_msg void OnChangeSfiledelet();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

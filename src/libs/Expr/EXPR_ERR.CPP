@@ -17,10 +17,17 @@
 **
 */
 
-#include <typedef.h>
+/// @file EXPR_ERR.CPP
+/// @brief Хранение кода ошибки вычислителя: `expr_set_error_cod`, `expr_get_error_cod`.
+///
+/// Код хранится в контексте потока, если он привязан (`expr_thread_ctx_begin`),
+/// иначе — в общей статической переменной.
+/// @see https://www.tamic.ru/docs/code/lib-expr.html#errors
+#include <Typedef.h>
 
-#include <expr.h>
+#include <EXPR.H>
 
+/// Общий код ошибки вычислителя (используется, когда контекст потока не привязан).
 static int error_cod = 0;
 
 void  expr_set_error_cod( int n )

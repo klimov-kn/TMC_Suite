@@ -1,9 +1,12 @@
 // TMCGROUTDoc.cpp : implementation of the CTMCGROUTDoc class
 //
-#include "stdafx.h"
-#ifndef TMC_IS_SEP	// path separator: backslash or '/'
-#define TMC_IS_SEP(c) ( ((c) == '/') || ((c) == '\\') )
-#endif
+/// @file TMCGROUTDoc.cpp
+/// @brief Документ TMCROS: чтение и запись файла документа `.tos`, чтение сигналов из `.t` и выражений, пути к файлам.
+///
+/// Часть модуля «Вьювер TMCROS». Описание методов — в `tmcgroutdoc.h`. Общая с TMCGROUT
+/// часть (файл документа, настройки, относительные пути) совпадает с `viewers/tmcgrout`.
+/// @see https://www.tamic.ru/docs/code/tmcros.html#document
+#include "StdAfx.h"
 #include <io.h>
 #include <fcntl.h>
 #include "TMCGROUT.h"
@@ -131,9 +134,9 @@ void CTMCGROUTDoc::CreatProc(char * lpszComLine)
 	int i;
 
 	strcpy( szCurrentDir, GetPathName() );
-	for( i = (int)strlen(szCurrentDir)-1; i >= 0; i-- )
+	for( i = strlen(szCurrentDir)-1; i >= 0; i-- )
 	{
-		if( szCurrentDir[i] == '\\' )
+		if( TMC_IS_SEP(szCurrentDir[i]) )
 		{
 			szCurrentDir[i] = '\0';
 			i = -1;
@@ -208,6 +211,7 @@ void CTMCGROUTDoc::ReadDocFile(void)
 		return;
 	};
 	
+	// Число графиков = число строк данных; затем массив и чтение каждой строки по номеру.
 	if( (n = ReadNGraph()) <= 0 )
 	{
 	 put_error_messege("number of graphic = 0");
@@ -226,7 +230,7 @@ void CTMCGROUTDoc::ReadDocFile(void)
 	
 }
 
-void CTMCGROUTDoc::put_error_messege(char *error1)
+void CTMCGROUTDoc::put_error_messege(const char *error1)
 {
   strncpy( error, error1, sizeof(error)-1 );	// BUG-023: error[300]
   error[sizeof(error)-1] = '\0';
@@ -292,6 +296,7 @@ void CTMCGROUTDoc::del_bl2( char *ch)
 			j1--;
 			j = 0;
 			break;
+		// '!' — начало комментария, если стоит в начале строки или после пробела вне скобок.
 		case '!' :
 			if( ( i1 == 0 )||( ( j1 == 0 )&&( ( ch[i-1] == ' ' )||( ch[i-1] == '\t' ) ) ) )	// N-33: ' !' - kommentarii
 			{
@@ -323,9 +328,9 @@ void CTMCGROUTDoc::ReadGraph( int nGr )
  char ch[TMC_GROUT_MAXSTRING_BUF];
 
  strncpy( grdoc.psGraph[nGr].szFileName, GetPathName(), TMC_GROUT_MAXSTRING_BUF-1 ); grdoc.psGraph[nGr].szFileName[TMC_GROUT_MAXSTRING_BUF-1] = '\0';	// BUG-023
- for( i = (int)strlen(grdoc.psGraph[nGr].szFileName)-1; i >= 0; i-- )
+ for( i = strlen(grdoc.psGraph[nGr].szFileName)-1; i >= 0; i-- )
  {
- 	if( grdoc.psGraph[nGr].szFileName[i] == '\\' )
+ 	if( TMC_IS_SEP(grdoc.psGraph[nGr].szFileName[i]) )
 	{
 		grdoc.psGraph[nGr].szFileName[i] = '\0';
 		i = -1;
@@ -334,7 +339,7 @@ void CTMCGROUTDoc::ReadGraph( int nGr )
 
  if( (fd = fopen(GetPathName(), "r")) == NULL )
  {
-	 sprintf( ch, "when open file %s", (LPCSTR)( GetPathName() ));
+	 sprintf( ch, "when open file %s", GetPathName());
 	 put_error_messege(ch);
 	 return ;
  };
@@ -343,7 +348,7 @@ void CTMCGROUTDoc::ReadGraph( int nGr )
  {
 	 if(fgets(ch, TMC_GROUT_MAXSTRING_BUF, fd) == NULL)
 	 {
-		 sprintf( ch, "when read line number %d in data file %s", i, (LPCSTR)( GetPathName() ));
+		 sprintf( ch, "when read line number %d in data file %s", i, GetPathName());
 		 put_error_messege(ch);
 		 fclose(fd);
 		 return;
@@ -353,6 +358,7 @@ void CTMCGROUTDoc::ReadGraph( int nGr )
  };
  fclose(fd);
 
+// Строка графика: 7 полей; при неудаче — 6 (без признака показа), 5 (без подписи), 1 (только имя).
 if( sscanf( ch,"%s %s %d %d %d %d %d",grdoc.psGraph[nGr].szGrapName,
 									  grdoc.psGraph[nGr].szGrapPodp,
 									&(grdoc.psGraph[nGr].OutFlag),
@@ -377,7 +383,7 @@ if( sscanf( ch,"%s %s %d %d %d %d %d",grdoc.psGraph[nGr].szGrapName,
 		{
 			if( sscanf( ch, "%s",  grdoc.psGraph[nGr].szGrapName) != 1 )
 			{
-				 sprintf( ch, "when read line number %d in data file %s", nGr, (LPCSTR)( GetPathName() ));
+				 sprintf( ch, "when read line number %d in data file %s", nGr, GetPathName());
 				 put_error_messege(ch);
 				 return ;
 			};
@@ -391,6 +397,7 @@ if( sscanf( ch,"%s %s %d %d %d %d %d",grdoc.psGraph[nGr].szGrapName,
 	grdoc.psGraph[nGr].OutFlag = TRUE;
 };
 
+// Имя в фигурных скобках — кривая-выражение.
 if( (grdoc.psGraph[nGr].szGrapName[0] == '{')&&(grdoc.psGraph[nGr].szGrapName[strlen(grdoc.psGraph[nGr].szGrapName)-1] == '}') )
 {
 	ReadGraph1Expession( nGr, grdoc.psGraph[nGr].szGrapName );
@@ -445,6 +452,7 @@ BOOL CTMCGROUTDoc::DocFileNewData(int n) //allocation memory for new data and se
 
 	for( i = 0, i1 = 0; i < grdoc.nGraph; i++, i1++)
 	{
+		// Стиль графика i — стиль по умолчанию номер i % 16.
 		if( i1 == 16 ) i1 = 0;
 		grdoc.psGraph[i].nPoint = sGrDoc[i1].nPoint;
 		grdoc.psGraph[i].pFreq  = sGrDoc[i1].pFreq;
@@ -503,14 +511,14 @@ BOOL CTMCGROUTDoc::WriteDocFile()
 
  if( (fd = fopen(GetPathName(), "w")) == NULL )
  {
-	 sprintf( ch, "when open file for write %s", (LPCSTR)( GetPathName() ));
+	 sprintf( ch, "when open file for write %s", GetPathName());
 	 put_error_messege(ch);
 	 return TRUE;
  };
 
  if(fprintf(fd,"%s\n!Graphics parameters\n", TMC_GROTS_DOCFILE_ID ) <= 0  )
 	 {
-		 sprintf( ch, "when write in data file %s", (LPCSTR)( GetPathName() ));
+		 sprintf( ch, "when write in data file %s", GetPathName());
 		 put_error_messege(ch);
 		 fclose(fd);
 		 return TRUE;
@@ -526,7 +534,7 @@ BOOL CTMCGROUTDoc::WriteDocFile()
 			TMC_GROUT_DOCFILE_ID_Ymax,	 grdoc.Ymax,
 			TMC_GROUT_DOCFILE_ID_nAFlagX,	 grdoc.nAFlagX,
 			TMC_GROUT_DOCFILE_ID_nAFlagY,	 grdoc.nAFlagY,
-			TMC_TOPVIEW_DOCFILE_ID_EDITORFLNM, (LPCSTR)( csEditorName ),
+			TMC_TOPVIEW_DOCFILE_ID_EDITORFLNM, csEditorName,
 			TMC_TOPVIEW_DOCFILE_ID_sDrawTextFont, lfInitial.lfFaceName,
 								lfInitial.lfHeight,
 								lfInitial.lfWidth,
@@ -559,14 +567,14 @@ BOOL CTMCGROUTDoc::WriteDocFile()
 			sGrDoc[ 14 ].LineColor, sGrDoc[ 14 ].LineType, sGrDoc[ 14 ].LineWidth,
 			sGrDoc[ 15 ].LineColor, sGrDoc[ 15 ].LineType, sGrDoc[ 15 ].LineWidth ) <= 0  )
 	 {
-		 sprintf( ch, "when write in data file %s", (LPCSTR)( GetPathName() ));
+		 sprintf( ch, "when write in data file %s", GetPathName());
 		 put_error_messege(ch);
 		 fclose(fd);
 		 return TRUE;
 	 };
  if(fprintf(fd,"%s", ch) <= 0  )
 	 {
-		 sprintf( ch, "when write in data file %s", (LPCSTR)( GetPathName() ));
+		 sprintf( ch, "when write in data file %s", GetPathName());
 		 put_error_messege(ch);
 		 fclose(fd);
 		 return TRUE;
@@ -582,7 +590,7 @@ BOOL CTMCGROUTDoc::WriteDocFile()
 			TMC_GROUT_DOCFILE_ID_Ymax,	 grdoc.Ymax,
 			TMC_GROUT_DOCFILE_ID_nAFlagX,	 grdoc.nAFlagX,
 			TMC_GROUT_DOCFILE_ID_nAFlagY,	 grdoc.nAFlagY,
-			TMC_TOPVIEW_DOCFILE_ID_EDITORFLNM, (LPCSTR)( csEditorName ),
+			TMC_TOPVIEW_DOCFILE_ID_EDITORFLNM, csEditorName,
 			TMC_TOPVIEW_DOCFILE_ID_sDrawTextFont, lfInitial.lfFaceName,
 								lfInitial.lfHeight,
 								lfInitial.lfWidth,
@@ -615,16 +623,16 @@ BOOL CTMCGROUTDoc::WriteDocFile()
 			sGrDoc[ 14 ].LineColor, sGrDoc[ 14 ].LineType, sGrDoc[ 14 ].LineWidth,
 			sGrDoc[ 15 ].LineColor, sGrDoc[ 15 ].LineType, sGrDoc[ 15 ].LineWidth ) <= 0  )
 	 {
-		 sprintf( ch, "when write in data file %s", (LPCSTR)( GetPathName() ));
+		 sprintf( ch, "when write in data file %s", GetPathName());
 		 put_error_messege(ch);
 		 fclose(fd);
 		 return TRUE;
 	 };
 	AfxGetApp()->WriteProfileString( TMC_GROTS_DOCFILE_ID, TMC_GROTS_DOCFILE_ID, ch);
 
- if(fprintf(fd,"!Graphics data\n!file name : %s\n!Data file for draw graphics\n!TFileName GraphicsName DrawFlag Input1 Mod1 Input2 Mod2\n", (LPCSTR)( GetPathName() ) ) <= 0  )
+ if(fprintf(fd,"!Graphics data\n!file name : %s\n!Data file for draw graphics\n!TFileName GraphicsName DrawFlag Input1 Mod1 Input2 Mod2\n", GetPathName() ) <= 0  )
 	 {
-		 sprintf( ch, "when write data file %s", (LPCSTR)( GetPathName() ));
+		 sprintf( ch, "when write data file %s", GetPathName());
 		 put_error_messege(ch);
 		 fclose(fd);
 		 return TRUE;
@@ -650,7 +658,7 @@ BOOL CTMCGROUTDoc::WriteDocFile()
 									  grdoc.psGraph[i].nInp2,
 									  grdoc.psGraph[i].nMod2 ) <= 0  )
 	 {
-		 sprintf( ch, "when write line number %d in data file %s", i, (LPCSTR)( GetPathName() ));
+		 sprintf( ch, "when write line number %d in data file %s", i, GetPathName());
 		 put_error_messege(ch);
 		 fclose(fd);
 		 return TRUE;
@@ -693,6 +701,7 @@ void CTMCGROUTDoc::MakeDocFileName( void )
  int i;
  
 						  // if File.dat is NULL
+	// Случай 1: новый документ без пути.
 	if( strcmp( GetPathName(), "" ) == 0 )
 	{					  // set File.dat as title
 		// FALSE: не добавлять во MRU — GetTitle() возвращает заголовок, а не путь;
@@ -700,14 +709,14 @@ void CTMCGROUTDoc::MakeDocFileName( void )
 		SetPathName( GetTitle(), FALSE );
 		if( (fd = fopen(GetPathName(), "w")) == NULL )
 		{
-			sprintf( ch, "when open file for write %s", (LPCSTR)( GetPathName() ));
+			sprintf( ch, "when open file for write %s", GetPathName());
 			put_error_messege(ch);
 			return ;
 		};
 
 	 if(fprintf(fd,"%s\n!Graphics parameters\n", TMC_GROTS_DOCFILE_ID ) <= 0  )	// N-33: bylo TMC_GROUT_DOCFILE_ID
 		 {
-			 sprintf( ch, "when write data file %s", (LPCSTR)( GetPathName() ));
+			 sprintf( ch, "when write data file %s", GetPathName());
 			 put_error_messege(ch);
 			 fclose(fd);
 			 return ;
@@ -718,6 +727,7 @@ void CTMCGROUTDoc::MakeDocFileName( void )
 	};
 
 							// if File.dat is File.s
+	// Случай 2: путь указывает на файл; если это не документ — создать документ рядом.
 	strcpy( ch, GetPathName() );
 	if( ( fd = fopen( ch, "r" ) ) == NULL )	// N-33: fail ne naiden - ne sozdavat dokument so ssylkoi na sebya
 	{
@@ -734,22 +744,22 @@ void CTMCGROUTDoc::MakeDocFileName( void )
 		SFileNameToDatFileName( ch1 );
 		// FALSE: не добавлять рабочий путь во MRU.
 		SetPathName( ch1, FALSE );
-		for( i = (int)strlen(ch)-1; i >= 0; i-- )
+		for( i = strlen(ch)-1; i >= 0; i-- )
 		{
-			if( ch[i] == '\\' )	break;
+			if( TMC_IS_SEP(ch[i]) )	break;
 		};
 		i++;
 
 		if( (fd = fopen(GetPathName(), "w")) == NULL )
 		{
-			sprintf( ch, "when open file for write %s", (LPCSTR)( GetPathName() ));
+			sprintf( ch, "when open file for write %s", GetPathName());
 			put_error_messege(ch);
 			return ;
 		};
 
 	 if(fprintf(fd,"%s\n!Graphics parameters\n", TMC_GROTS_DOCFILE_ID ) <= 0  )
 		 {
-			 sprintf( ch, "when write line number %d in data file %s", i, (LPCSTR)( GetPathName() ));
+			 sprintf( ch, "when write line number %d in data file %s", i, GetPathName());
 			 put_error_messege(ch);
 			 fclose(fd);
 			 return ;
@@ -772,9 +782,9 @@ void CTMCGROUTDoc::MakeDocFileName( void )
 			 return ;
 		 };
 	*/
-	 if(fprintf(fd,"!Graphics data\n!file name : %s\n!Data file for draw graphics\n!TFileName GraphicsName DrawFlag Input1 Mod1 Input2 Mod2\n", (LPCSTR)( GetPathName() ) ) <= 0  )
+	 if(fprintf(fd,"!Graphics data\n!file name : %s\n!Data file for draw graphics\n!TFileName GraphicsName DrawFlag Input1 Mod1 Input2 Mod2\n", GetPathName() ) <= 0  )
 		 {
-			 sprintf( ch, "when write line number %d in data file %s", i, (LPCSTR)( GetPathName() ));
+			 sprintf( ch, "when write line number %d in data file %s", i, GetPathName());
 			 put_error_messege(ch);
 			 fclose(fd);
 			 return ;
@@ -782,7 +792,7 @@ void CTMCGROUTDoc::MakeDocFileName( void )
 
 		if(fprintf( fd,"%s %s 1 1 1 1 1\n", ch+i, ch+i ) <= 0  )
 		{
-			sprintf( ch, "when write in data file %s", (LPCSTR)( GetPathName() ));
+			sprintf( ch, "when write in data file %s", GetPathName());
 			put_error_messege(ch);
 			fclose(fd);
 			return ;
@@ -841,7 +851,7 @@ void CTMCGROUTDoc::SFileNameToDatFileName( char *ch)
 {
 	int i;
 
-	for( i = (int)strlen(ch); i > 0; )		// N-33: tochka - tolko v imeni faila, ne v papke
+	for( i = strlen(ch); i > 0; )		// N-33: tochka - tolko v imeni faila, ne v papke
 	{
 		if( TMC_IS_SEP( ch[i-1] ) ) { i = 0; break; };
 		if( ch[--i] == '.' ) break;
@@ -849,7 +859,7 @@ void CTMCGROUTDoc::SFileNameToDatFileName( char *ch)
 
 	if( ( i == 0 )&&( ch[0] != '.' ) )
 	{
-		i = (int)( strlen(ch) );		// N-33: dalee ch + i + 1 - posle dobavlennoi tochki
+		i = strlen(ch);		// N-33: dalee ch + i + 1 - posle dobavlennoi tochki
 		strcpy( ch + strlen(ch), ".tos");
 	}
 	else
@@ -897,8 +907,10 @@ BOOL CTMCGROUTDoc::IsDataModific( void )
 }				 
 
 #ifdef FILE_SHARE_WRITE		// N-33
+/// Режим совместного доступа при чтении времени записи: разрешить запись другим (файл может писать ядро).
 #define TMC_N33_SHARE_WRITE FILE_SHARE_WRITE
 #else
+/// Режим совместного доступа при чтении времени записи (без `FILE_SHARE_WRITE` — 0).
 #define TMC_N33_SHARE_WRITE 0
 #endif
 FILETIME CTMCGROUTDoc::LastWriteTime( char *szFileName )
@@ -936,20 +948,20 @@ void CTMCGROUTDoc::AddGraphicsInDoc( char *szSFileName )
 
  if( (fd = fopen(GetPathName(), "a")) == NULL )
  {
-	 sprintf( ch, "when open file for add %s to %s", szSFileName, (LPCSTR)( GetPathName() ));
+	 sprintf( ch, "when open file for add %s to %s", szSFileName, GetPathName());
 	 put_error_messege(ch);
 	 return ;
  };
 
  MakeRelatPathSFile( szSFileName );
 
- for( i = (int)strlen( szSFileName ); i > -1; i-- )
-	 if( szSFileName[i] == '\\' ) break;
+ for( i = strlen( szSFileName ); i > -1; i-- )
+	 if( TMC_IS_SEP(szSFileName[i]) ) break;
 
 
  if(fprintf(fd,"\n!New S_Matrix file was add.\n%s %s 1 1 1 1 1\n", szSFileName, szSFileName + i + 1 ) <= 0  )
  {
-	 sprintf( ch, "when write line number %s in data file %s", szSFileName, (LPCSTR)( GetPathName() ));
+	 sprintf( ch, "when write line number %s in data file %s", szSFileName, GetPathName());
 	 put_error_messege(ch);
 	 fclose(fd);
 	 return ;
@@ -962,6 +974,11 @@ void CTMCGROUTDoc::AddGraphicsInDoc( char *szSFileName )
 
 
 // S-43: sravnenie chastei puti: na Windows bez ucheta registra; '\' i '/' ravny
+/// @brief Сравнивает первые `n` символов двух путей: `\` и `/` равны, на Windows без учёта регистра латиницы.
+/// @param[in] a первый путь
+/// @param[in] b второй путь
+/// @param[in] n число сравниваемых символов
+/// @return 0 — совпадают; иначе разность первых различных символов.
 static int TmcPathNCmp( const char *a, const char *b, int n )
 {
 	int k, ca, cb;
@@ -1035,6 +1052,8 @@ void CTMCGROUTDoc::MakeRelatPathSFile( char *szSFileName )
 		n = nDoc;
 	};
 	
+	// Идём по общим папкам; на первой различной папке строим путь: ".." на каждую
+	// оставшуюся папку документа, затем остаток пути файла.
 	for( i = 0, j = 0; i < n; i++, j += ii)
 	{
 		iD = SelectDirName( ch + j );
@@ -1050,7 +1069,7 @@ void CTMCGROUTDoc::MakeRelatPathSFile( char *szSFileName )
 			{
 				ch1[i2++] = '.';
 				ch1[i2++] = '.';
-				ch1[i2++] = '\\';
+				ch1[i2++] = TMC_PATH_SEP;
 			};
 			strcpy( ch1 + i2, szSFileName + j );
 			strcpy( szSFileName, ch1 );
@@ -1058,11 +1077,12 @@ void CTMCGROUTDoc::MakeRelatPathSFile( char *szSFileName )
 		};
 	};
 
+	// Все общие папки совпали: файл в папке документа или в её родительской папке.
 	for( i1 = 0, i2 = 0; i1 < ( nDoc - n ); i1++ )	// S-43: fail v roditelskoi papke dokumenta
 	{
 		ch1[i2++] = '.';
 		ch1[i2++] = '.';
-		ch1[i2++] = '\\';
+		ch1[i2++] = TMC_PATH_SEP;
 	};
 	strcpy( ch1 + i2, szSFileName + j );
 	strcpy( szSFileName, ch1 );
@@ -1097,25 +1117,26 @@ void CTMCGROUTDoc::ReadGraph1( int nGr, char *szFileName, int *nPoint, double **
  int i, i1, n;
 
  strncpy( grdoc.psGraph[nGr].szFileName, GetPathName(), TMC_GROUT_MAXSTRING_BUF-1 ); grdoc.psGraph[nGr].szFileName[TMC_GROUT_MAXSTRING_BUF-1] = '\0';	// BUG-023
- for( i = (int)strlen(grdoc.psGraph[nGr].szFileName)-1; i >= 0; i-- )
+ for( i = strlen(grdoc.psGraph[nGr].szFileName)-1; i >= 0; i-- )
  {
- 	if( grdoc.psGraph[nGr].szFileName[i] == '\\' )
+ 	if( TMC_IS_SEP(grdoc.psGraph[nGr].szFileName[i]) )
 	{
 		grdoc.psGraph[nGr].szFileName[i] = '\0';
 		i = -1;
 	};
  };
  
- n = (int)( strlen(grdoc.psGraph[nGr].szFileName) );
- grdoc.psGraph[nGr].szFileName[n]   = '\\';
- i1 = (int)( strlen( szFileName ) ); 
+ // Папка документа + разделитель; для абсолютного имени (есть ':' или начало "\\") n = -1.
+ n = strlen(grdoc.psGraph[nGr].szFileName);
+ grdoc.psGraph[nGr].szFileName[n]   = TMC_PATH_SEP;
+ i1 = strlen( szFileName ); 
  for( i = 0; i < i1; i++)
  {
 	 if( (szFileName[i] == ':')||( ( i == 0 )&&TMC_IS_SEP( szFileName[0] )&&TMC_IS_SEP( szFileName[1] ) )
 #ifndef _WIN32
 		||( ( i == 0 )&&( szFileName[0] == '/' ) )	// I-23: POSIX absolute path /home/...
 #endif
-		)	// N-33: i UNC \\server\...	// N-33: i UNC \\server\...
+		)	// N-33: i UNC \\server\...
 	 {
 		 n = -1;
 		 break ;
@@ -1167,6 +1188,7 @@ void CTMCGROUTDoc::ReadGraph1Expession( int nGr, char *szExpression )
 	};
 
 	n = grdoc.psGraph[nGr].pcExpr->GetNVar();
+	// Прочитать все файлы выражения в массивы объекта выражения.
 	for( i = 0; i < n; i++ )
 	{
 		pszFileName = grdoc.psGraph[nGr].pcExpr->GetFileName( i );
@@ -1201,6 +1223,7 @@ void CTMCGROUTDoc::ReadGraph1Expession( int nGr, char *szExpression )
 	{
 		grdoc.psGraph[nGr].pFreq[i] = (*ppFreq)[i];
 	};
+	// Значения выражения вычисляются один раз и хранятся как сигнал графика.
 	grdoc.psGraph[nGr].pSmatr = new _complex[*pnPoint];	// A-28: znacheniya vyrazheniya - kak signal
 	for( i = 0; i < *pnPoint; i++ )
 	{
@@ -1225,6 +1248,7 @@ void CTMCGROUTDoc::SetGraphColor( void )
 
 
 
+/// Признак ошибки разбора текущей строки `.t` (взводят `gets_f1`, `gets_sss`); такая строка пропускается.
 static BOOL s_bTmcParseError = FALSE;	// S-39: oshibka razbora stroki .t (gets_f1 / gets_sss)
 
 void CTMCGROUTDoc::read_RT_output_signal(int *in1, int *mod1, int *in2, int *mod2, char *filename, _complex **sss, double **f1, int *nPoint, double *dFr)
@@ -1249,6 +1273,7 @@ void CTMCGROUTDoc::read_RT_output_signal(int *in1, int *mod1, int *in2, int *mod
 	_complex *pcS = NULL;
 	double dT1, dS1;
 	if( (fp = fopen( filename, "r")) == NULL ) return;
+	// Один проход: строки данных (начинаются с пробела) — время и значение входа in1; строка частоты — dFreq.
 	for( n = 0, *dFr = 1.e+10; fgets( ch, TMC_GROUT_MAXSTRING_BUF, fp) != NULL; )
 	{
 		if( ch[0] == ' ' )
@@ -1336,6 +1361,7 @@ double CTMCGROUTDoc::gets_sss(char *ch, int in1, int mod1)
 
 	if( sscanf( ch + i, "%d%lg%lg", &i1, &r1, &r2) != 3 ) s_bTmcParseError = TRUE;	// S-39: net porta in1 v stroke
 
+	// Тройка входа: номер блока i1, падающая волна r1 (Up), уходящая r2 (Uo).
 	if( mod1 == 0 ) return r1;
 	if( mod1 == 1 ) return r2;
 
@@ -1369,7 +1395,7 @@ int CTMCGROUTDoc::skip_ntdt_itd(char *ch, int in1)
 int CTMCGROUTDoc::skip_blank(char *ch)
 {
 	int i;
-	for( i = 0; ch[i] != NULL; i++ )
+	for( i = 0; ch[i] != 0; i++ )
 	{
 		switch( ch[i] )
 		{
@@ -1386,7 +1412,7 @@ int CTMCGROUTDoc::skip_blank(char *ch)
 int CTMCGROUTDoc::skip_number(char *ch)
 {
 	int i;
-	for( i = 0; ch[i] != NULL; i++ )
+	for( i = 0; ch[i] != 0; i++ )
 	{
 		switch( ch[i] )
 		{
@@ -1407,7 +1433,7 @@ void CTMCGROUTDoc::SetOneReadGraphParameters(char *ch)
 	 del_bl2(ch);
 	 if( ch[0] == '#' ) 
 	 {
-		 if( strncmp( ch, TMC_GROTS_DOCFILE_ID, strlen(TMC_GROTS_DOCFILE_ID) ) == 0 )    { }	// W-02: file signature line - nothing to read (C4390)
+		 if( strncmp( ch, TMC_GROTS_DOCFILE_ID, strlen(TMC_GROTS_DOCFILE_ID) ) == 0 )    ;	// W-02: file signature line - nothing to read
 		 if( strncmp( ch, TMC_GROUT_DOCFILE_ID_PointDrawFlag, strlen(TMC_GROUT_DOCFILE_ID_PointDrawFlag) ) == 0 )
 		 {
 			 sscanf( ch + strlen(TMC_GROUT_DOCFILE_ID_PointDrawFlag), "%d;%d;",  &(grdoc.PointDrawFlag), &(bLossPoint) );
@@ -1553,6 +1579,7 @@ void CTMCGROUTDoc::ReadGraphParametersDefault()
  if( csBuffer.GetLength() <= 0 )	return;
  strcpy( ch1, csBuffer);
 
+ // Строка настроек: поля разделены байтом 0x01; каждое поле разбирается как строка файла документа.
  for( i = 0, i1 = 0; ch1[i] != '\0' ; i++)
  {
 	 if( ch1[i] == '')
@@ -1594,6 +1621,7 @@ void CTMCGROUTDoc::SetDefaultLineColorWidthType()
 		sGrDoc[i].LastWriteTime.dwLowDateTime   = 0;
 		sGrDoc[i].LastWriteTime.dwHighDateTime  = 0;
 		sGrDoc[i].OutFlag = TRUE;
+		// Цвет и форма маркера (ломаная из 10 вершин) у каждого из 16 стилей свои.
 		switch(i)
 		{
 		case  0:	sGrDoc[i].LineColor = RGB( 0, 0, 255);

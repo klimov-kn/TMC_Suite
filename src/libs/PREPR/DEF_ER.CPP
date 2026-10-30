@@ -13,12 +13,18 @@
 **
 */
 
+/// @file DEF_ER.CPP
+/// @brief Таблица текстов для кодов возврата препроцессора (`def_err_get`).
+///
+/// Часть модуля «Библиотека prepr». Индекс таблицы — модуль кода (0..11).
+/// @see https://www.tamic.ru/docs/code/lib-prepr.html#errors
 
-#include "prepr1.h"
 
-char  *def_err_get( int i_err )
+#include "Prepr1.h"
+
+const char  *def_err_get( int i_err )
  {
-  static char  *error[]={
+  static const char  *error[]={
 			      "all right",
 			      "very small memory",
 			      "error in buffer",

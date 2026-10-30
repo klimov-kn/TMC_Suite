@@ -1,14 +1,22 @@
 // TmcRTH_IndanParam.cpp : implementation file
 //
 
-#include "stdafx.h"
+/// @file TmcRTH_IndanParam.cpp
+/// @brief Разбор секции `#PARM`, проверка параметров, выравнивание области по сетке
+///        и пересчёт координат в номера узлов.
+///
+/// Часть библиотеки TMCIndan. Реализует `CTmcRTH_IndanParam` и глобальные
+/// функции механического шага по времени (`SetDeltaT` и др.).
+/// @see https://www.tamic.ru/docs/code/lib-tmcindan.html#param
+
+#include "STDAFX.H"
 #include <limits.h>
 #include <float.h>
 #include <math.h>
-#include <typerth.h>
+#include <Typerth.h>
 #include <TmcRTH_Indan.h>
 #include <TmcRTH_IndanParam.h>
-#include <expr.h>
+#include <EXPR.H>
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -456,6 +464,7 @@ void CTmcRTH_IndanParam::ReadDelta( CString &csCh )
 	nSeenInSection |= TMC_PARAM_SEEN_DELTA;	// A-13, B-15
 	nXGrid = 0;	// B-2: the grid is calculated again
 	nYGrid = 0;
+	// Шаг по времени Rt-сетки: dT = Delta*sqrt(mu0*eps0/2) = Delta/(c*sqrt(2)).
 	rt = (_real)(rDelta*sqrt(0.5*MU0___*EPS0___));
 	
 	return;
@@ -747,7 +756,7 @@ void CTmcRTH_IndanParam::IsCorrectly( CTmcLibError &cError1 )
 	
 	// B-15 (author 29.10): every step is an independent task - all of X_MIN, X_MAX, Y_MIN, Y_MAX, DELTA, TIME, FREQ
 	// must be in its #PARM section (old: the missing ones were taken from the previous step).
-	/// �-15: � ������ `#PARM` ������� ���� ����������� X_MIN, X_MAX, Y_MIN, Y_MAX, DELTA, TIME, FREQ.
+	/// Б-15: в секции `#PARM` каждого шага обязательны X_MIN, X_MAX, Y_MIN, Y_MAX, DELTA, TIME, FREQ.
 	if( ( nSeenInSection & TMC_PARAM_SEEN_REQUIRED ) != TMC_PARAM_SEEN_REQUIRED )
 	{
 		CString csMiss;
@@ -805,6 +814,7 @@ void CTmcRTH_IndanParam::IsCorrectly( CTmcLibError &cError1 )
 		return;
 	};
 	
+	// Не меньше пяти шагов сетки на длину волны в вакууме на частоте FREQ.
 	if( rDelta > (C0___/(5.*rFreq)) )
 	{
 		csBuf.Format("Section %s Delta(%lg) > WaveLenght(%lg)/5; make please parameter %s less than %lg %s",
@@ -830,8 +840,8 @@ void CTmcRTH_IndanParam::IsCorrectly( CTmcLibError &cError1 )
 	if( nXGrid <= 0 )
 	{
 		int nX111 = (int)( ( rXmaxUser - rXmin )/rDelta + 1e-7 ) + 1;
-		/// �-2.2 (����� 29.10): �������� ������� ������� � ����� �� ���� ���� ������ �������� �������
-		/// (��������� ���� �� ��� ������ X_MAX, �� �� �� Y).
+		/// Б-2.2 (автор 29.10): запасной столбец задуман — сетка на один узел больше заданной области
+		/// (последний узел на шаг дальше X_MAX, то же по Y).
 		rXmax = rXmin + nX111*rDelta;
 		nXGrid = nX111 + 1;
 	};
@@ -1024,6 +1034,8 @@ TmcIdx CTmcRTH_IndanParam::CalcnNodeGlobal( double x, double y )	// INT64
 	nX = CalcnX();
 	nY = CalcnY();
 
+	// Точка прижимается к области; у левого/правого края — крайний столбец узлов,
+	// иначе номер ближайшего узла: ix = round((x - Xmin)/Delta), iy = round((y - Ymin)/Delta).
 	if( x > (double)rXmax )	x = (double)rXmax;
 	if( x < (double)rXmin )	x = (double)rXmin;
 	if( y > (double)rYmax )	y = (double)rYmax;
@@ -1066,6 +1078,8 @@ TmcIdx CTmcRTH_IndanParam::CalcnNodeGlobalFM( double x, double y )	// INT64
 	if( y > (double)rYmax )	y = (double)rYmax;
 	if( y < (double)rYmin )	y = (double)rYmin;
 	
+	// Как в CalcnNodeGlobal, но полоса у левого/правого края — полтора шага,
+	// и точка в ней относится ко второму столбцу от края.
 	if( x >= ((double)rXmax-1.5*(double)rDelta) )
 	{
 		x = (double)rXmax;
@@ -1297,7 +1311,9 @@ void CTmcRTH_IndanParam::ReadNUnit( CString &csCh )
 
 
 
+/// Механический шаг по времени, с (одна переменная на процесс); до `SetDeltaT` — 1e8.
 static double dDeltaT = 100000000;
+/// TRUE — механический шаг задан (`SetDeltaT`).
 static BOOL bDeltaTFlag = FALSE;
 
 void SetDeltaT( double dDeltaT1 )

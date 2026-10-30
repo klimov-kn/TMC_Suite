@@ -1,16 +1,26 @@
 // TmcRTH_Indan.cpp : implementation file
 //
 
-#include "stdafx.h"
+/// @file TmcRTH_Indan.cpp
+/// @brief Чтение задания: запуск препроцессора, построчное чтение временного файла,
+///        поиск шага #STEP и секций, проверки окна и частоты `SMATRIX`.
+///
+/// Часть библиотеки TMCIndan. Реализует `CTmcRTH_Indan` и `MainPrepr`.
+/// Каждая секция ищется заново от начала временного файла препроцессора:
+/// `FindStep` открывает файл и встаёт на нужный `#STEP`, `FindSection` — на метку
+/// секции, `GetLineSection` отдаёт строки до метки конца секции.
+/// @see https://www.tamic.ru/docs/code/lib-tmcindan.html#reading
+
+#include "STDAFX.H"
 #include <TmcRTH_Indan.h>
-#include <prepr1.h>
+#include <Prepr1.h>
 #include <map>		// T-8
 #include <set>
 #include <string>
 #ifndef _WIN32
 #include <unistd.h>	// S-16: getpid
 #endif
-#include <tmcrth_indan.h>
+#include <TmcRTH_Indan.h>
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -78,6 +88,7 @@ void CTmcRTH_Indan::SetTplFileName( CString csFileName )
 		return;
 	};
 	fclose(pfTpl);
+	// Файл открывается: запоминаем путь, папку задания и имя временного файла препроцессора.
 	csTplFileName = csFileName;
 	SetCurrentPath();
 	// S-16: the number of the process in the name - two runs of one .tpl do not share the file
@@ -132,6 +143,7 @@ void CTmcRTH_Indan::SetCurrentPath( void )
 		return;
 	};
 
+	// Полный путь к заданию; папка — всё до последнего разделителя пути.
 	DWORD dwFull = GetFullPathNameA( csTplFileName, CTMCRTH_INDANSBUF, szBuf, NULL );	// A-16
 	if( ( dwFull == 0 )||( dwFull >= CTMCRTH_INDANSBUF ) ) strcpy( szBuf, csTplFileName );
 	n = (int)(strlen(szBuf));
@@ -142,7 +154,7 @@ void CTmcRTH_Indan::SetCurrentPath( void )
 	};
 	for( i = n - 1; i > 1; i--)
 	{
-		if( szBuf[i] == '\\')
+		if( TMC_IS_SEP(szBuf[i]))
 		{
 			szBuf[i] = '\0';
 			csCurrentPath.Format( "%s", szBuf );
@@ -208,6 +220,9 @@ int CTmcRTH_Indan::CalcNStepMax( void )
 	std::map< std::string, std::set<std::string> > mSFreq;
 	BOOL bInOutput = FALSE;
 
+	// Один проход по файлу: i — число закрытых шагов, ii — 1 внутри #STEP ... #END_STEP.
+	// Попутно внутри #OUTPUT собираются пары «файл SMATRIX -> множество частот»
+	// (частота нормализуется через %.12g, к имени без точки дописывается .s).
 	for( i = 0, ii = 0; GetLine( csCh ) != EOF;  )
 	{
 		if( IsError() ) return 0;
@@ -330,6 +345,8 @@ int CTmcRTH_Indan::GetLine( CString &csCh )
 	if( pfPrepr == NULL ) OpenPreprFile();
 	if( IsError() ) return EOF;
 
+	// Читаем строки, пока не найдётся значимая: пустые строки и комментарии «!»
+	// пропускаются; строка, не поместившаяся в буфер, — ошибка (кроме комментария).
 	char szBuf[CTMCRTH_INDAN_LINELEN];
 	CString csBuf;
 
@@ -390,6 +407,8 @@ void CTmcRTH_Indan::del_blanks( char * szBuf )
 
 	n = (int)(strlen( szBuf ));
 
+	// i1 — позиция записи; ii = 1 — предыдущий символ значимый (промежуток ещё не записан).
+	// nGap — число записанных промежутков: первый всегда становится пробелом.
 	for( i = 0, i1 = 0, ii = 0; i < n; i++)
 	{
 		switch( szBuf[i] )
@@ -444,6 +463,7 @@ void CTmcRTH_Indan::ReadParamSection( int nStep1 )
 	CString csBuf;
 
 	if( IsError() ) return;
+	// Параметры накапливаются: сбрасываются только перед первым шагом.
 	if( nStep1 == 1 ) cParam.DeleteData();
 	
 	FindStep( nStep1 );
@@ -509,7 +529,7 @@ void CTmcRTH_Indan::FindStep( int nStep1 )
 	return;
 }
 
-int CTmcRTH_Indan::FindSection( char * pszSection,  char * pszEndSection)
+int CTmcRTH_Indan::FindSection( const char * pszSection,  const char * pszEndSection)
 {
 	if( IsError() ) return 0;
 	csSection.Format( "%s", pszSection );
@@ -633,6 +653,7 @@ void CTmcRTH_Indan::ReadOutputSection( void )
 
 	if( IsError() ) return;
 	
+	// Значения секции #OUTPUT переводятся в СИ единицами, прочитанными в #PARM.
 	cOut.DeleteData();
 
 	cOut.SetFreqAndTimeUnit( cParam.rFreqUnit, cParam.rTimeUnit );
@@ -737,6 +758,7 @@ void CTmcRTH_Indan::ReadTopologySection( void )
 	CString csBuf;
 
 	if( IsError() ) return;
+	// Список блоков строится заново для каждого шага.
 	cTopology.DeleteData();
 	
 	cTopology.SetParam( &cParam );
@@ -856,41 +878,8 @@ void CTmcRTH_Indan::OnOffSoundEffects()
 	return;
 }
 
-void CTmcRTH_Indan::ReadData(CString csFileName, int nStepNum )
-{
-	if( strlen( csFileName ) < 1 )
-	{
-		CString csBuf;
-		csBuf.Format("bad file name (lenght of file name < 1)");
-		cError.PutErrorMessage( csBuf );
-		return;
-	}
-	SetTplFileName( csFileName );
-	if( cError.IsError() )
-	{
-		return;
-	}
-	if( (nStepNum < 1)||(nStepNum > GetNStepMax() ) )
-	{
-		CString csBuf;
-		csBuf.Format("bad step number %d (in file %s step number must be from 1 to %d) ", nStepNum, csFileName, GetNStepMax());
-		cError.PutErrorMessage( csBuf );
-		return;
-	};
-	SetStepNumber( nStepNum );
-	ReadParamSection();
-	ReadTopologySection();
-	ReadLinkListSection();
-	ReadOutputSection();
-
-	return;
-}
 
 
-CString CTmcRTH_Indan::GetTopologyFileName(void)
-{
-	return csTplFileName;
-}
 
 // Write file csFileName for calculating in Maple 9.0
 // after executing Maple 9.0 data was write in file csFileNameData
@@ -939,6 +928,7 @@ void MainPrepr( CString csTplFileNamePrepr,	CString csTplFileName, CString csCur
 		return;
 	};
 	
+	// Препроцессор принимает строки C; буферы имён — 512 символов.
 	strcpy( szSourceFileName, csTplFileName);
 	strcpy( szTargetFileName, csTplFileNamePrepr);
 	strcpy( szPathName, csCurrentPath);

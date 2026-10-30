@@ -11,6 +11,12 @@
 **
 */
 
+/// @file Sofftbl.cpp
+/// @brief Занесение частоты и смещения блока в таблицу смещений S-файла (`update_offset_table`).
+///
+/// Часть модуля «Библиотека sfile95». Функция объявлена и описана в `s_file.h`.
+/// @see https://www.tamic.ru/docs/code/lib-sfile95.html#offset-table
+
 #include <stdio.h>
 #include <string.h>
 
@@ -18,12 +24,12 @@
  #define _HIGH_ACCURACY
 #endif
 
-#include <typedef.h>
-#include <tmclimit.h>
-#include <tmc_lib.h>
-#include <frqdata.h>
-#include <error1.h>
-#include <s_file.h>
+#include <Typedef.h>
+#include <TMCLIMIT.H>
+#include <TMC_LIB.H>
+#include <FRQDATA.H>
+#include <Error1.h>
+#include <S_file.h>
 
 
 int update_offset_table( _real frq, int num, int nTBL_Flag )
@@ -31,16 +37,16 @@ int update_offset_table( _real frq, int num, int nTBL_Flag )
   int i;
   int nPS_Number = Get_PS_Number();
   long     lOffset;
-  fpos_t   fPos_t;
+  long     fPos_t;
   S_OFFSET s_Offset;
 //  int n_Offset;
   FILE *sf = Get_S_FILE();
   INT_1 nBuf;
 
   if( fseek( sf, 0L, SEEK_END ) != 0 ) return -1;     /* position to the file end */
-  if( fgetpos( sf,  &fPos_t ) != 0 ) return -1;       /* get end's offset */
+  if( (fPos_t = ftell( sf )) == -1L ) return -1;      /* get end's offset */
     /* skipping TITLE */
-  lOffset = (fpos_t)(8*sizeof( char ) +  3*sizeof( INT_1 ) );   /* title offset */
+  lOffset = (long)(8*sizeof( char ) +  3*sizeof( INT_1 ) );   /* title offset */
   if( fseek( sf, lOffset, SEEK_SET ) != 0 ) return -1;
 
     /* skipping PS before offset table */
@@ -50,11 +56,13 @@ int update_offset_table( _real frq, int num, int nTBL_Flag )
    /* skipping length of the offset table */
   if( fseek( sf, (long)sizeof(WORD), SEEK_CUR ) != 0 ) return -1;
 
+  // в шапку таблицы пишется число уже записанных частот (номер + 1)
   num++;
   nBuf = num;
   if( write_S( &nBuf, sizeof( INT_1 ) ) != 0 ) return -1; /* write frq num */
   num--;
 
+  // запись номер num: 8 байт частоты + 4 байта смещения
   lOffset =  num*(sizeof(_real)+sizeof(int));  /* S_OFFSET offset */
   s_Offset.frq     = frq;
   s_Offset.lOffset = (int)fPos_t;

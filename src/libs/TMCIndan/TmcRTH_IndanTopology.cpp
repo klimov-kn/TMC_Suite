@@ -1,12 +1,19 @@
 // TmcRTH_IndanTopology.cpp : implementation file
 //
 
-#include "stdafx.h"
-#include <tmcgrviw.h>
+/// @file TmcRTH_IndanTopology.cpp
+/// @brief Топология шага: передача блоков в список и разбор строк размещения `T n; X0; Y0;`.
+///
+/// Часть библиотеки TMCIndan. Реализует `CTmcRTH_IndanTopology`; здесь же
+/// определяется сторона входа (левая/правая, нижняя/верхняя) по точке привязки.
+/// @see https://www.tamic.ru/docs/code/lib-tmcindan.html#topology
+
+#include "STDAFX.H"
+#include <Tmcgrviw.h>
 #include <TmcRTH_IndanTopology.h>
 #include <TmcRTH_Indan.h>
 #include <math.h>
-#include <expr.h>
+#include <EXPR.H>
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -141,6 +148,9 @@ void CTmcRTH_IndanTopology::ReadLink( CString &csCh, CTmcLibError &cError )
 	cBlockList.SetLink( iBuf, x0, y0, cError );
 	if( cError.IsError() ) return;
 
+	// Сторона входа по точке привязки: в пределах шага от границы области или
+	// в ближней к ней половине области. Вход INPUT_X по умолчанию левый,
+	// INPUT_Y — верхний; при необходимости тип блока меняется.
 	CTmcRTH_BlockList *pcBl;
 	pcBl = cBlockList.FindBlock( iBuf );
 	if( pcBl->GetnType() == CTMCRTH_BLCKNTYPE_INPXLEFT )

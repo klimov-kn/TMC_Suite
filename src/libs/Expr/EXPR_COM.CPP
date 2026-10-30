@@ -21,21 +21,31 @@
 **
 */
 
+/// @file EXPR_COM.CPP
+/// @brief Выполнение одной операции или функции вычислителя (`expr_comp`) и выбор единиц угла.
+///
+/// Часть библиотеки `exprint` (Expr). Переполнение проверяется по пределу типа `_real`
+/// (`TMC_EXPR_MAX` = REAL_MAX, I-03; раньше — по FLT_MAX и только сверху).
+/// @see https://www.tamic.ru/docs/code/lib-expr.html#operations
 #include <stdio.h>
 #include <stdlib.h>
 #include <float.h>
 #include <math.h>
 
-#include <typedef.h>
-#include <expr.h>
+#include <Typedef.h>
+#include <EXPR.H>
 
 // I-03: the overflow limit is the limit of _real (DBL_MAX for double), both signs (old: FLT_MAX, from above only)
-/// I-03: ������ ������������ � ������ ���� `_real` (REAL_MAX: DBL_MAX ��� double, FLT_MAX ��� float).
+/// I-03: предел переполнения — предел типа `_real` (REAL_MAX: DBL_MAX для double, FLT_MAX для float).
 #define TMC_EXPR_MAX REAL_MAX
 
+/// Множитель перевода аргумента в радианы, если угол задан в радианах.
 #define RADIAN      (_real)1.0
+/// Множитель перевода градусов в радианы.
 #define GRADUS      (_real)(PI/180.0)
 
+/// Текущий множитель угла: аргумент `sin`/`cos`/`tan` умножается на него, результат
+/// `asin`/`acos`/`atan` делится на него. Общий для всех потоков; по умолчанию — градусы.
 static _real expr_angle = GRADUS;
 
 void  expr_set_angle( int flag )
@@ -78,6 +88,7 @@ _real  expr_comp( int cod, char   *oper1, int n1, char   *oper2, int n2 )
 		 expr_set_per( oper1, n1, op2);
 		 return(  (_real)(op2) );
      case '^'  : 
+		 // Степень: отрицательное основание допустимо только с целым показателем
 		 if( op1 <= (_real)0 )         /*if cod := op1^op2*/
 		  {
 		   // A-10: a base <= 0 with an integer exponent is computed ((-2)^3 = -8, 0^2 = 0);
@@ -98,6 +109,7 @@ _real  expr_comp( int cod, char   *oper1, int n1, char   *oper2, int n2 )
 		     };
 		   return( (_real)rl );
 		   };
+		 // Положительное основание: грубая оценка переполнения по log(FLT_MAX)/log(op1)
 		 if( op2 > (_real)fabs(log(TMC_EXPR_MAX)/log(op1)) )	// I-03 (old: FLT_MAX)
 		  {
 		   rl = pow( op1, op2 );   // S-19: for 0 < x < 1 the limit above is wrong (0.5^200 is small)

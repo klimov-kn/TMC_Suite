@@ -23,10 +23,15 @@
 */
 
 
-#include <typedef.h>
-#include <expr.h>
+/// @file EXPREMSG.CPP
+/// @brief Тексты ошибок вычислителя: `expr_get_error`.
+/// @see https://www.tamic.ru/docs/code/lib-expr.html#errors
+#include <Typedef.h>
+#include <EXPR.H>
 
-static char  *char_error[]={
+/// Английские тексты ошибок; индекс — код ошибки со знаком минус (0 — «all right»,
+/// 1–14 — ошибки функций по их кодам, 15–22 — константы `ERROR_*`).
+static const char  *char_error[]={
 				"all right",
 				"overflow in function exp",
 				"argument LOG <= 0 (bad)",
@@ -54,7 +59,7 @@ static char  *char_error[]={
 		     };
 
 
-char   * expr_get_error( void )
+const char   * expr_get_error( void )
  {
   int n = -expr_get_error_cod();
   if( (n < 0)||(n >= (int)(sizeof(char_error)/sizeof(char_error[0]))) ) return( (char *)"unknown error of expression" );   // N-30

@@ -24,12 +24,20 @@
 **
 */
 
+/// @file DEF_STR.CPP
+/// @brief Низкоуровневые операции со связным буфером: чтение, вставка, удаление, сравнение, лексемы.
+///
+/// Часть модуля «Библиотека prepr». Все функции работают с символами, следующими за
+/// текущим узлом `inp_p`; вставка берёт узлы из списка свободных, удаление возвращает
+/// их туда же. Здесь же чтение имени макроса и фактического параметра вызова.
+/// @see https://www.tamic.ru/docs/code/lib-prepr.html#buffer
+
 #include <stdio.h>
 
-#include <typedef.h>
-#include <error1.h>
+#include <Typedef.h>
+#include <Error1.h>
 
-#include "prepr1.h"
+#include "Prepr1.h"
 
 
 int  buf_gets( char *str, int n, BUFFER *buf)
@@ -126,6 +134,8 @@ int  buf_dels( BUFFER *buf, int n)
  {
   int i, j, j1;
 
+  // Удаляемая цепочка (от узла после inp_p до n-го) целиком становится головой списка
+  // свободных узлов, а inp_p связывается с узлом, следующим за ней.
   j = buf->inp_p;
   j1 = buf->inp_p_nul;
   buf->inp_p_nul = buf->ilex[j];

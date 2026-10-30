@@ -1,7 +1,14 @@
 // TmcRTH_DialogFormatOutFile.cpp : implementation file
 //
 
-#include "stdafx.h"
+/// @file TmcRTH_DialogFormatOutFile.cpp
+/// @brief Окно форматов чисел в выходных файлах: обмен данными и кнопка «Set default».
+///
+/// Часть модуля «Оболочка счётного ядра». Реализация `CTmcRTH_DialogFormatOutFile`.
+/// В ядре X код файла совпадает с одноимённым файлом ядра H (`src/kernels/PlanarRT_H`).
+/// @see https://www.tamic.ru/docs/code/kernel-shell.html#x-differences
+/// @see https://www.tamic.ru/docs/code/kernel-shell.html#settings
+#include "StdAfx.h"
 #include "PlanRT_H.h"
 #include "TmcRTH_DialogFormatOutFile.h"
 

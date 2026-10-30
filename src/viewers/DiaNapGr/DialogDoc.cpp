@@ -1,9 +1,14 @@
 // DialogDoc.cpp : implementation file
 //
 
-#include "stdafx.h"
-#include "TMCGROUT.h"
-#include <tmcgrviw.h>
+/// @file DialogDoc.cpp
+/// @brief Окно Characteristics TMC_DN: поля 20 строк ДН, кнопка добавления файла и вход в окна девиаций.
+///
+/// Часть модуля «Вьювер TMC_DN». Описание методов — в `dialogdoc.h`.
+/// @see https://www.tamic.ru/docs/code/tmc-dn.html#commands
+#include "StdAfx.h"
+#include "TMCGROUT.H"
+#include <Tmcgrviw.h>
 #include "DialogDoc.h"
 #include "cDeviation.h"
 #include "DeviatDirPat.h"

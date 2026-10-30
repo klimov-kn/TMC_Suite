@@ -1,9 +1,15 @@
 // Global function for PlanRT_H programm
 //
 
-#include "stdafx.h"
+/// @file Pl_iofor.cpp
+/// @brief Форматы чисел выходных файлов, режимы запуска ядра, код завершения и консольный вывод.
+///
+/// Часть модуля «Счётное ядро X» (тот же файл — в ядре H). Описание функций —
+/// в `pl_iofor.h`. Состояние хранится в статических переменных процесса.
+/// @see https://www.tamic.ru/docs/code/kernel-x.html#flags
+#include "StdAfx.h"
 #include "MainFrm.h"
-#include <tmcgrviw.h>
+#include <Tmcgrviw.h>
 #include "PlanRT_H.h"
 #include <limits.h>
 #include <math.h>
@@ -16,24 +22,45 @@
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 
+/// @name Текущие форматы вывода (по умолчанию — `FORMAT_OUT_FILE_*`)
+///@{
+/// Формат номера такта.
 static char	 szNTFormat[MAX_LEN_FORMAT_OUT_FILE] = {FORMAT_OUT_FILE_NTFORMAT};
+/// Формат времени подтакта.
 static char	 szDTCurrentFormat[MAX_LEN_FORMAT_OUT_FILE] = {FORMAT_OUT_FILE_DTCurrentFORMAT};
+/// Формат номера блока.
 static char	 szNBFormat[MAX_LEN_FORMAT_OUT_FILE] = {FORMAT_OUT_FILE_NBFORMAT};
+/// Формат падающей волны.
 static char	 szDInpFormat[MAX_LEN_FORMAT_OUT_FILE] = {FORMAT_OUT_FILE_DINPFORMAT};
+/// Формат отражённой волны.
 static char	 szDOutFormat[MAX_LEN_FORMAT_OUT_FILE] = {FORMAT_OUT_FILE_DOUTFORMAT};
+/// Формат значений поля и топологии (пусто — двоичный вывод).
 static char	 szDFieldOutFormat[MAX_LEN_FORMAT_OUT_FILE] = {FORMAT_OUT_FILE_DFLDOUTFORMAT};
+///@}
+/// Режим автозапуска (/Ar, /Arb, /d).
 static volatile BOOL	 bAutoRunFlag = FALSE;
+/// Демонстрационный режим (/d).
 static volatile BOOL	 bDemoRunFlag = FALSE;
+/// Пакетный режим (/Arb, /d).
 static volatile BOOL	 bBatchRunFlag = FALSE;
+/// Отчёт о времени расчёта (/Time).
 static volatile BOOL	 bTimeReportFlag = FALSE;	// TIMING: key /Time
+/// Сведения о запущенном внешнем процессе.
 static PROCESS_INFORMATION piProcInfo;
+/// Главное окно (не владеет).
 static CMainFrame* HwndMainFrame = NULL;
+/// Вид документа ядра для демонстрационного режима (не владеет).
 static CPlanRT_HView* pcView = NULL;
 
 // T-4, S-15: the format from the settings goes straight to fprintf. It is accepted only
 // with exactly one conversion of the needed kind ('i' - integer: d i u x X o; 'f' - double:
 // e E f F g G, optional 'l'), flags -+ #0, width and precision of at most 2 digits, other
 // text without '%' (except "%%"), shorter than the buffer. Otherwise the default is used.
+/// @brief Проверяет строку формата вывода перед передачей в fprintf.
+/// @param[in] psz      строка формата
+/// @param[in] cKind    'i' — нужно целое преобразование, 'f' — вещественное
+/// @param[in] bEmptyOk TRUE — пустая строка допустима (двоичный вывод поля)
+/// @return TRUE — формат допустим.
 static BOOL IsGoodOutFormat( const char *psz, char cKind, BOOL bEmptyOk )
 {
 	const char *p;
@@ -214,6 +241,9 @@ BOOL IsTimeReport( void )
 	return bTimeReportFlag;
 }
 
+/// @brief Ищет в командной строке ключ /Time (или -Time) отдельным словом вне кавычек.
+/// @param[in] lpszCmdLine командная строка
+/// @return TRUE — ключ есть.
 static BOOL IsKeyTimeInCommandLine( const char *lpszCmdLine )
 {
 	int i;
@@ -241,11 +271,17 @@ static BOOL IsKeyTimeInCommandLine( const char *lpszCmdLine )
 // Console messages are written only in the auto run mode: to the redirected
 // stdout (file or pipe: "> log.txt", "| more", bash) or to the console of the
 // parent process (cmd, bat). Started not from a console - nothing is written.
+/// Код завершения процесса (`TMC_EXIT_*`).
 static volatile int	 nRunExitCode = TMC_EXIT_OK;
+/// Главное окно для закрытия после автозапуска.
 static HWND		 hRunMainWnd = NULL;
+/// TRUE — окно уже закрывается, повторный WM_CLOSE не посылать.
 static volatile BOOL	 bRunClosing = FALSE;
+/// TRUE — консоль уже искали (`ConsoleInit`).
 static BOOL		 bConsoleInit = FALSE;
+/// Куда писать консольные сообщения; NULL — некуда.
 static HANDLE		 hConsoleOut = NULL;
+/// TRUE — вывод в настоящую консоль (пишется UTF-16), иначе в файл или канал.
 static BOOL		 bConsoleIsChar = FALSE;
 
 void SetRunExitCode( int nCode )
@@ -261,6 +297,7 @@ int GetRunExitCode( void )
 
 // The warnings of a run are shown in the status line only for a moment (the next progress message
 // overwrites them) - the last one is kept and shown again at the end of the run.
+/// Последнее предупреждение расчёта.
 static char szRunWarning[1024] = "";
 
 void SetRunWarning( const char *pszText )
@@ -274,62 +311,6 @@ void SetRunWarning( const char *pszText )
 const char *GetRunWarning( void )
 {
 	return szRunWarning;
-}
-
-// GPU: Config -> Compute on GPU. The switch is the variable TMC_GPU of this process - the kernel reads it
-// before each step (TmcGpuH.h, TmcGpuX.h: TMC_GPU = card number + 1). TMC_GPU set outside the program
-// is kept: its card number is used when the switch is on again.
-static char szGpuEnvStart[32] = "";
-
-void InitGpuSetting( BOOL bOn )
-{
-	const char *p = getenv( "TMC_GPU" );
-	if( p != NULL )
-	{
-		strncpy( szGpuEnvStart, p, sizeof(szGpuEnvStart) - 1 );
-		szGpuEnvStart[sizeof(szGpuEnvStart) - 1] = '\0';
-	};
-	if( bOn && !IsGpuSettingOn() ) SetGpuSetting( TRUE );
-	return;
-}
-
-void SetGpuSetting( BOOL bOn )
-{
-	if( bOn ) _putenv_s( "TMC_GPU", ( atoi( szGpuEnvStart ) > 0 ) ? szGpuEnvStart : "1" );
-	else _putenv_s( "TMC_GPU", "0" );
-	return;
-}
-
-BOOL IsGpuSettingOn( void )
-{
-	const char *p = getenv( "TMC_GPU" );
-	return ( ( p != NULL )&&( atoi( p ) > 0 ) ) ? TRUE : FALSE;
-}
-
-int GetGpuSettingCard( void )
-{
-	int n = atoi( szGpuEnvStart );
-	return ( n > 0 ) ? n - 1 : 0;
-}
-
-BOOL IsGpuKeyInCommandLine( void )	// the same words as CTmcGpuH::IsRequested / IsCpuKey
-{
-	const char *c = GetCommandLineA();
-	BOOL bQuote = FALSE;
-	int i;
-	char e;
-
-	for( i = 0; c[i] != '\0'; i++ )
-	{
-		if( c[i] == '"' ) { bQuote = !bQuote; continue; };
-		if( bQuote ) continue;
-		if( ( c[i] != '/' )&&( c[i] != '-' ) ) continue;
-		if( ( i > 0 )&&( c[i-1] != ' ' )&&( c[i-1] != '\t' ) ) continue;
-		if( ( _strnicmp( c + i + 1, "GPU", 3 ) != 0 )&&( _strnicmp( c + i + 1, "CPU", 3 ) != 0 ) ) continue;
-		e = c[i+4];
-		if( ( e == '\0' )||( e == ' ' )||( e == '\t' )||( e == ':' )||( e == '=' ) ) return TRUE;
-	};
-	return FALSE;
 }
 
 void SetRunMainWnd( HWND hWnd )
@@ -356,6 +337,8 @@ void PostRunClose( void )
 	return;
 }
 
+/// @brief Находит, куда писать консольные сообщения: перенаправленный stdout (файл, канал)
+///        или консоль родительского процесса.
 static void ConsoleInit( void )
 {
 	HANDLE h;
@@ -453,7 +436,7 @@ void Set_CommandLine_Flags( char *lpszCmdLine )
 			continue;
 		};
 		if( bQuote ) continue;
-		if( ( lpszCmdLine[i] != '/' )&&( lpszCmdLine[i] != '-' )&&( lpszCmdLine[i] != '\\' ) ) continue;
+		if( ( lpszCmdLine[i] != '/' )&&( lpszCmdLine[i] != '-' )&&( !TMC_IS_SEP(lpszCmdLine[i]) ) ) continue;
 		if( ( i > 0 )&&( lpszCmdLine[i-1] != ' ' )&&( lpszCmdLine[i-1] != '\t' ) ) continue;
 		k = lpszCmdLine + i + 1;
 		// T-6: the keys are not case sensitive (/arb = /Arb), as /Time and /GPU
@@ -478,6 +461,10 @@ void Set_CommandLine_Flags( char *lpszCmdLine )
 	return;
 };
 
+CMainFrame* GetMainFramePointer__( void )
+{
+	return HwndMainFrame;
+};
 
 void SetMainFramePointer__( CMainFrame* HwndMainFrame1 )
 {
@@ -504,10 +491,6 @@ void SetProcessInformation( PROCESS_INFORMATION piProcInfo1 )
 	return;
 }
 
-PROCESS_INFORMATION GetProcessInformation( void )
-{
-	return piProcInfo;
-}
 
 void SetPointerClassView( CPlanRT_HView* pcView1 )
 {

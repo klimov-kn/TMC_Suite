@@ -1,7 +1,12 @@
 // TmcGroutColorGraphDialog.cpp : implementation file
 //
 
-#include "stdafx.h"
+/// @file TmcGroutColorGraphDialog.cpp
+/// @brief Окно 16 стилей линий TMCROS: копирование стилей, образцы линий, вызов окна одного стиля.
+///
+/// Часть модуля «Вьювер TMCROS» (копия окна TMCGROUT). Описание методов — в `tmcgroutcolorgraphdialog.h`.
+/// @see https://www.tamic.ru/docs/code/tmcgrout.html#line-style
+#include "StdAfx.h"
 #include "TMCGROUT.h"
 #include "TmcGroutColorGraphDialog.h"
 #include "TmcGrParColTypWid.h"
@@ -105,6 +110,7 @@ void CTmcGroutColorGraphDialog::SetGraphParam(TMC_GR_DOC1 *sGrDoc1)
 		sGrDoc[i].piPoint[9].nY = sGrDoc1[i].piPoint[9].nY;
 
 		sGrDoc[i].LineType  = sGrDoc1[i].LineType;
+		// Толщина в документе — 0.01 мм; в окне — делённая на 15 (номер толщины 1..5).
 		sGrDoc[i].LineWidth = sGrDoc1[i].LineWidth/15;
 		sGrDoc[i].PointColor = sGrDoc1[i].PointColor;
 		sGrDoc[i].PointType  = sGrDoc1[i].PointType;

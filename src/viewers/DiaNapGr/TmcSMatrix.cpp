@@ -1,11 +1,18 @@
 // TmcSMatrix.cpp : implementation file
 //
 
-#include "stdafx.h"
-#include "TMCGROUT.h"
-#include <tmcgrviw.h>
-#include <proc_s.h>
-#include <s_file.h>
+/// @file TmcSMatrix.cpp
+/// @brief Реализация `CTmcSMatrix`: чтение отсчётов `.t`, восстановление комплексных амплитуд по парам отсчётов, нормировка, запись столбца в `.s`.
+///
+/// Часть модуля «Вьювер TMC_DN»: копия файла TMCROS (код совпадает), собирается в
+/// `tmc_dn_core`; используется только окном To S-matrix, недоступным из меню TMC_DN.
+/// Объявление — в общем `src/Include/tmcsmatrix.h`.
+/// @see https://www.tamic.ru/docs/code/tmcros.html#ttos-harmonic
+#include "StdAfx.h"
+#include "TMCGROUT.H"
+#include <Tmcgrviw.h>
+#include <Proc_s.h>
+#include <S_file.h>
 #include <TmcSMatrix.h>
 
 #ifdef _DEBUG
@@ -115,21 +122,21 @@ void CTmcSMatrix::Save()
 	if( pcSmatrix == NULL )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Save: Init error S-matrix pointer is NULL in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Save: Init error S-matrix pointer is NULL in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( nInput < 1 )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Save: Init error nInput < 1 in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Save: Init error nInput < 1 in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( nLineInSMatrix < 0 )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Save: Init error nLineInSMatrix < 0 in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Save: Init error nLineInSMatrix < 0 in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
@@ -140,7 +147,7 @@ void CTmcSMatrix::Save()
 	if( save_S_matrix_element( nLineInSMatrix + 1, szBuf1, pcSmatrix, dFreq, nInput) != 0 )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Save: error when save to %s from file {%s}", (LPCSTR)( csSFileName ), (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Save: error when save to %s from file {%s}", csSFileName, csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
@@ -172,7 +179,7 @@ void CTmcSMatrix::ReadTFile()
 	return;
 }
 
-void CTmcSMatrix::PutErrorMessage(char *ch)
+void CTmcSMatrix::PutErrorMessage(const char *ch)
 {
 	bIsError = TRUE;
 	csError.Format("%s", ch);
@@ -188,7 +195,7 @@ int CTmcSMatrix::CalcNPoint()
 	if( (fp = fopen( csTFileName, "r")) == NULL ) 
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Can't open file {%s}", (LPCSTR)( csTFileName ));	// A-26
+		sprintf( szBuf, "Can't open file {%s}", csTFileName);	// A-26
 		PutErrorMessage(szBuf);
 		return 0;
 	};
@@ -204,6 +211,7 @@ int CTmcSMatrix::CalcNPoint()
 			r = gets_f1(ch);
 			if( (r <= dTmax)&&(r >= dTmin) ) i++;
 		};
+		// Частота расчёта: последняя строка #TMC_GROTS_Freq файла (ядро пишет одну).
 		if( strncmp( ch, TMC_GROTS_FLOUTFreq_ID, strlen(TMC_GROTS_FLOUTFreq_ID) ) == 0 )
 		{
 			sscanf( ch + strlen(TMC_GROTS_FLOUTFreq_ID), "%lg", &dFreq);
@@ -215,7 +223,7 @@ int CTmcSMatrix::CalcNPoint()
 	if( i <= 5 ) 
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "nPoint is %d ( <=5 ) ( Tmin=%lg; Tmax=%lg ) in file {%s}", i, dTmin, dTmax, (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "nPoint is %d ( <=5 ) ( Tmin=%lg; Tmax=%lg ) in file {%s}", i, dTmin, dTmax, csTFileName);
 		PutErrorMessage(szBuf);
 		return 0;
 	};
@@ -232,7 +240,7 @@ int CTmcSMatrix::CalcNInput()
 	if( (fp = fopen( csTFileName, "r")) == NULL ) 
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Can't open file {%s}", (LPCSTR)( csTFileName ));	// A-26
+		sprintf( szBuf, "Can't open file {%s}", csTFileName);	// A-26
 		PutErrorMessage(szBuf);
 		return 0;
 	};
@@ -246,11 +254,12 @@ int CTmcSMatrix::CalcNInput()
 		{
 			i = gets_nNumbersInLine(ch);
 			fclose(fp);
+			// Номер такта и время, затем у каждого входа три числа: номер блока, Up, Uo.
 			i = (i - 2)/3;
 			if( i < 1 )
 			{
 				char szBuf[TMC_GROUT_MAXSTRING_BUF];
-				sprintf( szBuf, "Number of Input is %d ( < 1 ) in file {%s}", i, (LPCSTR)( csTFileName ));
+				sprintf( szBuf, "Number of Input is %d ( < 1 ) in file {%s}", i, csTFileName);
 				PutErrorMessage(szBuf);
 				return 0;
 			};
@@ -262,7 +271,7 @@ int CTmcSMatrix::CalcNInput()
 
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "nPoint is %d ( <=5 ) ( Tmin=%lg; Tmax=%lg ) in file {%s}", i, dTmin, dTmax, (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "nPoint is %d ( <=5 ) ( Tmin=%lg; Tmax=%lg ) in file {%s}", i, dTmin, dTmax, csTFileName);
 		PutErrorMessage(szBuf);
 		return 0;
 	};
@@ -280,7 +289,7 @@ double CTmcSMatrix::gets_f1(char *ch)
 	if( sscanf( ch, "%d%lg", &i, &r1) != 2 )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Can't read time in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Can't read time in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return -1.;
 	};
@@ -335,14 +344,14 @@ void CTmcSMatrix::AllocTArray()
 	if( nPoint < 1 ) 
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Init error nPoint < 1 in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Init error nPoint < 1 in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( nInput < 1 )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Init error nInput < 1 in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Init error nInput < 1 in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
@@ -353,7 +362,7 @@ void CTmcSMatrix::AllocTArray()
 	if( n <= 0 )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "nPoint*nInput is very large in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "nPoint*nInput is very large in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	}
@@ -361,7 +370,7 @@ void CTmcSMatrix::AllocTArray()
 	if( ( pdTsignal = new double[n] ) == NULL )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Memory allocation error for T-SignalArray in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Memory allocation error for T-SignalArray in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
@@ -370,7 +379,7 @@ void CTmcSMatrix::AllocTArray()
 		if( pdTsignal != NULL ) delete []pdTsignal;
 		pdTsignal = NULL;
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Memory allocation error for TimeArray in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Memory allocation error for TimeArray in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
@@ -389,28 +398,28 @@ void CTmcSMatrix::ReadTArray()
 	if( nPoint < 1 ) 
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Init error nPoint < 1 in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Init error nPoint < 1 in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( nInput < 1 )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Init error nInput < 1 in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Init error nInput < 1 in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( pdTsignal == NULL )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Init error pdTsignal == NULL in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Init error pdTsignal == NULL in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( pdTime == NULL )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Init error pdTime == NULL in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Init error pdTime == NULL in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
@@ -423,7 +432,7 @@ void CTmcSMatrix::ReadTArray()
 	if( (fp = fopen( csTFileName, "r")) == NULL )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Error when open file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Error when open file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
@@ -459,7 +468,7 @@ void CTmcSMatrix::ReadTArray()
 
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Error when read file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Error when read file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 	};
 	fclose( fp );
@@ -507,7 +516,7 @@ int CTmcSMatrix::readTsignalOne(double **pdTsign, char *ch)
 	if( sscanf( ch + i, "%lg", &r ) != 1 )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Error when read file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Error when read file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return 0;
 	};
@@ -527,7 +536,7 @@ int CTmcSMatrix::skip_blank(char *ch)
 	if( IsError() ) return 0;
 
 	int i;
-	for( i = 0; ch[i] != NULL; i++ )
+	for( i = 0; ch[i] != 0; i++ )
 	{
 		switch( ch[i] )
 		{
@@ -547,7 +556,7 @@ int CTmcSMatrix::skip_number(char *ch)
 	if( IsError() ) return 0;
 
 	int i;
-	for( i = 0; ch[i] != NULL; i++ )
+	for( i = 0; ch[i] != 0; i++ )
 	{
 		switch( ch[i] )
 		{
@@ -566,6 +575,8 @@ void CTmcSMatrix::MakeSmatrix()
 {
 	if( IsError() ) return;
 
+	// 1. Комплексные амплитуды уходящих волн всех входов; 2. номер возбуждённого входа.
+	// 3. Деление на падающую волну возбуждённого входа и проверка на NaN/Inf — ниже.
 	AllocSArray();
 	TtoS();
 	SetnLineInSMatrix();
@@ -579,6 +590,7 @@ void CTmcSMatrix::MakeSmatrix()
 		_complex scUp;
 		for( i = 1, ii = 0, scUp.x = 0.0, scUp.y = 0.0; i < nPoint; i++ )
 		{
+			// Up возбуждённого входа n — тем же способом, что Uo (по парам соседних отсчётов).
 			if( TtoSOneInputOnePoint( &scUp, pdTsignal[2*n+(i-1)*nInput*2], pdTime[i-1], pdTsignal[2*n+i*nInput*2], pdTime[i]) ) ii++;
 		};
 		if( ii > 0 )
@@ -595,6 +607,7 @@ void CTmcSMatrix::MakeSmatrix()
 			PutErrorMessage(szBuf);
 			return;
 		};
+		// |Up - 1| >= 1e-3: S = Uo/Up (комплексное деление); иначе Up считается равной 1.
 		if( ( scUp.x - 1.0 )*( scUp.x - 1.0 ) + scUp.y*scUp.y >= 1e-6 )
 		{
 			for( i = 0; i < nInput; i++ )
@@ -636,7 +649,7 @@ void CTmcSMatrix::AllocSArray()
 	if( nInput < 1 )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Init error nInput < 1 in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Init error nInput < 1 in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
@@ -644,7 +657,7 @@ void CTmcSMatrix::AllocSArray()
 	if( ( pcSmatrix = new _complex[nInput] ) == NULL )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "Memory allocation error for TimeArray in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "Memory allocation error for TimeArray in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
@@ -666,35 +679,35 @@ void CTmcSMatrix::TtoS()
 	if( pcSmatrix == NULL )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "TtoS: Init error S-matrix pointer is NULL in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "TtoS: Init error S-matrix pointer is NULL in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( nPoint < 1 ) 
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "TtoS: Init error nPoint < 1 in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "TtoS: Init error nPoint < 1 in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( nInput < 1 )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "TtoS: Init error nInput < 1 in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "TtoS: Init error nInput < 1 in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( pdTsignal == NULL )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "TtoS: Init error pdTsignal == NULL in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "TtoS: Init error pdTsignal == NULL in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( pdTime == NULL )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "TtoS: Init error pdTime == NULL in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "TtoS: Init error pdTime == NULL in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
@@ -716,35 +729,35 @@ void CTmcSMatrix::TtoSOneInput(int n)
 	if( pcSmatrix == NULL )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "TtoSOne: Init error S-matrix pointer is NULL in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "TtoSOne: Init error S-matrix pointer is NULL in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( nPoint < 2 ) 
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "TtoSOne: Init error nPoint < 2 in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "TtoSOne: Init error nPoint < 2 in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( nInput < n )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "TtoSOne: Init error nInput < %d in file {%s}", n, (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "TtoSOne: Init error nInput < %d in file {%s}", n, csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( pdTsignal == NULL )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "TtoSOne: Init error pdTsignal == NULL in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "TtoSOne: Init error pdTsignal == NULL in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( pdTime == NULL )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "TtoSOne: Init error pdTime == NULL in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "TtoSOne: Init error pdTime == NULL in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
@@ -754,17 +767,19 @@ void CTmcSMatrix::TtoSOneInput(int n)
 
 	for( i = 1, ii = 0, scSFor2Point.x = 0.0, scSFor2Point.y = 0.0; i < nPoint; i++ )
 	{
+		// Пара соседних отсчётов уходящей волны Uo входа n (ячейка 1 + 2*n строки).
 		if( TtoSOneInputOnePoint( &scSFor2Point, pdTsignal[1+2*n+(i-1)*nInput*2], pdTime[i-1], pdTsignal[1+2*n+i*nInput*2], pdTime[i]) ) ii++;
 	};
 
 	if( ii == 0 )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "TtoSOne: input %d in file {%s}", n, (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "TtoSOne: input %d in file {%s}", n, csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 
+	// Среднее по учтённым парам (пары из двух нулевых отсчётов тоже учтены с вкладом 0).
 	pcSmatrix[n].x = scSFor2Point.x/ii;
 	pcSmatrix[n].y = scSFor2Point.y/ii;
 
@@ -782,6 +797,9 @@ BOOL CTmcSMatrix::TtoSOneInputOnePoint(_complex *pscSFor2Point, double dTsignal1
 
 	double dFi, dwt1, dwt2, dAmpl, dsin1, dsin2, dcos1;
 
+	// Модель u(t) = A*sin(omega*t + phi). Из u1*sin(omega*t2 + phi) = u2*sin(omega*t1 + phi):
+	// cos(phi)*dsin1 + sin(phi)*dcos1 = 0, где dsin1 = u2*sin(omega*t1) - u1*sin(omega*t2),
+	// dcos1 = u2*cos(omega*t1) - u1*cos(omega*t2); отсюда tan(phi) = -dsin1/dcos1.
 	dwt1 = 2*3.141592653589*dFreq*dTime1;
 	dwt2 = 2*3.141592653589*dFreq*dTime2;
 	dsin1 = dTsignal2*sin( dwt1 ) - dTsignal1*sin( dwt2 );
@@ -802,6 +820,7 @@ BOOL CTmcSMatrix::TtoSOneInputOnePoint(_complex *pscSFor2Point, double dTsignal1
 		dFi = atan(-dsin1/dcos1);
 	};
 
+	// Амплитуда — по отсчёту с большим |sin(omega*t + phi)| (меньше ошибка деления).
 	dsin1 = sin( dwt1 + dFi );
 	dsin2 = sin( dwt2 + dFi );
 
@@ -819,6 +838,7 @@ BOOL CTmcSMatrix::TtoSOneInputOnePoint(_complex *pscSFor2Point, double dTsignal1
 		dAmpl = dTsignal2/dsin2;
 	};
 
+	// atan даёт phi с точностью до pi: отрицательная амплитуда — сдвиг фазы на -pi.
 	if( dAmpl < 0. )
 	{
 		dAmpl = -dAmpl;
@@ -837,35 +857,35 @@ void CTmcSMatrix::SetnLineInSMatrix()
 	if( pcSmatrix == NULL )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "SetnLineInSMatrix: Init error S-matrix pointer is NULL in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "SetnLineInSMatrix: Init error S-matrix pointer is NULL in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( nPoint < 1 ) 
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "SetnLineInSMatrix: Init error nPoint < 1 in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "SetnLineInSMatrix: Init error nPoint < 1 in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( nInput < 1 )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "SetnLineInSMatrix: Init error nInput < 1 in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "SetnLineInSMatrix: Init error nInput < 1 in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( pdTsignal == NULL )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "SetnLineInSMatrix: Init error pdTsignal == NULL in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "SetnLineInSMatrix: Init error pdTsignal == NULL in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
 	if( pdTime == NULL )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "SetnLineInSMatrix: Init error pdTime == NULL in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "SetnLineInSMatrix: Init error pdTime == NULL in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
@@ -881,7 +901,7 @@ void CTmcSMatrix::SetnLineInSMatrix()
 			if( nLineInSMatrix != -1 )
 			{
 				char szBuf[TMC_GROUT_MAXSTRING_BUF];
-				sprintf( szBuf, "Not one is exited of inputs in file {%s}", (LPCSTR)( csTFileName ));
+				sprintf( szBuf, "Not one is exited of inputs in file {%s}", csTFileName);
 				PutErrorMessage(szBuf);
 				return;
 			};
@@ -893,7 +913,7 @@ void CTmcSMatrix::SetnLineInSMatrix()
 	if( nLineInSMatrix == -1 )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "There are no exited inputs in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "There are no exited inputs in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return;
 	};
@@ -907,21 +927,21 @@ BOOL CTmcSMatrix::IsInputExcite(int n)
 	if( nPoint < 1 ) 
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "IsInputExcite: Init error nPoint < 1 in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "IsInputExcite: Init error nPoint < 1 in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return FALSE;
 	};
 	if( nInput < n )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "IsInputExcite: Init error nInput < %d in file {%s}", n, (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "IsInputExcite: Init error nInput < %d in file {%s}", n, csTFileName);
 		PutErrorMessage(szBuf);
 		return FALSE;
 	};
 	if( pdTsignal == NULL )
 	{
 		char szBuf[TMC_GROUT_MAXSTRING_BUF];
-		sprintf( szBuf, "IsInputExcite: Init error pdTsignal == NULL in file {%s}", (LPCSTR)( csTFileName ));
+		sprintf( szBuf, "IsInputExcite: Init error pdTsignal == NULL in file {%s}", csTFileName);
 		PutErrorMessage(szBuf);
 		return FALSE;
 	};
@@ -930,6 +950,7 @@ BOOL CTmcSMatrix::IsInputExcite(int n)
 
 	for( i = 0; i < nPoint; i++ )
 	{
+		// Ячейка 2*n строки отсчёта — падающая волна Up входа n.
 		if( fabs( pdTsignal[2*n+(i)*nInput*2] ) > 10*DBL_MIN ) return TRUE;
 	};
 

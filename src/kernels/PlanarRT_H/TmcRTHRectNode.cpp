@@ -1,14 +1,24 @@
 // TmcRTHRectNode.cpp : implementation file
 //
 
-#include "stdafx.h"
+/// @file TmcRTHRectNode.cpp
+/// @brief Сетка H-ядра: подготовка шага `#STEP`, цикл во времени по подтактам, рассеяние
+///        в узлах, вывод сигналов `.t`, полей и топологии.
+///
+/// Часть модуля «Счётное ядро H». Реализует `CTmcRTHRectNode` и служебные функции
+/// файла `.t` шага (держится открытым всё время шага). Порядок вызовов на одном
+/// подтакте: порты -> рассеяние во всех внутренних узлах -> граничные условия
+/// блоков -> поле -> накопление для ДН.
+/// @see https://www.tamic.ru/docs/code/kernel-h.html#time-loop
+#include "StdAfx.h"
 #include "PlanRT_H.h"
-#include <tmcgrviw.h>
+#include <Tmcgrviw.h>
 #include "TmcRTHRectNode.h"
 #include <malloc.h>
 #include "Pl_iofor.h"
 #include "TmcGpuH.h"	// GPU
 
+/// Сетка на видеокарте на время `RunKernel` (одна на процесс; см. `tmcgpuh.h`).
 static CTmcGpuH g_cGpuH;	// GPU: the grid on the video card while RunKernel runs
 
 // T-5, T-9: the .t file of the step.
@@ -24,13 +34,22 @@ static CTmcGpuH g_cGpuH;	// GPU: the grid on the video card while RunKernel runs
 #include <share.h>
 #endif
 
+/// Сколько ждать занятый файл при открытии, мс.
 #define TMC_OUTT_WAIT_MS	20000
+/// Сколько файлов `.t` может быть открыто одновременно (таблица `s_aOutT`).
 #define TMC_OUTT_MAX		16
 
-/// ������ ������� �������� ������ `.t`: `csName` � ������ ��� �����, `fp` � �������� ����� (NULL � ��������).
-static struct { CString csName; /**< ��� ����� */ FILE *fp; /**< �����; NULL � ������ �������� */ } s_aOutT[TMC_OUTT_MAX];
+/// Таблица открытых файлов `.t`: имя и поток; `fp` == NULL — свободная запись.
+/// Запись таблицы открытых файлов `.t`: `csName` — полное имя файла, `fp` — открытый поток (NULL — свободна).
+static struct { CString csName; /**< имя файла */ FILE *fp; /**< поток; NULL — запись свободна */ } s_aOutT[TMC_OUTT_MAX];
+/// @var s_aOutT
+/// Таблица открытых файлов `.t` шага (не больше `TMC_OUTT_MAX` записей).
+
+/// Защищает таблицу `s_aOutT` (расчётный поток и поток интерфейса).
 static std::mutex s_mxOutT;
 
+/// @brief Возвращает монотонное время, мс (для ожидания занятого файла).
+/// @return Миллисекунды от произвольного начала отсчёта.
 static long long TmcNowMs( void )
 {
 	return (long long)std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -38,6 +57,14 @@ static long long TmcNowMs( void )
 }
 
 // T-9: open a file, a busy one is waited for at most 20 s; *pnErr - errno of the last try
+/// @brief Открывает файл; если он занят другой программой — повторяет попытки до 20 с.
+///
+/// Ошибки, при которых ожидание не поможет (нет папки, неверное имя), возвращаются сразу.
+/// @param[in]  pszName    имя файла
+/// @param[in]  pszMode    режим fopen
+/// @param[in]  bDenyWrite TRUE — запретить другим программам запись в файл (только Windows)
+/// @param[out] pnErr      errno последней попытки; NULL — не нужен
+/// @return Поток файла; NULL — не открыт.
 FILE *TmcFopenWait( const char *pszName, const char *pszMode, BOOL bDenyWrite, int *pnErr )
 {
 	long long t0 = TmcNowMs();
@@ -59,6 +86,10 @@ FILE *TmcFopenWait( const char *pszName, const char *pszMode, BOOL bDenyWrite, i
 }
 
 // T-7, T-9: why a file can't be opened
+/// @brief Составляет понятный текст ошибки открытия файла (длинный путь, файл занят, нет папки).
+/// @param[in] pszName имя файла
+/// @param[in] nErr    errno неудачной попытки
+/// @return Текст ошибки (по-английски).
 CString TmcOpenFailText( const char *pszName, int nErr )
 {
 	CString cs;
@@ -78,6 +109,8 @@ CString TmcOpenFailText( const char *pszName, int nErr )
 	return cs;
 }
 
+/// @brief Закрывает файл `.t` с этим именем, если он открыт в таблице.
+/// @param[in] pszName имя файла `.t`
 void TmcOutTClose( const char *pszName )
 {
 	int i;
@@ -92,6 +125,9 @@ void TmcOutTClose( const char *pszName )
 	return;
 }
 
+/// @brief Возвращает открытый поток файла `.t` по имени.
+/// @param[in] pszName имя файла `.t`
+/// @return Поток; NULL — файл не открыт.
 FILE *TmcOutTGet( const char *pszName )
 {
 	int i;
@@ -101,6 +137,8 @@ FILE *TmcOutTGet( const char *pszName )
 	return NULL;
 }
 
+/// @brief Сбрасывает на диск буфер открытого файла `.t` (перед построением матрицы рассеяния).
+/// @param[in] pszName имя файла `.t`
 void TmcOutTFlush( const char *pszName )
 {
 	FILE *fp = TmcOutTGet( pszName );
@@ -109,6 +147,15 @@ void TmcOutTFlush( const char *pszName )
 }
 
 // T-5: open the .t of the step ("w" - the header, "a" - go on after Stop) and keep it open
+/// @brief Открывает файл `.t` шага и заносит его в таблицу открытых файлов.
+///
+/// Файл открывается с запретом записи для других программ: второе ядро с тем же
+/// именем файла получит ошибку, а не смешает строки.
+/// @param[in]  pszName имя файла `.t`
+/// @param[in]  pszMode "w" — новый файл с заголовком, "a" — дозапись после остановки
+/// @param[out] csErr   текст ошибки, если файл не открыт
+/// @return Поток; NULL — ошибка (текст в `csErr`).
+/// @see https://www.tamic.ru/docs/code/kernel-h.html#t-file
 FILE *TmcOutTOpen( const char *pszName, const char *pszMode, CString &csErr )
 {
 	int i, nErr = 0;
@@ -487,6 +534,7 @@ void CTmcRTHRectNode::InitKernel( void )
 	m_cTiming.Add( TMCT_OUTFILEINIT, qTm );		// TIMING
 	if( IsError() ) return;	// T-9: the .t can't be opened - no second wait in PutPortInfo
 
+	// Время: число подтактов, начальный момент Tmin и шаг tau из #PARM.
 	nTMax     = cIndan.nGetTmax();
 	csBuf.Format("nTmax %d", nTMax);
 	PutStatistics(csBuf);
@@ -521,6 +569,7 @@ void CTmcRTHRectNode::InitKernel( void )
 		return;
 	};
 	
+	// Область: не меньше 10 шагов по каждой оси и не больше INT_MAX узлов по стороне.
 	cIndan.GetXYMinMax( dXmin, dXmax, dYmin, dYmax );
 	csBuf.Format("X:(%lg)-(%lg); Y:(%lg)-(%lg)", dXmin, dXmax, dYmin, dYmax );
 	PutStatistics(csBuf);
@@ -567,6 +616,7 @@ void CTmcRTHRectNode::InitKernel( void )
 		return;
 	};
 
+	// Общее число узлов: индекс 2n+1 массивов должен помещаться в TmcIdx с запасом.
 	if( ( ((double)(nX))*((double)(nY)) ) > ((double)TMC_IDX_MAX)/8. )	// INT64
 	{
 		csBuf.Format("Error : very dimension XY-size ( X*Y ) in %s section", CTMCRTH_INDANMET_PARAM);
@@ -586,6 +636,7 @@ void CTmcRTHRectNode::InitKernel( void )
 		return;
 	};
 
+	// Накопитель распределения поля для ДН (контур, окно по времени).
 	qTm = TmcTimingNow();						// TIMING
 	cIndan.GetOutput()->GetFieldIntegrated().InitAllFile( nX, nY, dDelta, dXmin, dYmin, cParam, dT );
 	m_cTiming.Add( TMCT_DISTRINIT, qTm );			// TIMING
@@ -594,6 +645,7 @@ void CTmcRTHRectNode::InitKernel( void )
 		cError = cIndan.GetOutput()->GetFieldIntegrated().GetError();
 
 
+	// Массивы напряжений и проводимостей, затем блоки и данные портов в заголовке .t.
 	qTm = TmcTimingNow();						// TIMING
 	InitNodeArray();
 	m_cTiming.Add( TMCT_MEMINIT, qTm );			// TIMING
@@ -630,6 +682,7 @@ void CTmcRTHRectNode::RunKernel( void )
 	csBuf.Format("Run Step %d", cIndan.GetnStep() );
 	PutTrace(csBuf);
 
+	// Новый шаг — отсчёт времени с начала; продолжение после Stop — с прерванного такта.
 	if( nTCurrent == 0 )
 	{
 		ii = 0;
@@ -643,10 +696,15 @@ void CTmcRTHRectNode::RunKernel( void )
 		ltime_start = ltime_current - ltime_start;
 	};
 
+	// Сетка переносится на видеокарту, если она выбрана и подходит; иначе счёт на процессоре.
 	BOOL bGpu = g_cGpuH.Begin( prUNode1, prYNode, nX, nY, pcNodeDiel, nDiel ) ? TRUE : FALSE;	// GPU
 	strncpy( m_cTiming.cur.szCompute, (LPCTSTR)g_cGpuH.csInfo, sizeof(m_cTiming.cur.szCompute) - 1 );	// GPU
 	if( g_cGpuH.csInfo != "CPU" ) PutTrace( g_cGpuH.csInfo );	// GPU
 	__int64 qTmLoop = TmcTimingNow();					// TIMING
+	// Основной цикл: один проход — два подтакта (RunKernel1T увеличивает nTCurrent на 2).
+	/// З-6 (автор 29.10): при нечётном числе подтактов считается на один подтакт больше заданного TIME — допустимо.
+	/// З-3 (автор 29.10): вход внутри области — общий проход переписывает узлы входа, и в кадр поля и накопление
+	/// ДН попадает значение после рассеяния; допустимо. Сказаться может, если вход лежит на контуре ДН — проверить.
 	for( ; nTCurrent < nTMax;  ii+=2)
 	{
 		if( IsError() ) { if( bGpu ) g_cGpuH.End( prUNode1, pcNodeDiel ); m_cTiming.Add( TMCT_LOOPWALL, qTmLoop ); m_cTiming.cur.nTDone = nTCurrent; return; }	// TIMING, GPU
@@ -663,6 +721,7 @@ void CTmcRTHRectNode::RunKernel( void )
 			PutStatistics(csBuf);
 			return;
 		};
+		// Каждые 100 подтактов — ход счёта и прошедшее время в строку состояния.
 		if( ii == 100 )
 		{
 			__int64 qTmSt = TmcTimingNow();			// TIMING
@@ -670,7 +729,7 @@ void CTmcRTHRectNode::RunKernel( void )
 			nBuf = (int)( (dTCurrent/cParam.rTimeUnit)*100 + 0.5 );
 			csBuf.Format("nT:%d;Time:%lg%s", nTCurrent, nBuf*0.01, cParam.csTimeUnit );
 			PutStatistics(csBuf);
-			ii = (int)( ltime_current - ltime_start );
+			ii = ltime_current - ltime_start;
 			if( ii <= 60 )
 			{
 				csBuf.Format("Run Step %d  ElapsTime: %2d", cIndan.GetnStep(), ii );
@@ -710,6 +769,7 @@ void CTmcRTHRectNode::RunKernel( void )
 		((double)ltime_current - ltime_start)/nTCurrent);
 	PutStatistics(csBuf);
 	
+	// Окно ДН заканчивается позже конца расчёта — файлы ДН не будут записаны: это ошибка.
 	if( ( !IsError() )&&( bIsReadData )&&( nTCurrent >= nTMax )&&	// A-14: faily DN ne zapisany
 		( cIndan.GetOutput()->GetFieldIntegrated().bIsFieldDistr() )&&
 		( cIndan.GetOutput()->GetFieldIntegrated().IsWindowOpen() ) )
@@ -719,6 +779,7 @@ void CTmcRTHRectNode::RunKernel( void )
 		cError.PutErrorMessage( csBuf );
 	};
 
+	// После цикла: матрица рассеяния по сигналам .t.
 	__int64 qTmPost = TmcTimingNow();			// TIMING
 	PutSmatrix();
 
@@ -754,6 +815,7 @@ void CTmcRTHRectNode::RunKernel1T( void )
 
 //   excite and out reflection wave for inputs 
 //   calculation reflection wave
+	// Подтакт 0: новые значения пишутся в чётные ячейки prUNode1[2n], соседи берутся из нечётных.
 	qTm0 = TmcTimingNow();								// TIMING
 	RunExciteInputs();
 	qTm1 = TmcTimingNow(); m_cTiming.cur.q[TMCT_EXCITE] += qTm1 - qTm0;		// TIMING
@@ -769,6 +831,7 @@ void CTmcRTHRectNode::RunKernel1T( void )
 
 //   excite and out reflection wave for inputs 
 //   calculation reflection wave
+	// Подтакт 1: наоборот — пишутся нечётные ячейки, читаются чётные.
 	qTm0 = TmcTimingNow();								// TIMING
 	RunExciteInputs1();
 	qTm1 = TmcTimingNow(); m_cTiming.cur.q[TMCT_EXCITE] += qTm1 - qTm0;		// TIMING
@@ -807,9 +870,10 @@ void CTmcRTHRectNode::InitNodeArray( void )
 		DeleteNodeArray();
 		return;
 	};
+	// Выравнивание начала массива на 32 байта (сдвиг 1..32 байта; запас 32 элемента).
 	pTemp  = (void *)prUNode1Temp;
 	pTemp1 = (char *)prUNode1Temp;
-	ii = (int)(INT_PTR)pTemp;	// C4311: only the low bits of the address are used (alignment by 32)
+	ii = (int)(INT_PTR)pTemp;
 	i = 32 - (ii - (ii/32)*32);
 	pTemp1 += i;
 	prUNode1 = (_ELEM_VAL_RTH *) pTemp1;
@@ -828,12 +892,13 @@ void CTmcRTHRectNode::InitNodeArray( void )
 	};
 	pTemp  = (void *)prYNodeTemp;
 	pTemp1 = (char *)prYNodeTemp;
-	ii = (int)(INT_PTR)pTemp;	// C4311: only the low bits of the address are used (alignment by 32)
+	ii = (int)(INT_PTR)pTemp;
 	i = 32 - (ii - (ii/32)*32);
 	pTemp1 += i;
 	prYNode = (_real *) pTemp1;
 
 //	CString csBuf1;
+	// Свободное пространство: U = 0 в обеих ячейках, Y = 0, 2/(4+Y) = 0,5.
 	for( i = 0, ii = 0; i < nNumNode; i++ )	
 	{
 		prUNode1[ii]   = (_ELEM_VAL_RTH)(0.0);
@@ -1080,6 +1145,9 @@ void CTmcRTHRectNode::RunScatteringNode( void )
 	_real *prY1;
 //	int *pnType1;
 
+	// Обходятся только внутренние узлы: строки 1..nY-2, столбцы 1..nX-2.
+	// Узлы краёв области не пересчитываются и остаются нулевыми (если их не задаёт блок):
+	// на краю области действует условие КЗ (металл, U = 0).
 	ny1   = nY - 2;
 	nx1   = nX - 2;
 	nx14  = nX*2;
@@ -1170,6 +1238,8 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 	int jj;
 	double y_line, a, koef, koef1;
 
+	// koef = (k0*Delta)^2/2 — множитель шлейфа КЗ для Delta eps < 0; koef1 — поправка
+	// omega*tau/2 (проверяется на величину, но в расчёт идёт 1).
 	koef = (cParam.rDelta*cParam.rFreq*2.*PI___/C0___);
 	koef = (koef*koef/2.);
 	koef1 = (cParam.rFreq*2.*PI___*dT/2.);
@@ -1184,10 +1254,10 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 	}
 	else
 	{
-		/// �-2 (����� 29.10): �������� �� �������� �������� ������ ��� � ��� ������ � ��� ������ �� (2.45), ��� ������
-		/// �� (2.43) ����� �. �. ������� ���������� ������������������� ������������� ������������ ������� (��. 2,
-		/// ���. 39�40); ��� ����� ������ ��� ������ ������. ���� ����� koef1 ��� ����� ������� �������, �������
-		/// �������� ��������� (koef1 = 1). �������� � ������ ��������� ��� �� � ��.
+		/// З-2 (автор 29.10): поправок на конечную задержку шлейфа ДВЕ и они разные — для шлейфа КЗ (2.45), для шлейфа
+		/// ХХ (2.43) книги К. Н. Климова «Численное электродинамическое моделирование неоднородной плазмы» (гл. 2,
+		/// стр. 39–40); обе верны каждая для своего случая. Один общий koef1 для обоих шлейфов неверен, поэтому
+		/// поправка выключена (koef1 = 1). Включать — только раздельно для КЗ и ХХ.
 //		koef1 = koef1/tan( koef1 );found
 		koef1 = 1.;
 	};
@@ -1198,11 +1268,14 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 		PutTrace(csBuf);
 	};
 //		CString csBuf1;
+////		csBuf1.Format("pcNodeDielOne");
 
+	// В prYNode[2n] накоплено Delta eps узла (сумма вкладов блоков с весами долей ячеек).
 	for( i = 0, ii = 0, jj = 0; i < nNumNode; i++, ii+=2, jj++ )	
 	{
 		y_line = prYNode[ii];
 
+		// Delta eps < 0: шлейф короткого замыкания, Y = Delta eps * (k0*Delta)^2/2 (знак минус сохраняется).
 		if( y_line < 0.0 )
 		{
 			prYNode[ii] = (_real)( y_line*koef/(koef1) );
@@ -1211,6 +1284,8 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 		}
 		else
 		{
+			// Delta eps >= 0: шлейф холостого хода, Y = 4 * Delta eps.
+			/// З-1 (автор 29.10): Delta eps в пределах 0,004 от 4 сдвигается до 3,996 / 4,004 — защита от расходимости схемы при Delta eps = 4.
 			if( fabs( y_line - 4.) < 0.004 )
 			{
 				if( y_line < 4. )	y_line = (_ELEM_VAL_RTH)3.996;
@@ -1220,6 +1295,7 @@ void CTmcRTHRectNode::SetDielInNodeList( void )
 			a = (4. + fabs( prYNode[ii] ));
 			prYNode[ ii + 1 ] =  (_real)(2./a);
 //		CString csBuf1;
+////		csBuf1.Format("pcNodeDielOne");
 		};
 		if( jj == 100000 )
 		{
@@ -1300,6 +1376,7 @@ void CTmcRTHRectNode::DeleteOutputFile( void )
 
 	FILE *fp;
 	CString csOpenErr;	// T-5: the .t is opened first and stays open (write denied to others) until the end of the step
+	// Заголовок .t: метка, имя, частота (Гц), число входов -2; дальше строки подтактов.
 	if( (fp = TmcOutTOpen( cOut->csFileName, "w", csOpenErr )) == NULL )
 	{
 		CString csOpenMsg;
@@ -1311,7 +1388,7 @@ void CTmcRTHRectNode::DeleteOutputFile( void )
 	remove(cOut->csFileNameTopology);
 	fprintf( fp, "%s\n!File name %s\n%s%lg\n%s%d\n!nT\tnBlock\tUp\tUo",
 		TMC_GROTS_FILEOUT_ID,
-		(LPCSTR)( cOut->csFileName ),
+		cOut->csFileName,
 		TMC_GROTS_FLOUTFreq_ID, cParam.rFreq,
 		TMC_GROTS_FLOUTInpNum_ID, -2);
 	fflush( fp );
@@ -1339,6 +1416,7 @@ void CTmcRTHRectNode::OutputnT( void )
 	__int64 qTm = TmcTimingNow();				// TIMING
 
 	CString csOpenErr;
+	// Строка подтакта: перевод строки, номер такта и время; затем порты дописывают «блок Up Uo».
 	if( ( fp = TmcOutTGet( cOut->csFileName ) ) != NULL ) fflush( fp );	// T-5: the file of the step is open; the line before goes to the disk
 	else if( ( fp = TmcOutTOpen( cOut->csFileName, "a", csOpenErr ) ) == NULL )	// after Stop - open it again (T-9: wait 20 s)
 	{
@@ -1786,6 +1864,8 @@ metka1:
 void CTmcRTHRectNode::RunScatteringNode1line( _ELEM_VAL_RTH *pr1, _real *prY1, int nx_10, int nX_111)
 {
 	int i, ii;
+	// Узлы строки обрабатываются парами (развёрнутый цикл), нечётный остаток — отдельно.
+	// Формула узла: U_new = 2/(4+Y) * (сумма соседей + Y*U_self) - U_old.
 	ii = nx_10/2;
 
 	for( i = 0; i < ii; i++, pr1+=4, prY1+=4)
@@ -1828,6 +1908,7 @@ void CTmcRTHRectNode::PutField( TmcIdx ii )	// INT64
 	if( !cOut->bOutField ) return;
 
 	static BOOL bFieldReaderLost = FALSE;	// A-17: FieldView ne chitaet fail polya
+	// Синхронный вывод: ждать (до 500*50 мс), пока программа просмотра прочитает прошлый кадр.
 	if( cOut->bOutFieldSinchronization && !IsAutoRun() )
 	{
 		if( bFieldReaderLost && !IsFieldFileRead() ) bFieldReaderLost = FALSE;	// FieldView snova chitaet
@@ -1851,11 +1932,12 @@ void CTmcRTHRectNode::PutField( TmcIdx ii )	// INT64
 						TMC_GROFLD_DOCFILE_ID_Delta, dDelta, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Xmin, dXmin, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Ymin, dYmin, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_Accuracy, (int)( sizeof(_real) ),  13, 10,
-						TMC_GROFLD_DOCFILE_ID_LongUnit, (LPCSTR)( cParam.csLongUnit ), cParam.rLongUnit, 13, 10,
-						TMC_GROFLD_DOCFILE_ID_TimeUnit, (LPCSTR)( cParam.csTimeUnit ), cParam.rTimeUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_Accuracy, sizeof(_real),  13, 10,
+						TMC_GROFLD_DOCFILE_ID_LongUnit, cParam.csLongUnit, cParam.rLongUnit, 13, 10,
+						TMC_GROFLD_DOCFILE_ID_TimeUnit, cParam.csTimeUnit, cParam.rTimeUnit, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nX, nX, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nY, nY);
+	// Кадр: строки снизу вверх, в строке слева направо; значение узла — ячейка ii, ii+2, ...
 	for( i = 0; i < nY; i++)
 	{
 		fprintf( fp, "%c%c", 13, 10);
@@ -1984,7 +2066,7 @@ void CTmcRTHRectNode::PutTopology()
 	};
 	
 	fprintf( fp, "%s%c%c%s%c%c%s%d%c%c%s%lg%c%c%s%lg%c%c%s%lg%c%c%s%lg%c%c%s%d%c%c%s%d", TMC_RTH_FILETOP_ID, 13, 10,
-						(LPCSTR)( csBuf ), 13, 10,
+						csBuf, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_nT, nTCurrent, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_T, dTCurrent, 13, 10,
 						TMC_GROFLD_DOCFILE_ID_Delta, dDelta, 13, 10,
@@ -1997,6 +2079,8 @@ void CTmcRTHRectNode::PutTopology()
 		fprintf( fp, "%c%c", 13, 10);
 		for( j = 0; j < nX; j++ )
 		{
+//			fprintf( fp, GetdFieldOutFormat(), prYNode1[0]);
+			// Обратный пересчёт проводимости шлейфа в полную eps узла.
 			dBuf = prYNode[ii];
 			if( dBuf >= 0. ) dBuf /= 4.;
 			else dBuf /= koef;
@@ -2188,8 +2272,8 @@ void CTmcRTHRectNode::RunKernel1TGpu( void )
 
 	// J-5: /Time on the card - the queue is asynchronous: Pass/Blocks only enqueue, the wait for them is in
 	// PortsDown of the next sub-step and is counted as EXCITE; only the sum EXCITE + SCATTER is meaningful.
-	/// ����� /Time �� ����������: ������������ �������� �������� ���� �������� �������� (������� OpenCL
-	/// ����������), ������� ������������ ������ ����� ������������ + ���������.
+	/// Время /Time на видеокарте: «возбуждение» включает ожидание ядер прошлого подтакта (очередь OpenCL
+	/// асинхронна), поэтому показательна только сумма «возбуждение + рассеяние».
 	for( k = 0; k < 2; k++ )
 	{
 		qTm0 = TmcTimingNow();

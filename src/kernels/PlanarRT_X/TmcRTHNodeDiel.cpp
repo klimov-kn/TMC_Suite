@@ -1,35 +1,51 @@
 // TmcRTHNodeDiel.cpp : implementation file
 //
 
-#include "stdafx.h"
+/// @file TmcRTHNodeDiel.cpp
+/// @brief Блоки задания X-ядра: построение узлов (диэлектрик, плазма N/B/Y/sigma, металл,
+///        поглотитель, магнитная стенка, порт), быстрое построение EPSFAST, файлы `.eps` и
+///        `.sig`, возбуждение портов и граничные условия блоков на каждом из 4 подтактов.
+///
+/// Часть модуля «Счётное ядро X». Реализует `CTmcRTHNodeDiel` (описание методов —
+/// в `tmcrthnodediel.h`). Ветвь того же кода, что ядро H: шаг массивов узла 6 вместо 2,
+/// четыре варианта `ExciteInputs*` и `RunBlockNode*`, блоки плазмы.
+/// @see https://www.tamic.ru/docs/code/kernel-x.html#blocks
+#include "StdAfx.h"
 #include "PlanRT_H.h"
-#include <tmcgrviw.h>
+#include <Tmcgrviw.h>
 #include "TmcRTHNodeDiel.h"
 #include "TmcRTH_Indan.h"
 #include "TmcRTHRectNode.h"
 // D-4: the missing neighbour of a corner node of a port is an explicit 0 (old: the node (0,0), pr1[0])
+/// Нулевые «соседи» для крайних узлов порта: у первого и последнего узла апертуры
+/// нет соседа вдоль порта, и вместо него читается 0.
 static _ELEM_VAL_RTH g_rZeroNeighbour[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 // B-16: is the point (x, y) outside the region, more than half a step beyond its border? Such parts of a block
 // are dropped (old: they were pressed to the border column).
+/// @brief Проверяет, лежит ли точка дальше чем на полшага за границей области (такие части блоков отбрасываются).
+/// @param[in] cParam параметры сетки (границы области, шаг)
+/// @param[in] x      координата X, м
+/// @param[in] y      координата Y, м
+/// @return TRUE — точка вне области.
 static BOOL TmcB16Out( CTmcRTH_IndanParam &cParam, double x, double y )
 {
 	return ( x < cParam.rXmin - 0.5*cParam.rDelta )||( x > cParam.rXmax + 0.5*cParam.rDelta )||
 		( y < cParam.rYmin - 0.5*cParam.rDelta )||( y > cParam.rYmax + 0.5*cParam.rDelta );
 }
 // R-2: neighbours of a node along the sides (1 below, 2 right, 3 above, 4 left), in steps Delta.
-/// ������ ������� ���� �� �������� � ����� �����: 1 � �����, 2 � ������, 3 � ������, 4 � �����
-/// (��������� ������� ������ � �-2).
+/// Сдвиги соседей узла по сторонам в шагах сетки: 1 — снизу, 2 — справа, 3 — сверху, 4 — слева
+/// (нумерация рисунка автора к Р-2).
 static const double g_dR2SideX[4] = { 0., 1., 0., -1. };
-/// ������ ������� �� Y (� ���� � g_dR2SideX).
+/// Сдвиги соседей по Y (в паре с g_dR2SideX).
 static const double g_dR2SideY[4] = { -1., 0., 1., 0. };
-/// @brief �-2: ��� ���� ����������� ����� ��� �������������� �� ����� ������� �� ��������, �������� � ����.
+/// @brief Р-2: вес узла диэлектрика круга или многоугольника по числу соседей по сторонам, попавших в блок.
 ///
-/// ������� ������ (29.10.2026), ���� ��� ���� ���������� � ��� �� � �������������� (SetRect):
-/// 4 ������ � ���� ������, ��� 1; 3 � ���� �� �������, 1/2 (�������� ��� ������ � �����);
-/// 2 � ����, 1/4 (��� �� � ��� ��������������� ������ � ���� �������� � ���� ����); 1 � ��� 1.
-/// ������ ����� ��� (3/4 �� ������). 0 ������� ����� �� ������� � ������� 1.
-/// @param[in] nSide ����� ������� (x +- Delta, y), (x, y +- Delta) ������ �����, 0..4
-/// @return ���� ������������� � ������� �����, ������� �������� ����.
+/// Правило автора (29.10.2026), одно для всех примитивов — оно же у прямоугольника (SetRect):
+/// 4 соседа — узел внутри, вес 1; 3 — узел на стороне, 1/2 (половина его ячейки в блоке);
+/// 2 — угол, 1/4 (так же и два противоположных соседа — блок толщиной в один узел); 1 — вес 1.
+/// Других весов нет (3/4 не бывает). 0 соседей автор не называл — принято 1.
+/// @param[in] nSide число соседей (x +- Delta, y), (x, y +- Delta) внутри блока, 0..4
+/// @return доля проводимостей и шлейфов блока, которую получает узел.
 /// @see https://www.tamic.ru/docs/code/kernel-h.html#blocks
 static _real TmcR2NodeWeight( int nSide )
 {
@@ -40,7 +56,7 @@ static _real TmcR2NodeWeight( int nSide )
 #include <math.h>
 #include <limits.h>
 #include <float.h>
-#include <expr.h>
+#include <EXPR.H>
 #include "Pl_iofor.h"
 #include <TmcCalcTiming.h>	// TIMING
 FILE *TmcOutTGet( const char *pszName );	// T-5, T-9: TmcRTHRectNode.cpp
@@ -50,12 +66,24 @@ CString TmcOpenFailText( const char *pszName, int nErr );
 #include <atomic>		// EPSFAST
 #include <vector>		// EPSFAST
 
+/// @name Форма блока для EPSFAST
+///@{
+/// Прямоугольник (RECT_STAT*).
 #define EPSFAST_RECT		0	// EPSFAST: block shapes
+/// Кольцевой сектор (CIRCLE_STAT*).
 #define EPSFAST_CIRC		1
+/// Многоугольник (POLYGON_STAT*).
 #define EPSFAST_POLY		2
+///@}
+/// @name Вид выражения блока для EPSFAST
+///@{
+/// В выражении нет x, y, r, f: одно значение на блок.
 #define EPSFAST_CONST		0	// EPSFAST: no x, y, r, f in the expression - one value per block
+/// Есть x, y, r или f, нет `=`: узлы независимы, счёт в нескольких потоках.
 #define EPSFAST_PARALLEL	1	//          x, y, r, f, no '=' - nodes are independent
+/// Есть `=`: переменные переходят от узла к узлу, один поток в исходном порядке.
 #define EPSFAST_SERIAL		2	//          '=' - variables live from node to node, keep the order
+///@}
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -194,6 +222,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 	dX0 = pcNextBlockList->GetX0();
 	dY0 = pcNextBlockList->GetY0();
 	pbIsStop = pbStopFlag;
+	// Узел сетки, ближайший к точке привязки блока (X0, Y0).
 	r = (pcNextBlockList->GetX0() - cParam.rXmin)/cParam.rDelta + 0.5;
 	if( fabs(r) >= INT_MAX ) 
 	{
@@ -214,181 +243,185 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 	nY0 = (int)(r);
 	
 	i = 0;
+	// Выбор построителя по типу блока и ключевому слову примитива.
 	switch( nType )
 	{
 		case  CTMCRTH_BLCKNTYPE_METAL    :
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTAT, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == NULL ) 
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTAT, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == 0 ) 
 			{
 				cError = SetRectMetal( pcNextBlockList, cParam);
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTT, strlen(CTMCRTH_INDANBLCK_POLYGSTT) ) == NULL )
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTT, strlen(CTMCRTH_INDANBLCK_POLYGSTT) ) == 0 )
 			{
 				cError = SetPolyMetal( pcNextBlockList, cParam);
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTAT, strlen(CTMCRTH_INDANBLCK_CIRCSTAT) ) == NULL )
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTAT, strlen(CTMCRTH_INDANBLCK_CIRCSTAT) ) == 0 )
 			{
 				cError = SetCircMetal( pcNextBlockList, cParam);
 				i = 1;
 			};
 			break;
 		case  CTMCRTH_BLCKNTYPE_ABSORBER :
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTAT, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == NULL ) 
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTAT, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == 0 ) 
 			{
 				cError = SetRectAbsorber( pcNextBlockList, cParam);
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTT, strlen(CTMCRTH_INDANBLCK_POLYGSTT) ) == NULL ) 
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTT, strlen(CTMCRTH_INDANBLCK_POLYGSTT) ) == 0 ) 
 			{
 				cError = SetPolyAbsorber( pcNextBlockList, cParam);
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTAT, strlen(CTMCRTH_INDANBLCK_CIRCSTAT) ) == NULL )
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTAT, strlen(CTMCRTH_INDANBLCK_CIRCSTAT) ) == 0 )
 			{
 				cError = SetCircAbsorber( pcNextBlockList, cParam);
 				i = 1;
 			};
 			break;
 		case  CTMCRTH_BLCKNTYPE_MAGNETIC :
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTAT, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == NULL ) 
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTAT, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == 0 ) 
 			{
 				cError = SetRectMagnetic( pcNextBlockList, cParam);
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTT, strlen(CTMCRTH_INDANBLCK_POLYGSTT) ) == NULL ) 
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTT, strlen(CTMCRTH_INDANBLCK_POLYGSTT) ) == 0 ) 
 			{
 				cError = SetPolyMagnetic( pcNextBlockList, cParam);
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTAT, strlen(CTMCRTH_INDANBLCK_CIRCSTAT) ) == NULL )
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTAT, strlen(CTMCRTH_INDANBLCK_CIRCSTAT) ) == 0 )
 			{
 				cError = SetCircMagnetic( pcNextBlockList, cParam);
 				i = 1;
 			};
 			break;
 		case  CTMCRTH_BLCKNTYPE_EPS      :
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILE, strlen(CTMCRTH_INDANBLCK_FILE) ) == NULL ) 
+			// FILE, FILE_N, FILE_B, FILE_Y — распределение из файла .eps (величина — по типу блока).
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILE, strlen(CTMCRTH_INDANBLCK_FILE) ) == 0 ) 
 			{
 				{ __int64 qTmF = TmcTimingNow(); cError = SetRectFile( pcNextBlockList, cParam, csCurrentPath ); TimingEpsRead( TmcTimingNow() - qTmF ); }	// TIMING
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEN, strlen(CTMCRTH_INDANBLCK_FILEN) ) == NULL ) 
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEN, strlen(CTMCRTH_INDANBLCK_FILEN) ) == 0 ) 
 			{
 				{ __int64 qTmF = TmcTimingNow(); cError = SetRectFile( pcNextBlockList, cParam, csCurrentPath ); TimingEpsRead( TmcTimingNow() - qTmF ); }	// TIMING
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEB, strlen(CTMCRTH_INDANBLCK_FILEB) ) == NULL ) 
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEB, strlen(CTMCRTH_INDANBLCK_FILEB) ) == 0 ) 
 			{
 				{ __int64 qTmF = TmcTimingNow(); cError = SetRectFile( pcNextBlockList, cParam, csCurrentPath ); TimingEpsRead( TmcTimingNow() - qTmF ); }	// TIMING
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEY, strlen(CTMCRTH_INDANBLCK_FILEY) ) == NULL ) 
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEY, strlen(CTMCRTH_INDANBLCK_FILEY) ) == 0 ) 
 			{
 				{ __int64 qTmF = TmcTimingNow(); cError = SetRectFile( pcNextBlockList, cParam, csCurrentPath ); TimingEpsRead( TmcTimingNow() - qTmF ); }	// TIMING
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTAT, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == NULL ) 
+			// Стационарные блоки и их варианты _N, _B, _Y, _S: шаг записи узла 6, ячейка величины —
+			// EpsFastTypeOffset (0 — Delta eps, 1 — N, 2 — Y, 3 — sigma, 4 — B).
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTAT, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == 0 ) 
 			{
 				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_RECT, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
 				else cError = SetRect( pcNextBlockList, cParam, csCurrentPath );
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATN, strlen(CTMCRTH_INDANBLCK_RECTSTATN) ) == NULL ) 
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATN, strlen(CTMCRTH_INDANBLCK_RECTSTATN) ) == 0 ) 
 			{
 				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_RECT, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
 				else cError = SetRect( pcNextBlockList, cParam, csCurrentPath );
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATB, strlen(CTMCRTH_INDANBLCK_RECTSTATB) ) == NULL ) 
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATB, strlen(CTMCRTH_INDANBLCK_RECTSTATB) ) == 0 ) 
 			{
 				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_RECT, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
 				else cError = SetRect( pcNextBlockList, cParam, csCurrentPath );
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATY, strlen(CTMCRTH_INDANBLCK_RECTSTATY) ) == NULL ) 
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATY, strlen(CTMCRTH_INDANBLCK_RECTSTATY) ) == 0 ) 
 			{
 				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_RECT, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
 				else cError = SetRect( pcNextBlockList, cParam, csCurrentPath );
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATS, strlen(CTMCRTH_INDANBLCK_RECTSTATS) ) == NULL )	// B-20: sigma, as Y (slot 3)
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATS, strlen(CTMCRTH_INDANBLCK_RECTSTATS) ) == 0 )	// B-20: sigma, as Y (slot 3)
 			{
 				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_RECT, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
 				else cError = SetRect( pcNextBlockList, cParam, csCurrentPath );
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTMOVE, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == NULL )
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTMOVE, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == 0 )
 			{
 				cError = SetRect( pcNextBlockList, cParam, csCurrentPath );
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTAT, strlen(CTMCRTH_INDANBLCK_CIRCSTAT) ) == NULL )
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTAT, strlen(CTMCRTH_INDANBLCK_CIRCSTAT) ) == 0 )
 			{
 				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_CIRC, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
 				else cError = SetCirc( pcNextBlockList, cParam);
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATN, strlen(CTMCRTH_INDANBLCK_CIRCSTATN) ) == NULL )
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATN, strlen(CTMCRTH_INDANBLCK_CIRCSTATN) ) == 0 )
 			{
 				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_CIRC, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
 				else cError = SetCirc( pcNextBlockList, cParam);
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATB, strlen(CTMCRTH_INDANBLCK_CIRCSTATB) ) == NULL )
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATB, strlen(CTMCRTH_INDANBLCK_CIRCSTATB) ) == 0 )
 			{
 				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_CIRC, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
 				else cError = SetCirc( pcNextBlockList, cParam);
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATY, strlen(CTMCRTH_INDANBLCK_CIRCSTATY) ) == NULL )
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATY, strlen(CTMCRTH_INDANBLCK_CIRCSTATY) ) == 0 )
 			{
 				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_CIRC, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
 				else cError = SetCirc( pcNextBlockList, cParam);
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATS, strlen(CTMCRTH_INDANBLCK_CIRCSTATS) ) == NULL )	// B-20: sigma, as Y (slot 3)
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATS, strlen(CTMCRTH_INDANBLCK_CIRCSTATS) ) == 0 )	// B-20: sigma, as Y (slot 3)
 			{
 				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_CIRC, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
 				else cError = SetCirc( pcNextBlockList, cParam);
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCMOVE, strlen(CTMCRTH_INDANBLCK_CIRCMOVE) ) == NULL )
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCMOVE, strlen(CTMCRTH_INDANBLCK_CIRCMOVE) ) == 0 )
 			{
 				cError = SetCirc( pcNextBlockList, cParam);
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTT, strlen(CTMCRTH_INDANBLCK_POLYGSTT) ) == NULL )
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTT, strlen(CTMCRTH_INDANBLCK_POLYGSTT) ) == 0 )
 			{
 				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_POLY, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
 				else cError = SetPoly( pcNextBlockList, cParam);
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTN, strlen(CTMCRTH_INDANBLCK_POLYGSTTN) ) == NULL )
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTN, strlen(CTMCRTH_INDANBLCK_POLYGSTTN) ) == 0 )
 			{
 				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_POLY, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
 				else cError = SetPoly( pcNextBlockList, cParam);
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTB, strlen(CTMCRTH_INDANBLCK_POLYGSTTB) ) == NULL )
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTB, strlen(CTMCRTH_INDANBLCK_POLYGSTTB) ) == 0 )
 			{
 				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_POLY, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
 				else cError = SetPoly( pcNextBlockList, cParam);
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTY, strlen(CTMCRTH_INDANBLCK_POLYGSTTY) ) == NULL )
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTY, strlen(CTMCRTH_INDANBLCK_POLYGSTTY) ) == 0 )
 			{
 				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_POLY, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
 				else cError = SetPoly( pcNextBlockList, cParam);
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTS, strlen(CTMCRTH_INDANBLCK_POLYGSTTS) ) == NULL )	// B-20: sigma, as Y (slot 3)
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTS, strlen(CTMCRTH_INDANBLCK_POLYGSTTS) ) == 0 )	// B-20: sigma, as Y (slot 3)
 			{
 				if( SetStatEpsFast( pcNextBlockList, cParam, csCurrentPath, prYNode, EPSFAST_POLY, 6, EpsFastTypeOffset() ) ) bEpsFast = TRUE;	// EPSFAST
 				else cError = SetPoly( pcNextBlockList, cParam);
 				i = 1;
 			};
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGMOV, strlen(CTMCRTH_INDANBLCK_POLYGMOV) ) == NULL )
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGMOV, strlen(CTMCRTH_INDANBLCK_POLYGMOV) ) == 0 )
 			{
 				cError = SetPoly( pcNextBlockList, cParam);
 				i = 1;
@@ -432,6 +465,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 		csBuf.Format("Set block %d; points:%.0f; Type or eps = {%s}", nBlock, (double)nNumNode, csEpsExpr);	// BIGBLOCK
 		PutTrace(csBuf);
 	};
+	// EPSFAST: вклад уже в prYNode, массива узлов нет — блок готов.
 	if( bEpsFast )	// EPSFAST: eps is already in prYNode, no node array was built
 	{
 		CString csBuf;
@@ -444,6 +478,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 		return cError;
 	};
 
+	// Все узлы блока (и соседи, которые читает порт) должны лежать в сетке.
 	if( ( !cError.IsError() )&&( pcNodeDielOne != NULL )&&( nNumNode > 0 ) )	// A-6: the nodes of the block lie in the grid
 	{
 		int nXg = cParam.CalcnX();
@@ -479,12 +514,14 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 		};
 	};
 
+	// Общая доводка: без повторов, коды узлов, значение -> prYNode, профиль порта,
+	// освобождение узлов стационарного блока.
 	DeleteDublicateData();
 	CalculatedXYCenter( cParam );
 	SetnType();
 	SetYLineForDiel( cParam, prYNode );
 	SetYForInput( cParam );
-	pcNextBlockList->SetnMemory( (int)( sizeof(CTmcRTHNodeDiel)+(sizeof(sTmcRTHNodeDielOne))*((TmcIdx)nNumNode) ) ); // BIGBLOCK; C4267: int, as the setter takes	// BIGBLOCK
+	pcNextBlockList->SetnMemory( sizeof(CTmcRTHNodeDiel)+(sizeof(sTmcRTHNodeDielOne))*((TmcIdx)nNumNode) );	// BIGBLOCK
 	DeleteStatDielData();
 //		CString csBuf1;
 	{
@@ -513,32 +550,93 @@ CTmcLibError &CTmcRTHNodeDiel::SetBlock( CTmcRTH_BlockList * pcNextBlockList, CT
 // block; TMC_EPS_THREADS=n - number of threads (default: all processors but 1 of 8 - EPSFAST2).
 //////////////////////////////////////////////////////////////////////////////
 
+/// Сколько строк описанного прямоугольника рабочий поток берёт за один раз.
 #define EPSFAST_CHUNK		8		// rows taken by a thread at once
+/// Наибольшее число рабочих потоков EPSFAST (предел WaitForMultipleObjects).
 #define EPSFAST_MAXTHREADS	64		// WaitForMultipleObjects limit
+/// Порог EPSFAST: если в описанном прямоугольнике блока меньше узлов, считается в одном
+/// потоке. Переопределяется переменной окружения `TMC_EPS_SMALL`.
 #define EPSFAST_SMALL		1000	// fewer nodes - one thread (EPSFAST2: measured 2026-10-22, threads win from ~1000 nodes)
 
+/// @brief Задание быстрого построения одного блока eps или плазмы: геометрия, массивы строк
+///        и столбцов, общие счётчики рабочих потоков.
+///
+/// Создаётся на стеке `SetStatEpsFast`, передаётся всем рабочим потокам; счётчики —
+/// атомарные, остальные поля только читаются.
+/// @see https://www.tamic.ru/docs/code/kernel-x.html#epsfast
 struct sEpsFastJob
 {
+	/// Параметры сетки (не владеет).
 	CTmcRTH_IndanParam *pParam;
+	/// Массив коэффициентов ядра, куда прибавляется вклад узлов.
 	_real *prYNode;
+	/// Вклад узла n идёт в `prYNode[nStride*n + nOffset]` (в X-ядре шаг 6, ячейка 0..4).
 	int nStride, nOffset;		// eps of node n goes to prYNode[nStride*n + nOffset]
+	/// Форма (`EPSFAST_RECT/CIRC/POLY`) и вид выражения (`EPSFAST_CONST/PARALLEL/SERIAL`).
 	int nShape, nKind;
+	/// Размер описанного прямоугольника блока в узлах.
 	int nX, nY;
+	/// Выражение блока.
 	const char *pszExpr;
+	/// Координаты столбцов и строк так, как их строит прежний код, м.
 	double *pdX, *pdY;			// node coordinates exactly as the original loops make them
+	/// Номер узла сетки = `pnXIdx[i] + pnYRow[j]`.
 	TmcIdx *pnXIdx, *pnYRow;	// grid node = pnXIdx[i] + pnYRow[j]
+	/// Координаты, подставляемые в выражение (относительно X0, Y0), м.
 	double *pdEpsX, *pdEpsY;	// coordinates passed to the eps expression
+	/// Круг: Rmin^2, Rmax^2 (м^2), FImin, FImax (рад), шаг сетки (м).
 	double dRRmin, dRRmax, dFImin, dFImax, dDelta;	// circle
+	/// Многоугольник: координаты вершин (локальные), м.
 	double *pPX, *pPY;			// polygon
+	/// Многоугольник: число вершин.
 	int nXY;
+	/// Значение выражения без x, y, r, f (считается один раз).
 	_real rEpsConst;
+	/// Признак «расчёт идёт» ядра; FALSE — потоки прекращают работу.
 	volatile BOOL *pbIsStop;
+	/// Следующая свободная строка.
 	std::atomic<int> nNextRow;
+	/// Число обработанных строк (для хода в строке состояния).
 	std::atomic<int> nRowsDone;
+	/// Не 0 — ошибка выражения в каком-то узле.
 	std::atomic<int> nError;
+	/// Не 0 — построение прервано пользователем.
 	std::atomic<int> nCancel;
+	/// Число узлов, вошедших в блок.
 	std::atomic<long long> nCount;
 };
+/// @var sEpsFastJob::nOffset
+/// Ячейка величины в записи узла массива `prYNode` (`EpsFastTypeOffset`).
+
+/// @var sEpsFastJob::nKind
+/// Вид выражения: `EPSFAST_CONST`, `EPSFAST_PARALLEL` или `EPSFAST_SERIAL`.
+
+/// @var sEpsFastJob::nY
+/// Число строк описанного прямоугольника блока.
+
+/// @var sEpsFastJob::pdY
+/// Координаты строк описанного прямоугольника, м.
+
+/// @var sEpsFastJob::pnYRow
+/// Номер узла сетки начала строки j (`iy*nX`).
+
+/// @var sEpsFastJob::pdEpsY
+/// Координата Y строки, подставляемая в выражение (относительно Y0), м.
+
+/// @var sEpsFastJob::dRRmax
+/// Круг: квадрат внешнего радиуса Rmax^2, м^2.
+
+/// @var sEpsFastJob::dFImin
+/// Круг: начальный угол сектора, рад, [0, 2*pi).
+
+/// @var sEpsFastJob::dFImax
+/// Круг: конечный угол сектора, рад.
+
+/// @var sEpsFastJob::dDelta
+/// Шаг сетки, м.
+
+/// @var sEpsFastJob::pPY
+/// Многоугольник: координаты Y вершин (локальные), м.
 
 int CTmcRTHNodeDiel::EpsFastExprKind( const char *pszExpr )
 {
@@ -628,34 +726,6 @@ BOOL CTmcRTHNodeDiel::EpsFastNode( sEpsFastJob *pJob, int i, int j, _real *prY )
 			};
 			*prY = TmcR2NodeWeight( k1 );
 			return TRUE;
-#if 0	// R-2: the old weight
-			*prY = (_real)(0.0);
-			x1 = x - d;
-			y1 = y - d;
-			rRxy1 = x1*x1 + y1*y1;
-			rFxy1 = atan2__1( y1, x1);
-			if( ( rRxy1 >= pJob->dRRmin )&&( rRxy1 <= pJob->dRRmax)&&
-				( rFxy1 >= pJob->dFImin )&&( rFxy1 <= pJob->dFImax )) *prY += (_real)(0.25);
-			x1 = x - d;
-			y1 = y + d;
-			rRxy1 = x1*x1 + y1*y1;
-			rFxy1 = atan2__1( y1, x1);
-			if( ( rRxy1 >= pJob->dRRmin )&&( rRxy1 <= pJob->dRRmax)&&
-				( rFxy1 >= pJob->dFImin )&&( rFxy1 <= pJob->dFImax )) *prY += (_real)(0.25);
-			x1 = x + d;
-			y1 = y + d;
-			rRxy1 = x1*x1 + y1*y1;
-			rFxy1 = atan2__1( y1, x1);
-			if( ( rRxy1 >= pJob->dRRmin )&&( rRxy1 <= pJob->dRRmax)&&
-				( rFxy1 >= pJob->dFImin )&&( rFxy1 <= pJob->dFImax )) *prY += (_real)(0.25);
-			x1 = x + d;
-			y1 = y - d;
-			rRxy1 = x1*x1 + y1*y1;
-			rFxy1 = atan2__1( y1, x1);
-			if( ( rRxy1 >= pJob->dRRmin )&&( rRxy1 <= pJob->dRRmax)&&
-				( rFxy1 >= pJob->dFImin )&&( rFxy1 <= pJob->dFImax )) *prY += (_real)(0.25);
-			return TRUE;
-#endif
 
 		case EPSFAST_POLY:
 			x = pJob->pdX[i];
@@ -685,26 +755,6 @@ BOOL CTmcRTHNodeDiel::EpsFastNode( sEpsFastJob *pJob, int i, int j, _real *prY )
 			};
 			*prY = TmcR2NodeWeight( nSideFast );
 			return TRUE;
-#if 0	// R-2: the old weight
-			*prY = (_real)(0.0);
-			x1 = x - d;
-			y1 = y - d;
-			for( k1 = 2; k1 < nXY; k1++ )
-				if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) ) { *prY += (_real)(0.25); break; };
-			x1 = x - d;
-			y1 = y + d;
-			for( k1 = 2; k1 < nXY; k1++ )
-				if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) ) { *prY += (_real)(0.25); break; };
-			x1 = x + d;
-			y1 = y + d;
-			for( k1 = 2; k1 < nXY; k1++ )
-				if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) ) { *prY += (_real)(0.25); break; };
-			x1 = x + d;
-			y1 = y - d;
-			for( k1 = 2; k1 < nXY; k1++ )
-				if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) ) { *prY += (_real)(0.25); break; };
-			return TRUE;
-#endif
 	};
 	return FALSE;
 }
@@ -1082,81 +1132,81 @@ int CTmcRTHNodeDiel::EpsFastTypeOffset( void )	// EPSFAST: i_Type of SetYLineFor
 	int i_Type = 0;
 ///////////////////////////////////////////////
 //		old type data eps+ write in prYNode[0]
-		if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILE, strlen(CTMCRTH_INDANBLCK_FILE) ) == NULL )
+		if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILE, strlen(CTMCRTH_INDANBLCK_FILE) ) == 0 )
 		{
 			i_Type = 0;
 		};
-		if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTAT, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == NULL )
+		if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTAT, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == 0 )
 		{
 			i_Type = 0;
 		};
-		if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTAT, strlen(CTMCRTH_INDANBLCK_CIRCSTAT) ) == NULL )
+		if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTAT, strlen(CTMCRTH_INDANBLCK_CIRCSTAT) ) == 0 )
 		{
 			i_Type = 0;
 		};
-		if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTT, strlen(CTMCRTH_INDANBLCK_POLYGSTT) ) == NULL )
+		if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTT, strlen(CTMCRTH_INDANBLCK_POLYGSTT) ) == 0 )
 		{
 			i_Type = 0;
 		};
 ///////////////////////////////////////////////
 //		new type data N write in prYNode[1]
-		if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEN, strlen(CTMCRTH_INDANBLCK_FILEN) ) == NULL )
+		if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEN, strlen(CTMCRTH_INDANBLCK_FILEN) ) == 0 )
 		{
 			i_Type = 1;
 		};
-		if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATN, strlen(CTMCRTH_INDANBLCK_RECTSTATN) ) == NULL )
+		if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATN, strlen(CTMCRTH_INDANBLCK_RECTSTATN) ) == 0 )
 		{
 			i_Type = 1;
 		};
-		if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATN, strlen(CTMCRTH_INDANBLCK_CIRCSTATN) ) == NULL )
+		if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATN, strlen(CTMCRTH_INDANBLCK_CIRCSTATN) ) == 0 )
 		{
 			i_Type = 1;
 		};
-		if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTN, strlen(CTMCRTH_INDANBLCK_POLYGSTTN) ) == NULL )
+		if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTN, strlen(CTMCRTH_INDANBLCK_POLYGSTTN) ) == 0 )
 		{
 			i_Type = 1;
 		};
 ///////////////////////////////////////////////
 //		new type data Y write in prYNode[2]
-		if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEY, strlen(CTMCRTH_INDANBLCK_FILEY) ) == NULL )
+		if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEY, strlen(CTMCRTH_INDANBLCK_FILEY) ) == 0 )
 		{
 			i_Type = 2;
 		};
-		if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATY, strlen(CTMCRTH_INDANBLCK_RECTSTATY) ) == NULL )
+		if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATY, strlen(CTMCRTH_INDANBLCK_RECTSTATY) ) == 0 )
 		{
 			i_Type = 2;
 		};
-		if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATY, strlen(CTMCRTH_INDANBLCK_CIRCSTATY) ) == NULL )
+		if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATY, strlen(CTMCRTH_INDANBLCK_CIRCSTATY) ) == 0 )
 		{
 			i_Type = 2;
 		};
-		if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTY, strlen(CTMCRTH_INDANBLCK_POLYGSTTY) ) == NULL )
+		if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTY, strlen(CTMCRTH_INDANBLCK_POLYGSTTY) ) == 0 )
 		{
 			i_Type = 2;
 		};
 ///////////////////////////////////////////////
 //		new type data B write in prYNode[4]
-		if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEB, strlen(CTMCRTH_INDANBLCK_FILEB) ) == NULL )
+		if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEB, strlen(CTMCRTH_INDANBLCK_FILEB) ) == 0 )
 		{
 			i_Type = 4;
 		};
-		if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATB, strlen(CTMCRTH_INDANBLCK_RECTSTATB) ) == NULL )
+		if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATB, strlen(CTMCRTH_INDANBLCK_RECTSTATB) ) == 0 )
 		{
 			i_Type = 4;
 		};
-		if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATB, strlen(CTMCRTH_INDANBLCK_CIRCSTATB) ) == NULL )
+		if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATB, strlen(CTMCRTH_INDANBLCK_CIRCSTATB) ) == 0 )
 		{
 			i_Type = 4;
 		};
-		if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTB, strlen(CTMCRTH_INDANBLCK_POLYGSTTB) ) == NULL )
+		if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTB, strlen(CTMCRTH_INDANBLCK_POLYGSTTB) ) == 0 )
 		{
 			i_Type = 4;
 		};
 ///////////////////////////////////////////////
 //		B-20: sigma (S/m) write in prYNode[3] (free until SetDielInNodeList, there it becomes Y)
-		if( ( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATS, strlen(CTMCRTH_INDANBLCK_RECTSTATS) ) == NULL )||
-			( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATS, strlen(CTMCRTH_INDANBLCK_CIRCSTATS) ) == NULL )||
-			( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTS, strlen(CTMCRTH_INDANBLCK_POLYGSTTS) ) == NULL ) )
+		if( ( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTATS, strlen(CTMCRTH_INDANBLCK_RECTSTATS) ) == 0 )||
+			( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCSTATS, strlen(CTMCRTH_INDANBLCK_CIRCSTATS) ) == 0 )||
+			( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGSTTS, strlen(CTMCRTH_INDANBLCK_POLYGSTTS) ) == 0 ) )
 		{
 			i_Type = 3;
 		};
@@ -1277,6 +1327,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRect( CTmcRTH_BlockList * pcNextBlockList, CTm
 		return cError;
 	};
 
+	// Вес узла — доля четырёх соседних ячеек внутри прямоугольника: 1, 0,5 на стороне, 0,25 в углу.
 	for( i = 0, ii = 0, x = dXmin; i < nX; i++, x = dXmin + (i*cParam.rDelta) )
 	{
 //		CString csBuf1;
@@ -1472,7 +1523,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetCirc( CTmcRTH_BlockList * pcNextBlockList, CTm
 				pcNodeDielOne[ii].rY = (_real)(0.0);
 				// R-2 (author 29.10): weight by the side neighbours in the sector (old: 0.25 for each diagonal point
 				// (x +- Delta, y +- Delta) - the circle lost half a step of radius; the old code is below under #if 0).
-				/// �-2: ��� ���� � �� ����� ������� �� ��������, �������� � ������ (TmcR2NodeWeight).
+				/// Р-2: вес узла — по числу соседей по сторонам, попавших в сектор (TmcR2NodeWeight).
 				{
 					int kS, nSide;
 					for( kS = 0, nSide = 0; kS < 4; kS++ )
@@ -1486,44 +1537,6 @@ CTmcLibError &CTmcRTHNodeDiel::SetCirc( CTmcRTH_BlockList * pcNextBlockList, CTm
 					};
 					pcNodeDielOne[ii].rY = TmcR2NodeWeight( nSide );
 				};
-#if 0	// R-2: the old weight (to return it: delete the block above and this #if 0 / #endif)
-				x1 = x - cParam.rDelta;
-				y1 = y - cParam.rDelta;
-				rRxy1 = x1*x1 + y1*y1;
-				rFxy1 = atan2__1( y1, x1);
-				if( ( rRxy1 >= dRRmin )&&( rRxy1 <= dRRmax)&&
-					( rFxy1 >= dFImin )&&( rFxy1 <= dFImax ))
-				{
-					pcNodeDielOne[ii].rY += (_real)(0.25);
-				};
-				x1 = x - cParam.rDelta;
-				y1 = y + cParam.rDelta;
-				rRxy1 = x1*x1 + y1*y1;
-				rFxy1 = atan2__1( y1, x1);
-				if( ( rRxy1 >= dRRmin )&&( rRxy1 <= dRRmax)&&
-					( rFxy1 >= dFImin )&&( rFxy1 <= dFImax ))
-				{
-					pcNodeDielOne[ii].rY += (_real)(0.25);
-				};
-				x1 = x + cParam.rDelta;
-				y1 = y + cParam.rDelta;
-				rRxy1 = x1*x1 + y1*y1;
-				rFxy1 = atan2__1( y1, x1);
-				if( ( rRxy1 >= dRRmin )&&( rRxy1 <= dRRmax)&&
-					( rFxy1 >= dFImin )&&( rFxy1 <= dFImax ))
-				{
-					pcNodeDielOne[ii].rY += (_real)(0.25);
-				};
-				x1 = x + cParam.rDelta;
-				y1 = y - cParam.rDelta;
-				rRxy1 = x1*x1 + y1*y1;
-				rFxy1 = atan2__1( y1, x1);
-				if( ( rRxy1 >= dRRmin )&&( rRxy1 <= dRRmax)&&
-					( rFxy1 >= dFImin )&&( rFxy1 <= dFImax ))
-				{
-					pcNodeDielOne[ii].rY += (_real)(0.25);
-				};
-#endif
 //		CString csBuf1;
 				ii++;
 			};
@@ -1696,7 +1709,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetPoly( CTmcRTH_BlockList * pcNextBlockList, CTm
 					pcNodeDielOne[ii].rY = (_real)(0.0);
 					// R-2 (author 29.10): weight by the side neighbours in the polygon (old: 0.25 for each diagonal
 					// point inside the polygon; the old code is below under #if 0).
-					/// �-2: ��� ���� � �� ����� ������� �� �������� ������ �������������� (TmcR2NodeWeight).
+					/// Р-2: вес узла — по числу соседей по сторонам внутри многоугольника (TmcR2NodeWeight).
 					{
 						int kS, nSide;
 						for( kS = 0, nSide = 0; kS < 4; kS++ )
@@ -1714,48 +1727,6 @@ CTmcLibError &CTmcRTHNodeDiel::SetPoly( CTmcRTH_BlockList * pcNextBlockList, CTm
 						};
 						pcNodeDielOne[ii].rY = TmcR2NodeWeight( nSide );
 					};
-#if 0	// R-2: the old weight (to return it: delete the block above and this #if 0 / #endif)
-					x1 = x - cParam.rDelta;
-					y1 = y - cParam.rDelta;
-					for( k1 = 2; k1 < nXY; k1++ )
-					{
-						if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) )
-						{
-							pcNodeDielOne[ii].rY += (_real)(0.25);
-							k1 = nXY;
-						};
-					};
-					x1 = x - cParam.rDelta;
-					y1 = y + cParam.rDelta;
-					for( k1 = 2; k1 < nXY; k1++ )
-					{
-						if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) )
-						{
-							pcNodeDielOne[ii].rY += (_real)(0.25);
-							k1 = nXY;
-						};
-					};
-					x1 = x + cParam.rDelta;
-					y1 = y + cParam.rDelta;
-					for( k1 = 2; k1 < nXY; k1++ )
-					{
-						if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) )
-						{
-							pcNodeDielOne[ii].rY += (_real)(0.25);
-							k1 = nXY;
-						};
-					};
-					x1 = x + cParam.rDelta;
-					y1 = y - cParam.rDelta;
-					for( k1 = 2; k1 < nXY; k1++ )
-					{
-						if( IsPointInTr( pX[0], pY[0], pX[k1-1], pY[k1-1], pX[k1], pY[k1], x1, y1 ) )
-						{
-							pcNodeDielOne[ii].rY += (_real)(0.25);
-							k1 = nXY;
-						};
-					};
-#endif
 					ii++;
 					k = nXY;
 				};
@@ -1806,6 +1777,8 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpXLeft( CTmcRTH_BlockList * pcNextBlockList,
 	TmcIdx j;	// BIGBLOCK3
 	double dYmin, dYmax, r, y;
 
+	// Апертура порта: Xmin..Xmax блока — пределы по Y относительно Y0, не ближе 2 шагов к краю.
+	// Ymin..Ymax блока — окно возбуждения Tmin..Tmax.
 	dYmin = pcNextBlockList->GetXmin() + pcNextBlockList->GetY0();
 	if( dYmin < (cParam.rYmin + 2*cParam.rDelta) ) dYmin = cParam.rYmin + 2*cParam.rDelta;
 	r = (dYmin - cParam.rYmin)/cParam.rDelta + 0.5;
@@ -1885,10 +1858,12 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpXLeft( CTmcRTH_BlockList * pcNextBlockList,
 	csVy = pcNextBlockList->GetcsVy();
 	csW  = pcNextBlockList->GetcsW();
 
+	// Шлейф среды порта по W, файл .sig, проводимость согласованной нагрузки:
+	// для порта MAGNETIC — как у поглотителя (плоская волна), иначе — для основной волны порта.
 	CalculateYForInput( cParam.rFreq, cParam.rDelta );
 	SeachSignalFileName();
 
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == 0)
 	{
 		dY1_InputAdmitance = SetAbsorberAdmitance( cParam.rFreq, cParam.rDelta );
 	}
@@ -1991,7 +1966,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpXRight( CTmcRTH_BlockList * pcNextBlockList
 	SeachSignalFileName();
 
 
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == 0)
 	{
 		dY1_InputAdmitance = SetAbsorberAdmitance( cParam.rFreq, cParam.rDelta );
 	}
@@ -2091,7 +2066,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpYTop( CTmcRTH_BlockList * pcNextBlockList, 
 	CalculateYForInput( cParam.rFreq, cParam.rDelta );
 	SeachSignalFileName();
 
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == 0)
 	{
 		dY1_InputAdmitance = SetAbsorberAdmitance( cParam.rFreq, cParam.rDelta );
 	}
@@ -2191,7 +2166,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetInpYBot( CTmcRTH_BlockList * pcNextBlockList, 
 	CalculateYForInput( cParam.rFreq, cParam.rDelta );
 	SeachSignalFileName();
 
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == 0)
 	{
 		dY1_InputAdmitance = SetAbsorberAdmitance( cParam.rFreq, cParam.rDelta );
 	}
@@ -2220,10 +2195,10 @@ void CTmcRTHNodeDiel::SetYLineForDiel( CTmcRTH_IndanParam &cParam, _real *prYNod
 	double x, y, y_line, dDelta;
 	BOOL bIsFile;
 	
-	if( ( strncmp( csBlock, CTMCRTH_INDANBLCK_FILE, strlen(CTMCRTH_INDANBLCK_FILE) ) == NULL )||	// B-17: N, B, Y from a file too
-		( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEN, strlen(CTMCRTH_INDANBLCK_FILEN) ) == NULL )||
-		( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEB, strlen(CTMCRTH_INDANBLCK_FILEB) ) == NULL )||
-		( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEY, strlen(CTMCRTH_INDANBLCK_FILEY) ) == NULL ) )
+	if( ( strncmp( csBlock, CTMCRTH_INDANBLCK_FILE, strlen(CTMCRTH_INDANBLCK_FILE) ) == 0 )||	// B-17: N, B, Y from a file too
+		( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEN, strlen(CTMCRTH_INDANBLCK_FILEN) ) == 0 )||
+		( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEB, strlen(CTMCRTH_INDANBLCK_FILEB) ) == 0 )||
+		( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEY, strlen(CTMCRTH_INDANBLCK_FILEY) ) == 0 ) )
 	{
 		bIsFile = TRUE;
 	}
@@ -2247,6 +2222,7 @@ void CTmcRTHNodeDiel::SetYLineForDiel( CTmcRTH_IndanParam &cParam, _real *prYNod
 	csBuf.Format("Set block %d; points:%.0f; eps = {%s}", nBlock, (double)nNumNode, csEpsExpr);
 	PutTrace(csBuf);
 
+	// Вклады блоков в ячейку величины складываются: узел на стыке двух блоков получает сумму долей.
 	for( i = 0, dDelta = cParam.rDelta/2., ii = 0; i < nNumNode; i++, ii++ )
 	{
 		if( cError.IsError() ) return;
@@ -2349,8 +2325,10 @@ void CTmcRTHNodeDiel::SetYForInput( CTmcRTH_IndanParam &cParam )
 	csBuf.Format("Inp:%d", nBlock);
 	PutStatistics(csBuf);
 
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == 0)
 	{
+////			pcNodeDielOne[i].rY = (_real)(1.0);
+		// Порт MAGNETIC: постоянный профиль.
 		for( i = 0, dUnormir = 0.0; i < nNumNode; i++ )
 		{
 			dUnormir += 1.*1.;
@@ -2365,6 +2343,7 @@ void CTmcRTHNodeDiel::SetYForInput( CTmcRTH_IndanParam &cParam )
 	}
 	else
 	{
+		// Стенки порта — блоки METAL (Hz = 0): профиль sin(pi*i/(N-1)), крайние узлы равны 0.
 		for( i = 0, dUnormir = 0.0; i < nNumNode; i++ )
 		{
 			dUnormir += sin(i*PI___/(nNumNode-1))*sin(i*PI___/(nNumNode-1));
@@ -2554,6 +2533,7 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 	double dUp, dUo, a, a1;
 	_ELEM_VAL_RTH *u2, *u3, *u4, y1, dBuf;
 
+	// Падающая волна: из файла .sig или Amp(t,f)*sin(omega*t + Faza); вне окна Tmin..Tmax — 0.
 	a = bSigFile ? dSignalFromFile( dtCurrent, cParam ) : dAmplitude(cParam, dtCurrent)*sin( dWT + dFaza(cParam, dtCurrent) );
 	y1 = (_ELEM_VAL_RTH)dY1_InputAdmitance;
 //	y1 = (_ELEM_VAL_RTH)( 1 + 
@@ -2576,11 +2556,16 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 		return;
 	};
 
+	// Восстановление узлов порта из rU_Cur здесь отключено: узлы порта исключены из общего
+	// прохода рассеяния (SaveInputNodes/RestoreInputNodes в RunKernel1T).
 	for( i = 0, n1 = nNumNode; i < n1; i++)
 	{
 	};
 
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
+	// Порт MAGNETIC: считаются все узлы, крайние — с половинными линиями.
+	// u2, u4 — соседи вдоль апертуры, u3 — сосед внутрь области (все — ячейка 3, U^(tau-1));
+	// у узла позади порта, если порт стоит не на краю области, обнуляются ячейки 0..3.
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == 0)
 	{
 		i = 0;
 		switch( nType )
@@ -2639,11 +2624,14 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 				break;
 		};
 
+		// Крайний узел: половина ячейки — линии, шлейф и нагрузка вдвое меньше.
 		pr1[ pcNodeDielOne[i].nNodeGlobal*6 ] = (_ELEM_VAL_RTH)(2./( 1. + y1/2. + fabs(dYInput)/4. )*
 			( 0.5*u2[0] + 0.5*u3[0] + 0.5*u4[0] + pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 3 ]*dYInput/4. + 0.5 * y1 * ( pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 2] + 
 			pcNodeDielOne[i].rY*a1 - pcNodeDielOne[i].rU2 ) ) - pr1[ pcNodeDielOne[i].nNodeGlobal*6 + 2]);
 		pcNodeDielOne[i].rU =  (_ELEM_VAL_RTH)(pcNodeDielOne[i].rY*a1);
 		
+		// Внутренние узлы апертуры: линия внутрь области полная, вдоль апертуры — половинные
+		// (узел на границе), нагрузка y1 и источник y1*(U^(tau-2) + rY*a - rU2).
 		for( i = 1, n1 = nNumNode - 1; i < n1; i++)
 		{
 			switch( nType )
@@ -2768,6 +2756,7 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 	}
 	else
 	{
+		// Стенки порта — блоки METAL: крайние узлы (на стенках) не пересчитываются.
 		for( i = 1, n1 = nNumNode - 1; i < n1; i++)
 		{
 			switch( nType )
@@ -2832,10 +2821,12 @@ void CTmcRTHNodeDiel::ExciteInputs( CTmcLibError &cError1, double dWT, double dT
 		};
 	};
 
+	// Запись в rU_Cur отключена (см. выше).
 	for( i = 0, n1 = nNumNode; i < n1; i++)
 	{
 	};
 
+	// Отражённая волна — проекция (U - падающая) на профиль порта: Uo = sum(rY*(U - rU))/sum(rY^2).
 	for( i = 0, dUp = 0.0, dUo = 0.0; i < nNumNode; i++)
 	{
 		dUp += pcNodeDielOne[i].rY*pcNodeDielOne[i].rY;
@@ -2873,6 +2864,8 @@ void CTmcRTHNodeDiel::ExciteInputs1( CTmcLibError &cError1, double dWT, double d
 	double dUp, dUo, a, a1;
 	_ELEM_VAL_RTH *u2, *u3, *u4, y1, dBuf;
 
+	// Подтакт 1: то же, что в ExciteInputs; пишется ячейка 1, соседи — ячейка 0, U^(tau-2) —
+	// ячейка 3, вычитается rU3, падающее напряжение запоминается в rU1.
 	a = bSigFile ? dSignalFromFile( dtCurrent, cParam ) : dAmplitude(cParam, dtCurrent)*sin( dWT + dFaza(cParam, dtCurrent) );
 	y1 = (_ELEM_VAL_RTH)dY1_InputAdmitance;
 //	y1 = sqrt(2.)*sqrt(1-(dWT/dT)/(2*dWidthWaveg*C0___)*(dWT/dT)/(2*dWidthWaveg*C0___));
@@ -2901,7 +2894,7 @@ void CTmcRTHNodeDiel::ExciteInputs1( CTmcLibError &cError1, double dWT, double d
 	{
 	};
 
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == 0)
 	{
 		i = 0;
 		switch( nType )
@@ -3194,6 +3187,8 @@ void CTmcRTHNodeDiel::ExciteInputs2( CTmcLibError &cError1, double dWT, double d
 	double dUp, dUo, a, a1;
 	_ELEM_VAL_RTH *u2, *u3, *u4, y1, dBuf;
 
+	// Подтакт 2: то же, что в ExciteInputs; пишется ячейка 2, соседи — ячейка 1, U^(tau-2) —
+	// ячейка 0, вычитается rU, падающее напряжение запоминается в rU2.
 	a = bSigFile ? dSignalFromFile( dtCurrent, cParam ) : dAmplitude(cParam, dtCurrent)*sin( dWT + dFaza(cParam, dtCurrent) );
 	y1 = (_ELEM_VAL_RTH)dY1_InputAdmitance;
 //	y1 = sqrt(2.)*sqrt(1-(dWT/dT)/(2*dWidthWaveg*C0___)*(dWT/dT)/(2*dWidthWaveg*C0___));
@@ -3222,7 +3217,7 @@ void CTmcRTHNodeDiel::ExciteInputs2( CTmcLibError &cError1, double dWT, double d
 	{
 	};
 
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == 0)
 	{
 		i = 0;
 		switch( nType )
@@ -3515,6 +3510,8 @@ void CTmcRTHNodeDiel::ExciteInputs3( CTmcLibError &cError1, double dWT, double d
 	double dUp, dUo, a, a1;
 	_ELEM_VAL_RTH *u2, *u3, *u4, y1, dBuf;
 
+	// Подтакт 3: то же, что в ExciteInputs; пишется ячейка 3, соседи — ячейка 2, U^(tau-2) —
+	// ячейка 1, вычитается rU1, падающее напряжение запоминается в rU3.
 	a = bSigFile ? dSignalFromFile( dtCurrent, cParam ) : dAmplitude(cParam, dtCurrent)*sin( dWT + dFaza(cParam, dtCurrent) );
 	y1 = (_ELEM_VAL_RTH)dY1_InputAdmitance;
 //	y1 = sqrt(2.)*sqrt(1-(dWT/dT)/(2*dWidthWaveg*C0___)*(dWT/dT)/(2*dWidthWaveg*C0___));
@@ -3543,7 +3540,7 @@ void CTmcRTHNodeDiel::ExciteInputs3( CTmcLibError &cError1, double dWT, double d
 	{
 	};
 
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL)
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == 0)
 	{
 		i = 0;
 		switch( nType )
@@ -4076,6 +4073,7 @@ void CTmcRTHNodeDiel::RunBlockNode( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int
 	switch( nType )
 	{
 		case  CTMCRTH_BLCKNTYPE_METAL    :
+			// Блок METAL: напряжение узлов блока равно 0 (в X-ядре Hz = 0 — физически магнитная стенка).
 			for( i = 0; i < nNumNode; i++)
 				prUNode1[ 6*pcNodeDielOne[i].nNodeGlobal ] = (_ELEM_VAL_RTH)(0.0);
 			break;
@@ -4084,6 +4082,7 @@ void CTmcRTHNodeDiel::RunBlockNode( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int
 		case  CTMCRTH_BLCKNTYPE_ABSORBER :
 			for( i = 0; i < nNumNode; i++)
 			{
+				// Узлы, у которых сосед выходит за массив, пропускаются.
 				if(
 					((6*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 5) > 0)&&
 					((6*(pcNodeDielOne[i].nNodeGlobal -  1 ) + 5) < nArraySize)&&
@@ -4111,6 +4110,13 @@ void CTmcRTHNodeDiel::RunBlockNode( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int
 //{		CString csBuf1;
 					if( RunWallNodePlasma( prUNode1, prYNode, nX, i, 0 ) ) continue;	// B-8.2: (7.55) in a magnetized plasma
 					prU = prUNode1 + (6*pcNodeDielOne[i].nNodeGlobal + 0);
+					// Двухслойная схема узла с нагрузкой y и долей шлейфа y5 (ячейка 1) по коду соседства:
+					// ребро (y5*0,5, нагрузка y), внешний угол (y5*0,75, y/2), внутренний угол 1111_k
+					// (y5*0,25, 1,5*y); 0000 и 1111 — 0; коды с одним соседом или только с двумя
+					// противоположными — ошибка «Bad Absorber». В подмагниченной плазме узел считает RunWallNodePlasma
+					// по (7.55) с y6, y7 (Б-8.2); без поля четырёхпараметрическая схема совпадает с этой двухслойной.
+					/// З-12 (автор 29.10): веса угловых узлов — по правилу ассемблирования общей схемы из схем
+					/// элементарных объёмов (то же правило, что веса узлов в Р-2).
 					switch( pcNodeDielOne[i].nType )
 					{
 						case CTMCRTH_BLCKNTYPE_ABSR_0000:
@@ -4194,6 +4200,7 @@ void CTmcRTHNodeDiel::RunBlockNode( _ELEM_VAL_RTH *prUNode1, _real *prYNode, int
 						};
 				};
 			};
+			// Сохранить ячейку 3 (U^(tau-1)): на следующем подтакте это U^(tau-2) узла.
 			for( i = 0; i < nNumNode; i++)
 			{
 				pcNodeDielOne[i].rU = (_ELEM_VAL_RTH)(prUNode1[ 6*pcNodeDielOne[i].nNodeGlobal + 3 ]);
@@ -4222,6 +4229,8 @@ void CTmcRTHNodeDiel::RunBlockNode1( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 	
 	switch( nType )
 	{
+		// Подтакт 1: то же, что в RunBlockNode; пишется ячейка 1, соседи и шлейф — ячейка 0,
+		// в rU затем запоминается ячейка 0.
 		case  CTMCRTH_BLCKNTYPE_METAL    :
 			for( i = 0; i < nNumNode; i++)
 				prUNode1[ 6*pcNodeDielOne[i].nNodeGlobal + 1 ] = (_ELEM_VAL_RTH)(0.0);
@@ -4371,6 +4380,7 @@ void CTmcRTHNodeDiel::RunBlockNode2( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 	
 	switch( nType )
 	{
+		// Подтакт 2: пишется ячейка 2, соседи и шлейф — ячейка 1, в rU запоминается ячейка 1.
 		case  CTMCRTH_BLCKNTYPE_METAL    :
 			for( i = 0; i < nNumNode; i++)
 				prUNode1[ 6*pcNodeDielOne[i].nNodeGlobal + 2 ] = (_ELEM_VAL_RTH)(0.0);
@@ -4518,6 +4528,7 @@ void CTmcRTHNodeDiel::RunBlockNode3( _ELEM_VAL_RTH *prUNode1, _real *prYNode, in
 	
 	switch( nType )
 	{
+		// Подтакт 3: пишется ячейка 3, соседи и шлейф — ячейка 2, в rU запоминается ячейка 2.
 		case  CTMCRTH_BLCKNTYPE_METAL    :
 			for( i = 0; i < nNumNode; i++)
 				prUNode1[ 6*pcNodeDielOne[i].nNodeGlobal + 3 ] = (_ELEM_VAL_RTH)(0.0);
@@ -4834,6 +4845,10 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMetal(CTmcRTH_BlockList *pcNextBlockList,
 			j_step = -1;
 		};
 
+//	csBuf1.Format("nY = %d; nX = %d", nY, nX);
+//	AfxMessageBox(csBuf1);		
+		// Ступенчатая аппроксимация отрезка: по оси с большим числом шагов идём каждый шаг,
+		// по другой — равномерно; соседние узлы связаны по стороне (без диагоналей).
 		if( nY < nX )
 		{
 			for( i = 0, j = 0; (i < nY)&&(j < nX) ; i++ )
@@ -5047,7 +5062,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMetal(CTmcRTH_BlockList *pcNextBlockList,
 		return cError;
 	};
 
-	int i_step, j_step;
+	int i_step, j_step, njj, jj;
 	int nX1, nX2, nY1, nY2;
 	int j, k1, k2, nX, nY;
 	TmcIdx i, ii;	// BIGBLOCK3
@@ -5607,6 +5622,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetRectAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 		pcNodeDielOne[i].nNodeGlobal = 0;
 	};
 
+	// Кольцо узлов на шаг внутри контура — код 0000 (напряжение 0).
 	for( i = 0, ii = 0, x = dXmin + cParam.rDelta, y = dYmin + cParam.rDelta; i < (nX-2); i++, x+=cParam.rDelta )
 	{
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
@@ -5644,6 +5660,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetRectAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	};
 
 	{
+		// Внешний контур: нижняя сторона с углами, затем верхняя, левая и правая стороны.
 		x = dXmin;
 		y = dYmin;
 		pcNodeDielOne[ii].nNodeGlobal = cParam.CalcnNodeGlobal( (_real)x, (_real)y );
@@ -5757,8 +5774,8 @@ CTmcLibError & CTmcRTHNodeDiel::SetRectMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	
 	dYmin = pcNextBlockList->GetYmin() + pcNextBlockList->GetY0();
 	if( dYmin < (cParam.rYmin + cParam.rDelta) ) dYmin = cParam.rYmin + cParam.rDelta;
-	/// �-4 (����� 29.10): ������ ������� ����������� ���� (-0,5), � ������� ����������� ��� � ���� ���������� �
-	/// ��������������� �������, � ������� ������ ���������� ������������. ��� � ��������, �� ������.
+	/// З-4 (автор 29.10): нижняя граница округляется вниз (-0,5), к верхней добавляется шаг — края сдвигаются в
+	/// противоположные стороны, и область стенки получается симметричной. Так и задумано, не ошибка.
 	r = (dYmin - cParam.rYmin)/cParam.rDelta - 0.5;
 	if( fabs(r) >= INT_MAX ) 
 	{
@@ -5985,7 +6002,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 	};
 
 	double *pX, *pY;
-	int nXY, i_step, j_step;
+	int nXY, i_step, j_step, njj, jj;
 	int nX1, nX2, nY1, nY2;
 	int j, k, nX, nY, n_x, n_y;
 	TmcIdx i, ii;	// BIGBLOCK3
@@ -6425,6 +6442,7 @@ void CTmcRTHNodeDiel::SetAbsorberNodeType( CTmcRTH_IndanParam &cParam )
 
 	nx = cParam.CalcnX();	// B-2 (old: (int)((cParam.rXmax - cParam.rXmin)/cParam.rDelta + 1 ))
 
+	// Перебор всех пар узлов блока: O(N^2).
 	for( i = 0; i < nNumNode; i++ ) 
 	{
 		pcNodeDielOne[i].nType = 0;
@@ -6526,7 +6544,7 @@ void CTmcRTHNodeDiel::DeleteDublicateData()
 	if( nType == CTMCRTH_BLCKNTYPE_EPS ) return;
 	if( nType == CTMCRTH_BLCKNTYPE_METAL )
 	{
-			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTAT, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == NULL ) 
+			if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTSTAT, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == 0 ) 
 			{
 				return;
 			};
@@ -6625,7 +6643,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircAbsorber(CTmcRTH_BlockList *pcNextBlockLi
 		return cError;
 	};
 
-	int i_step, j_step;
+	int i_step, j_step, njj, jj;
 	int nX1, nX2, nY1, nY2;
 	int j, k1, k2, nX, nY, n_x, n_y;
 	TmcIdx i, ii;	// BIGBLOCK3
@@ -7429,7 +7447,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetCircMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 		return cError;
 	};
 
-	int i_step, j_step;
+	int i_step, j_step, njj, jj;
 	int nX1, nX2, nY1, nY2;
 	int j, k1, k2, nX, nY, n_x, n_y;
 	TmcIdx i, ii;	// BIGBLOCK3
@@ -8236,7 +8254,7 @@ CTmcLibError & CTmcRTHNodeDiel::SetPolyMagnetic(CTmcRTH_BlockList *pcNextBlockLi
 	};
 
 	double *pX, *pY;
-	int nXY, i_step, j_step;
+	int nXY, i_step, j_step, njj, jj;
 	int nX1, nX2, nY1, nY2;
 	int j, k, nX, nY, n_x, n_y;
 	TmcIdx i, ii;	// BIGBLOCK3
@@ -8778,20 +8796,22 @@ void CTmcRTHNodeDiel::SaveFileRect( CTmcRTH_BlockList * pcNextBlockList, CTmcRTH
 	};
 	
 	fprintf( fp, "%s%c%c%s%s%c%c%s%lg%c%c%s%lg%c%c%s%lg%c%c%s%d%c%c%s%d%c%c%s%d%c%c%s%d%c%c%s%s%c%c%s%s%c%c", TMC_RTH_EPSFILE_ID_, 13, 10,
-						TMC_RTH_EPSFILE_TYPE_, (LPCSTR)( csBlock ), 13, 10,
+						TMC_RTH_EPSFILE_TYPE_, csBlock, 13, 10,
 						TMC_RTH_EPSFILE_Delta_, cParam.rDelta, 13, 10,
 						TMC_RTH_EPSFILE_XMIN_, dXmin, 13, 10,
 						TMC_RTH_EPSFILE_YMIN_, dYmin, 13, 10,
 						TMC_RTH_EPSFILE_NX_, nX, 13, 10,
 						TMC_RTH_EPSFILE_NY_, nY,  13, 10,
 						TMC_RTH_EPSFILE_NPoint_, nNumNode1, 13, 10,
-						TMC_RTH_EPSFILE_NAccur_, (int)( sizeof(_real) ), 13, 10,
+						TMC_RTH_EPSFILE_NAccur_, sizeof(_real), 13, 10,
 						TMC_RTH_EPSFILE_NdFrmt_, "NULL", 13, 10,
 						TMC_RTH_EPSFILE_VlFrmt_, "NULL", 13, 10);
+////			fprintf( fp, GetdFieldOutFormat(), prUNode1[ii]);
 	
 	csBuf.Format("%d point in file %s", nNumNode1, csFileNameEps);
 	PutTrace(csBuf);
 
+	// Записи узлов: строки снизу вверх; номер узла — локальный (j + i*nX).
 	for( i = 0, jj = 0, ii = 0, y = dYmin; i < nY; i++, y+=cParam.rDelta )
 	{
 		for( j = 0, x = dXmin; j < nX; j++, x+=cParam.rDelta )
@@ -8836,15 +8856,15 @@ void CTmcRTHNodeDiel::DeleteStatDielData()
 {
 	
 	if( nType != CTMCRTH_BLCKNTYPE_EPS ) return;
-	if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTMOVE, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == NULL )
+	if( strncmp( csBlock, CTMCRTH_INDANBLCK_RECTMOVE, strlen(CTMCRTH_INDANBLCK_RECTSTAT) ) == 0 )
 	{
 		return;
 	};
-	if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCMOVE, strlen(CTMCRTH_INDANBLCK_CIRCMOVE) ) == NULL )
+	if( strncmp( csBlock, CTMCRTH_INDANBLCK_CIRCMOVE, strlen(CTMCRTH_INDANBLCK_CIRCMOVE) ) == 0 )
 	{
 		return;
 	};
-	if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGMOV, strlen(CTMCRTH_INDANBLCK_POLYGMOV) ) == NULL )
+	if( strncmp( csBlock, CTMCRTH_INDANBLCK_POLYGMOV, strlen(CTMCRTH_INDANBLCK_POLYGMOV) ) == 0 )
 	{
 		return;
 	};
@@ -8869,7 +8889,7 @@ void CTmcRTHNodeDiel::SeachEpsFileName( CString csCurrentPath )
 	int i, n;
 	
 	strcpy( szBuf, csEpsExpr);
-	n = (int)( strlen(szBuf) );
+	n = strlen(szBuf);
 	
 	if( szBuf[0] != '[' ) return;
 	
@@ -8913,7 +8933,7 @@ void CTmcRTHNodeDiel::AddFileEpsExtention()
 	int nDot = -1;	// N-22
 
 	strcpy( szBuf, csFileNameEps);
-	n = (int)( strlen(szBuf) );
+	n = strlen(szBuf);
 
 	if( n == 0 ) return;
 
@@ -9056,6 +9076,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 	};
 	// B-17: FILE takes RECT_STAT; FILE_N/_B/_Y take RECT_STAT_N/_B/_Y (written by RECT_STAT_N [name] ...) or RECT_STAT.
 	// Old: only RECT_STAT. A file of another quantity is an error.
+	// Допустимый тип файла: FILE — RECT_STAT; FILE_N/_B/_Y — RECT_STAT_N/_B/_Y или RECT_STAT.
 	const char *pszWant = CTMCRTH_INDANBLCK_RECTSTAT;
 	if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEN, strlen(CTMCRTH_INDANBLCK_FILEN) ) == 0 ) pszWant = CTMCRTH_INDANBLCK_RECTSTATN;
 	if( strncmp( csBlock, CTMCRTH_INDANBLCK_FILEB, strlen(CTMCRTH_INDANBLCK_FILEB) ) == 0 ) pszWant = CTMCRTH_INDANBLCK_RECTSTATB;
@@ -9357,6 +9378,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 	csBufTr.Format("%d point in file %s", nPoint, csEpsExpr);
 	PutTrace(csBufTr);
 	
+	// Значения файла приводятся к _real; номер узла — 4 байта.
 	if( nAccur == sizeof( _real ) )
 	{
 		for( i = 0, jj = 0; i < nPoint; i++ )
@@ -9502,6 +9524,7 @@ CTmcLibError &CTmcRTHNodeDiel::SetRectFile( CTmcRTH_BlockList * pcNextBlockList,
 
 	fclose( pfData );
 
+	// Два прохода: подсчёт узлов, попавших в область, затем их размещение на сетке.
 	for( i = 0, ii = 0, jj = 0; i < nPoint; i++ )
 	{
 		j = (int)pcNodeDielOne1[i].nNodeGlobal;	// INT64: local number from .eps file (4 bytes)
@@ -9696,7 +9719,7 @@ void CTmcRTHNodeDiel::CalculateYForInput(double dFreq, double dDelta)
 	}
 	else
 	{
-		/// �-1 (����� 29.10): W � �������� 0,004 �� 4 ���������� �� 3,996 / 4,004 � ������ �� ������������ ����� ��� Delta eps = 4.
+		/// З-1 (автор 29.10): W в пределах 0,004 от 4 сдвигается до 3,996 / 4,004 — защита от расходимости схемы при Delta eps = 4.
 		if( fabs( y_line - 4.) < 0.004 )
 		{
 			if( y_line < 4. )	y_line = (_ELEM_VAL_RTH)3.996;
@@ -9713,8 +9736,8 @@ void CTmcRTHNodeDiel::CalculateYForInput(double dFreq, double dDelta)
 	return;
 }
 
-/// �-5 (����� 29.10): ������ � ������ (1,5 ����) � ������� (2,5 ����) ���� ������ ������ ��, ��� � �-4:
-/// ���� ���������� � ��������������� ������� (������ ���� ������� � �� �������� �������, �-2.2).
+/// З-5 (автор 29.10): пороги у левого (1,5 шага) и правого (2,5 шага) краёв разные потому же, что в З-4:
+/// края сдвигаются в противоположные стороны (правый край области — на запасном столбце, Б-2.2).
 void CTmcRTHNodeDiel::SetMagneticPolygonType( CTmcRTH_IndanParam &cParam )
 {
 	TmcIdx i;	// BIGBLOCK3
@@ -9800,7 +9823,7 @@ void CTmcRTHNodeDiel::SeachSignalFileName( void )
 	if( strlen( csVx ) < 1 ) return;
 
 	strcpy( szBuf, csVx );
-	n = (int)( strlen( szBuf ) );
+	n = strlen( szBuf );
 	if( szBuf[0] != '[' ) return;
 
 	for( i = 1; i < n; i++ )
@@ -9862,7 +9885,7 @@ void CTmcRTHNodeDiel::ReadSignalFile( void )
 	{
 		if( strncmp( szLine, "#FREQ", 5 ) == 0 )
 		{
-			int nL = (int)( strlen( szLine ) );
+			int nL = strlen( szLine );
 			for( ; ( nL > 0 )&&( ( szLine[nL-1] == 10 )||( szLine[nL-1] == 13 ) ) ; nL-- );
 			szLine[nL] = 0;
 			csSigFreq.Format("%s", szLine + 5);

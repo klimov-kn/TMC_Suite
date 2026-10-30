@@ -48,33 +48,54 @@
  *  OVERLAY: YES
 */
 
+/// @file Read_s.cpp
+/// @brief Чтение всех частот S-файла в память (`read_S_matrix`) и освобождение результатов.
+///
+/// Часть модуля «Библиотека sfile95». Публичные функции объявлены и описаны в
+/// `s_file.h`; здесь — разбор заголовка, строки сетки и «паскалевых» строк.
+/// Читаемые из файла длины и счётчики проверяются на допустимые значения.
+/// @see https://www.tamic.ru/docs/code/lib-sfile95.html#read
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
 #define _HIGH_ACCURACY
 
-#include <typedef.h>
-#include <tmclimit.h>
-#include <tmcgraph.h>
-#include <tmc_lib.h>
-#include <indandec.h>
-#include <frqdata.h>
-#include <s_file.h>
-#include <mainwndw.h>
-#include <proc_s.h>
+#include <Typedef.h>
+#include <TMCLIMIT.H>
+#include <TMCGRAPH.H>
+#include <TMC_LIB.H>
+#include <INDANDEC.H>
+#include <FRQDATA.H>
+#include <S_file.h>
+#include <MAINWNDW.H>
+#include <Proc_s.h>
 
 
 
-#include <error1.h>
+#include <Error1.h>
 
 
 
+/// @brief Читает и проверяет начало S-файла: метку `SMT`, версию (>= 102), число «паскалевых» строк; пропускает две строки заголовка.
+/// @param[in] szFileName  имя файла (для сообщения об ошибке)
+/// @return 0 — успех; -1 — ошибка чтения; -2 — не S-файл или версия младше 102.
 static int Read_TITLE( char *szFileName );
+/// @brief Читает строку сетки и имена файлов (.tpl, .s) каждой сетки; выделяет массив индексов.
+/// @param[out] si             массив из `*extrapol_flag+1` индексов (имена по `FILENAME_MAX` байт); при ошибке NULL
+/// @param[out] extrapol_flag  число сеток минус один, 0..2
+/// @return 0 — успех; -1 — ошибка чтения или неверные данные; -2 — нет памяти.
 static int Read_GRID( S_INDEX **si, int *extrapol_flag );
+/// @brief Читает «паскалеву» строку в буфер и завершает её нулём.
+/// @param[out] string  буфер не короче `FILENAME_MAX`
+/// @return 0 — успех; -1 — ошибка чтения или длина вне 0..`FILENAME_MAX`-1.
 static int read_string( char *string );
+/// @brief Пропускает разделитель (2 байта).
+/// @return 0 — успех; -1 — ошибка чтения.
 static int read_CR( void );
 
+/// Текст строки состояния при чтении (вызов `put_trace` закомментирован).
 static char trace[] = "Rd.Scatt.Mt.";
 
 
@@ -88,7 +109,8 @@ int read_S_matrix( char *szFileName, S_INDEX **si, int *extrapol_flag,
   INT_1 *lpnArr;
   double dTmp;
   double *lpdTmp;
-  fpos_t  lNextPoint, lOffset;
+  fpos_t  lNextPoint;
+  long    lOffset;
   FILE *sf;
 
 

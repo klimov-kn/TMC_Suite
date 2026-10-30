@@ -17,21 +17,30 @@
  *
  */
 
+/// @file S_wemt.cpp
+/// @brief Запись одного столбца S-матрицы на одной частоте в S-файл (`save_S_matrix_element`).
+///
+/// Часть модуля «Библиотека sfile95». Через эту функцию счётные ядра и вьюверы
+/// TMCROS и TMC_DN строят S-файл по столбцам: каждый расчёт с возбуждением
+/// одного входа даёт один столбец. Функция объявлена и описана в `proc_s.h`.
+/// @see https://www.tamic.ru/docs/code/lib-sfile95.html#save-column
+
 #include <windows.h>
 #include <io.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
-#include <typedef.h>
-#include <frqdata.h>
-#include <complex1.h>
-#include <tmc_lib.h>
-#include <tmclimit.h>
-#include <s_file.h>
-#include <error1.h>
-#include <proc_s.h>
-#include <ys_proc.h>
+#include <Typedef.h>
+#include <FRQDATA.H>
+#include <COMPLEX1.H>
+#include <TMC_LIB.H>
+#include <TMCLIMIT.H>
+#include <S_file.h>
+#include <Error1.h>
+#include "ERROR2.H"
+#include <Proc_s.h>
+#include <YS_PROC.H>
 
 
 int save_S_matrix_element( int in1, char *filename, _complex *sss, double f1, int nInput)
@@ -74,6 +83,7 @@ int save_S_matrix_element( int in1, char *filename, _complex *sss, double f1, in
 	   }
 	   // can't read s-matrix file
 	   // create new s-matrix file
+	   // f1 (Гц) задаётся в ГГц: текущие единицы глобальной таблицы должны быть ГГц
 	   set_frequency( f1*(1.e-9), 0.0, 1 );
 	   // I-13: f1 is in Hz; f1*1e-9 is right only for the units GHz - otherwise the point is set in Hz directly
 	   if( get_frq_unit( get_frq_item_code() ) != (_real)(1.e9) ) set_frq_element( (_real)f1, 0 );
@@ -91,6 +101,7 @@ int save_S_matrix_element( int in1, char *filename, _complex *sss, double f1, in
 	   {
 		   return -1;
 	   };
+	   // незаполненные элементы помечаются FLT_MAX
 	   for( i = 0, ii = 0; i < id1.num ; i++ ) 
 	   {
 		   for( j = 0; j < id1.num; j++ )
@@ -100,6 +111,7 @@ int save_S_matrix_element( int in1, char *filename, _complex *sss, double f1, in
 			   ii++;
 		   };
 	   };
+	   // столбец in1: элемент (ii1, in1-1) лежит по индексу (in1-1) + ii1*dim
 	   for( i = 0, ii = 0; i < id1.num ; i++ ) 
 	   {
 		   for( j = 0; j < id1.num; j++ )
@@ -123,6 +135,7 @@ int save_S_matrix_element( int in1, char *filename, _complex *sss, double f1, in
    }
    else
    {
+		// поиск частоты f1 в файле; при совпадении столбец заменяется на месте
 		for( k = 0; k < frq.max; k++ )
 		{
 		  lpxS1 = sss1[k];
@@ -168,6 +181,7 @@ int save_S_matrix_element( int in1, char *filename, _complex *sss, double f1, in
 			Free_S_read( &sss1, frq.max );
 			return -1;
 		};
+		// новой частоты нет в файле: она пишется во временный файл <имя>$ и сливается S_add
 		if( !bIsFreqInMatrix )
 		{
 		   set_frequency( f1*(1.e-9), 0.0, 1 );
@@ -191,6 +205,7 @@ int save_S_matrix_element( int in1, char *filename, _complex *sss, double f1, in
 			  Free_S_read( &sss1, frq.max );
 			  return -1;
 		   };
+	   // незаполненные элементы помечаются FLT_MAX
 	   for( i = 0, ii = 0; i < id1.num ; i++ ) 
 	   {
 		   for( j = 0; j < id1.num; j++ )
@@ -200,6 +215,7 @@ int save_S_matrix_element( int in1, char *filename, _complex *sss, double f1, in
 			   ii++;
 		   };
 	   };
+	   // столбец in1: элемент (ii1, in1-1) лежит по индексу (in1-1) + ii1*dim
 	   for( i = 0, ii = 0; i < id1.num ; i++ ) 
 	   {
 		   for( j = 0; j < id1.num; j++ )

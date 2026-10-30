@@ -1,7 +1,14 @@
 // TmcDialogCalcTime.cpp : window "Calculation time" (TIMING)
 //
 
-#include "stdafx.h"
+/// @file TmcDialogCalcTime.cpp
+/// @brief Окно «Calculation time»: показ, обновление и экспорт отчёта о времени расчёта.
+///
+/// Часть модуля «Оболочка счётного ядра». Реализация `CTmcDialogCalcTime`.
+/// В ядре X код файла совпадает с одноимённым файлом ядра H (`src/kernels/PlanarRT_H`).
+/// @see https://www.tamic.ru/docs/code/kernel-shell.html#x-differences
+/// @see https://www.tamic.ru/docs/code/kernel-shell.html#statistics
+#include "StdAfx.h"
 #include "PlanRT_H.h"
 #include "TmcDialogCalcTime.h"
 

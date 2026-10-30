@@ -1,11 +1,22 @@
 // TmcRTH_BolckList.cpp : implementation file
 //
 
-#include "stdafx.h"
-#include <tmcgrviw.h>
+/// @file TmcRTH_BolckList.cpp
+/// @brief Разбор блоков топологии: примитивы RECT, CIRCLE, POLYGON, *_MOVE, FILE*,
+///        входы INPUT_X/INPUT_Y; сохранение и загрузка списка блоков.
+///
+/// Часть библиотеки TMCIndan. Реализует `CTmcRTH_BlockList`. Каждый разборщик
+/// копирует текст блока в буфер, выделяет параметры до `;` (`Search_1Param`),
+/// вычисляет их библиотекой выражений (`i1nte_atof_1`) и переводит в СИ
+/// единицами из `CTmcRTH_IndanParam`. Обязательные параметры при ошибке дают
+/// сообщение; необязательные (хвост списка) при отсутствии `;` просто не читаются.
+/// @see https://www.tamic.ru/docs/code/lib-tmcindan.html#blocks
+
+#include "STDAFX.H"
+#include <Tmcgrviw.h>
 #include <TmcRTH_BolckList.h>
 #include <TmcRTH_Indan.h>
-#include <expr.h>
+#include <EXPR.H>
 #include <ctype.h>	// D-5
 
 /////////////////////////////////////////////////////////////////////////////
@@ -123,6 +134,7 @@ void CTmcRTH_BlockList::Add( CString &csCh, CTmcLibError &cError, CTmcRTH_IndanP
 		return;
 	};
 
+	// Элемент занят — блок дописывается в следующий (до пустого последнего элемента).
 	if( nBlock != 0 )
 	{
 		if( pcNextBlockList == NULL )
@@ -148,11 +160,14 @@ void CTmcRTH_BlockList::Add( CString &csCh, CTmcLibError &cError, CTmcRTH_IndanP
 	n = csCh.GetLength();
 
 
+	// Автомат по символам после «BLOCK »: ii = 0 — читается номер до «;»;
+	// ii = 1 — остаток первой строки (отбрасывается); ii = 2 — со второй строки
+	// копируется текст примитива. Номер сохраняется со знаком минус («не размещён»).
 	for( i = (int)(strlen(CTMCRTH_INDANMET_BLOCK)), i1 = 0, ii = 0; i < n; i++ )
 	{
 		switch( csCh[i] )
 		{
-			case '\n': 
+			case '\n':
 				if( ii == 2 )
 				{
 					szBuf[i1] = csCh[i];
@@ -237,6 +252,7 @@ void CTmcRTH_BlockList::Add( CString &csCh, CTmcLibError &cError, CTmcRTH_IndanP
 		return;
 	};
 
+	// Новый пустой последний элемент списка.
 	if( pcNextBlockList != NULL ) delete []pcNextBlockList;
 	if( (pcNextBlockList = new CTmcRTH_BlockList[1] )  == NULL )
 	{
@@ -309,6 +325,8 @@ void CTmcRTH_BlockList::SetLink( int iBuf, double x0, double y0, CTmcLibError &c
 	CTmcRTH_BlockList *pcBl;
 	CString csBuf;
 	
+	// Блок ищется по номеру со знаком минус (ещё не размещён); найденный только
+	// с плюсом — уже размещён другой строкой T (повтор).
 	if( iBuf < 1 )
 	{
 		csBuf.Format("%s %d i in %s section must >= 1", CTMCRTH_INDANMET_BLOCK, iBuf, CTMCRTH_INDANMET_LINKLIST);
@@ -415,6 +433,7 @@ void CTmcRTH_BlockList::Add( CTmcRTH_BlockList &cCh )
 		return;
 	};
 
+	// Копия всех полей блока, затем глубокая копия вершин и рекурсивно — следующих блоков.
 	nBlock = cCh.GetnBlock();
 	nMemory = cCh.GetnMemory();
 	dX0 = cCh.GetX0();
@@ -512,10 +531,6 @@ int CTmcRTH_BlockList::GetBlockNumber( void )
 	return 1+pcNextBlockList->GetBlockNumber();
 }
 
-void CTmcRTH_BlockList::SetcsBlock( CString csBlock1 )
-{
-	csBlock = csBlock1;
-}
 
 int CTmcRTH_BlockList::GetnType( void )
 {
@@ -864,26 +879,28 @@ void CTmcRTH_BlockList::ReadRectStat_1( CTmcLibError &cError, CTmcRTH_IndanParam
 	n = (int)(strlen( szBuf ));
 	expr_del_Blanks2( szBuf+i );
 
+	// Параметр 1: выражение (eps, N, B, Y или sigma) либо METAL/ABSORBER/MAGNETIC — тип блока.
 	i += Search_1Param( csBuf, szBuf+i, cError );
 	if( cError.IsError() ) return;
 	csEpsExpr.Format("%s", csBuf);
 	nType = CTMCRTH_BLCKNTYPE_EPS;
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMET) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMET) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_METAL;
 	};
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEABS) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEABS) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_ABSORBER;
 	};
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_MAGNETIC;
 	};
 	
 	
+	// Параметры 2..5: Xmin; Xmax; Ymin; Ymax — обязательны, в единицах LONG_UNIT -> м.
 	i += Search_1Param( csBuf, szBuf+i, cError );
-	if( cError.IsError() ) 
+	if( cError.IsError() )
 	{
 		csBuf.Format("Missing separator ';' in {%s}", szBuf);
 		cError.PutErrorMessage(csBuf);
@@ -901,7 +918,7 @@ void CTmcRTH_BlockList::ReadRectStat_1( CTmcLibError &cError, CTmcRTH_IndanParam
 	dXmin = (double)(r*pcParam->rLongUnit);
 
 	i += Search_1Param( csBuf, szBuf+i, cError );
-	if( cError.IsError() ) 
+	if( cError.IsError() )
 	{
 		csBuf.Format("Missing separator ';' in {%s}", szBuf);
 		cError.PutErrorMessage(csBuf);
@@ -919,7 +936,7 @@ void CTmcRTH_BlockList::ReadRectStat_1( CTmcLibError &cError, CTmcRTH_IndanParam
 	dXmax = (double)(r*pcParam->rLongUnit);
 
 	i += Search_1Param( csBuf, szBuf+i, cError );
-	if( cError.IsError() ) 
+	if( cError.IsError() )
 	{
 		csBuf.Format("Missing separator ';' in {%s}", szBuf);
 		cError.PutErrorMessage(csBuf);
@@ -937,7 +954,7 @@ void CTmcRTH_BlockList::ReadRectStat_1( CTmcLibError &cError, CTmcRTH_IndanParam
 	dYmin = (double)(r*pcParam->rLongUnit);
 	
 	i += Search_1Param( csBuf, szBuf+i, cError );
-	if( cError.IsError() ) 
+	if( cError.IsError() )
 	{
 		csBuf.Format("Missing separator ';' in {%s}", szBuf);
 		cError.PutErrorMessage(csBuf);
@@ -972,11 +989,13 @@ void CTmcRTH_BlockList::ReadRectStat_1( CTmcLibError &cError, CTmcRTH_IndanParam
 		return;
 	};
 
+	// Необязательный хвост (mu; Dz; Hx; Hy; Ro; Sigma) хранится текстом; на первом
+	// отсутствующем «;» разбор заканчивается без ошибки (ошибка поиска сбрасывается).
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 // Mu
 	i += Search_1Param( csBuf, szBuf+i, cError );
-	if( cError.IsError() ) 
+	if( cError.IsError() )
 	{
 		cError.Clear();
 		return;
@@ -985,7 +1004,7 @@ void CTmcRTH_BlockList::ReadRectStat_1( CTmcLibError &cError, CTmcRTH_IndanParam
 	csMuExpr = csBuf;
 // Dz
 	i += Search_1Param( csBuf, szBuf+i, cError );
-	if( cError.IsError() ) 
+	if( cError.IsError() )
 	{
 		cError.Clear();
 		return;
@@ -995,7 +1014,7 @@ void CTmcRTH_BlockList::ReadRectStat_1( CTmcLibError &cError, CTmcRTH_IndanParam
 
 // Hx
 	i += Search_1Param( csBuf, szBuf+i, cError );
-	if( cError.IsError() ) 
+	if( cError.IsError() )
 	{
 		cError.Clear();
 		return;
@@ -1005,7 +1024,7 @@ void CTmcRTH_BlockList::ReadRectStat_1( CTmcLibError &cError, CTmcRTH_IndanParam
 
 // Hy
 	i += Search_1Param( csBuf, szBuf+i, cError );
-	if( cError.IsError() ) 
+	if( cError.IsError() )
 	{
 		cError.Clear();
 		return;
@@ -1015,7 +1034,7 @@ void CTmcRTH_BlockList::ReadRectStat_1( CTmcLibError &cError, CTmcRTH_IndanParam
 
 // Ro
 	i += Search_1Param( csBuf, szBuf+i, cError );
-	if( cError.IsError() ) 
+	if( cError.IsError() )
 	{
 		cError.Clear();
 		return;
@@ -1025,7 +1044,7 @@ void CTmcRTH_BlockList::ReadRectStat_1( CTmcLibError &cError, CTmcRTH_IndanParam
 
 // Sigma
 	i += Search_1Param( csBuf, szBuf+i, cError );
-	if( cError.IsError() ) 
+	if( cError.IsError() )
 	{
 		cError.Clear();
 		return;
@@ -1155,6 +1174,8 @@ void CTmcRTH_BlockList::ReadCircleStatY( CTmcLibError &cError, CTmcRTH_IndanPara
 
 void CTmcRTH_BlockList::ReadCircleStat_1( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam, int i )
 {
+	// Кольцевой сектор хранится в полях прямоугольника: dXmin/dXmax — Rmin/Rmax (м),
+	// dYmin/dYmax — FImin/FImax (рад, переводятся единицей ANGLE_UNIT).
 	CString csBuf;
 	if( cError.IsError() ) return;
 	if( pcParam == NULL )
@@ -1183,15 +1204,15 @@ void CTmcRTH_BlockList::ReadCircleStat_1( CTmcLibError &cError, CTmcRTH_IndanPar
 	if( cError.IsError() ) return;
 	csEpsExpr.Format("%s", csBuf);
 	nType = CTMCRTH_BLCKNTYPE_EPS;
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMET) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMET) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_METAL;
 	};
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEABS) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEABS) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_ABSORBER;
 	};
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_MAGNETIC;
 	};
@@ -1536,6 +1557,8 @@ void CTmcRTH_BlockList::ReadPolygonStatY( CTmcLibError &cError, CTmcRTH_IndanPar
 
 void CTmcRTH_BlockList::ReadPolygonStat_1( CTmcLibError &cError, CTmcRTH_IndanParam * pcParam, int i )
 {
+	// После первого параметра идут строки «L x; y;» — по одной вершине на строку;
+	// число вершин = число переводов строки в остатке текста (не меньше трёх).
 	CString csBuf;
 //	CString csBuf1;
 
@@ -1586,15 +1609,15 @@ void CTmcRTH_BlockList::ReadPolygonStat_1( CTmcLibError &cError, CTmcRTH_IndanPa
 	expr_del_Blanks2( csBuf );
 	csEpsExpr.Format("%s", csBuf);
 	nType = CTMCRTH_BLCKNTYPE_EPS;
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMET) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMET) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_METAL;
 	};
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEABS) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEABS) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_ABSORBER;
 	};
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_MAGNETIC;
 	};
@@ -1721,15 +1744,15 @@ void CTmcRTH_BlockList::ReadRectMove( CTmcLibError &cError, CTmcRTH_IndanParam *
 	if( cError.IsError() ) return;
 	csEpsExpr.Format("%s", csBuf);
 	nType = CTMCRTH_BLCKNTYPE_EPS;
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMET) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMET) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_METAL;
 	};
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEABS) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEABS) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_ABSORBER;
 	};
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_MAGNETIC;
 	};
@@ -1960,15 +1983,15 @@ void CTmcRTH_BlockList::ReadCircleMove( CTmcLibError &cError, CTmcRTH_IndanParam
 	if( cError.IsError() ) return;
 	csEpsExpr.Format("%s", csBuf);
 	nType = CTMCRTH_BLCKNTYPE_EPS;
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMET) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMET) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_METAL;
 	};
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEABS) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEABS) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_ABSORBER;
 	};
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_MAGNETIC;
 	};
@@ -2261,15 +2284,15 @@ void CTmcRTH_BlockList::ReadPolygonMove( CTmcLibError &cError, CTmcRTH_IndanPara
 	expr_del_Blanks2( csBuf );
 	csEpsExpr.Format("%s", csBuf);
 	nType = CTMCRTH_BLCKNTYPE_EPS;
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMET) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMET) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_METAL;
 	};
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEABS) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEABS) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_ABSORBER;
 	};
-	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == NULL )
+	if( strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) == 0 )
 	{
 		nType = CTMCRTH_BLCKNTYPE_MAGNETIC;
 	};
@@ -2382,6 +2405,13 @@ void CTmcRTH_BlockList::ReadPolygonMove( CTmcLibError &cError, CTmcRTH_IndanPara
 }
 
 // D-5: does the expression use the variable t or f (a name, not a part of a name or a function)?
+/// @brief Проверяет, есть ли в выражении переменная `t` или `f` как отдельное имя.
+///
+/// Имя — буквы, цифры и `_`; однобуквенное `t` или `f`, за которым не следует `(`,
+/// считается переменной. Числа с порядком (`1.5e-3`) пропускаются целиком, чтобы
+/// `e` не принималась за имя. Используется для 8-го параметра входа (W).
+/// @param[in] sz выражение без пробелов
+/// @return 1 — переменная `t` или `f` есть; 0 — нет.
 static int TmcExprUsesTorF( const char *sz )
 {
 	int i = 0, j;
@@ -2438,13 +2468,16 @@ void CTmcRTH_BlockList::ReadInputX( CTmcLibError &cError, CTmcRTH_IndanParam * p
 	expr_del_Blanks2( szBuf+i );
 	csBlock.Format("%s", CTMCRTH_INDANBLCK_INPUT_X);
 
+	// Параметры: тип моды; Ymin; Ymax (м, в dXmin/dXmax); Tmin; Tmax (с, в dYmin/dYmax);
+	// [Amp — выражение или «[файл]»]; [Faza]; [W, eps входа = 1 + W > 0, без t и f].
+	// Сторона (левый/правый) уточняется позже, в #LINK_LIST.
 	i += Search_1Param( csBuf, szBuf+i, cError );
 	if( cError.IsError() ) return;
 	csEpsExpr.Format("%s", csBuf);
 	nType = CTMCRTH_BLCKNTYPE_INPXLEFT;
 
-	if( (strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMET) != NULL)&&
-		(strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) != NULL)&&
+	if( (strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMET) != 0)&&
+		(strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) != 0)&&
 		(strlen( csEpsExpr ) != 0))
 	{
 		csBuf.Format("%s%d; first parameters in %s must be %s, %s or NULL", 
@@ -2642,13 +2675,14 @@ void CTmcRTH_BlockList::ReadInputY( CTmcLibError &cError, CTmcRTH_IndanParam * p
 	expr_del_Blanks2( szBuf+i );
 	csBlock.Format("%s", CTMCRTH_INDANBLCK_INPUT_Y);
 
+	// Как INPUT_X, но пределы входа — Xmin; Xmax (м); сторона (верх/низ) — в #LINK_LIST.
 	i += Search_1Param( csBuf, szBuf+i, cError );
 	if( cError.IsError() ) return;
 	csEpsExpr.Format("%s", csBuf);
 	nType = CTMCRTH_BLCKNTYPE_INPYTOP;
 
-	if( (strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMET) != NULL)&&
-		(strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) != NULL)&&
+	if( (strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMET) != 0)&&
+		(strcmp( csEpsExpr, CTMCRTH_INDANBLCK_TYPEMAG) != 0)&&
 		(strlen( csEpsExpr ) != 0))
 	{
 		csBuf.Format("%s%d; first parameters in %s must be %s, %s or NULL", 
@@ -3235,187 +3269,7 @@ BOOL CTmcRTH_BlockList::Save1(CString &csBuffer)
 	return bBuf;
 }
 
-void CTmcRTH_BlockList::Load( FILE **fp, CTmcLibError &cError )
-{
 
-	if( cError.IsError() ) return;
-
-	if( *fp == NULL )
-	{
-		cError.PutErrorMessage("FILE pointer is NULL when read block_list");
-		return;
-	};
-	if(nBlock == 0)
-	{
-		{
-			int i;
-			if( fgets( pszBufForReadTopology, TMC_RTH_BLOCKLISTLOADBUFSIZE, *fp) == NULL )
-			{
-				cError.PutErrorMessage( "bad topology file (can't read block list)" );
-				nBlock = 0;
-				fclose(*fp);
-				*fp = NULL;
-				return;
-			};
-			if( strncmp( pszBufForReadTopology, TMC_RTH_BLOCKLISTSAVE_END, strlen( TMC_RTH_BLOCKLISTSAVE_END ) ) == 0 )
-			{
-				return;
-			};
-			del_eol( pszBufForReadTopology );
-			csBlock.Format("%s", pszBufForReadTopology);
-			if( fgets( pszBufForReadTopology, TMC_RTH_BLOCKLISTLOADBUFSIZE, *fp) == NULL )
-			{
-				cError.PutErrorMessage( "bad topology file (can't read block list)" );
-				nBlock = 0;
-				fclose(*fp);
-				*fp = NULL;
-				return;
-			};
-			del_eol( pszBufForReadTopology );
-			csEpsExpr.Format("%s", pszBufForReadTopology);
-			if( fgets( pszBufForReadTopology, TMC_RTH_BLOCKLISTLOADBUFSIZE, *fp) == NULL )
-			{
-				cError.PutErrorMessage( "bad topology file (can't read block list)" );
-				nBlock = 0;
-				fclose(*fp);
-				*fp = NULL;
-				return;
-			};
-			del_eol( pszBufForReadTopology );
-			csVx.Format("%s", pszBufForReadTopology);
-			if( fgets( pszBufForReadTopology, TMC_RTH_BLOCKLISTLOADBUFSIZE, *fp) == NULL )
-			{
-				cError.PutErrorMessage( "bad topology file (can't read block list)" );
-				nBlock = 0;
-				fclose(*fp);
-				*fp = NULL;
-				return;
-			};
-			del_eol( pszBufForReadTopology );
-			csVy.Format("%s", pszBufForReadTopology);
-			if( fgets( pszBufForReadTopology, TMC_RTH_BLOCKLISTLOADBUFSIZE, *fp) == NULL )
-			{
-				cError.PutErrorMessage( "bad topology file (can't read block list)" );
-				nBlock = 0;
-				fclose(*fp);
-				*fp = NULL;
-				return;
-			};
-			del_eol( pszBufForReadTopology );
-			csW.Format("%s", pszBufForReadTopology);
-			if( fgets( pszBufForReadTopology, TMC_RTH_BLOCKLISTLOADBUFSIZE, *fp) == NULL )
-			{
-				cError.PutErrorMessage( "bad topology file (can't read block list)" );
-				nBlock = 0;
-				fclose(*fp);
-				*fp = NULL;
-				return;
-			};
-//		CString csBuf1;
-			if( sscanf( pszBufForReadTopology, "%lg %lg %lg %lg %lg %lg %d %d %d %d", &dX0, &dXmax, &dXmin, &dY0, &dYmax, &dYmin, &nBlock, &nMemory, &nType, &nXY) != 10 )
-			{
-				cError.PutErrorMessage( "bad topology file (can't read block list)" );
-				nBlock = 0;
-				fclose(*fp);
-				*fp = NULL;
-				return;
-			};
-//		CString csBuf1;
-//		csBuf1.Format("{%s}{%lg %lg %lg %lg %lg %lg %d %d %d %d}", pszBufForReadTopology, dX0, dXmax, dXmin, dY0, dYmax, dYmin, nBlock, nMemory, nType, nXY);
-			if( nXY > 0 )
-			{
-				if( dX != NULL ) delete []dX;
-				dX = NULL;		  
-				if(	(dX = new double[nXY]) == NULL )
-				{
-					cError.PutErrorMessage( "Memory allocation at block list" );
-					nBlock = 0;
-					fclose(*fp);
-					*fp = NULL;
-					return;
-				};
-				if( dY != NULL ) delete []dY;
-				dY = NULL;		  
-				if( (dY = new double[nXY]) == NULL )
-				{
-					cError.PutErrorMessage( "Memory allocation at block list" );
-					nBlock = 0;
-					fclose(*fp);
-					*fp = NULL;
-					return;
-				};
-				for( i = 0; i < nXY; i++ )
-				{
-					if( fgets( pszBufForReadTopology, TMC_RTH_BLOCKLISTLOADBUFSIZE, *fp) == NULL )
-					{
-						cError.PutErrorMessage( "bad topology file (can't read block list)" );
-						nBlock = 0;
-						fclose(*fp);
-						*fp = NULL;
-						return;
-					};
-					if( sscanf( pszBufForReadTopology, "%lg %lg", &(dX[i]), &(dY[i]) ) != 2 )
-					{
-						cError.PutErrorMessage( "bad topology file (can't read block list)" );
-						nBlock = 0;
-						fclose(*fp);
-						*fp = NULL;
-						return;
-					};
-				};
-			};
-		};
-
-		if( pcNextBlockList != NULL ) 
-		{
-			delete []pcNextBlockList;
-			pcNextBlockList = NULL;
-		};
-		if( (pcNextBlockList = new CTmcRTH_BlockList[1] )  == NULL )
-		{
-			cError.PutErrorMessage( "Memory allocation at block list" );
-			nBlock = 0;
-			fclose(*fp);
-			*fp = NULL;
-			return;
-		};
-		pcNextBlockList->Load( fp, cError );
-	}
-	else
-	{
-		if( pcNextBlockList == NULL )
-		{
-			if( (pcNextBlockList = new CTmcRTH_BlockList[1] )  == NULL )
-			{
-				cError.PutErrorMessage( "Memory allocation at block list" );
-				nBlock = 0;
-				fclose(*fp);
-				*fp = NULL;
-				return;
-			};
-		};
-		pcNextBlockList->Load( fp, cError );
-	};
-	return;
-}
-
-void CTmcRTH_BlockList::del_eol( char *szBuf )
-{
-	int i;
-	for( i = 0; szBuf[i] != '\0'; i++)
-	{
-		switch( szBuf[i] )
-		{
-			case 10:
-				szBuf[i] = '\0';
-				return;
-			case 13:
-				szBuf[i] = '\0';
-				return;
-		};
-	}
-	return;
-};
 
 
 void CTmcRTH_BlockList::SetXmin( double r )

@@ -1,9 +1,19 @@
 // PlanRT_HView.cpp : implementation of the CPlanRT_HView class
 //
 
-#include "stdafx.h"
+/// @file PlanRT_HView.cpp
+/// @brief Вид оболочки ядра: обработчики команд меню, чтение и запись настроек, запуск расчётного потока.
+///
+/// Часть модуля «Оболочка счётного ядра». Реализация `CPlanRT_HView`. Карта сообщений
+/// связывает номера команд из `resource.h` с обработчиками; главное окно Qt вызывает
+/// их через эту карту.
+/// В ядре X код файла совпадает с одноимённым файлом ядра H (`src/kernels/PlanarRT_H`)
+/// с точностью до пробелов в пустых строках; компилируется с расчётным объектом ядра X.
+/// @see https://www.tamic.ru/docs/code/kernel-shell.html#x-differences
+/// @see https://www.tamic.ru/docs/code/kernel-shell.html#menu
+#include "StdAfx.h"
 #include "MainFrm.h"
-#include <tmcgrviw.h>
+#include <Tmcgrviw.h>
 #include "PlanRT_H.h"
 #include <limits.h>
 #include <math.h>
@@ -13,9 +23,6 @@
 #include "TmcDialogStatistics.h"
 #include "TmcRTH_DialogFormatOutFile.h"
 #include "Pl_iofor.h"
-#ifdef _WIN64
-#include <TmcOcl.h>	// GPU: the list of the video cards for Config -> Compute on GPU
-#endif
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -28,6 +35,7 @@ static char THIS_FILE[] = __FILE__;
 
 IMPLEMENT_DYNCREATE(CPlanRT_HView, CScrollView)
 
+// Карта команд вида: номер команды (resource.h) -> обработчик; ON_UPDATE_COMMAND_UI — доступность и отметки.
 BEGIN_MESSAGE_MAP(CPlanRT_HView, CScrollView)
 	//{{AFX_MSG_MAP(CPlanRT_HView)
 	ON_COMMAND(ID_EDIT_EDIT, OnEditEdit)
@@ -70,8 +78,6 @@ BEGIN_MESSAGE_MAP(CPlanRT_HView, CScrollView)
 	ON_UPDATE_COMMAND_UI(ID_FILE_CLOSE, OnUpdateFileClose)
 	ON_COMMAND(ID_CONFIG_AUTORUN, OnConfigAutorun)
 	ON_UPDATE_COMMAND_UI(ID_CONFIG_AUTORUN, OnUpdateConfigAutorun)
-	ON_COMMAND(ID_CONFIG_GPU, OnConfigGpu)					// GPU
-	ON_UPDATE_COMMAND_UI(ID_CONFIG_GPU, OnUpdateConfigGpu)	// GPU
 	ON_COMMAND(ID_CONFIG_SETUP, OnConfigSetup)
 	ON_COMMAND(ID_VIEW_DIRECTIONALPATTERN, OnViewDirectionalpattern)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_DIRECTIONALPATTERN, OnUpdateViewDirectionalpattern)
@@ -124,6 +130,7 @@ void CPlanRT_HView::OnDraw(CDC* pDC)
 void CPlanRT_HView::OnInitialUpdate()
 {
 	CScrollView::OnInitialUpdate();
+	// Размер прокручиваемой области — общий для программ пакета (tmcgrviw.h).
 	CSize sizeTotal( (int)(TMC_VIEW_XSIZE), (int)(TMC_VIEW_YSIZE) );
 	CSize sizePage(sizeTotal.cx, sizeTotal.cy);
 	CSize sizeLine(sizeTotal.cx, sizeTotal.cy);
@@ -141,6 +148,7 @@ void CPlanRT_HView::OnInitialUpdate()
 	int i;
 	
 
+	// Сначала — программы по умолчанию, затем их перекрывают сохранённые настройки.
 	OnConfigSetup();
 
 // read extern editor name
@@ -193,6 +201,7 @@ void CPlanRT_HView::OnInitialUpdate()
 		pDoc->SetOutFieldOutFlag( i );
 	};
 // read SoundEffectFlag and Sound Effects melody
+	// Строка звука: флаг, интервалы двух мелодий и 2 x 12 нот; принимается только целиком (27 чисел).
 	csBuffer = AfxGetApp()->GetProfileString( PLANRT_H_RAZDEL_INI, PLANRT_H_OUTPUTSOUNDFLAG_INI );
 	if( csBuffer.GetLength() != 0 )	
 	{
@@ -212,6 +221,7 @@ void CPlanRT_HView::OnInitialUpdate()
 //	read system information and set type OS for sound effects
 	ReadSystemType();
 
+	// Данные текущего (первого) шага: препроцессор, параметры, блоки.
 	ReadData();
 
 	if( IsDemoRun() ) 
@@ -221,6 +231,7 @@ void CPlanRT_HView::OnInitialUpdate()
 		pDoc->SetOutFieldOutFlag( TRUE );
 	};
 
+	// Пакетный режим (/Ar, /Arb, /d): расчёт всех шагов запускается сразу после открытия.
 	if( IsAutoRun() )
 	{
 			OnRunAll();
@@ -455,6 +466,8 @@ void CPlanRT_HView::OnRunStartstep()
 	bIsReadData = TRUE;
 
 	
+	// Поток создаётся приостановленным: документ сначала запоминает его дескриптор
+	// (для ожидания при закрытии), затем поток запускается.
 	CWinThread* pThread = AfxBeginThread( RunStepGlobal, (void *)(pDoc), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED );
 	if( pThread == NULL )
 	{
@@ -481,6 +494,8 @@ void CPlanRT_HView::OnRunAll()
 	bIsReadData = TRUE;
 
 	
+	// Поток создаётся приостановленным: документ сначала запоминает его дескриптор
+	// (для ожидания при закрытии), затем поток запускается.
 	CWinThread* pThread = AfxBeginThread( RunAllGlobal, (void *)(pDoc), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED );
 	if( pThread == NULL )
 	{
@@ -511,6 +526,7 @@ void CPlanRT_HView::OnViewStatistics()
 		return;
 	};
 
+	// Диалог получает копии параметров и топологии шага и указатели на вывод и замер времени.
 	cDlg.m_nStep = pDoc->GetnStep();
 	cDlg.m_csErrorMessage = pDoc->GetErrorMessage();
 	cDlg.m_cParam = pDoc->GetParam();
@@ -522,6 +538,7 @@ void CPlanRT_HView::OnViewStatistics()
 	
 	if( cDlg.DoModal() != 1 ) return;
 
+	// «Prev.»/«Next» в окне: сменить шаг, прочитать его данные и открыть окно снова (рекурсивно).
 	if( cDlg.nFlagStep == -1 ) 
 	{
 		pDoc->BackStep();
@@ -649,6 +666,7 @@ void CPlanRT_HView::OnConfigFormatOutputDataFile()
 		SetdInpFormat( cDlg.m_csdInp );
 		SetdOutFormat( cDlg.m_csdOut );
 		SetdFieldOutFormat( cDlg.m_csdOutField );
+		// Set*Format заменяет неверный формат форматом по умолчанию — расхождение с введённым значит, что замена была.
 		if( ( strcmp( cDlg.m_csnT, GetnTFormat() ) != 0 )||( strcmp( cDlg.m_csdTcurrent, GetdTcurrentFormat() ) != 0 )||	// T-4
 			( strcmp( cDlg.m_csnBlock, GetnBFormat() ) != 0 )||( strcmp( cDlg.m_csdInp, GetdInpFormat() ) != 0 )||
 			( strcmp( cDlg.m_csdOut, GetdOutFormat() ) != 0 )||( strcmp( cDlg.m_csdOutField, GetdFieldOutFormat() ) != 0 ) )
@@ -1005,6 +1023,13 @@ void CPlanRT_HView::OnUpdateFileClose(CCmdUI* pCmdUI)
 	return;
 }
 
+void CPlanRT_HView::OnClose() 
+{
+	// TODO: Add your command update UI handler code here
+	// dead code kept for linkage; real close handling is in the frame windows
+	CScrollView::OnClose();
+	return;
+}
 
 void CPlanRT_HView::OnConfigAutorun() 
 {
@@ -1017,78 +1042,6 @@ void CPlanRT_HView::OnUpdateConfigAutorun(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->SetCheck( IsAutoRun() );
-	return;
-}
-
-#ifdef _WIN64
-// GPU: the video card the kernel will take (the same list and order as TmcGpuH.h: only cards with double);
-// FALSE - no card, csText says why
-static BOOL TmcGpuCardText( CString &csText )
-{
-	TmcOcl ocl;
-	if( !ocl.Load() )
-	{
-		csText = "OpenCL.dll was not found in the system folder - install the driver of the video card.\n"
-			"The calculation stays on the CPU.";
-		return FALSE;
-	};
-	std::vector<TmcOclDevice> v = TmcOclListGpus( ocl ), vd;
-	for( size_t k = 0; k < v.size(); k++ ) if( v[k].bFP64 ) vd.push_back( v[k] );
-	FreeLibrary( ocl.hLib );
-	int nDev = GetGpuSettingCard();
-	if( vd.empty() )
-	{
-		csText = v.empty() ? "OpenCL has no video card (no OpenCL driver of a video card is installed).\n"
-			: "No video card with double precision (cl_khr_fp64) - the calculation needs it.\n";
-		csText += "The calculation stays on the CPU.";
-		return FALSE;
-	};
-	if( nDev >= (int)vd.size() )
-	{
-		csText.Format( "TMC_GPU asks for the card %d, but there are %d card(s) with double precision, numbered from 0.\n"
-			"The calculation stays on the CPU.", nDev, (int)vd.size() );
-		return FALSE;
-	};
-	csText.Format( "The calculation goes to the video card GPU %d: %s\n(%s, driver %s, memory %I64u MB).\n\n"
-		"Small grids stay on the CPU - it is faster there. The status line shows where a step is calculated.\n"
-		"The keys /GPU, /GPU:n and /CPU of the command line are stronger than this switch.",
-		nDev, vd[nDev].sName.c_str(), vd[nDev].sPlatform.c_str(), vd[nDev].sDriver.c_str(),
-		(unsigned __int64)( vd[nDev].nGlobalMem/( 1024*1024 ) ) );
-	return TRUE;
-}
-#endif
-
-void CPlanRT_HView::OnConfigGpu()	// GPU: Config -> Compute on GPU
-{
-	BOOL bOn = !IsGpuSettingOn();
-#ifdef _WIN64
-	if( bOn )
-	{
-		CString csText;
-		if( !TmcGpuCardText( csText ) )
-		{
-			AfxMessageBox( csText, MB_ICONWARNING );	// no card: the switch stays off
-			return;
-		};	// the card is found: only the check mark (the status line shows where a step is calculated)
-	};
-#else
-	return;	// win32: OpenCL calculation needs the win64 build
-#endif
-	SetGpuSetting( bOn );
-	AfxGetApp()->WriteProfileInt( PLANRT_H_RAZDEL_INI, PLANRT_H_COMPUTEGPU_INI, bOn ? 1 : 0 );
-	return;
-}
-
-void CPlanRT_HView::OnUpdateConfigGpu(CCmdUI* pCmdUI)
-{
-#ifdef _WIN64
-	CPlanRT_HDoc* pDoc = GetDocument();
-	// the command line decides (/GPU, /CPU); during a run the switch is not changed
-	pCmdUI->Enable( !IsGpuKeyInCommandLine() && !( ( pDoc != NULL )&&pDoc->IsRun() ) );
-#else
-	pCmdUI->Enable( FALSE );
-#endif
-	pCmdUI->SetCheck( IsGpuSettingOn() );
 	return;
 }
 
@@ -1106,9 +1059,9 @@ void CPlanRT_HView::OnConfigSetup()
 	char szCurrentDir[N_BUF_MAX];
 	int i;
 	strcpy( szCurrentDir, pDoc->GetPathName() );
-	for( i = (int)strlen(szCurrentDir)-1; i >= 0; i-- )
+	for( i = strlen(szCurrentDir)-1; i >= 0; i-- )
 	{
-		if( szCurrentDir[i] == '\\' )
+		if( TMC_IS_SEP(szCurrentDir[i]) )
 		{
 			szCurrentDir[i] = '\0';
 			i = -1;

@@ -19,18 +19,29 @@
 **
 */
 
+/// @file EXPR_IN1.CPP
+/// @brief Рекурсивный разбор выражения: `expr_atof`, `expr_inter`, распознавание чисел.
+///
+/// Часть библиотеки `exprint` (Expr). Разбор идёт без построения дерева: строка
+/// делится по операции с наименьшим приоритетом вне скобок, части вычисляются
+/// рекурсивно через `expr_comp`.
+/// @see https://www.tamic.ru/docs/code/lib-expr.html#grammar
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
 
-#include <typedef.h>
-#include <tmc_lib.h>
-#include <expr.h>
+#include <Typedef.h>
+#include <TMC_LIB.H>
+#include <EXPR.H>
 
+/// Текущий символ разбираемой подстроки `lex[i]`.
 #define   LEXI *(lex+i)
 
+/// @name Имена встроенных функций вместе с открывающей скобкой (элементы таблицы `fun`).
+/// @{
+/** Имя встроенной функции с открывающей скобкой (`sz1111` — заглушка для кода 6). */
 static char   szABS[]   = "abs(" ;
 static char   szEXP[]   = "exp(" ;
 static char   szLOG[]   = "log(" ;
@@ -46,7 +57,10 @@ static char   szASIN[]  = "asin(";
 static char   szACOS[]  = "acos(";
 static char   szATAN[]  = "atan(";
 static char   szLOG10[] = "log10(";
+/// @}
 
+/// Таблица функций: индекс — код функции (`ABS` … `LOG10` из expr.h). Имена из
+/// 4 символов — индексы 0–5, из 5 символов — 7–13, из 6 — 14; индекс 6 — заглушка.
 static char   *fun[15] = {
                   szABS,
                   szEXP,
@@ -67,8 +81,15 @@ static char   *fun[15] = {
 
 
 
+/// Бинарные операции в порядке возрастания приоритета: строка сначала делится
+/// по `=`, затем по `+`, `-`, `*`, `/`, `^`.
 char  arif[] = "=+-*/^";
 
+/// @brief Проверяет, является ли знак `lex[i]` знаком порядка числа (`1.24e+17`).
+/// @param[in] lex  разбираемая подстрока
+/// @param[in] i    позиция знака `+` или `-`
+/// @param[in] n    длина подстроки, символов
+/// @return 1 — знак порядка (не точка деления строки); 0 — обычная операция.
 // A-9: is lex[i] ('+' or '-') the sign of the exponent of a number (1.24e+17, 0.5e-1)?
 //      Yes if 'e' follows a mantissa of digits and '.', the mantissa starts the string
 //      or follows an operation or a bracket, and a digit follows the sign.
@@ -99,6 +120,7 @@ _real  expr_inter( char   *lex, int n )
   ch = lex[n];
   lex[n] = 0;
 
+  // 1. Число
   j = expr_numbern( lex, n );
 
   if( j == 0 )                                          /*is string number?*/
@@ -121,11 +143,14 @@ _real  expr_inter( char   *lex, int n )
     return( (_real)0 );
     };
 
+  // 2. Однобуквенная переменная
 if( expr_is_per( lex, n) == 0 )                         /*is string var?*/
  {
 	return( (_real)expr_get_per( lex, n) );
  }
 
+  // 3. Операции вне скобок (круглых и фигурных) в порядке возрастания приоритета;
+  //    для каждой операции строка просматривается справа налево
   j = 0; j1 = 0;
   for( i1 = 0; i1 < 6; i1++)                         /*is string 'a=b' or*/
    {                                                 /*          'a+b' or*/
@@ -165,13 +190,16 @@ if( expr_is_per( lex, n) == 0 )                         /*is string var?*/
      if( (i1 == 5)&&(k >= 0) ) return( expr_comp( '^', lex, k, lex+k+1, n-k-1));
     };
 
+  // 4. Выражение целиком в скобках
   if( ( lex[0] == '(') && ( lex[n-1] == ')') )   /*for expression in bracket*/
    {
     return( expr_inter( lex+1, n-2) );
     };
 
+  // 5. Функция: имя с «(» сравнивается с началом строки (длины 4, 5 и 6 символов);
+  //    аргументом считается остаток строки, начиная со скобки
   // I-04: compare a name only if the substring is not shorter than it (old: lex[4..6] = 0 for any n)
-  /// I-04: ��� ������� ����� 4, 5, 6 ������������, ������ ���� ��������� �� ������ (n >= 4, 5, 6).
+  /// I-04: имя функции длины 4, 5, 6 сравнивается, только если подстрока не короче (n >= 4, 5, 6).
   if( n >= 4 )
   {
   ch = lex[4];

@@ -8,30 +8,61 @@
  *  OVERLAY: NO
 */
 
+/// @file Unite_s.cpp
+/// @brief Объединение частотных точек двух прочитанных S-матриц в один набор, упорядоченный по частоте.
+///
+/// Часть модуля «Библиотека sfile95». Используется `S_add` (sadd.cpp).
+/// @see https://www.tamic.ru/docs/code/lib-sfile95.html#merge
+
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 
-#include <typedef.h>
-#include <tmclimit.h>
-#include <complex1.h>
-#include <tmc_lib.h>
-#include <frqdata.h>
-#include <listing.h>
-#include <s_file.h>
-#include <proc_s.h>
+#include <Typedef.h>
+#include <TMCLIMIT.H>
+#include <COMPLEX1.H>
+#include <TMC_LIB.H>
+#include <FRQDATA.H>
+#include <LISTING.H>
+#include <S_file.h>
+#include <Proc_s.h>
 
+/// @brief Частотная точка для сортировки: частота, описание входов и матрица (указатель не копирует данные).
 typedef struct
         {
+         /// Частота, Гц.
          _real frq;
+         /// Описание входов на этой частоте.
          INPUT_DATA id;
+         /// Матрица этой частоты (владелец — исходный набор).
 	 _complex   *sss;
          }FOR_SORT;
 
+/// @brief Сравнивает две точки `FOR_SORT` по частоте для `qsort` (по возрастанию).
+/// @param[in] fs1  первая точка
+/// @param[in] fs2  вторая точка
+/// @return 1, -1 или 0 — первая частота больше, меньше или равна второй.
 int cmpgle( const void *fs1, const void *fs2 );
 
+/// @brief Объединяет частотные точки двух наборов S-матриц без повторов, по возрастанию частоты.
+///
+/// Частоты первого набора, совпадающие (точно) с какой-либо частотой второго,
+/// исключаются — остаётся точка второго набора. Признак исключения — частота 0
+/// в `frq_out1->f`, поэтому массив первого набора портится. Матрицы не копируются:
+/// в результат попадают указатели на матрицы исходных наборов.
+/// @param[in,out] frq_out1  частоты первого набора, Гц; совпавшие обнуляются
+/// @param[in]     id1       описания входов первого набора
+/// @param[in]     sss1      матрицы первого набора
+/// @param[in]     frq_out2  частоты второго набора, Гц
+/// @param[in]     id2       описания входов второго набора
+/// @param[in]     sss2      матрицы второго набора
+/// @param[out]    frq_out   частоты результата (`f` выделяется, освобождает вызывающий `free_mem`); единицы — из глобальной таблицы
+/// @param[out]    id        описания входов результата (выделяется, освобождает вызывающий)
+/// @param[out]    sss       массив указателей на матрицы (выделяется; сами матрицы — исходных наборов)
+/// @return 0 — успех; -1 — точек `FREQ_MAX_NUM` и больше или нет памяти.
+/// @warning Точка с частотой ровно 0 Гц в первом наборе будет потеряна.
 int  Unite_two_S( FREQUENCY *frq_out1, INPUT_DATA *id1, _complex **sss1,
 				FREQUENCY *frq_out2, INPUT_DATA *id2, _complex **sss2,
 				FREQUENCY *frq_out,  INPUT_DATA **id, _complex ***sss )

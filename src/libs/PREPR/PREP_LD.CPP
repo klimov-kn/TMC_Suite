@@ -13,18 +13,26 @@
 **
 */
 
+/// @file PREP_LD.CPP
+/// @brief Создание связного буфера препроцессора (`buf_init`).
+///
+/// Часть модуля «Библиотека prepr». Выделяет массивы символов и ссылок и связывает
+/// все узлы, кроме нулевого, в список свободных.
+/// @see https://www.tamic.ru/docs/code/lib-prepr.html#buffer
+
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 
-#include <typedef.h>
-#include <tmclimit.h>
-#include <mainwndw.h>
-#include <tmc_lib.h>
-#include <error1.h>
-#include <tpl_file.h>
+#include <Typedef.h>
+#include <TMCLIMIT.H>
+#include <MAINWNDW.H>
+#include <TMC_LIB.H>
+#include <RUN_FLAG.H>
+#include <Error1.h>
+#include <TPL_FILE.H>
 
-#include "prepr1.h"
+#include "Prepr1.h"
 
 
 
@@ -41,6 +49,7 @@ int  buf_init( BUFFER *buf, int n)
     return(ERROR_INIT);
     };
 
+  // Узел 0 — пустой список текста (0 -> -1); узлы 1..n-1 — цепочка свободных (последний -> -1).
   for( i = 0; i < n; i++) buf->ilex[i] = i+1;
   buf->ilex[0] = -1; buf->inp_p = 0;
   buf->ilex[n-1] = -1; buf->inp_p_nul = 1;

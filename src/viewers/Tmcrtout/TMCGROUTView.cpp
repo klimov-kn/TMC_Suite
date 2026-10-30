@@ -1,10 +1,16 @@
 // TMCGROUTView.cpp : implementation of the CTMCGROUTView class
 //
 
-#include "stdafx.h"
+/// @file TMCGROUTView.cpp
+/// @brief Вид TMCROS: подготовка и рисование сигналов во времени, сетка, оси, легенда, мышь, команды меню, вызов пересчёта в S-матрицу.
+///
+/// Часть модуля «Вьювер TMCROS». Описание методов — в `tmcgroutview.h`. Сетка, оси, мышь,
+/// масштаб и строка состояния совпадают с видом TMCGROUT.
+/// @see https://www.tamic.ru/docs/code/tmcros.html#drawing
+#include "StdAfx.h"
 #include "TMCGROUT.h"
 
-#include <tmcgrviw.h>
+#include <Tmcgrviw.h>
 #include "MainFrm.h"
 #include "TMCGROUTDoc.h"
 #include "TMCGROUTView.h"
@@ -380,6 +386,12 @@ void CTMCGROUTView::onDrowAxies( CDC *pDC )
 }
 
 // S-42: format podpisi osi - rovno odin specifikator chisla [eEfgG]; inache standartnyi
+/// @brief Проверяет формат подписи оси: ровно одно преобразование `e`, `E`, `f`, `g`, `G` (допустим `l`), длина до 64 символов.
+///
+/// Защищает `CString::Format` от формата пользователя с `%s`, `%n` или несколькими
+/// преобразованиями.
+/// @param[in] csFormat формат из окна Viewport или настроек
+/// @return Сам формат, если он допустим; иначе `%4.3lg`.
 static CString TmcSafeAxisFormat( const CString &csFormat )
 {
 	const char *p = (const char *)csFormat;
@@ -413,6 +425,7 @@ void CTMCGROUTView::onDrawGrid( CDC *pDC )
    CPen newPen(PS_DOT, 1, pDoc->scGridColor);
    CPen *pOldPen = pDC->SelectObject(&newPen);
 
+   // Вертикальные линии сетки: 11 линий с шагом (Xmax-Xmin)/10, подпись — под областью.
    for( j = 0, x = tmcgrwin.sGrWin.Xmin, xstep = (tmcgrwin.sGrWin.Xmax - tmcgrwin.sGrWin.Xmin)/(NumX),i = tmcgrwin.sGrView.nXmin, step = (tmcgrwin.sGrView.nXmax - tmcgrwin.sGrView.nXmin)/(NumX); j <= NumX ; i += step, x += xstep, j++)
    {
 	  pDC->MoveTo( i, -tmcgrwin.sGrView.nYmin );
@@ -422,6 +435,7 @@ void CTMCGROUTView::onDrawGrid( CDC *pDC )
 
    };
 
+   // Горизонтальные линии сетки сверху вниз; подписи — у левого края окна (x = 1 мм).
    for( j = 0, x = tmcgrwin.sGrWin.Ymax, xstep = (tmcgrwin.sGrWin.Ymax - tmcgrwin.sGrWin.Ymin)/(NumY), i = tmcgrwin.sGrView.nYmin, step = (tmcgrwin.sGrView.nYmax - tmcgrwin.sGrView.nYmin)/(NumY); j <= NumY ; i += step, x -= xstep, j++)
    {
 	  pDC->MoveTo( 100, -i );
@@ -612,6 +626,12 @@ void CTMCGROUTView::ReadDocFileW()
 }
 
 // N-33: diapazon osi - konechnyi i nevyrozhdennyi
+/// @brief Делает диапазон оси конечным и невырожденным.
+///
+/// Нечисловой, перевёрнутый или бесконечный диапазон (нет ни одной точки) заменяется на
+/// 0..1; диапазон нулевой ширины расширяется на 5% значения в обе стороны (на 0.5 около нуля).
+/// @param[in,out] pdMin нижняя граница, единицы оси
+/// @param[in,out] pdMax верхняя граница, единицы оси
 static void TmcFixAxisRange( double *pdMin, double *pdMax )
 {
 	if( !_finite( *pdMin )||!_finite( *pdMax )||( *pdMin > *pdMax )||( *pdMin <= -FLT_MAX )||( *pdMax >= FLT_MAX ) )
@@ -648,6 +668,7 @@ void CTMCGROUTView::PrepareDoubleGraph()
 	{
 		for( j = 0, ii = 0, r11 = 0, r12 = 0, r13 = 0, r14 = 0, iph = 0; j < tmcgrwin.psGraph[i].nPoint; j++)
 		{
+			// X: номер отсчёта (ось в тактах) или время (с), умноженное на множитель единиц оси.
 			switch(tmcgrwin.nXType)
 			{
 			case TMC_GROTS_TYPE_nT:
@@ -680,6 +701,10 @@ void CTMCGROUTView::PrepareDoubleGraph()
 			if( _finite( tmcgrwin.psGraph[i].pPoint[j].x )&&( xMin > tmcgrwin.psGraph[i].pPoint[j].x ) ) xMin = tmcgrwin.psGraph[i].pPoint[j].x;
 			if( _finite( tmcgrwin.psGraph[i].pPoint[j].x )&&( xMax < tmcgrwin.psGraph[i].pPoint[j].x ) ) xMax = tmcgrwin.psGraph[i].pPoint[j].x;
 
+			// Y: величина по оси Y. Огибающая r14 — |u| последнего локального экстремума
+			// (смена знака приращения по трём точкам r11, r12, r13); до первого экстремума — |u|.
+			// Значение точки j берётся из r14, вычисленного на прошлых точках (запаздывание на 1-2 отсчёта).
+			// У кривой-выражения pSmatr заполнен документом, и она идёт той же веткой, что сигнал.
 			switch(tmcgrwin.nYType)
 			{
 			case TMC_GROTS_TYPE_AMPL:
@@ -721,6 +746,7 @@ void CTMCGROUTView::PrepareDoubleGraph()
 			case TMC_GROTS_TYPE_WSVR:
 				if( ( pDoc->grdoc.psGraph[i].pcExpr == NULL )||( pDoc->grdoc.psGraph[i].pSmatr != NULL ) )	// A-28
 				{
+					// КСВ по огибающей: (1 + A)/(1 - A); при |A - 1| < 1e-4 берётся A = 0.9999.
 					s11 = r14;
 					if( fabs( s11 - 1.) < 0.0001	)
 					{
@@ -762,6 +788,7 @@ void CTMCGROUTView::PrepareDoubleGraph()
 			case TMC_GROTS_TYPE_LDB:
 				if( ( pDoc->grdoc.psGraph[i].pcExpr == NULL )||( pDoc->grdoc.psGraph[i].pSmatr != NULL ) )	// A-28
 				{
+					// Потери по огибающей: L = -20*lg(A), дБ; A = 0 — 0.
 					if( r14 < DBL_MIN ) tmcgrwin.psGraph[i].pPoint[j].y = 0.;
 					else tmcgrwin.psGraph[i].pPoint[j].y = -20.*log10( r14 );
 					if( j == 2 )
@@ -811,6 +838,7 @@ void CTMCGROUTView::PrepareDoubleGraph()
 			case TMC_GROTS_TYPE_PHAS_R:
 				if( ( pDoc->grdoc.psGraph[i].pcExpr == NULL )||( pDoc->grdoc.psGraph[i].pSmatr != NULL ) )	// A-28
 				{
+					// Фаза хранится в r14 и приводится к (0, 2*pi); значение у самого 2*pi сдвигается к 0.
 					if( r14 > (2*PI) ) r14 -= (2*PI);
 					if( r14 > (2*PI) ) r14 -= (2*PI);
 					if( r14 <= 0. )   r14 += (2*PI);
@@ -835,6 +863,9 @@ void CTMCGROUTView::PrepareDoubleGraph()
 							x12 = pDoc->grdoc.psGraph[i].pFreq[j-1];
 							dT = pDoc->grdoc.psGraph[i].pFreq[j]-x12;
 							iph = (int(freq*x12));
+							// Переход сигнала через ноль сверху вниз между t(j-1) и t(j): момент t0 — линейной
+							// интерполяцией; фаза = 2*pi*f*(t0 - (n + 1/2)/f), n = [f*t(j-1)]. Для u = A*sin(omega*t + psi)
+							// это -psi по модулю 2*pi. Частота f — из заголовка .t графика.
 							r14 = ( x12 - (iph+0.5)/(freq) + r12*dT/(r12-r13) )*(2*PI*freq);
 						};
 					};
@@ -870,6 +901,7 @@ void CTMCGROUTView::PrepareDoubleGraph()
 							x12 = pDoc->grdoc.psGraph[i].pFreq[j-1];
 							dT = pDoc->grdoc.psGraph[i].pFreq[j]-x12;
 							iph = (int(freq*x12));
+							// То же в градусах.
 							r14 = ( x12 - (iph+0.5)/(freq) + r12*dT/(r12-r13) )*(360*freq);
 						};
 					};
@@ -891,6 +923,7 @@ void CTMCGROUTView::PrepareDoubleGraph()
 				break;
 */			};
 
+			// Автодиапазон Y — только по точкам, видимым по X.
 			if( (tmcgrwin.sGrWin.nAFlagX)||( (tmcgrwin.psGraph[i].pPoint[j].x >= tmcgrwin.sGrWin.Xmin)&&(tmcgrwin.psGraph[i].pPoint[j].x <= tmcgrwin.sGrWin.Xmax) ) )
 			{
 				if( _finite( tmcgrwin.psGraph[i].pPoint[j].y )&&( yMin > tmcgrwin.psGraph[i].pPoint[j].y ) ) yMin = tmcgrwin.psGraph[i].pPoint[j].y;
@@ -1015,6 +1048,8 @@ void CTMCGROUTView::PrepareLogGraph()
 		};
 		delete tmcgrwin1.psGraph;
 	};
+	// Прореженная копия tmcgrwin1: точки диапазона X, кроме середин горизонтальных участков
+	// (логическая Y равна Y обоих соседей). Число таких точек посчитано выше в nPointDraw.
 	for( i = 0; i < tmcgrwin.nGraph; i++ )	// S-41: u skrytyh grafikov nPointDraw ne zadan
 	{
 		if( !pDoc->grdoc.psGraph[i].OutFlag ) tmcgrwin.psGraph[i].nPointDraw = 0;
@@ -1279,7 +1314,7 @@ void CTMCGROUTView::OnEditGraphicsparameters()
 	dlg.m_dPointSize = dPointSize;
 	dlg.m_LossPoint = bLossPoint;
 
-	if( (ret = (int)dlg.DoModal()) == 1)	// C4244: the dialog result fits int
+	if( (ret = dlg.DoModal()) == 1)
 	{
 	tmcgrwin.sGrWin.Xmin =	dlg.m_XMin;
 	tmcgrwin.sGrWin.Xmax = dlg.m_XMax;
@@ -1590,7 +1625,7 @@ void CTMCGROUTView::OnEditDocument()
 		}
 	};	
 	
-	int ret = (int)( dlg.DoModal() );
+	int ret = dlg.DoModal();
 
 	if( ret == 1)
 	{
@@ -1617,6 +1652,7 @@ void CTMCGROUTView::OnEditDocument()
 		if( dlg.m_SFileName_19.GetLength() != 0 ) i++;
 		if( dlg.m_SFileName_20.GetLength() != 0 ) i++;
 		n = i;
+		// Графики с номером больше 20 в окне не видны: сохранить их и дописать в конец списка.
 		int nTail = ( pDoc->grdoc.nGraph > 20 ) ? pDoc->grdoc.nGraph - 20 : 0;	// S-46: grafiki 21+ v dialoge ne vidny
 		CString *pcsTail = ( nTail > 0 ) ? new CString[ 2*nTail ] : NULL;
 		int *pnTail = ( nTail > 0 ) ? new int[ 5*nTail ] : NULL;
@@ -1877,9 +1913,9 @@ void CTMCGROUTView::OnEditAddcharacteristics()
 	ASSERT_VALID(pDoc);
 	strcpy( ch, pDoc->GetPathName() );
 
-	for( i = (int)strlen(ch); i > 0; i-- )
+	for( i = strlen(ch); i > 0; i-- )
 	{
-		if( ch[i] == '\\' )
+		if( TMC_IS_SEP(ch[i]) )
 		{
 			ch[i] = '\0';
 			i = 0;
@@ -1962,6 +1998,7 @@ void CTMCGROUTView::OnLButtonUp(UINT nFlags, CPoint point)
 		Ymin = rr;
 	};
 
+	// Рамка меньше 10% по обеим осям — это щелчок, а не выделение.
 	if( ((Ymax-Ymin) < 0.1*(tmcgrwin.sGrWin.Ymax-tmcgrwin.sGrWin.Ymin))&&
 		((Xmax-Xmin) < 0.1*(tmcgrwin.sGrWin.Xmax-tmcgrwin.sGrWin.Xmin)) )
 		return ;
@@ -2236,6 +2273,7 @@ void CTMCGROUTView::WriteIniWndPar()
 }
 
 
+// Строки состояния ищутся через главное окно приложения (в Qt6-версии — рамка CMainFrame оболочки).
 void PutTrace( CString csTrace )
 {
 	CMainFrame *pFrame = ( CMainFrame * ) AfxGetApp()->m_pMainWnd;
@@ -2249,7 +2287,7 @@ void PutTrace( CString csTrace )
 	return;
 }
 
-void PutTrace( char *szTrace )
+void PutTrace( const char *szTrace )
 {
 	CString csBuf;
 	csBuf.Format("%s", szTrace);
@@ -2270,7 +2308,7 @@ void PutStatistics( CString csTrace )
 	return;
 }
 
-void PutStatistics( char *szTrace )
+void PutStatistics( const char *szTrace )
 {
 	CString csBuf;
 	csBuf.Format("%s", szTrace);
@@ -2330,6 +2368,7 @@ void CTMCGROUTView::OnEditTosmatrix()
 	CTMCGROUTDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
+	// Окно времени — текущий диапазон оси X; dTUnit переводит единицы оси в секунды.
 	dlg.m_DocFileName = pDoc->GetPathName();
 
 	dlg.m_dTmin = tmcgrwin.sGrWin.Xmin;
@@ -2374,6 +2413,7 @@ void CTMCGROUTView::OnEditTosmatrix()
 			{
 				dlg.m_SFileName_1.Format("%s", pDoc->grdoc.psGraph[i].szGrapName );
 				dlg.m_OutGrFlag_1 = pDoc->grdoc.psGraph[i].OutFlag;
+				// Частота записи по умолчанию — частота из заголовка .t графика.
 				dlg.m_dXValue1 = pDoc->grdoc.psGraph[i].dFreq;
 			}
 			break;
@@ -2532,7 +2572,7 @@ void CTMCGROUTView::OnEditTosmatrix()
 		}
 	};	
 
-	int ret = (int)( dlg.DoModal() );
+	int ret = dlg.DoModal();
 
 	return;
 }
@@ -2868,21 +2908,6 @@ void CTMCGROUTView::OnViewZoomZoomy()
 	return;
 }
 
-BOOL CTMCGROUTView::OnEraseBkgnd(CDC* pDC) 
-{
-	// TODO: Add your message handler code here and/or call default
-	CTMCGROUTDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-	// Set brush to desired background color
-	CBrush backBrush( pDoc->scBackgoundColor );
-	// Save old brush
-	CBrush* pOldBrush = pDC->SelectObject(&backBrush);
-	CRect rect;
-	pDC->GetClipBox(&rect);     // Erase the area needed
-	pDC->PatBlt( rect.left, rect.top, rect.Width(), rect.Height(), PATCOPY);
-	pDC->SelectObject(pOldBrush);
-	return TRUE;
-}
 
 void CTMCGROUTView::OnPrepareDC(CDC* pDC, CPrintInfo* pInfo) 
 {
@@ -2934,6 +2959,7 @@ void CTMCGROUTView::OnViewTranslateChangexmaxxminEnd()
 
 	j = 0;
 
+	// Ось в номерах тактов: правый край — номер последнего отсчёта; иначе — время последнего отсчёта.
 	if( tmcgrwin.nXType == TMC_GROTS_TYPE_nT )
 	{
 		for( i = 0; i < pDoc->grdoc.nGraph; i++ )
@@ -3010,6 +3036,7 @@ void CTMCGROUTView::OnViewTranslateChangexmaxxminHome()
 
 	j = 0;
 
+	// Ось в номерах тактов: левый край — 0; иначе — время первого отсчёта.
 	if( tmcgrwin.nXType == TMC_GROTS_TYPE_nT )
 	{
 		tmcgrwin.sGrWin.Xmin = dXMin;

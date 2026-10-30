@@ -1,9 +1,14 @@
 // DialogDoc.cpp : implementation file
 //
 
-#include "stdafx.h"
+/// @file DialogDoc.cpp
+/// @brief Окно Characteristics TMCROS: поля 20 строк графиков и кнопка добавления файла.
+///
+/// Часть модуля «Вьювер TMCROS». Описание методов — в `dialogdoc.h`.
+/// @see https://www.tamic.ru/docs/code/tmcros.html#dialogs
+#include "StdAfx.h"
 #include "TMCGROUT.h"
-#include <tmcgrviw.h>
+#include <Tmcgrviw.h>
 #include "DialogDoc.h"
 
 #ifdef _DEBUG

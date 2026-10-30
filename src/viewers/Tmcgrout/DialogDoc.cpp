@@ -1,7 +1,12 @@
 // DialogDoc.cpp : implementation file
 //
 
-#include "stdafx.h"
+/// @file DialogDoc.cpp
+/// @brief Окно Characteristics TMCGROUT: поля 20 строк графиков и кнопка добавления файла.
+///
+/// Часть модуля «Вьювер TMCGROUT». Описание методов — в `dialogdoc.h`.
+/// @see https://www.tamic.ru/docs/code/tmcgrout.html#commands
+#include "StdAfx.h"
 #include "TMCGROUT.h"
 #include "DialogDoc.h"
 

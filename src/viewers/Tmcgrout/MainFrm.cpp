@@ -1,7 +1,13 @@
 // MainFrm.cpp : implementation of the CMainFrame class
 //
 
-#include "stdafx.h"
+/// @file MainFrm.cpp
+/// @brief Рамка главного окна TMCGROUT: строка состояния из двух ячеек, сохранение положения окна.
+///
+/// Часть модуля «Вьювер TMCGROUT». В Qt6-версии используется только как носитель строки
+/// состояния для `PutTrace`/`PutStatistics`.
+/// @see https://www.tamic.ru/docs/code/tmcgrout.html#qt-shell
+#include "StdAfx.h"
 #include "TMCGROUT.h"
 
 #include "MainFrm.h"
@@ -25,6 +31,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
+/// Ячейки строки состояния: две ячейки без индикаторов клавиш (координаты и величина Y).
 static UINT indicators[] =
 {
 	ID_SEPARATOR,           // status line indicator

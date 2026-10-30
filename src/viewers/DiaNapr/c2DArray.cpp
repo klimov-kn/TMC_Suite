@@ -2,7 +2,12 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "stdafx.h"
+/// @file c2DArray.cpp
+/// @brief Реализация `c2DArray`: чтение `.DAT`, сумма полей излучателей, нормировка, КНД и КИП, кэш ДН, девиации.
+///
+/// Часть модуля «Вьювер TMC_DN». Описание методов — в `c2darray.h`.
+/// @see https://www.tamic.ru/docs/code/tmc-dn.html#calc-flow
+#include "StdAfx.h"
 #include <io.h>
 #include <fcntl.h>
 #include <float.h>
@@ -10,11 +15,22 @@
 #include <math.h>
 #include <sys/types.h>	// T-28: razmer faila
 #include <sys/stat.h>
-#include <typedef.h>
-#include <expr.h>
+#include <Typedef.h>
+#include <EXPR.H>
 #include "c2DArray.h"
 
 // S-50: podpis kesha DN - versiya formata kesha, razmer i vremya .DAT, chislo izluchatelei, chastota
+/// @brief Строит подпись кэша ДН: версия формата кэша, размер и время записи `.DAT`, число излучателей, частота.
+///
+/// Подпись пишется в `<кэш>.chk` и сравнивается при следующем чтении: другая подпись —
+/// кэш не годен (файл `.DAT` заменили, хотя время записи кэша новее).
+/// @param[in]  szDat  путь к файлу `.DAT`
+/// @param[in]  nIzl1  число излучателей
+/// @param[in]  dFreq1 частота, Гц
+/// @param[out] szSign буфер подписи
+/// @param[in]  nSize  размер буфера, байт
+/// @return TRUE — подпись построена; FALSE — файл `.DAT` недоступен.
+/// @see https://www.tamic.ru/docs/code/tmc-dn.html#cache
 static BOOL TmcDnCacheSign( const char *szDat, int nIzl1, double dFreq1, char *szSign, int nSize )
 {
 	struct stat stDat;
@@ -205,6 +221,7 @@ void c2DArray::ReadData()
 		return;
 	};
 
+	// Большая решётка: сетка графика -pi..pi из 1000 точек (её уже не меняет ResizeAngle).
 	if( (nIzl > nMaxTemporary) ) 
 	{
 		nAngle = 1000;
@@ -270,6 +287,8 @@ void c2DArray::ReadData()
 			fclose( fp );
 			return;
 		};
+		// Строка излучателя: 8 полей (с сектором и ДН излучателя) или 5 полей (сектор -180..180,
+		// изотропный излучатель). Номер в начале строки не проверяется.
 		if( sscanf( szBuf, "%d   X = %lg mm; Y = %lg mm; Amplitude = %lg; Faza = %lg degree; FiMin = %lg degree; FiMax = %lg degree; %s", &j, &x, &y, &a, &f, &dFiMin, &dFiMax, szBuf1 ) != 8 )
 		{
 			dFiMin = -180.;
@@ -292,11 +311,13 @@ void c2DArray::ReadData()
 			fclose( fp );
 			return;
 		};
+		// Единицы внутри объекта: мм -> м, градусы -> радианы.
 		pcIzl[i].SetdXcoordinata(x/1000.);
 		pcIzl[i].SetdYcoordinata(y/1000.);
 		pcIzl[i].SetdAmplituda(a);
 		pcIzl[i].SetdFaza(f*3.141592653589/180.);
 
+		// Секторы выключены (мода 1 строки графика = 0): каждый излучатель излучает во все стороны.
 		if( !bIsReduceElMagnAnalysis )
 		{
 			dFiMin = -180.;
@@ -375,7 +396,7 @@ void c2DArray::WriteData()
 		{
 			csBuf.Format("1.");
 		};
-		if( fprintf( fp, "%d   X = %lg mm; Y = %lg mm; Amplitude = %lg; Faza = %lg degree; FiMin = %lg degree; FiMax = %lg degree; %s\n", i+1, x, y, a, f, dFiMin, dFiMax, (LPCSTR)( csBuf ) ) < 0 ) 
+		if( fprintf( fp, "%d   X = %lg mm; Y = %lg mm; Amplitude = %lg; Faza = %lg degree; FiMin = %lg degree; FiMax = %lg degree; %s\n", i+1, x, y, a, f, dFiMin, dFiMax, csBuf ) < 0 ) 
 		{
 			bIsError = TRUE;
 			sprintf( szError, "Error when write emitter N %d to output data file %s", i+1, szFileNameOut);
@@ -485,6 +506,8 @@ void c2DArray::CalculateDiagrNapr()
 	double dReal, dImage, r1;
 	char szBuf1[TMC_C2DARRAY_MAX_STRING];
 
+	// Большая решётка с годным кэшем: ДН (ненормированная) читается из файла, сетка углов —
+	// тоже из кэша; негодный кэш удаляется и ДН считается заново на прежней сетке.
 	BOOL bFromCache = FALSE;	// S-50
 	if( IsDirectPatSaveInFile() )
 	{
@@ -507,6 +530,8 @@ void c2DArray::CalculateDiagrNapr()
 	}
 	if( !bFromCache )
 	{				
+		// Сумма полей излучателей в каждой точке сетки: F = r1(phi) * (Re + j*Im);
+		// r1 — общая ДН элемента (выражение от f), для "1." множитель опущен.
 		if( strcmp("1.", szOneExpression) == 0 )
 		{
 			for( iN = 0; iN < nAngle; iN++)
@@ -521,6 +546,7 @@ void c2DArray::CalculateDiagrNapr()
 		{
 			for( iN = 0; iN < nAngle; iN++)
 			{
+				// Переменная f библиотеки выражений = угол точки, радианы (печатается с 6 значащими цифрами).
 				sprintf( szBuf1, "f=(%lg);", pdAngle[ iN ]);
 				if( i1nte_atof_1( szBuf1, &r1 ) != 0 )
 				{
@@ -657,6 +683,7 @@ double c2DArray::CalculateRealDN(double dAngle)
 		y = pcIzl[i].GetdYcoordinata();
 		c = sqrt( x*x +y*y );
 		alf1 = atan2( y, x );
+		// Набег фазы излучателя в направлении phi: k * r * cos(phi - alpha), k = 2*pi*F/c.
 		d += a*cos( f + 2*3.141592653589*dFreq*c*cos( dAngle - alf1 )/299792458. );
 	}
 
@@ -730,6 +757,7 @@ double c2DArray::CalculateImageDN_ForKip(double dAngle)
 }
 
 // B-12 (26.10.2026): KND and KIP of the 2D task on a grid fine enough for the beam, one algorithm for any N.
+// Алгоритм нормировки, КНД и КИП описан в c2darray.h (NormirovkaDiagrNapr).
 void c2DArray::NormirovkaDiagrNapr()
 {
 	if( bIsError ) return;
@@ -742,6 +770,8 @@ void c2DArray::NormirovkaDiagrNapr()
 	if( !IsNormirovka )
 	{
 		IsNormirovka = TRUE;
+		// Электрический размер решётки задаёт густоту мелкой сетки: 64 точки на радиан набега фазы
+		// k*Rmax, чтобы не пропустить узкий главный лепесток и боковые лепестки.
 		for( i = 0, dRmax = 0.0; i < nIzl; i++ )
 		{
 			x = pcIzl[i].GetdXcoordinata();
@@ -755,6 +785,8 @@ void c2DArray::NormirovkaDiagrNapr()
 		if( nFine < 16 ) nFine = 16;
 		bExpr = ( strcmp( "1.", szOneExpression ) != 0 );
 		dStep = 2*3.141592653589/nFine;
+		// Интегрирование по 0..2*pi методом прямоугольников: dKnd накапливает интеграл |F|^2,
+		// dMax — максимум |F|^2; для N <= 400 то же для опорной решётки КИП.
 		for( i = 0, dMax = 0.0, dKnd = 0.0, dMaxKip = 0.0, dIntKip = 0.0; i < nFine; i++ )
 		{
 			dAng = i*dStep;
@@ -791,6 +823,8 @@ void c2DArray::NormirovkaDiagrNapr()
 		};
 		if( IsCalculateKip() )
 		{
+			// Большая решётка: КНД = 2*pi*max|F|^2 / интеграл |F|^2; нормировка графика — на его
+			// собственный максимум на сетке графика (dMax = max |F|).
 			dKip = dKnd;						// N > 400: "Kip" is the emitted power, Integral |F|^2 (as before)
 			dKnd = 2*3.141592653589*dMax/dKnd;
 			for( i = 0, r = 0.0; i < nAngle; i++ )
@@ -808,6 +842,7 @@ void c2DArray::NormirovkaDiagrNapr()
 			for( i = 0; i < nAngle; i++ ) pdRealDN[ i ] /= dMax;
 			return;
 		};
+		// Малая решётка: КНД, КИП = КНД / КНД0 опорной решётки; dMax = 1.001 * max|F|.
 		dKnd = 2*3.141592653589*dMax/dKnd;
 		if( ( dIntKip > 0. )&&( dMaxKip > 0. ) ) dKip = dKnd/( 2*3.141592653589*dMaxKip/dIntKip );
 		else dKip = FLT_MIN;
@@ -823,6 +858,7 @@ void c2DArray::NormirovkaDiagrNapr()
 	return;
 }
 
+// Прежний вариант нормировки (вне компиляции): оставлен для сверки.
 
 double c2DArray::GetdAngle(int i)
 {
@@ -854,6 +890,7 @@ void c2DArray::ResizeAngle(double dAngleMin, double dAngleMax)
 	int i;
 	double dStep;
 
+	// Новая сетка графика; нормировка (IsNormirovka) не пересчитывается.
 	for( i = 0, dStep = (dAngleMax - dAngleMin)/(nAngle - 1); i < nAngle; i++ )
 	{
 		pdAngle[ i ] = dAngleMin + i*dStep;
@@ -1018,6 +1055,7 @@ void c2DArray::MakeDeviation(char *szSourceFile, char *szDistinationFile, double
 	for( i = 0; i < nIzl; i++)
 	{
 		a = pcIzl[i].GetdAmplituda();
+		// Равномерные случайные отклонения: амплитуда в процентах от себя, фаза и координаты — абсолютные.
 		pcIzl[i].SetdAmplituda( GetRnd( a, a*dAmplProcent/100.) );
 		
 		f = pcIzl[i].GetdFaza();
@@ -1035,9 +1073,9 @@ void c2DArray::MakeDeviation(char *szSourceFile, char *szDistinationFile, double
 }
 
 // Z-20 (author 29.10): rand() without srand - the same set on every run, for now.
-/// �-20 (����� ������ 29.10.2026): rand() ����� ��������� ������ ����������� �� ���� � ���������;
-/// srand �� ���������� � ��� ������ ������� ����� ����������. ���� ��� � ���������; � ������ � �����
-/// ����� ����������� ������� � ����� ��� ������ ������� (AUDIT_�������_2026-10-26, �������, �. 3).
+/// З-20 (ответ автора 29.10.2026): rand() задаёт случайные ошибки излучателей по фазе и амплитуде;
+/// srand не вызывается — при каждом запуске набор одинаковый. Пока так и оставлено; в планах — выбор
+/// между повторяемым набором и новым при каждом расчёте (AUDIT_ОСТАТОК_2026-10-26, «Планы», п. 3).
 double c2DArray::GetRnd(double dMedium, double dDelta)
 {
 
@@ -1256,6 +1294,7 @@ void c2DArray::WriteTemporaryFile()
 
 	fclose( fp );
 
+	// Подпись кэша (.chk) нужна только тем решёткам, для которых кэш читается (N >= 400).
 	if( nIzl >= nMaxTemporary )		// S-50: podpis kesha (kesh ispolzuetsya pri nIzl >= nMaxTemporary)
 	{
 		char szSign[TMC_C2DARRAY_MAX_STRING], szChk[TMC_C2DARRAY_MAX_STRING];
@@ -1281,9 +1320,9 @@ double c2DArray::GetdMax()
 }
 
 // Z-19 (author 29.10): the threshold 400 - the aperture antennas.
-/// �-19 (����� ������ 29.10.2026): ��� ��������� ��� ���������� ������ ������������ �������;
-/// ����� nMaxTemporary = 400 ����������� ���� ��� ������� ������ ������. ������ ������� ������� ���
-/// ������ ��� �� � �������� ����������� � ����� �� �������.
+/// З-19 (ответ автора 29.10.2026): КИП считается для апертурных антенн значительной площади;
+/// порог nMaxTemporary = 400 излучателей взят как граница такого случая. Почему опорная решётка КИП
+/// берётся без ДН и секторов излучателей — автор не ответил.
 BOOL c2DArray::IsCalculateKip()
 {
 	return (nIzl > nMaxTemporary);
@@ -1318,6 +1357,7 @@ BOOL c2DArray::IsDirectPatSaveInFile()
 
 	if( ( LastWriteTimeInput.dwLowDateTime == 0 )&&( LastWriteTimeInput.dwHighDateTime == 0 ) ) return FALSE;	// S-50: vremya ne prochitalos
 
+	// Кэш не старше .DAT: дополнительно сверить подпись (размер и время .DAT, N, частота).
 	if( CompareFileTime( &LastWriteTimeInput, &LastWriteTimeTemp) <= 0 )
 	{
 		char szSign[TMC_C2DARRAY_MAX_STRING], szSignFile[TMC_C2DARRAY_MAX_STRING];	// S-50: podpis kesha
@@ -1375,6 +1415,7 @@ FILETIME c2DArray::LastWriteTime(char *szFileName1)
 	LastWriteTime1.dwLowDateTime   = 0;
 	LastWriteTime1.dwHighDateTime  = 0;
 
+	// Время записи через Windows API (в Qt6-версии — реализация слоя совместимости).
 	fh =  CreateFile(
     szFileName1,				// pointer to name of the file 
     GENERIC_READ,			// access read mode 

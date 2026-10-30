@@ -3,6 +3,16 @@
 //      are changed infrequently
 //
 
+/// @file StdAfx.h
+/// @brief Общий заголовок всех файлов ядра: подключает заголовки MFC (в Qt-версии — заглушки слоя совместимости).
+///
+/// Часть модуля «Оболочка счётного ядра». В Qt-версии `afxwin.h`, `afxext.h`,
+/// `afxdisp.h`, `afxcmn.h` находятся в `compat/include`.
+/// В ядре X код файла совпадает с одноимённым файлом ядра H (`src/kernels/PlanarRT_H`).
+/// @see https://www.tamic.ru/docs/code/kernel-shell.html#x-differences
+/// @see https://www.tamic.ru/docs/code/compat.html#headers
+
+/// Исключает редко используемые части заголовков Windows (влияет только на Windows-заголовки).
 #define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
 
 #include <afxwin.h>         // MFC core and standard components

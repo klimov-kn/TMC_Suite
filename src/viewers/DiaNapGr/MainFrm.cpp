@@ -1,11 +1,17 @@
 // MainFrm.cpp : implementation of the CMainFrame class
 //
 
-#include "stdafx.h"
-#include "TMCGROUT.h"
+/// @file MainFrm.cpp
+/// @brief Рамка главного окна TMC_DN: строка состояния из двух ячеек, сохранение положения окна.
+///
+/// Часть модуля «Вьювер TMC_DN». В Qt6-версии используется только как носитель строки
+/// состояния для `PutTrace`/`PutStatistics`.
+/// @see https://www.tamic.ru/docs/code/tmc-dn.html#qt-shell
+#include "StdAfx.h"
+#include "TMCGROUT.H"
 
 #include "MainFrm.h"
-#include "..\\DiaNapr\\c2DArray.h"
+#include "..//DiaNapr//c2DArray.h"
 #include "TMCGROUTDoc.h"
 
 #ifdef _DEBUG
@@ -26,6 +32,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
+/// Ячейки строки состояния: две ячейки без индикаторов клавиш (координаты и величина Y).
 static UINT indicators[] =
 {
 	ID_SEPARATOR,           // status line indicator

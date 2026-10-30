@@ -1,10 +1,15 @@
 // cDeviation.cpp : implementation file
 //
 
-#include "stdafx.h"
-#include "tmcgrout.h"
+/// @file cDeviation.cpp
+/// @brief Реализация окна Make Distribution Deviation (`cDeviation`).
+///
+/// Часть модуля «Вьювер TMC_DN». Описание методов — в `cdeviation.h`.
+/// @see https://www.tamic.ru/docs/code/tmc-dn.html#deviation
+#include "StdAfx.h"
+#include "TMCGROUT.H"
 #include "cDeviation.h"
-#include "..\\DiaNapr\\c2DArray.h"
+#include "..//DiaNapr//c2DArray.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

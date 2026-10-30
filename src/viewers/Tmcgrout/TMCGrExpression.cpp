@@ -1,12 +1,18 @@
 // TMCGrExpression.cpp : implementation file
 //
 
-#include "stdafx.h"
+/// @file TMCGrExpression.cpp
+/// @brief Кривая-выражение TMCGROUT: разбор строки `{...[файл]...}` и вычисление значения в точке библиотекой выражений.
+///
+/// Часть модуля «Вьювер TMCGROUT». Описание методов — в `tmcgrexpression.h`; у TMCROS
+/// и TMC_DN свои копии файла.
+/// @see https://www.tamic.ru/docs/code/tmcgrout.html#expressions
+#include "StdAfx.h"
 #include "TMCGROUT.h"
 #include "TMCGrExpression.h"
-#include <complex1.h>
-#include <inter.h>
-#include <tmcgrviw.h>
+#include <COMPLEX1.H>
+#include <INTER.H>
+#include <Tmcgrviw.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -41,7 +47,7 @@ CTMCGrExpression::~CTMCGrExpression()
 /////////////////////////////////////////////////////////////////////////////
 // CTMCGrExpression message handlers
 
-char * CTMCGrExpression::InitData( void )
+const char * CTMCGrExpression::InitData( void )
 {
 	int i;
 	CalcNGraphExpession();
@@ -129,6 +135,7 @@ BOOL CTMCGrExpression::Init1Data( void )
 	{
 		switch( csExpresion[i] )
 		{
+			// Открывающая скобка верхнего уровня: текст до неё — очередная часть формулы.
 			case '[':
 				if( ii == 0 )
 				{
@@ -144,6 +151,7 @@ BOOL CTMCGrExpression::Init1Data( void )
 				};
 				ii++;
 				break;
+			// Закрывающая скобка верхнего уровня: текст внутри — имя файла.
 			case ']':
 				if( ii == 1 )
 				{
@@ -164,6 +172,7 @@ BOOL CTMCGrExpression::Init1Data( void )
 		};
 	};
 	
+	// Хвост строки после последнего имени — последняя часть формулы.
 	if( nVar != 0 )
 	{
 		i2 = i;
@@ -302,6 +311,7 @@ double CTMCGrExpression::GetExpressionValue( int nPoint )
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
 	if( (pnPoint[0] <= nPoint)||( nPoint < 0 ) ) return 0;	// I-14 (old: pnPoint[0] < nPoint - one past the array)
 
+	// Переменная f библиотеки выражений = частота точки, Гц.
 	snprintf( ch, TMC_GROUT_MAXSTRING_BUF, "{f=(%.17g)}", ppdFreq[0][nPoint] );	// S-48, A-28: bylo %lf (1e-12 -> 0)
 	if( i1nte_atof_1( ch, &d ) != 0 ) d = 0.0;	// S-48: oshibka - tolko v etoi tochke (ne zalipaet)
 	return d;
@@ -317,9 +327,10 @@ double CTMCGrExpression::GetExpressionValueSFD( int nPoint )
 	if( (pnPoint[0] <= nPoint)||( nPoint < 0 ) ) return 0;	// I-14 (old: pnPoint[0] < nPoint - one past the array)
 	GetExpressionValue( nPoint );
 	
+	// Строка для вычисления: часть0 (значение файла 0) часть1 (значение файла 1) ... частьN.
 	strcpy( ch, pszMaska[0] );
-	n = (int)( strlen( ch ) );
-	for( i = 0; i < nVar; i++, n = (int)strlen( ch ) )
+	n = strlen( ch );
+	for( i = 0; i < nVar; i++, n = strlen( ch ) )
 	{
 		d = 180./(3.141592653589)*GetCPhase( i, nPoint);
 		snprintf( ch+n, TMC_GROUT_MAXSTRING_BUF-n, "(%.17g)%s", d, pszMaska[i+1] );	// S-48: bylo %lf
@@ -340,8 +351,8 @@ double CTMCGrExpression::GetExpressionValueSFD_User( int nPoint )
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
-	n = (int)( strlen( ch ) );
-	for( i = 0; i < nVar; i++, n = (int)strlen( ch ) )
+	n = strlen( ch );
+	for( i = 0; i < nVar; i++, n = strlen( ch ) )
 	{
 		d = 180./(3.141592653589)*GetCPhase_User( i, nPoint);
 		snprintf( ch+n, TMC_GROUT_MAXSTRING_BUF-n, "(%.17g)%s", d, pszMaska[i+1] );	// S-48: bylo %lf
@@ -362,8 +373,8 @@ double CTMCGrExpression::GetExpressionValueSFR( int nPoint )
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
-	n = (int)( strlen( ch ) );
-	for( i = 0; i < nVar; i++, n = (int)strlen( ch ) )
+	n = strlen( ch );
+	for( i = 0; i < nVar; i++, n = strlen( ch ) )
 	{
 		d = GetCPhase( i, nPoint);
 		snprintf( ch+n, TMC_GROUT_MAXSTRING_BUF-n, "(%.17g)%s", d, pszMaska[i+1] );	// S-48: bylo %lf
@@ -384,8 +395,8 @@ double CTMCGrExpression::GetExpressionValueSFR_User( int nPoint )
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
-	n = (int)( strlen( ch ) );
-	for( i = 0; i < nVar; i++, n = (int)strlen( ch ) )
+	n = strlen( ch );
+	for( i = 0; i < nVar; i++, n = strlen( ch ) )
 	{
 		d = GetCPhase_User( i, nPoint);
 		snprintf( ch+n, TMC_GROUT_MAXSTRING_BUF-n, "(%.17g)%s", d, pszMaska[i+1] );	// S-48: bylo %lf
@@ -406,8 +417,8 @@ double CTMCGrExpression::GetExpressionValueSM( int nPoint )
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
-	n = (int)( strlen( ch ) );
-	for( i = 0; i < nVar; i++, n = (int)strlen( ch ) )
+	n = strlen( ch );
+	for( i = 0; i < nVar; i++, n = strlen( ch ) )
 	{
 		d = cabsv( ppcSmatrix[i][nPoint] );
 		snprintf( ch+n, TMC_GROUT_MAXSTRING_BUF-n, "(%.17g)%s", d, pszMaska[i+1] );	// S-48: bylo %lf
@@ -428,8 +439,8 @@ double CTMCGrExpression::GetExpressionValueL( int nPoint )
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
-	n = (int)( strlen( ch ) );
-	for( i = 0; i < nVar; i++, n = (int)strlen( ch ) )
+	n = strlen( ch );
+	for( i = 0; i < nVar; i++, n = strlen( ch ) )
 	{
 		d = -20.*log10( cabsv( ppcSmatrix[i][nPoint] ) );
 		snprintf( ch+n, TMC_GROUT_MAXSTRING_BUF-n, "(%.17g)%s", d, pszMaska[i+1] );	// S-48: bylo %lf
@@ -450,8 +461,8 @@ double CTMCGrExpression::GetExpressionValueK( int nPoint )
 	GetExpressionValue( nPoint );
 	
 	strcpy( ch, pszMaska[0] );
-	n = (int)( strlen( ch ) );
-	for( i = 0; i < nVar; i++, n = (int)strlen( ch ) )
+	n = strlen( ch );
+	for( i = 0; i < nVar; i++, n = strlen( ch ) )
 	{
 		r11 = (double)(cabsv( ppcSmatrix[i][nPoint] ));
 		if( fabs( r11 - 1.) < 0.0001	)
@@ -466,6 +477,7 @@ double CTMCGrExpression::GetExpressionValueK( int nPoint )
 	return d;
 }
 
+/// Способ разворота фазы кривых-выражений: 0 — фаза только убывает (по умолчанию), 1 — порог pi.
 int g_nTmcPhaseUnwrap = 0;	// D-8: 0 - monotonically decreasing (default), 1 - standard (threshold pi)
 
 double CTMCGrExpression::GetCPhase( int i, int nPoint )
@@ -476,6 +488,7 @@ double CTMCGrExpression::GetCPhase( int i, int nPoint )
 	int j, n;
 	double d, d1;
 	
+	// n — число переходов через -2*pi между точками 0..nPoint.
 	for( j = 1, n = 0, d1 = cphase( ppcSmatrix[i][0] ); j <= nPoint; j++, d1 = d )
 	{
 		d = cphase( ppcSmatrix[i][j] );
@@ -491,9 +504,9 @@ double CTMCGrExpression::GetCPhase( int i, int nPoint )
 }
 
 // Z-16 (author 29.10): no unwrapping in the user units - meant.
-/// �-16 (����� ������ 29.10.2026): ��� ��� X � �������� ������������ ���� �� ��������������� �
-/// ��� ��������: ����������, ��� ��� �� ������� � ��� � ��� ������� ����� 2*pi (��� pi), �������
-/// �������� ��� ������ ������. ������ ��������� (�-8) �� ��� ������� �� ���������.
+/// З-16 (ответ автора 29.10.2026): при оси X в единицах пользователя фаза НЕ разворачивается —
+/// так задумано: неизвестно, что это за единицы и где в них переход через 2*pi (или pi), поэтому
+/// разворот там делать нельзя. Флажок разворота (Д-8) на эту функцию не действует.
 double CTMCGrExpression::GetCPhase_User( int i, int nPoint )
 {
 	if( (IsError)||(pnPoint == NULL)||(ppcSmatrix == NULL)||(ppdFreq == NULL) ) return 0;
@@ -502,9 +515,4 @@ double CTMCGrExpression::GetCPhase_User( int i, int nPoint )
 	return cphase( ppcSmatrix[i][nPoint] );
 }
 
-BOOL CTMCGrExpression::IsGraphDifferent( void )
-{
-	if( csExpresion[1] == '{' ) return TRUE;
-	else return FALSE;
-}
 

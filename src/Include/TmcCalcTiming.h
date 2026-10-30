@@ -9,6 +9,19 @@
 //
 // Header-only: every method is inline (defined in the class).
 
+/// @file TmcCalcTiming.h
+/// @brief Замер времени фаз расчёта ядер H и X и текстовый отчёт «Calc. time...» / ключ `/Time`.
+///
+/// Часть модуля «Расчёт на видеокарте и замер времени». Ядро (`CTmcRTHRectNode`)
+/// владеет одним объектом `CTmcCalcTiming` и прибавляет к счётчикам фаз время,
+/// измеренное по `QueryPerformanceCounter`; документ ядра отмечает начало и конец
+/// шага и «Run all». Отчёт строит `BuildReport`: окно статистики (кнопка «Calc. time...»)
+/// показывает его и сохраняет в TXT, а с ключом `/Time` командной строки отчёт после
+/// «Run all» сам записывается рядом с .tpl (`DefaultReportName`). Для каждого шага в
+/// отчёте есть строка `Compute:` — где шёл цикл по времени (процессор или видеокарта).
+/// Все методы встроенные.
+/// @see https://www.tamic.ru/docs/code/gpu.html#timing
+
 #ifndef _TMCCALCTIMING_H__
 #define _TMCCALCTIMING_H__
 
@@ -21,6 +34,11 @@
 #pragma warning(push)
 #pragma warning(disable: 4996)	// fopen/strcpy as in the rest of the project
 
+/// @brief Возвращает текущее показание счётчика `QueryPerformanceCounter`, тиков.
+///
+/// Разность двух показаний, делённая на частоту счётчика (`CTmcCalcTiming::qFreq`),
+/// даёт время в секундах. Один вызов стоит десятки наносекунд.
+/// @return Показание счётчика, тиков QPC.
 inline __int64 TmcTimingNow( void )
 {
 	LARGE_INTEGER t;
@@ -29,60 +47,125 @@ inline __int64 TmcTimingNow( void )
 }
 
 // Phase counters (QPC ticks)
+/// @brief Номера счётчиков фаз расчёта — индексы массива `TmcTimingStep::q` (тики QPC).
+///
+/// Группы: A — препроцессор и чтение задания, B — подготовка, C — цикл по времени,
+/// D — постобработка, E — прочее. Пояснение к каждой фазе — в хвостовом комментарии.
+/// При расчёте на видеокарте блоки METAL/ABSORBER/MAGNETIC считаются вместе с узлами
+/// сетки (фаза `TMCT_SCATTER`), счётчик `TMCT_BLOCKNODE` остаётся нулевым.
+/// @see https://www.tamic.ru/docs/code/gpu.html#timing
 enum
 {
 	// A. Preprocessor and input
+	/// A1: освобождение данных предыдущего шага.
 	TMCT_MEMFREE = 0,		// release of the data of the previous step
+	/// A2: препроцессор — развёртка макросов .tpl.
 	TMCT_PREPR,				// preprocessor: macro expansion of .tpl (prepr.lib)
+	/// A3: чтение разделов `#PARM`, `#TOPOLOGY`, `#LINK_LIST`, `#OUTPUT`.
 	TMCT_READTPL,			// reading sections #PARM/#TOPOLOGY/#LINK_LIST/#OUTPUT
 	// B. Preparation
+	/// B1: удаление старых выходных файлов, создание файла сигналов.
 	TMCT_OUTFILEINIT,		// delete old output files, create signal file
+	/// B2: создание файлов накопления FIELD_DISTRIBUTION.
 	TMCT_DISTRINIT,			// FIELD_DISTRIBUTION: creation of accumulation files
+	/// B3: выделение и обнуление массивов сетки.
 	TMCT_MEMINIT,			// allocation and zeroing of the grid arrays
+	/// B4: построение блоков на сетке (eps, металл, поглотители, порты), всего.
 	TMCT_BLOCKGEOM,			// blocks on the grid (eps, metal, absorber, ports)
+	/// B5: запись файлов распределения eps блоков (часть B4).
 	TMCT_EPSFILE,			// writing eps-distribution files of blocks (part of BLOCKGEOM)
+	/// B5a: чтение файлов распределения блоками FILE (часть B4).
 	TMCT_EPSREAD,			// FILE blocks: reading distribution files (part of BLOCKGEOM)
+	/// B6: пересчёт eps в проводимости узлов.
 	TMCT_ADMITTANCE,		// eps -> node admittance
+	/// B7: запись файла TOPOLOGY.
 	TMCT_TOPOLOGYFILE,		// writing TOPOLOGY file
 	// C. Time loop
+	/// C1 (вместе с C4): возбуждение портов; на видеокарте включает и обмен узлами портов и ожидание карты.
 	TMCT_EXCITE,			// port excitation, gross (includes TMCT_SIGNALFILE)
+	/// C2: обновление всех узлов сетки; на видеокарте — постановка `Pass` и `Blocks` в очередь.
 	TMCT_SCATTER,			// scattering in all grid nodes
+	/// C3: узлы блоков (металл, поглотители); на видеокарте не используется (0).
 	TMCT_BLOCKNODE,			// block nodes (metal, absorber, ports)
+	/// C4: запись nT, t и сигналов портов в файл (входит в C1).
 	TMCT_SIGNALFILE,		// writing nT/t and port signals to the output file (inside EXCITE)
+	/// C5: запись файла FIELDS (на видеокарте — вместе с копированием сетки с карты).
 	TMCT_FIELDFILE,			// writing FIELDS file
+	/// C6: накопление FIELD_DISTRIBUTION.
 	TMCT_DISTRINTEGR,		// FIELD_DISTRIBUTION accumulation
+	/// C7: обновление строки состояния.
 	TMCT_STATUS,			// status bar updates
+	/// Цикл по времени целиком, по часам.
 	TMCT_LOOPWALL,			// time loop, total wall time
 	// D. Postprocessor
+	/// D1: итог FIELD_DISTRIBUTION — файлы .AMP/.FAZ/.DAT и ДН.
 	TMCT_DISTRFINAL,		// FIELD_DISTRIBUTION final: .AMP/.FAZ/.DAT + directional pattern
+	/// D2: S-матрица (.s).
 	TMCT_SMATRIX,			// S-matrix (.s)
 	// E. Other
+	/// E1: звуковой сигнал в конце шага.
 	TMCT_SOUND,				// sound signal at the end of the step (Config/Sound)
+	/// Число счётчиков (размер массива `TmcTimingStep::q`).
 	TMCT_COUNT
 };
 
+/// @brief Замер одного шага (#STEP) задания: размеры, состояние и счётчики фаз.
+///
+/// Заполняется ядром во время шага (`CTmcCalcTiming::cur`), по окончании копируется в
+/// историю. Структура простая (POD): обнуляется `memset` в `ClearStep`.
 struct TmcTimingStep
 {
+	/// Номер шага задания.
 	int     nStep;
+	/// @name Сетка шага
+	///@{
+	/// Число узлов сетки по осям X и Y.
 	int     nX, nY;
+	///@}
+	/// Всего узлов сетки.
 	double  dNodes;
+	/// Число блоков шага.
 	int     nBlocks;
+	/// Число блоков, записавших файл распределения (.eps).
 	int     nEpsWritten;		// blocks that wrote a distribution file: RECT_STAT* [file]expr
+	/// Число блоков, прочитавших файл распределения (FILE, FILE_N, FILE_B, FILE_Y).
 	int     nEpsRead;			// blocks read from a distribution file: FILE, FILE_N, FILE_B, FILE_Y
+	/// Заданное число тактов шага.
 	int     nTMax;
+	/// Выполнено тактов (меньше `nTMax` при остановке или ошибке).
 	int     nTDone;
+	/// Шаг по времени, с.
 	double  dT;
+	/// Шаг сетки, м.
 	double  dDelta;
+	/// Состояние: 0 — не запускался, 1 — идёт, 2 — завершён, 3 — остановлен, 4 — ошибка.
 	int     nState;				// 0 - not run, 1 - running, 2 - finished, 3 - stopped, 4 - error
+	/// Счётчики фаз, тиков QPC; индекс — `TMCT_*`.
 	__int64 q[TMCT_COUNT];
+	/// Время `RunStep` по часам (подготовка + цикл + постобработка), тиков QPC; при продолжении после остановки накапливается.
 	__int64 qRunStep;			// RunStep wall time (init + loop + post)
+	/// Местное время начала шага.
 	SYSTEMTIME stStart;
+	/// Где шёл цикл по времени: копия `CTmcGpuH::csInfo` / `CTmcGpuX::csInfo` («CPU», «CPU (причина)» или «GPU n: ...»); пусто — CPU.
 	char    szCompute[200];		// GPU: "CPU" or the video card the loop ran on (empty - CPU)
 };
 
+/// @brief Хронометраж расчёта ядра: счётчики фаз текущего шага, история шагов и отчёт.
+///
+/// Один объект на ядро (член `CTmcRTHRectNode`, доступ через `GetTiming()`). Ядро
+/// прибавляет время фаз к `cur.q[]` (`Add`, `Counter`); документ вызывает
+/// `BeginStep` при чтении шага, `BeginRunStep`/`EndRunStep` вокруг расчёта шага и
+/// `BeginRunAll`/`EndRunAll` вокруг «Run all». Завершённые шаги текущего прогона
+/// хранятся в истории; `BuildReport` строит по ним текстовый отчёт.
+/// Копирование запрещено (внутри критическая секция).
+/// @note Потоки: методы начала/конца шага и `BuildReport` защищены критической секцией —
+/// отчёт можно строить из потока окна во время расчёта. `Add` и `Counter` не защищены
+/// и вызываются только расчётным потоком.
+/// @see https://www.tamic.ru/docs/code/gpu.html#timing
 class CTmcCalcTiming
 {
 public:
+	/// @brief Читает частоту счётчика QPC, создаёт критическую секцию и обнуляет замеры.
 	CTmcCalcTiming()
 	{
 		LARGE_INTEGER f;
@@ -101,30 +184,62 @@ public:
 		memset( &stRunStart, 0, sizeof(stRunStart) );
 		bDistrStarted = bDistrFinal = FALSE;
 	}
+	/// @brief Удаляет критическую секцию.
 	~CTmcCalcTiming()
 	{
 		DeleteCriticalSection( &cs );
 	}
 
 	// ---------------------------------------------------------------- data
+	/// Частота счётчика QPC, тиков в секунду (не меньше 1).
 	__int64 qFreq;
+	/// Текущий шаг: последний прочитанный или выполняемый.
 	TmcTimingStep cur;					// current (last read / running) step
+	/// Время препроцессора перед шагами при «Run all» (подсчёт шагов), тиков QPC.
 	__int64 qRunPrepr;					// preprocessor run before the steps (Run all)
+	/// Показание QPC в начале прогона (запуска шага или «Run all»).
 	__int64 qRunStart;
+	/// Время всего прогона по часам, тиков QPC.
 	__int64 qRunWall;					// wall time of the whole Run
+	/// `TRUE` — идёт «Run all» (шаги внутри него не начинают новый прогон).
 	volatile BOOL bRunActive;
+	/// `TRUE` — последний прогон был «Run all» (следующий одиночный шаг очистит историю).
 	BOOL bRunAll;
+	/// @name Процессорное время расчётного потока
+	///@{
+	/// Процессорное время расчётного потока, с: `dCpuUser` — пользовательское,
+	/// `dCpuKernel` — системное; -1 — не измерено.
 	double dCpuUser, dCpuKernel;		// CPU time of the calculation thread, s
+	///@}
+	/// Местное время начала прогона.
 	SYSTEMTIME stRunStart;
+	/// Полное имя файла задания .tpl (для отчёта и имени файла отчёта).
 	CString csTplFile;
+	/// Название ядра для отчёта, например «PlanarRT_H (tmc_rth.exe)»; «_X» в имени выбирает суффикс X.
 	CString csKernel;					// "PlanarRT_H (tmc_rth.exe)"
+	/// @name Состояние окна FIELD_DISTRIBUTION
+	///@{
+	/// Состояние окна FIELD_DISTRIBUTION для `IsDistrFinalCall`: `bDistrStarted` — время
+	/// вошло в окно; `bDistrFinal` — итоговый вызов уже был.
 	BOOL bDistrStarted, bDistrFinal;	// FIELD_DISTRIBUTION window state
+	///@}
 
 	// ------------------------------------------------------------- helpers
+	/// @brief Возвращает указатель на счётчик фазы текущего шага.
+	/// @param[in] i  номер фазы `TMCT_*`
+	/// @return Адрес `cur.q[i]`, тиков QPC.
 	__int64 *Counter( int i ) { return &(cur.q[i]); }
+	/// @brief Прибавляет к счётчику фазы время от `qBegin` до текущего момента.
+	/// @param[in] i       номер фазы `TMCT_*`
+	/// @param[in] qBegin  показание `TmcTimingNow` в начале фазы
 	void Add( int i, __int64 qBegin ) { cur.q[i] += TmcTimingNow() - qBegin; }
+	/// @brief Переводит тики QPC в секунды.
+	/// @param[in] q  интервал, тиков QPC
+	/// @return Интервал, с.
 	double Sec( __int64 q ) const { return ((double)q)/((double)qFreq); }
 
+	/// @brief Обнуляет замер шага, сохраняя номер шага, и ставит время начала = сейчас.
+	/// @param[in,out] s  замер шага
 	static void ClearStep( TmcTimingStep &s )
 	{
 		int nStep = s.nStep;
@@ -134,6 +249,8 @@ public:
 	}
 
 	// new step is read from .tpl (ReadData)
+	/// @brief Начинает замер нового шага (вызывается при чтении шага из .tpl).
+	/// @param[in] nStep  номер шага задания
 	void BeginStep( int nStep )
 	{
 		EnterCriticalSection( &cs );
@@ -144,6 +261,11 @@ public:
 	}
 
 	// RunStep started
+	/// @brief Отмечает начало расчёта шага (`RunStep`).
+	///
+	/// Вне «Run all» начинает новый прогон: история очищается, если прошлый прогон был
+	/// «Run all», если номер шага меньше последнего или тот же шаг запущен заново (не
+	/// продолжение после остановки).
 	void BeginRunStep( void )
 	{
 		EnterCriticalSection( &cs );
@@ -173,6 +295,12 @@ public:
 	}
 
 	// RunStep finished: nState 2 - finished, 3 - stopped, 4 - error
+	/// @brief Отмечает конец расчёта шага и заносит его в историю.
+	///
+	/// Продолжение остановленного шага заменяет его прежнюю запись. Вне «Run all»
+	/// заодно фиксирует время прогона и процессорное время потока.
+	/// @param[in] nState         итог: 2 — завершён, 3 — остановлен пользователем, 4 — ошибка
+	/// @param[in] qRunStepBegin  показание `TmcTimingNow` в начале `RunStep`
 	void EndRunStep( int nState, __int64 qRunStepBegin )
 	{
 		EnterCriticalSection( &cs );
@@ -190,6 +318,7 @@ public:
 	}
 
 	// Run all started / finished (Doc::RunAll)
+	/// @brief Отмечает начало «Run all»: очищает историю и запускает часы прогона.
 	void BeginRunAll( void )
 	{
 		EnterCriticalSection( &cs );
@@ -203,6 +332,8 @@ public:
 		bRunActive = TRUE;
 		LeaveCriticalSection( &cs );
 	}
+	/// @brief Отмечает конец «Run all»: время прогона по часам и процессорное время потока.
+	/// @note Вызывается из расчётного потока: процессорное время берётся у текущего потока.
 	void EndRunAll( void )
 	{
 		EnterCriticalSection( &cs );
@@ -214,6 +345,16 @@ public:
 
 	// FIELD_DISTRIBUTION: is the next Integrate() call the final one
 	// (the same test as in CFieldIntegrated::Integrate)
+	/// @brief Определяет, будет ли очередной вызов накопления FIELD_DISTRIBUTION последним (итоговым).
+	///
+	/// Нужен, чтобы время итоговой записи .AMP/.FAZ/.DAT отнести к фазе D1, а не C6.
+	/// Повторяет условие `CFieldIntegrated::Integrate`: окно открылось, когда время вошло
+	/// в [dTmin, dTmax]; итог — первый вызов с dTCur >= dTmax после этого.
+	/// @param[in] bIsDistr  в задании есть FIELD_DISTRIBUTION
+	/// @param[in] dTCur     текущее время расчёта, с
+	/// @param[in] dTmin     начало окна накопления, с
+	/// @param[in] dTmax     конец окна накопления, с
+	/// @return `TRUE` — этот вызов итоговый (возвращается один раз за шаг).
 	BOOL IsDistrFinalCall( BOOL bIsDistr, double dTCur, double dTmin, double dTmax )
 	{
 		if( !bIsDistr ) return FALSE;
@@ -231,6 +372,18 @@ public:
 	}
 
 	// ------------------------------------------------------------- report
+	/// @brief Строит текстовый отчёт о времени расчёта (окно «Calc. time...», файл `/Time`).
+	///
+	/// Шапка: ядро, платформа, дата сборки, файл .tpl, компьютер, процессор, память,
+	/// частота таймера, пиковая память процесса. Затем по каждому шагу истории (и по
+	/// выполняемому шагу) — таблица фаз A–E в формате h:mm:ss.mmm, секунды и доля шага,
+	/// строка `Compute:` (процессор или видеокарта), «чистое время счёта» C1+C2+C3 и
+	/// скорость в нс на узел за такт. В конце — сводка по всем шагам и пояснения.
+	/// Текст по-английски, концы строк CRLF.
+	/// @return Текст отчёта.
+	/// @note Можно вызывать во время расчёта из потока окна: данные копируются под
+	/// критической секцией.
+	/// @see https://www.tamic.ru/docs/code/gpu.html#time-report
 	CString BuildReport( void )
 	{
 		CString r, s;
@@ -337,6 +490,9 @@ public:
 	}
 
 	// write the report to a text file (TRUE - OK)
+	/// @brief Записывает отчёт `BuildReport` в текстовый файл (двоичный режим, CRLF из текста).
+	/// @param[in] lpszFile  полное имя файла; существующий файл перезаписывается
+	/// @return `TRUE` — записан; `FALSE` — файл не открылся.
 	BOOL SaveReport( LPCTSTR lpszFile )
 	{
 		CString csR = BuildReport();
@@ -348,6 +504,8 @@ public:
 	}
 
 	// default file name for the report: <tpl without extension>.timing_<H|X>_<win32|win64>.txt
+	/// @brief Возвращает имя файла отчёта рядом с заданием: `<tpl без расширения>.timing_<H|X>_<win32|win64>.txt`.
+	/// @return Полное имя файла (буква ядра — по наличию «_X» в `csKernel`).
 	CString DefaultReportName( void )
 	{
 		CString csName = csTplFile;
@@ -365,12 +523,18 @@ public:
 	}
 
 private:
+	/// Критическая секция для начала/конца шага и построения отчёта.
 	CRITICAL_SECTION cs;
+	/// Завершённые (и остановленные) шаги текущего прогона.
 	std::vector<TmcTimingStep> hist;	// finished steps of the current run
 
+	/// @brief Копирование запрещено (объявлен, не определён).
 	CTmcCalcTiming( const CTmcCalcTiming & );
+	/// @brief Присваивание запрещено (объявлен, не определён).
+	/// @return Не используется.
 	CTmcCalcTiming & operator=( const CTmcCalcTiming & );
 
+	/// @brief Записывает процессорное время текущего потока в `dCpuUser`, `dCpuKernel` (с, точность ~16 мс).
 	void ReadThreadCpu( void )
 	{
 		FILETIME ftC, ftE, ftK, ftU;
@@ -384,6 +548,9 @@ private:
 		}
 	}
 
+	/// @brief Возвращает название состояния шага для отчёта.
+	/// @param[in] n  состояние `TmcTimingStep::nState`
+	/// @return «running», «finished», «stopped by user», «error» или «not run».
 	static const char *StateName( int n )
 	{
 		switch( n )
@@ -397,6 +564,13 @@ private:
 	}
 
 	// groups: 0 prepr+input, 1 preparation, 2 time loop, 3 pure calc, 4 disk, 5 post, 6 total
+	/// @brief Сводит счётчики шага в группы отчёта, с.
+	///
+	/// a[0] — A (препроцессор и чтение), a[1] — B (подготовка), a[2] — цикл по часам,
+	/// a[3] — чистый счёт C1+C2+C3, a[4] — запись на диск B1+B2+B5+B7+C4+C5,
+	/// a[5] — D (постобработка), a[7] — E (звук), a[6] — всего A+B+C+D+E.
+	/// @param[in]  c  замер шага
+	/// @param[out] a  массив из 8 элементов, с
 	void Group( const TmcTimingStep &c, double *a )
 	{
 		const __int64 *q = c.q;
@@ -412,6 +586,11 @@ private:
 		a[6] = a[0] + a[1] + a[2] + a[5] + a[7];
 	}
 
+	/// @brief Форматирует строку таблицы фаз: название, h:mm:ss.mmm, секунды и доля шага.
+	/// @param[in] szName  название фазы
+	/// @param[in] d       время фазы, с
+	/// @param[in] dTot    время всего шага, с; <= 0 — доля не печатается
+	/// @return Строка с CRLF.
 	CString Row( const char *szName, double d, double dTot )
 	{
 		CString s;
@@ -420,6 +599,12 @@ private:
 		return s;
 	}
 
+	/// @brief Строит раздел отчёта одного шага: сетка, такты, строка `Compute:`, таблица фаз, итоги и скорость.
+	///
+	/// Скорость = чистое время счёта / (узлов * выполненных тактов), нс на узел за такт.
+	/// @param[in] c      замер шага
+	/// @param[in] line1  строка-разделитель
+	/// @return Текст раздела.
 	CString StepReport( const TmcTimingStep &c, const char *line1 )
 	{
 		CString r, s;
@@ -494,6 +679,9 @@ private:
 	}
 
 	// h:mm:ss.mmm
+	/// @brief Форматирует время в виде h:mm:ss.mmm (с округлением до мс, знак минус сохраняется).
+	/// @param[in] d  время, с
+	/// @return Строка.
 	static CString Hms( double d )
 	{
 		CString s;
@@ -504,6 +692,9 @@ private:
 		return s;
 	}
 
+	/// @brief Форматирует время как «h:mm:ss.mmm  (N.NNNNNN s)».
+	/// @param[in] d  время, с
+	/// @return Строка.
 	static CString SecStr( double d )
 	{
 		CString s;
@@ -511,6 +702,8 @@ private:
 		return s;
 	}
 
+	/// @brief Возвращает строки отчёта о компьютере: имя, процессор (из реестра), число логических процессоров, память.
+	/// @return Текст с CRLF.
 	static CString MachineInfo( void )
 	{
 		CString r, s;

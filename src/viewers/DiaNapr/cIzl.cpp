@@ -2,9 +2,14 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "stdafx.h"
-#include <typedef.h>
-#include <expr.h>
+/// @file cIzl.cpp
+/// @brief Реализация `cIzl`: параметры излучателя, сектор излучения и ДН излучателя.
+///
+/// Часть модуля «Вьювер TMC_DN». Описание методов — в `cizl.h`.
+/// @see https://www.tamic.ru/docs/code/tmc-dn.html#element-pattern
+#include "StdAfx.h"
+#include <Typedef.h>
+#include <EXPR.H>
 #include "cIzl.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -148,9 +153,9 @@ BOOL cIzl::bIsAngleInDiapazon(double dAngle)
 
 	// B-12c (29.10): the sector as [FiMin mod 2pi; +width], the angle mod 2pi (fmod); the fields are not changed.
 	// Old (below under #if 0): the sector containing both 0 and 180 degrees was empty.
-	/// �-12 (3): ������ ������� ������� s = FiMin mod 2*pi � ������� w = FiMax - FiMin (w < 0 � ������
-	/// ����� 0, � ���� ������������ 2*pi; w >= 2*pi � ������ ����). ����������� � �������, ����
-	/// (dAngle - s) mod 2*pi <= w (� �������� 1e-12 �� ���� � ���� ������� ������, ��� ������).
+	/// Б-12 (3): сектор задаётся началом s = FiMin mod 2*pi и шириной w = FiMax - FiMin (w < 0 — сектор
+	/// через 0, к нему прибавляется 2*pi; w >= 2*pi — полный круг). Направление в секторе, если
+	/// (dAngle - s) mod 2*pi <= w (с допуском 1e-12 на края — края сектора входят, как раньше).
 	{
 		const double d2Pi = 2.*3.14159265358979323846;
 		double dW = dFimax - dFimin, dS, dA;
@@ -164,52 +169,9 @@ BOOL cIzl::bIsAngleInDiapazon(double dAngle)
 		if( dA >= d2Pi - 1e-12 ) return TRUE;	// the angle equal to the start up to rounding
 		return FALSE;
 	}
-#if 0	// B-12c: the old check (to return it: delete the block above and this #if 0 / #endif)
-
-	dAnglePrived( dFimin );
-	dAnglePrived( dFimax );
-	dAnglePrived( dAngle );
-	
-//		CString csBuf1;
-	
-	if( (dAngle >= dFimin)&&(dAngle <= dFimax) ) return TRUE;
-	
-	dAnglePrived1( dFimin );
-	dAnglePrived1( dFimax );
-	dAnglePrived1( dAngle );
-
-//		CString csBuf1;
-	
-	if( (dAngle >= dFimin)&&(dAngle <= dFimax) ) return TRUE;
-
-	return FALSE;
-#endif
 }
 
-void cIzl::dAnglePrived(double &dAngle)
-{
-	double x, y, f;
 
-	x = cos(dAngle);
-	y = sin(dAngle);
-	f = atan2( y, x);
-	dAngle = f;
-
-	return;
-}
-
-void cIzl::dAnglePrived1(double &dAngle)
-{
-	double x, y, f;
-
-	x = cos(dAngle);
-	y = sin(dAngle);
-	f = atan2( y, x);
-	if( f <= 0.0 ) f += 2*3.141592653589;
-	dAngle = f;
-
-	return;
-}
 
 double cIzl::dGetDirectionalPatternEmitter(double dAngle)
 {
@@ -233,6 +195,7 @@ double cIzl::dGetDirectionalPatternEmitter(double dAngle)
 			break;
 	};
 
+	// Произвольное выражение: задать f = угол (радианы), затем вычислить выражение.
 	sprintf( szBuf1, "f=(%lg);", dAngle);
 	if( i1nte_atof_1( szBuf1, &r1 ) != 0 )
 	{
@@ -240,7 +203,7 @@ double cIzl::dGetDirectionalPatternEmitter(double dAngle)
 	};
 
 
-	sprintf( szBuf1, "(%s);", (LPCSTR)( csEmitterDirectPat ));
+	sprintf( szBuf1, "(%s);", csEmitterDirectPat);
 	if( i1nte_atof_1( szBuf1, &r1 ) != 0 )
 	{
 		return 0.0;

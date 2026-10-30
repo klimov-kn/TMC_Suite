@@ -2,6 +2,24 @@
 // Microsoft Developer Studio generated include file.
 // Used by TMCGROUT.rc
 //
+/// @file RESOURCE.H
+/// @brief Номера ресурсов TMC_DN: окна, элементы окон, команды меню и панели (из ресурса TMCGROUT.rc программы TMC_DN).
+///
+/// Часть модуля «Вьювер TMC_DN». Номера команд связывают пункты меню и кнопки панели
+/// главного окна Qt (`src/viewers/DiaNapGr/qt/mainwindow.cpp`) с обработчиками вида
+/// (`CTMCGROUTView`); номера окон и элементов — с разметкой окон
+/// (`src/viewers/DiaNapGr/qt/dialogs/*.ui`, таблица `dialog_registry.cpp`). Номера элементов
+/// уникальны только внутри своего окна, поэтому в разных окнах они повторяются; один номер
+/// может иметь несколько имён (в разметке стоит первое). Часть номеров осталась от TMCGROUT
+/// и TMCROS и окнами TMC_DN не используется. Файл порождён редактором ресурсов; значения
+/// менять нельзя — от них зависят разметки.
+/// @see https://www.tamic.ru/docs/code/tmc-dn.html#commands
+
+/// @name Кнопки окон с малыми номерами
+/// `IDOK2`..`IDOK7` — кнопки шрифта и цветов окна Viewport, `ID_FORMATDEFAULTBUTTON` —
+/// формат подписей по умолчанию, `ID_GRAPPARCORDEFAULT` — стили по умолчанию окна 16 стилей.
+///@{
+/// Номер кнопки окна (уникален внутри своего окна).
 #define IDOK2                           3
 #define ID_GRAPPARCORDEFAULT            3
 #define IDOK3                           4
@@ -10,6 +28,15 @@
 #define IDOK6                           7
 #define ID_FORMATDEFAULTBUTTON          8
 #define IDOK7                           9
+///@}
+/// @name Окна и общие ресурсы
+/// Номера разметок окон (`IDD_*`: About, Viewport = `IDD_DIALOG1`, Characteristics =
+/// `IDD_DIALOG2`, TtoS = `IDD_DIALOG3`, 16 стилей = `IDD_DIALOGBARCOLORH`, стиль линии =
+/// `IDD_DIALOGGRPARALL`, прогресс расчёта = `IDD_READDATA_THREAD`, девиации =
+/// `IDD_DIALOGMAKEDEVIAT`, `IDD_DIALOGCALCDEVIAT`), меню и значков (`IDR_*`), ссылка на
+/// документацию в окне About (`IDC_TMC_DOCLINK`).
+///@{
+/// Номер окна, ресурса или элемента общего назначения.
 #define IDD_ABOUTBOX                    100
 #define IDC_TMC_DOCLINK                 3000
 #define IDD_READDATA_THREAD             104
@@ -22,6 +49,17 @@
 #define IDD_DIALOGGRPARALL              137
 #define IDD_DIALOGMAKEDEVIAT            138
 #define IDD_DIALOGCALCDEVIAT            139
+///@}
+/// @name Элементы окон
+/// `IDC_GRPAR_*` — поля окна Viewport; `IDC_GREDIT_*` — поля строк окон Characteristics и
+/// TtoS (номер строки — в конце имени); `IDC_STATICLEVEL*` — поля образцов линий;
+/// `IDC_RADIO*` — переключатели окна стиля линии; `ID_ColorLevelAutoSet*` — кнопки стилей
+/// окна 16 стилей; `ID_GrParam_Color` — кнопка цвета окна стиля линии; `IDC_EDIT*`,
+/// `IDC_PROGRESS*` — поля окна прогресса; `IDC_EDITSOURCE*`, `IDC_*DEVIATION*`,
+/// `IDC_BUTTON*`, `IDC_FILEDISTRAMPLFAZA`, `IDC_REQUIREDDIRPAT`, `IDC_DEVIATDIRPATTERN` — поля
+/// и кнопки окон девиаций; `IDC_ADD_MAKEDEVIATION*` — кнопки девиаций окна Characteristics.
+///@{
+/// Номер элемента окна (уникален внутри своего окна).
 #define IDC_GRPAR_XMIN                  1000
 #define IDC_GRPAR_XMAX                  1001
 #define IDC_GRPAR_YMIN                  1002
@@ -347,6 +385,12 @@
 #define IDC_GREDIT_TUNIT                1215
 #define IDC_GREDIT_XMIN                 1216
 #define IDC_GREDIT_DX                   1217
+///@}
+/// @name Команды меню и панели инструментов
+/// Обработчики — методы `CTMCGROUTView` с похожими именами (`ID_VIEW_ZOOM_ZOOMP` ->
+/// `OnViewZoomZoomp`); соответствие задаёт карта сообщений в `tmcgroutview.cpp`.
+///@{
+/// Номер команды меню или кнопки панели.
 #define ID_EDIT_EDIT                    32771
 #define ID_EDIT_GRAPHICSPARAMETERS      32772
 #define ID_VIEW_GRAPHICS                32773
@@ -379,12 +423,18 @@
 
 // Next default values for new objects
 // 
+///@}
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
+/// Номер для редактора ресурсов Visual Studio (`APSTUDIO_INVOKED`); в сборке не определён.
 #define _APS_3D_CONTROLS                     1
+/// Номер для редактора ресурсов Visual Studio (`APSTUDIO_INVOKED`); в сборке не определён.
 #define _APS_NEXT_RESOURCE_VALUE        138
+/// Номер для редактора ресурсов Visual Studio (`APSTUDIO_INVOKED`); в сборке не определён.
 #define _APS_NEXT_COMMAND_VALUE         32829
+/// Номер для редактора ресурсов Visual Studio (`APSTUDIO_INVOKED`); в сборке не определён.
 #define _APS_NEXT_CONTROL_VALUE         1140
+/// Номер для редактора ресурсов Visual Studio (`APSTUDIO_INVOKED`); в сборке не определён.
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

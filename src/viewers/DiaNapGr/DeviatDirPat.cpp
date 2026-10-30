@@ -1,10 +1,15 @@
 // DeviatDirPat.cpp : implementation file
 //
 
-#include "stdafx.h"
-#include "tmcgrout.h"
+/// @file DeviatDirPat.cpp
+/// @brief Реализация окна Calculate Directional Pattern Deviation (`CDeviatDirPat`).
+///
+/// Часть модуля «Вьювер TMC_DN». Описание методов — в `deviatdirpat.h`.
+/// @see https://www.tamic.ru/docs/code/tmc-dn.html#deviation-pattern
+#include "StdAfx.h"
+#include "TMCGROUT.H"
 #include "DeviatDirPat.h"
-#include "..\\DiaNapr\\c2DArray.h"
+#include "..//DiaNapr//c2DArray.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -130,6 +135,8 @@ BOOL CDeviatDirPat::CalculateDeviationDirectionalPattern()
 		return FALSE;
 	};
 
+	// Перенести во вторую решётку (на сетке .opt) частоту, выражение ДН элемента,
+	// излучатели и их секторы из первой.
 	for( i = 0; i < nIzl ; i++ )
 	{
 		cDn1.GetIzl( i, &x, &y, &a, &f );

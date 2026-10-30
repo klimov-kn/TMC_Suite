@@ -1,8 +1,13 @@
 // TMCGROUTDIALOGView.cpp : implementation file
 //
 
-#include "stdafx.h"
-#include "TMCGROUT.h"
+/// @file TMCGROUTDIALOGView.cpp
+/// @brief Окно Viewport TMC_DN: обмен полей, доступность полей по флажкам, кнопки шрифта и цветов.
+///
+/// Часть модуля «Вьювер TMC_DN». Описание методов — в `tmcgroutdialogview.h`.
+/// @see https://www.tamic.ru/docs/code/tmc-dn.html#axes
+#include "StdAfx.h"
+#include "TMCGROUT.H"
 #include "TMCGROUTDIALOGView.h"
 
 #ifdef _DEBUG

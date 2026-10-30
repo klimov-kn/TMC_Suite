@@ -1,12 +1,17 @@
 // TMCGROUTView.cpp : implementation of the CTMCGROUTView class
 //
 
-#include "stdafx.h"
-#include "TMCGROUT.h"
+/// @file TMCGROUTView.cpp
+/// @brief Вид TMC_DN: поток расчёта ДН, подготовка и рисование ДН, сетка, оси, легенда с КНД и КИП, мышь, команды меню, строка состояния.
+///
+/// Часть модуля «Вьювер TMC_DN». Описание методов — в `tmcgroutview.h`.
+/// @see https://www.tamic.ru/docs/code/tmc-dn.html#drawing
+#include "StdAfx.h"
+#include "TMCGROUT.H"
 
-#include <tmcgrviw.h>
+#include <Tmcgrviw.h>
 #include "MainFrm.h"
-#include "..\\DiaNapr\\c2DArray.h"
+#include "..//DiaNapr//c2DArray.h"
 #include "TMCGROUTDoc.h"
 #include "TMCGROUTView.h"
 #include "TMCGROUTDIALOGView.h"
@@ -15,7 +20,12 @@
 #include "TmcGroutColorGraphDialog.h"
 #include "ThreadCalcDirPat.h"
 
+// Функция потока расчёта ДН (объявление; описание и определение — в конце файла).
 UINT ReadDocFileW_Thread1( LPVOID pParam );
+/// Флаг «идёт расчёт ДН в потоке»: 1 — поток работает, 0 — нет. Один на программу (не на
+/// окно): ставит `ReadDocFileW` до запуска потока, сбрасывает поток в конце. Пока он не 0,
+/// вид не рисует ДН, команды, меняющие данные, не действуют, окно прогресса не закрывается.
+/// @see https://www.tamic.ru/docs/code/tmc-dn.html#thread
 volatile LONG g_lTmcDnCalcRunning = 0;	// A-30: 1 - idet raschet DN v potoke (odin na process)
 
 
@@ -394,6 +404,12 @@ void CTMCGROUTView::onDrowAxies( CDC *pDC )
 }
 
 // S-42: format podpisi osi - rovno odin specifikator chisla [eEfgG]; inache standartnyi
+/// @brief Проверяет формат подписи оси: ровно одно преобразование `e`, `E`, `f`, `g`, `G` (допустим `l`), длина до 64 символов.
+///
+/// Защищает `CString::Format` от формата пользователя с `%s`, `%n` или несколькими
+/// преобразованиями.
+/// @param[in] csFormat формат из окна Viewport или настроек
+/// @return Сам формат, если он допустим; иначе `%4.3lg`.
 static CString TmcSafeAxisFormat( const CString &csFormat )
 {
 	const char *p = (const char *)csFormat;
@@ -427,6 +443,7 @@ void CTMCGROUTView::onDrawGrid( CDC *pDC )
    CPen newPen(PS_DOT, 1, pDoc->scGridColor);
    CPen *pOldPen = pDC->SelectObject(&newPen);
 
+   // Вертикальные линии сетки: 11 линий с шагом (Xmax-Xmin)/10, подпись — под областью.
    for( j = 0, x = tmcgrwin.sGrWin.Xmin, xstep = (tmcgrwin.sGrWin.Xmax - tmcgrwin.sGrWin.Xmin)/(NumX),i = tmcgrwin.sGrView.nXmin, step = (tmcgrwin.sGrView.nXmax - tmcgrwin.sGrView.nXmin)/(NumX); j <= NumX ; i += step, x += xstep, j++)
    {
 	  pDC->MoveTo( i, -tmcgrwin.sGrView.nYmin );
@@ -436,6 +453,7 @@ void CTMCGROUTView::onDrawGrid( CDC *pDC )
 
    };
 
+   // Горизонтальные линии сетки сверху вниз; подписи — у левого края окна (x = 1 мм).
    for( j = 0, x = tmcgrwin.sGrWin.Ymax, xstep = (tmcgrwin.sGrWin.Ymax - tmcgrwin.sGrWin.Ymin)/(NumY), i = tmcgrwin.sGrView.nYmin, step = (tmcgrwin.sGrView.nYmax - tmcgrwin.sGrView.nYmin)/(NumY); j <= NumY ; i += step, x -= xstep, j++)
    {
 	  pDC->MoveTo( 100, -i );
@@ -602,6 +620,7 @@ void CTMCGROUTView::ReadDocFileW()
 	cDlg.pCView = (void *)(this);
 	time( &ltime_start );
 
+	// Флаг ставится до запуска потока, чтобы окно прогресса и вид сразу видели «идёт расчёт».
 	g_lTmcDnCalcRunning = 1;	// A-30: do zapuska potoka
 	if( ( AfxBeginThread( ReadDocFileW_Thread1, (void *)(this), THREAD_PRIORITY_NORMAL ) ) == NULL )
 	{
@@ -610,16 +629,23 @@ void CTMCGROUTView::ReadDocFileW()
 		csError.Format("Error when open thread for optimization All Partitional");
 		CTMCGROUTDoc* pDoc = GetDocument();
 		ASSERT_VALID(pDoc);
-		sprintf( pDoc->error, "%s", (LPCSTR)( csError ) );
+		sprintf( pDoc->error, "%s", csError );
 		return;
 	};
 		
+	// Модальное окно прогресса; закрывается само, когда поток сбросит флаг.
 	cDlg.DoModal();
 	
 	return;
 }
 
 // N-33: diapazon osi - konechnyi i nevyrozhdennyi
+/// @brief Делает диапазон оси конечным и невырожденным.
+///
+/// Нечисловой, перевёрнутый или бесконечный диапазон (нет ни одной точки) заменяется на
+/// 0..1; диапазон нулевой ширины расширяется на 5% значения в обе стороны (на 0.5 около нуля).
+/// @param[in,out] pdMin нижняя граница, единицы оси
+/// @param[in,out] pdMax верхняя граница, единицы оси
 static void TmcFixAxisRange( double *pdMin, double *pdMax )
 {
 	if( !_finite( *pdMin )||!_finite( *pdMax )||( *pdMin > *pdMax )||( *pdMin <= -FLT_MAX )||( *pdMax >= FLT_MAX ) )
@@ -658,6 +684,7 @@ void CTMCGROUTView::PrepareDoubleGraph()
 	{
 		for( j = 0, ii = 0, r11 = 0, r12 = 0, r13 = 0, r14 = 0, iph = 0; j < tmcgrwin.psGraph[i].nPoint; j++)
 		{
+			// X: угол точки (радианы) в единицах оси — радианах или градусах.
 			switch(tmcgrwin.nXType)
 			{
 			case TMC_GROTS_TYPE_nT:
@@ -690,6 +717,7 @@ void CTMCGROUTView::PrepareDoubleGraph()
 			if( _finite( tmcgrwin.psGraph[i].pPoint[j].x )&&( xMin > tmcgrwin.psGraph[i].pPoint[j].x ) ) xMin = tmcgrwin.psGraph[i].pPoint[j].x;
 			if( _finite( tmcgrwin.psGraph[i].pPoint[j].x )&&( xMax < tmcgrwin.psGraph[i].pPoint[j].x ) ) xMax = tmcgrwin.psGraph[i].pPoint[j].x;
 
+			// Y: величина по оси Y; у кривой-выражения — значение формулы.
 			switch(tmcgrwin.nYType)
 			{
 			case TMC_GROTS_TYPE_LDB:
@@ -778,8 +806,8 @@ void CTMCGROUTView::PrepareDoubleGraph()
 				else
 				{
 					// Z-18 (author 29.10): left as is.
-					/// �-18 (����� ������ 29.10.2026): ������-������� `{...}` ������ ����� `.DAT` �������� ���
-					/// (��� �������� �� TMCGROUT); ��������������, ��� ���� ����� �� ������, � ��������� ��� ����.
+					/// З-18 (ответ автора 29.10.2026): кривая-формула `{...}` вместо имени `.DAT` получает КСВ
+					/// (код перенесён из TMCGROUT); предполагалось, что сюда никто не попадёт, — оставлено как есть.
 					tmcgrwin.psGraph[i].pPoint[j].y = pDoc->grdoc.psGraph[i].pcExpr->GetExpressionValueK( j );
 				};
 				break;
@@ -819,6 +847,7 @@ void CTMCGROUTView::PrepareDoubleGraph()
 				break;
 			};
 
+			// Автодиапазон Y — только по точкам, видимым по X.
 			if( (tmcgrwin.sGrWin.nAFlagX)||( (tmcgrwin.psGraph[i].pPoint[j].x >= tmcgrwin.sGrWin.Xmin)&&(tmcgrwin.psGraph[i].pPoint[j].x <= tmcgrwin.sGrWin.Xmax) ) )
 			{
 				if( _finite( tmcgrwin.psGraph[i].pPoint[j].y )&&( yMin > tmcgrwin.psGraph[i].pPoint[j].y ) ) yMin = tmcgrwin.psGraph[i].pPoint[j].y;
@@ -948,6 +977,8 @@ void CTMCGROUTView::PrepareLogGraph()
 	{
 		if( !pDoc->grdoc.psGraph[i].OutFlag ) tmcgrwin.psGraph[i].nPointDraw = 0;
 	};
+	// Прореженный набор для рисования: точки в диапазоне X без внутренних точек
+	// горизонтальных участков (одинаковая экранная высота у соседей).
 	tmcgrwin1.nGraph = tmcgrwin.nGraph;
 	tmcgrwin1.psGraph = new TMC_GR_VIEW[tmcgrwin1.nGraph];
 	for( i = 0; i < tmcgrwin1.nGraph; i++)
@@ -1156,6 +1187,7 @@ void CTMCGROUTView::OnDrawGraph3(CDC *pDC, int i)
 	{
 		if( pDoc->pcDirectionalPattern[i].IsCalculateKip() )
 		{
+		   // Большая решётка (N > 400): вместо КИП — излучённая мощность.
 		   text1.Format(" Knd =%7.4lgdB; Emitted Power =%5.2lg;", pDoc->pcDirectionalPattern[i].GetKnd_dB(), pDoc->pcDirectionalPattern[i].GetKip());
 		}
 		else
@@ -1230,7 +1262,7 @@ void CTMCGROUTView::OnEditGraphicsparameters()
 	dlg.m_dPointSize = dPointSize;
 	dlg.m_LossPoint = bLossPoint;
 
-	if( (ret = (int)dlg.DoModal()) == 1)	// C4244: the dialog result fits int
+	if( (ret = dlg.DoModal()) == 1)
 	{
 	tmcgrwin.sGrWin.Xmin =	dlg.m_XMin;
 	tmcgrwin.sGrWin.Xmax = dlg.m_XMax;
@@ -1667,7 +1699,7 @@ void CTMCGROUTView::OnEditDocument()
 		}
 	};	
 	
-	int ret = (int)( dlg.DoModal() );
+	int ret = dlg.DoModal();
 
 	if( ret == 1)
 	{
@@ -1694,6 +1726,7 @@ void CTMCGROUTView::OnEditDocument()
 		if( dlg.m_SFileName_19.GetLength() != 0 ) i++;
 		if( dlg.m_SFileName_20.GetLength() != 0 ) i++;
 		n = i;
+		// Графики с номером больше 20 в окне не видны: сохранить их и дописать в конец списка.
 		int nTail = ( pDoc->grdoc.nGraph > 20 ) ? pDoc->grdoc.nGraph - 20 : 0;	// S-46: grafiki 21+ v dialoge ne vidny
 		CString *pcsTail = ( nTail > 0 ) ? new CString[ 2*nTail ] : NULL;
 		int *pnTail = ( nTail > 0 ) ? new int[ 5*nTail ] : NULL;
@@ -2077,9 +2110,9 @@ void CTMCGROUTView::OnEditAddcharacteristics()
 	ASSERT_VALID(pDoc);
 	strcpy( ch, pDoc->GetPathName() );
 
-	for( i = (int)strlen(ch); i > 0; i-- )
+	for( i = strlen(ch); i > 0; i-- )
 	{
-		if( ch[i] == '\\' )
+		if( TMC_IS_SEP(ch[i]) )
 		{
 			ch[i] = '\0';
 			i = 0;
@@ -2163,6 +2196,7 @@ void CTMCGROUTView::OnLButtonUp(UINT nFlags, CPoint point)
 		Ymin = rr;
 	};
 
+	// Рамка меньше 10% по обеим осям — это щелчок, а не выделение.
 	if( ((Ymax-Ymin) < 0.1*(tmcgrwin.sGrWin.Ymax-tmcgrwin.sGrWin.Ymin))&&
 		((Xmax-Xmin) < 0.1*(tmcgrwin.sGrWin.Xmax-tmcgrwin.sGrWin.Xmin)) )
 		return ;
@@ -2302,7 +2336,7 @@ void CTMCGROUTView::OnFileSaveAs()
 	CFileDialog dlg( FALSE, "dop", "*.dop");	// I-31: the document of TMC_DN is .dop (old: "tos", "*.tos")
 	if( dlg.DoModal() == IDOK )
 	{
-		CString csOldPath = pDoc->GetPathName();	// S-44	// S-44
+		CString csOldPath = pDoc->GetPathName();	// S-44
 		pDoc->SetPathName( dlg.GetPathName() );
 		pDoc->RebaseGraphPaths( csOldPath );	// S-44: otnositelnye imena grafikov - ot novoi papki
 		pDoc->WriteDocFile();
@@ -2458,6 +2492,7 @@ void CTMCGROUTView::WriteIniWndPar()
 }
 
 
+// Строки состояния ищутся через главное окно приложения (в Qt6-версии — рамка CMainFrame оболочки).
 void PutTrace( CString csTrace )
 {
 	CMainFrame *pFrame = ( CMainFrame * ) AfxGetApp()->m_pMainWnd;
@@ -2471,7 +2506,7 @@ void PutTrace( CString csTrace )
 	return;
 }
 
-void PutTrace( char *szTrace )
+void PutTrace( const char *szTrace )
 {
 	CString csBuf;
 	csBuf.Format("%s", szTrace);
@@ -2492,7 +2527,7 @@ void PutStatistics( CString csTrace )
 	return;
 }
 
-void PutStatistics( char *szTrace )
+void PutStatistics( const char *szTrace )
 {
 	CString csBuf;
 	csBuf.Format("%s", szTrace);
@@ -2754,7 +2789,7 @@ void CTMCGROUTView::OnEditTosmatrix()
 		}
 	};	
 
-	int ret = (int)( dlg.DoModal() );
+	int ret = dlg.DoModal();
 
 	return;
 }
@@ -3116,21 +3151,6 @@ void CTMCGROUTView::OnViewZoomZoomy()
 	return;
 }
 
-BOOL CTMCGROUTView::OnEraseBkgnd(CDC* pDC) 
-{
-	// TODO: Add your message handler code here and/or call default
-	CTMCGROUTDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-	// Set brush to desired background color
-	CBrush backBrush( pDoc->scBackgoundColor );
-	// Save old brush
-	CBrush* pOldBrush = pDC->SelectObject(&backBrush);
-	CRect rect;
-	pDC->GetClipBox(&rect);     // Erase the area needed
-	pDC->PatBlt( rect.left, rect.top, rect.Width(), rect.Height(), PATCOPY);
-	pDC->SelectObject(pOldBrush);
-	return TRUE;
-}
 
 void CTMCGROUTView::OnPrepareDC(CDC* pDC, CPrintInfo* pInfo) 
 {
@@ -3360,6 +3380,10 @@ void CTMCGROUTView::ReadDocFileW_Thread()
 /////////////////////////////////////////////////////////
 
 
+/// @brief Функция потока расчёта ДН: `ReadDocFileW_Thread` вида, затем сброс `g_lTmcDnCalcRunning` и перерисовка.
+/// @param[in] pParam вид `CTMCGROUTView*`, запустивший поток
+/// @return 0.
+/// @see https://www.tamic.ru/docs/code/tmc-dn.html#thread
 UINT ReadDocFileW_Thread1( LPVOID pParam )
 {
 	CTMCGROUTView* pDlg = (CTMCGROUTView *)(pParam);
@@ -3379,6 +3403,7 @@ void CTMCGROUTView::OnDestroy()
 	CScrollView::OnDestroy();
 
 
+	// Окно закрывается во время расчёта: ждать конца потока (он пишет в документ и вид).
 	for( ; g_lTmcDnCalcRunning != 0; )	// A-30: zhdat konca potoka (bylo !bIsDataCalculate - pri neschitannom
 	{									// dokumente okno zakryvalos i cikl ne konchalsya)
 		CThreadCalcDirPat cDlg;

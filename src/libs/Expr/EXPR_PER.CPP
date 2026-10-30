@@ -24,18 +24,28 @@
 **
 */
 
+/// @file EXPR_PER.CPP
+/// @brief Переменные вычислителя и контекст потока: `expr_get_per`, `expr_set_per`,
+/// `expr_is_per`, `expr_thread_ctx_begin/end`.
+///
+/// Переменная — одна латинская буква; значение хранится в таблице из 256 элементов
+/// по коду символа. Таблица общая для программы, пока к потоку не привязан
+/// собственный контекст.
+/// @see https://www.tamic.ru/docs/code/lib-expr.html#threads
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <float.h>
 #include <math.h>
 
-#include <typedef.h>
-#include <expr.h>
+#include <Typedef.h>
+#include <EXPR.H>
 
 
+/// Общая таблица переменных; индекс — код символа имени, начальные значения — 0.
 static _real rExpr_per[256];
-static __declspec(thread) EXPR_THREAD_CTX *s_pExprCtx = NULL;	// EPSFAST
+/// Контекст, привязанный к текущему потоку; NULL — поток работает с общими переменными.
+static thread_local EXPR_THREAD_CTX *s_pExprCtx = NULL;	// EPSFAST
 
 EXPR_THREAD_CTX *expr_get_thread_ctx( void )	// EPSFAST
 {

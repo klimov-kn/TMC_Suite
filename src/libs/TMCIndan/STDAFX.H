@@ -3,6 +3,14 @@
 // are changed infrequently
 //
 
+/// @file STDAFX.H
+/// @brief Общий заголовок файлов библиотеки TMCIndan: подключает `afx.h`/`afxwin.h`.
+///
+/// В Qt6-версии `afx.h` и `afxwin.h` предоставляет слой совместимости `compat/`
+/// (MFC поверх Qt): `CString`, `CWnd`, функции Win32. Подключается первым
+/// в каждом `.cpp` библиотеки.
+/// @see https://www.tamic.ru/docs/code/compat.html
+
 #pragma once
 
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers

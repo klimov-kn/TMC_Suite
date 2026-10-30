@@ -1,9 +1,21 @@
 // PlanRT_HDoc.cpp : implementation of the CPlanRT_HDoc class
 //
 
-#include "stdafx.h"
+/// @file PlanRT_HDoc.cpp
+/// @brief Документ оболочки ядра: чтение шагов задания, расчёт в потоке, коды возврата, запуск внешних программ.
+///
+/// Часть модуля «Оболочка счётного ядра». Реализация `CPlanRT_HDoc`: цикл «Run» по
+/// шагам \#STEP с проверкой флага остановки, перевод ошибок и исключений расчёта в
+/// коды возврата 0/1/2/3, безопасное ожидание расчётного потока при закрытии,
+/// поиск и запуск вьюверов и редактора задания.
+/// В ядре X код файла совпадает с одноимённым файлом ядра H (`src/kernels/PlanarRT_H`),
+/// но компилируется с заголовками и расчётным объектом ядра X и макросами X-моды.
+/// @see https://www.tamic.ru/docs/code/kernel-shell.html#x-differences
+/// @see https://www.tamic.ru/docs/code/kernel-shell.html#document
+
+#include "StdAfx.h"
 #include "PlanRT_H.h"
-#include <tmcgrviw.h>
+#include <Tmcgrviw.h>
 #include <afxmt.h>
 
 #include "Pl_iofor.h"
@@ -103,7 +115,7 @@ BOOL CPlanRT_HDoc::RunExeFile( char *lpszNameExe )
 	CString theString;
 
 	sprintf( szCommandLine, "\"%s\"", lpszNameExe);
-	i = (int)( strlen( szCommandLine ) );
+	i = strlen( szCommandLine );
 
 	theString = GetPathName();
 	if( strlen(theString) == 0 )
@@ -112,7 +124,7 @@ BOOL CPlanRT_HDoc::RunExeFile( char *lpszNameExe )
 	};
 	
 	szCommandLine[i] = ' ';
-	sprintf( szCommandLine + i + 1, "\"%s\"", (LPCSTR)( theString ));
+	sprintf( szCommandLine + i + 1, "\"%s\"", theString);
 
 	for( i = 0; ( i < N_BUF_MAX )&&( szCommandLine[i] == ' ' ); i++)
 	{
@@ -123,6 +135,16 @@ BOOL CPlanRT_HDoc::RunExeFile( char *lpszNameExe )
 }
 
 #ifdef _WIN32
+/// @brief Ищет полный путь программы, заданной именем без папки (только Windows).
+///
+/// Порядок поиска: папка ядра, системная папка, папка Windows, ключи «App Paths»
+/// реестра (сначала пользователя, затем машины), переменная PATH. Текущая папка
+/// (папка задания) не просматривается — подложенный туда файл не запустится.
+/// Без расширения добавляется `.exe`; старое имя `FLDVIEW.EXE` заменяется на `FieldView.exe`.
+/// @param[in]  pszName имя программы, короче `MAX_PATH`.
+/// @param[out] pszFull полный путь найденной программы.
+/// @param[in]  nMax    размер буфера `pszFull`, символов.
+/// @return TRUE — найдено и файл существует; FALSE — не найдено.
 // T-33: the full path of a program given without a folder: next to the kernel, the system
 // folder, the Windows folder, "App Paths" of the registry, PATH - but never the current folder
 // (that is the task folder, a file put there must not start). FALSE - not found.
@@ -196,9 +218,9 @@ BOOL CPlanRT_HDoc::CreatProc(char * lpszComLine)
 
 	strncpy( szCurrentDir, GetPathName(), N_BUF_MAX - 1 );
 	szCurrentDir[N_BUF_MAX - 1] = '\0';
-	for( i = (int)strlen(szCurrentDir)-1; i >= 0; i-- )
+	for( i = strlen(szCurrentDir)-1; i >= 0; i-- )
 	{
-		if( szCurrentDir[i] == '\\' )
+		if( TMC_IS_SEP(szCurrentDir[i]) )
 		{
 			szCurrentDir[i] = '\0';
 			i = -1;
@@ -251,6 +273,7 @@ BOOL CPlanRT_HDoc::CreatProc(char * lpszComLine)
       bDirFound ? szCurrentDir : NULL,	// N-10: the task folder, if the path has one
       &siStartInfo,  // STARTUPINFO pointer
       &piProcInfo);  // receives PROCESS_INFORMATION
+	// Демонстрационный режим (/d) запоминает процесс просмотрщика; иначе дескрипторы не нужны.
 	if( IsDemoRun() )
 	{
 		SetProcessInformation(piProcInfo);
@@ -424,6 +447,8 @@ void CPlanRT_HDoc::StopAndWait( void )
 	SetRunClosing();		// RUN STATUS: the window is closing - no WM_CLOSE from the run thread
 	Stop();
 	if( m_hRunThread == NULL ) return;
+	// Ждём поток порциями по 100 мс и между ними разбираем события интерфейса:
+	// расчётный поток пишет в строку состояния через очередь событий главного потока.
 	DWORD dwStart = ::GetTickCount();
 	for( ;; )
 	{
@@ -509,6 +534,7 @@ void CPlanRT_HDoc::RunAll1( void )
 	SetRunWarning( "" );		// the warnings of this run
 	CString csErrFirst, csErrSteps;
 
+	// Число шагов #STEP — препроцессором по всему заданию (время идёт в долю «препроцессор»).
 	__int64 qTmPr = TmcTimingNow();								// TIMING
 	n = cRectNode.GetNStepMax( GetPathName() ) + 1;
 	cRectNode.GetTiming().qRunPrepr += TmcTimingNow() - qTmPr;		// TIMING
@@ -530,6 +556,8 @@ void CPlanRT_HDoc::RunAll1( void )
 	};
 	ConsolePrint( "Steps: %d", n - 1 );
 
+	// Шаги от текущего до последнего. Флаг bIsReadData проверяется перед чтением,
+	// перед счётом и после счёта: Stop() из главного потока сбрасывает его.
 	for( i = nStep; i < n; i++ )
 	{
 		nStep = i;
@@ -614,6 +642,7 @@ void CPlanRT_HDoc::RunAll1( void )
 		ConsolePrint( "Step %d of %d: done", nStep, n - 1 );			// RUN STATUS
 	};
 
+	// Итог: были шаги с ошибкой — код 2 и перечень первых 10 таких шагов; иначе код 0.
 	if( nErrStep > 0 )	// D-1: all steps are done, some with an error
 	{
 		csBuf.Format( "Calculated with errors at %d step(s): %s%s - the S-matrix there is zeros. First: %s",
@@ -644,7 +673,7 @@ BOOL CPlanRT_HDoc::RunExeFile(char *lpszNameExe, char *lpszArgCommLine)
 	CString theString;
 
 	sprintf( szCommandLine, "\"%s\"", lpszNameExe);
-	i = (int)( strlen( szCommandLine ) );
+	i = strlen( szCommandLine );
 
 	theString.Format( "%s", lpszArgCommLine);
 	if( strlen(theString) == 0 )
@@ -653,7 +682,7 @@ BOOL CPlanRT_HDoc::RunExeFile(char *lpszNameExe, char *lpszArgCommLine)
 	};
 	
 	szCommandLine[i] = ' ';
-	sprintf( szCommandLine + i + 1, "\"%s\"", (LPCSTR)( theString ));
+	sprintf( szCommandLine + i + 1, "\"%s\"", theString);
 
 	for( i = 0; ( i < N_BUF_MAX )&&( szCommandLine[i] == ' ' ); i++)
 	{

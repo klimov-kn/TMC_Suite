@@ -9,6 +9,21 @@
 //
 // Switched on by the key /GPU (/GPU:n) or TMC_GPU=1 (TMC_GPU=n+1); only win64.
 
+/// @file TmcGpuX.h
+/// @brief Цикл по времени ядра X на видеокарте (OpenCL 1.2, `double`): класс `CTmcGpuX`.
+///
+/// Часть модуля «Расчёт на видеокарте», включается только в `tmcrthrectnode.cpp`
+/// ядра X (один статический объект `g_cGpuX`). Устроен как `tmcgpuh.h`, но узел X
+/// хранит 6 компонент напряжения и 6 проводимостей (на процессоре — шаг 6 на узел:
+/// `prUNode1[6*n + c]`, `prYNode[6*n + c]`), а такт состоит из 4 подтактов.
+/// На карте: обновление узлов с плазменными членами (аналог `RunScatteringNode` ..
+/// `RunScatteringNode3`), блоки METAL, ABSORBER, MAGNETIC (`RunBlockNode` ..
+/// `RunBlockNode3`) и восстановление узлов портов после обновления (`RunRestoreInputs`).
+/// На процессоре: возбуждение портов (`RunExciteInputs` .. `3`, `RunSaveInputs`) и все
+/// выходные файлы. Порядок операций — как в процессорном коде, `FP_CONTRACT OFF`.
+/// @see https://www.tamic.ru/docs/code/gpu.html#kernels-x
+/// @see https://www.tamic.ru/docs/theory/gpu.html#mapping
+
 #ifndef _TMC_GPU_X_H
 #define _TMC_GPU_X_H
 
@@ -16,10 +31,34 @@
 #include <algorithm>
 
 // below this number of nodes /GPU stays on the CPU (measured, see research/gpu); TMC_GPU_MIN_NODES overrides
+/// Порог числа узлов сетки ядра X для расчёта на карте: при `nX*nY` меньше порога шаг
+/// считается на процессоре. Ниже, чем у ядра H: узел X втрое дороже, и карта
+/// окупает обмен с портами раньше. `TMC_GPU_MIN_NODES` заменяет значение (0 — карта всегда).
+/// @see https://www.tamic.ru/docs/code/gpu.html#auto
 #ifndef TMC_GPU_X_MIN_NODES
 #define TMC_GPU_X_MIN_NODES	60000	// RTX 5070 Ti, 22.10.2026: GPU wins from 40..63 thousand nodes (threshold.csv)
 #endif
 
+/// @brief Исходный текст программы OpenCL C ядра X (компилируется драйвером в `Begin`).
+///
+/// Сетка на карте — 6 буферов компонент `u0`..`u5` (`prUNode1[6*n + c]`) и 6 буферов
+/// проводимостей `y0`..`y5` (`prYNode[6*n + c]`). Функции программы:
+/// - `xpass` — подтакт k = 0..3: пишет компоненту w = u[k] по s = u[(k+3)%4] четырёх
+///   соседей и самого узла, по o1 = u[(k+1)%4], o2 = u[(k+2)%4] и вспомогательным
+///   компонентам a, b своего узла (a = u5, b = u4 на подтактах 0, 2; наоборот на 1, 3);
+///   промежуточная сумма r записывается в a. Соответствует `RunScatteringNode1line` ..
+///   `RunScatteringNode1line3`; рабочий элемент = узел (x, y);
+/// - `xmetal` — METAL: записанная компонента узлов блока обнуляется;
+/// - `xabs` — ABSORBER и MAGNETIC: формулы по типу узла, как в `RunBlockNode` ..
+///   `RunBlockNode3`; читает компоненту o = u[(k+3)%4]; аргумент `y0` получает
+///   проводимость шлейфа узла — слот 1 узла (`prYNode[6*n + 1]`), как на процессоре;
+///   проверка границ — по индексам `6*n + 5` в массиве длины 6*nN;
+/// - `xgather` / `xscatter` — упаковка 6 компонент узлов окна вокруг портов в буфер `pk`
+///   и обратно; `pos` — место узла в `pk` (окно целиком для `PortsUp` или только узлы
+///   портов для `Restore`).
+/// @warning Строка — код, который компилирует драйвер: любое изменение формулы или
+/// порядка операций нарушит совпадение с процессором бит в бит.
+/// @see https://www.tamic.ru/docs/code/gpu.html#kernels-x
 static const char *g_szTmcGpuXSrc =
 "#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n"
 "#pragma OPENCL FP_CONTRACT OFF\n"
@@ -103,21 +142,44 @@ static const char *g_szTmcGpuXSrc =
 "	u0[n] = pk[6*p]; u1[n] = pk[6*p+1]; u2[n] = pk[6*p+2]; u3[n] = pk[6*p+3]; u4[n] = pk[6*p+4]; u5[n] = pk[6*p+5];\n"
 "}\n";
 
+/// @brief Сеанс расчёта ядра X на видеокарте: буферы сетки на карте и запуск ядер OpenCL.
+///
+/// Один статический объект `g_cGpuX` в `tmcrthrectnode.cpp` ядра X. На каждом шаге
+/// `CTmcRTHRectNode::RunKernel` вызывает `Begin`; при успехе `RunKernel1TGpu` на
+/// каждом из 4 подтактов вызывает `PortsDown` -> возбуждение портов и `RunSaveInputs`
+/// на процессоре -> `PortsUp` -> `Pass` -> `Restore` -> `Blocks`, при выводе поля —
+/// `Download`; по окончании шага, остановке или ошибке — `End`.
+/// Контекст и программа OpenCL живут между шагами, буферы — от `Begin` до `End`.
+/// Ошибки OpenCL: методы возвращают `false`, текст — в `csError`.
+/// @note Потоки: только расчётный поток ядра; одна очередь команд, выполнение по порядку.
+/// @see https://www.tamic.ru/docs/code/gpu.html#loop
 class CTmcGpuX
 {
 public:
+	/// @brief Создаёт выключенный сеанс без ресурсов OpenCL.
 	CTmcGpuX() : bOn( false ), ctx( NULL ), idDev( NULL ), q( NULL ), prg( NULL ), kPass( NULL ), kMetal( NULL ), kAbs( NULL ),
 		kGather( NULL ), kScatter( NULL ), mBIdx( NULL ), mBTyp( NULL ), mBRy( NULL ), mBRu( NULL ),
 		mPIdx( NULL ), mPPos( NULL ), mRIdx( NULL ), mRPos( NULL ), mPPk( NULL ), mQIdx( NULL ), mQPos( NULL ), nX( 0 ), nY( 0 ), nN( 0 ), nPort( 0 ), nRest( 0 ), nPlane( 0 )
 	{ for( int c = 0; c < 6; c++ ) { mU[c] = NULL; mY[c] = NULL; } }
+	/// @brief Ничего не освобождает: ресурсы карты освобождает завершение процесса.
 	~CTmcGpuX() {}	// the end of the process frees the card (no OpenCL calls from static destructors)
 
+	/// Итог решения `Begin` для отчёта о времени (строка `Compute:`): «GPU n: имя карты (...)»
+	/// или «CPU (причина)»; «CPU» — карта не запрашивалась. Текст по-английски.
 	CString csInfo;
+	/// Первая ошибка OpenCL во время цикла; пусто — ошибок не было.
 	CString csError;
 
+	/// @brief Сообщает, находится ли сетка сейчас на карте.
+	/// @return `true` — между успешным `Begin` и `End`.
 	bool IsOn( void ) { return bOn; }
 
 	// T-13: /CPU (a separate word, not inside "quotes") - the card is not used, whatever /GPU or TMC_GPU say
+	/// @brief Проверяет, есть ли в командной строке процесса ключ `/CPU` (или `-CPU`).
+	///
+	/// Ключ — отдельное слово вне кавычек, регистр не важен; `/CPU` сильнее `/GPU` и `TMC_GPU`.
+	/// @return `true` — ключ `/CPU` задан, расчёт только на процессоре.
+	/// @see https://www.tamic.ru/docs/code/gpu.html#device-choice
 	static bool IsCpuKey( void )
 	{
 		const char *c = GetCommandLineA();
@@ -135,6 +197,13 @@ public:
 		return false;
 	}
 
+	/// @brief Определяет, запрошен ли расчёт на карте, и номер карты.
+	///
+	/// Порядок: `/CPU` -> не запрошен; `TMC_GPU` > 0 -> карта `TMC_GPU - 1`; иначе ключ
+	/// `/GPU` (карта 0), `/GPU:n` или `/GPU=n` (также `-GPU`), отдельным словом вне кавычек.
+	/// @param[out] pnDev  номер карты среди карт с двойной точностью, с 0; 0, если не запрошен
+	/// @return `true` — расчёт на карте запрошен (решение ещё зависит от порога и памяти).
+	/// @see https://www.tamic.ru/docs/code/gpu.html#device-choice
 	static bool IsRequested( int *pnDev )
 	{
 		*pnDev = 0;
@@ -157,6 +226,21 @@ public:
 		return false;
 	}
 
+	/// @brief Решает, считать ли шаг на карте, и при согласии загружает на неё сетку и блоки.
+	///
+	/// Проверки и отказы — как в `CTmcGpuH::Begin`: запрос, 64-битная сборка, порог
+	/// `TMC_GPU_X_MIN_NODES`, OpenCL.dll, карта с двойной точностью и нужным номером,
+	/// узлы блоков и портов внутри сетки, допустимые типы узлов поглотителя, память
+	/// (96 байт на узел сетки). Дополнительно строит список узлов портов для `Restore` и
+	/// их места в окне портов. Любой отказ оставляет шаг на процессоре, причина — в `csInfo`.
+	/// @param[in] prU    массив напряжений сетки процессора, 6 значений на узел, длина 6*nX*nY
+	/// @param[in] prY    массив проводимостей узлов процессора, 6 значений на узел
+	/// @param[in] nX1    число узлов сетки по X
+	/// @param[in] nY1    число узлов сетки по Y
+	/// @param[in] pDiel  массив блоков шага (`CTmcRTHNodeDiel`), читается через `GpuView`
+	/// @param[in] nDiel  число блоков в `pDiel`
+	/// @return `true` — сетка на карте, цикл идёт через `RunKernel1TGpu`; `false` — шаг на процессоре.
+	/// @see https://www.tamic.ru/docs/code/gpu.html#auto
 	bool Begin( _ELEM_VAL_RTH *prU, _real *prY, int nX1, int nY1, CTmcRTHNodeDiel *pDiel, int nDiel )
 	{
 		Release();
@@ -190,6 +274,8 @@ public:
 		}
 		dev = vd[nDev];
 
+		// Сбор блоков: узлы METAL/ABSORBER/MAGNETIC подряд в vIdx (сегмент на блок),
+		// узлы портов - в окна vWin и отдельно в vPortNodes (для RunRestoreInputs)
 		std::vector<cl_long> vIdx, vWin, vPortNodes, vPlaneNodes;	// B-1: vPlaneNodes - nodes of the plane-wave ports
 		std::vector<cl_int> vTyp;
 		std::vector<double> vRy, vRu;
@@ -242,6 +328,7 @@ public:
 		std::sort( vPortNodes.begin(), vPortNodes.end() );
 		vPortNodes.erase( std::unique( vPortNodes.begin(), vPortNodes.end() ), vPortNodes.end() );
 		nRest = (TmcIdx)vPortNodes.size();
+		// места узлов в буфере упаковки pk: окно - подряд; узел порта - его место в окне
 		std::vector<cl_long> vWinPos( nPort ), vRestPos( nRest );
 		for( TmcIdx i = 0; i < nPort; i++ ) vWinPos[i] = i;
 		for( TmcIdx i = 0; i < nRest; i++ )
@@ -254,6 +341,7 @@ public:
 		for( TmcIdx i = 0; i < nPlane; i++ )
 			vPlanePos[i] = std::lower_bound( vWin.begin(), vWin.end(), vPlaneNodes[i] ) - vWin.begin();
 
+		// 96 байт на узел (6 компонент + 6 проводимостей по 8 байт) + блоки + окна портов
 		double dNeed = 96.0*nN + 28.0*vIdx.size() + 64.0*nPort;	// J-4: 28 bytes per block node (old: 20)
 		if( 8.0*nN > (double)dev.nMaxAlloc || dNeed > 0.92*dev.nGlobalMem )
 		{
@@ -312,6 +400,13 @@ public:
 #endif
 	}
 
+	/// @brief Возвращает сетку и прошлые значения узлов поглотителей в массивы процессора и освобождает буферы.
+	///
+	/// Вызывается по окончании цикла шага, при остановке и при ошибке; без успешного
+	/// `Begin` ничего не делает. Контекст и программа OpenCL сохраняются.
+	/// @param[out]    prU    массив напряжений сетки процессора, 6 значений на узел
+	/// @param[in,out] pDiel  блоки шага: в узлы ABSORBER/MAGNETIC пишется `rU`
+	/// @note Ошибка чтения записывается в `csError`.
 	void End( _ELEM_VAL_RTH *prU, CTmcRTHNodeDiel *pDiel )
 	{
 		if( !bOn ) return;
@@ -333,6 +428,14 @@ public:
 	}
 
 	// RunScatteringNode (k = 0) .. RunScatteringNode3 (k = 3)
+	/// @brief Ставит в очередь обновление всех внутренних узлов сетки за подтакт `k` (ядро `xpass`).
+	///
+	/// Пишет компоненту u[k] и вспомогательную a (u5 при чётном k, u4 при нечётном)
+	/// каждого узла; соседей читает только по компоненте u[(k+3)%4], которую этот подтакт
+	/// не меняет, — узлы независимы. Группа 64 x 4 узла.
+	/// @param[in] k  номер подтакта 0..3: как `RunScatteringNode` .. `RunScatteringNode3`
+	/// @return `true` — команда поставлена в очередь; `false` — ошибка, текст в `csError`.
+	/// @see https://www.tamic.ru/docs/theory/gpu.html#mapping
 	bool Pass( int k )
 	{
 		int nA = ( k & 1 ) ? 4 : 5, nB = ( k & 1 ) ? 5 : 4;
@@ -346,6 +449,11 @@ public:
 	}
 
 	// RunRestoreInputs: the port nodes get back what they had after ExciteInputs
+	/// @brief Восстанавливает на карте 6 компонент узлов портов, сохранённые после возбуждения портов (как `RunRestoreInputs`).
+	///
+	/// Значения берутся из буфера `mPPk`, записанного `PortsUp` на этом подтакте
+	/// (то есть после `RunExciteInputs` и `RunSaveInputs` на процессоре).
+	/// @return `true` — успех или портов нет; `false` — ошибка, текст в `csError`.
 	bool Restore( void )
 	{
 		if( nRest == 0 ) return true;
@@ -353,8 +461,8 @@ public:
 	}
 
 	// B-1: RunRestorePlaneWaveInputs - after the blocks, the nodes of the plane-wave ports once more
-	/// @brief �-1: ����� `Blocks` ��� ��� ��������������� ���� ������ ������� ����� (��� `RunRestorePlaneWaveInputs`).
-	/// @return `true` � ����� ��� ����� ������ ���; `false` � ������, ����� � `csError`.
+	/// @brief Б-1: после `Blocks` ещё раз восстанавливает узлы портов плоской волны (как `RunRestorePlaneWaveInputs`).
+	/// @return `true` — успех или таких портов нет; `false` — ошибка, текст в `csError`.
 	bool RestorePlane( void )
 	{
 		if( nPlane == 0 ) return true;
@@ -362,6 +470,14 @@ public:
 	}
 
 	// RunBlockNode (k = 0) .. RunBlockNode3 (k = 3)
+	/// @brief Ставит в очередь обработку узлов блоков METAL, ABSORBER, MAGNETIC за подтакт `k`.
+	///
+	/// Один запуск на блок в порядке блоков задания. Пишется компонента u[k], читается
+	/// u[(k+3)%4]; для ABSORBER/MAGNETIC проводимость шлейфа узла берётся из слота 1
+	/// узла (`mY[1]` = `prYNode[6*n + 1]`), как в процессорном `RunBlockNode`.
+	/// @param[in] k  номер подтакта 0..3: как `RunBlockNode` .. `RunBlockNode3`
+	/// @return `true` — все запуски поставлены в очередь; `false` — ошибка, текст в `csError`.
+	/// @see https://www.tamic.ru/docs/code/gpu.html#blocks
 	bool Blocks( int k )
 	{
 		cl_mem w = mU[k], o = mU[(k + 3)%4];
@@ -391,6 +507,13 @@ public:
 		return true;
 	}
 
+	/// @brief Копирует 6 компонент узлов окон вокруг портов с карты в массив процессора (перед возбуждением портов).
+	///
+	/// Блокирующее чтение заодно дожидается конца всех ранее поставленных команд —
+	/// точка синхронизации подтакта.
+	/// @param[in,out] prU  массив напряжений сетки процессора; меняются только узлы окон
+	/// @return `true` — успех или портов нет; `false` — ошибка, текст в `csError`.
+	/// @see https://www.tamic.ru/docs/code/gpu.html#ports
 	bool PortsDown( _ELEM_VAL_RTH *prU )
 	{
 		if( nPort == 0 ) return true;
@@ -405,6 +528,13 @@ public:
 		return true;
 	}
 
+	/// @brief Возвращает 6 компонент узлов окон портов из массива процессора на карту (после возбуждения портов).
+	///
+	/// Буфер `mPPk` остаётся на карте до конца подтакта: из него `Restore` берёт
+	/// сохранённые значения узлов портов.
+	/// @param[in] prU  массив напряжений сетки процессора после `RunExciteInputs`..3 и `RunSaveInputs`
+	/// @return `true` — успех или портов нет; `false` — ошибка, текст в `csError`.
+	/// @see https://www.tamic.ru/docs/code/gpu.html#ports
 	bool PortsUp( _ELEM_VAL_RTH *prU )
 	{
 		if( nPort == 0 ) return true;
@@ -413,6 +543,11 @@ public:
 		return Scatter( mPIdx, mPPos, nPort );
 	}
 
+	/// @brief Копирует всю сетку с карты в массив процессора (вывод FIELDS, окно ДН, конец шага).
+	///
+	/// Читает кусками по 2M узлов, по компоненте за раз, блокирующими чтениями.
+	/// @param[out] prU  массив напряжений сетки процессора, 6 значений на узел
+	/// @return `true` — успех; `false` — ошибка, текст в `csError`.
 	bool Download( _ELEM_VAL_RTH *prU )
 	{
 		const TmcIdx nChunk = 2*1048576;
@@ -430,31 +565,83 @@ public:
 	}
 
 private:
+	/// @brief Сегмент общего списка узлов блоков: узлы одного блока METAL/ABSORBER/MAGNETIC.
+	///
+	/// Поля: `nBlock` — номер блока в `pDiel`; `bMetal` — блок METAL; `nOff` — смещение
+	/// первого узла блока в буферах `mBIdx`, `mBTyp`, `mBRy`, `mBRu`; `nNum` — число узлов.
 	struct Seg { int nBlock; bool bMetal; TmcIdx nOff, nNum; };
 
+	/// @var CTmcGpuX::Seg::nBlock
+	/// Номер блока в массиве `pDiel`.
+
+	/// @var CTmcGpuX::Seg::bMetal
+	/// `true` — блок METAL; `false` — ABSORBER или MAGNETIC.
+
+	/// @var CTmcGpuX::Seg::nOff
+	/// Смещение первого узла блока в буферах `mBIdx`, `mBTyp`, `mBRy`, `mBRu`.
+
+	/// @var CTmcGpuX::Seg::nNum
+	/// Число узлов блока.
+
+	/// Таблица функций OpenCL этого сеанса.
 	TmcOcl ocl;
+	/// Выбранная карта (заполняется в `Begin`).
 	TmcOclDevice dev;
+	/// `true` — сетка на карте.
 	bool bOn;
+	/// Контекст OpenCL на выбранной карте; живёт между шагами.
 	cl_context ctx;
+	/// Карта, для которой создан `ctx`.
 	cl_device_id idDev;	// the device ctx was made for
+	/// Очередь команд (выполнение по порядку).
 	cl_command_queue q;
+	/// Скомпилированная программа `g_szTmcGpuXSrc`.
 	cl_program prg;
+	/// @name Ядра программы
+	///@{
+	/// Ядра программы: `kPass` — `xpass`, `kMetal` — `xmetal`, `kAbs` — `xabs`,
+	/// `kGather` — `xgather`, `kScatter` — `xscatter`.
 	cl_kernel kPass, kMetal, kAbs, kGather, kScatter;
+	///@}
+	/// @name Буферы на карте
+	///@{
+	/// Буферы на карте (NULL — не созданы): `mU[c]` — компонента c напряжения узлов,
+	/// `mY[c]` — слот c проводимостей узлов (по nN значений `double`, c = 0..5); `mBIdx`,
+	/// `mBTyp`, `mBRy`, `mBRu` — номера, типы, `rY` и `rU` узлов блоков; `mPIdx`, `mPPos` —
+	/// узлы окон портов и их места в `mPPk`; `mRIdx`, `mRPos` — узлы самих портов и их места
+	/// в `mPPk` (для `Restore`); `mPPk` — упаковка 6 компонент узлов окон.
 	cl_mem mU[6], mY[6], mBIdx, mBTyp, mBRy, mBRu, mPIdx, mPPos, mRIdx, mRPos, mPPk;
-	/// �-1: ���� ������ ������� ����� � �� ����� � `mPPk` (��� `RestorePlane`).
+	/// Б-1: узлы портов плоской волны и их места в `mPPk` (для `RestorePlane`).
 	cl_mem mQIdx, mQPos;
+	///@}
+	/// @name Размеры
+	///@{
+	/// Размеры, узлов: `nX`, `nY` — сетка по осям.
 	int nX, nY;
+	/// Размеры, узлов: `nN` = nX*nY; `nPort` — узлов во всех окнах портов; `nRest` — узлов самих портов.
 	TmcIdx nN, nPort, nRest;
-	/// �-1: ����� ������ ������� �����.
+	/// Б-1: узлов портов плоской волны.
 	TmcIdx nPlane;
+	///@}
+	/// Сегменты блоков в порядке блоков задания.
 	std::vector<Seg> vSeg;
+	/// Номера узлов окон портов (по возрастанию, без повторов).
 	std::vector<cl_long> vPortIdx;
+	/// Рабочий буфер обмена узлами портов, 6 значений на узел.
 	std::vector<double> vPk;
 
+	/// @brief Возвращает общее число узлов во всех сегментах блоков.
+	/// @return Число узлов (длина буферов `mBIdx` ... `mBRu`); 0 — блоков нет.
 	TmcIdx Total( void ) { return vSeg.empty() ? 0 : vSeg.back().nOff + vSeg.back().nNum; }
 
+	/// @brief Проверяет, недопустим ли тип узла поглотителя (на процессоре — ошибка «Bad Absorber»).
+	/// @param[in] t  тип узла: 1, 2, 4, 5, 8, 10 — недопустимы
+	/// @return `true` — тип недопустим.
 	static bool IsBadAbsorber( int t ) { return ( t == 1 )||( t == 2 )||( t == 4 )||( t == 5 )||( t == 8 )||( t == 10 ); }
 
+	/// @brief Повторяет проверку границ из `RunBlockNode` для узла `n` и соседей (индексы `6*m + 5` в массиве 6*nN).
+	/// @param[in] n  глобальный номер узла
+	/// @return `true` — процессор обработал бы узел.
 	bool InBounds( TmcIdx n )
 	{
 		TmcIdx a = 6*nN;
@@ -463,6 +650,9 @@ private:
 		return true;
 	}
 
+	/// @brief Добавляет в список узел `n` и все узлы квадрата +-4 узла вокруг него (в пределах сетки).
+	/// @param[in,out] v  список номеров узлов (повторы убираются позже)
+	/// @param[in]     n  глобальный номер узла порта
 	void AddWindow( std::vector<cl_long> &v, TmcIdx n )
 	{
 		int x0 = (int)( n % nX ), y0 = (int)( n / nX );
@@ -471,6 +661,11 @@ private:
 				if( ( x >= 0 )&&( x < nX )&&( y >= 0 )&&( y < nY ) ) v.push_back( (cl_long)y*nX + x );
 	}
 
+	/// @brief Ставит в очередь запись 6 компонент узлов из буфера `mPPk` в сетку на карте (ядро `xscatter`).
+	/// @param[in] mIdx  буфер номеров узлов сетки
+	/// @param[in] mPos  буфер мест этих узлов в `mPPk`
+	/// @param[in] nNum  число узлов
+	/// @return `true` — команда поставлена в очередь; `false` — ошибка, текст в `csError`.
 	bool Scatter( cl_mem mIdx, cl_mem mPos, TmcIdx nNum )
 	{
 		cl_long n = nNum;
@@ -481,6 +676,10 @@ private:
 		return Check( ocl.clEnqueueNDRangeKernel( q, kScatter, 1, NULL, &gl, &lc, 0, NULL, NULL ), "ports" );
 	}
 
+	/// @brief Создаёт буфер на карте, при необходимости заполняя его данными процессора.
+	/// @param[in] nBytes  размер, байт (0 заменяется на 8)
+	/// @param[in] pInit   данные для копирования; `NULL` — без заполнения
+	/// @return Буфер; `NULL` — ошибка, первая ошибка записана в `csError`.
 	cl_mem Buf( size_t nBytes, const void *pInit = NULL )
 	{
 		cl_int e;
@@ -489,8 +688,16 @@ private:
 		return m;
 	}
 
+	/// @brief Задаёт аргумент-буфер ядра OpenCL (код возврата не проверяется).
+	/// @param[in] k  ядро
+	/// @param[in] i  номер аргумента, с 0
+	/// @param[in] m  буфер
 	void Arg( cl_kernel k, cl_uint i, cl_mem m ) { ocl.clSetKernelArg( k, i, sizeof(cl_mem), &m ); }
 
+	/// @brief Проверяет код OpenCL и запоминает первую ошибку в `csError` в виде «GPU что: код».
+	/// @param[in] e       код возврата функции OpenCL
+	/// @param[in] szWhat  что делалось (для текста ошибки)
+	/// @return `true` — `CL_SUCCESS`.
 	bool Check( cl_int e, const char *szWhat )
 	{
 		if( e == CL_SUCCESS ) return true;
@@ -498,6 +705,12 @@ private:
 		return false;
 	}
 
+	/// @brief Раскладывает массив процессора (6 значений на узел подряд) в 6 буферов карты.
+	///
+	/// Пишет кусками по 2M узлов блокирующими записями; при ошибке прекращает работу,
+	/// текст — в `csError`.
+	/// @param[in] pr  массив процессора длины 6*nN (`prUNode1` или `prYNode`)
+	/// @param[in] m   массив из 6 буферов: m[c] получает значения `pr[6*n + c]`
 	void Upload( const double *pr, cl_mem *m )
 	{
 		const TmcIdx nChunk = 2*1048576;
@@ -513,6 +726,7 @@ private:
 		}
 	}
 
+	/// @brief Дожидается конца очереди и освобождает буферы шага; контекст и программа остаются.
 	void Release( void )
 	{
 		cl_mem *ms[] = { &mBIdx, &mBTyp, &mBRy, &mBRu, &mPIdx, &mPPos, &mRIdx, &mRPos, &mPPk, &mQIdx, &mQPos };
@@ -526,6 +740,7 @@ private:
 		bOn = false;	// nPort/nRest are set by Begin (ReleaseAll inside Begin must not clear them)
 	}
 
+	/// @brief Освобождает всё: буферы, ядра, программу, очередь и контекст.
 	void ReleaseAll( void )
 	{
 		cl_kernel *ks[] = { &kPass, &kMetal, &kAbs, &kGather, &kScatter };

@@ -1,14 +1,23 @@
 // TmcRTH_IndanOutput.cpp : implementation file
 //
 
-#include "stdafx.h"
+/// @file TmcRTH_IndanOutput.cpp
+/// @brief Разбор секции `#OUTPUT`, имена выходных файлов, пересчёт `.t` в `.s`.
+///
+/// Часть библиотеки TMCIndan. Реализует `CTmcRTH_IndanOutput`: строки `FILE`,
+/// `TOPOLOGY`, `FIELDS`, `SMATRIX`, `FIELD_DISTRIBUTION[_M]`; запись S-матрицы
+/// по окончании шага (`CTmcTtoS` или `CTmcWideband`) и нулевой S-матрицы для
+/// шага с ошибкой.
+/// @see https://www.tamic.ru/docs/code/lib-tmcindan.html#output
+
+#include "STDAFX.H"
 #include <TmcRTH_IndanOutput.h>
 #include <TmcRTH_Indan.h>
 #include <TmcTtoS.h>
 #include <TmcWideband.h>
-#include <tmcgrviw.h>	// D-1: types of the input blocks
-#include <proc_s.h>		// D-1: save_S_matrix_element
-#include <expr.h>
+#include <Tmcgrviw.h>	// D-1: types of the input blocks
+#include <Proc_s.h>		// D-1: save_S_matrix_element
+#include <EXPR.H>
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -184,6 +193,7 @@ void CTmcRTH_IndanOutput::ReadFileName( CString &csCh )
 		};
 	};
 
+	// Все выходные файлы шага получают одно базовое имя и разные расширения.
 	csFileName.Format("%s.t", szBuf);
 	csFileNameField.Format("%s.ex", szBuf);
 	csFileNameField1.Format("%s.ey", szBuf);
@@ -420,7 +430,7 @@ void CTmcRTH_IndanOutput::ReadSmatrix( CString &csCh )
 	
 	char szBuf[CTMCRTH_INDANSBUF];
 	char szBuf1[CTMCRTH_INDANSBUF];
-	int i, n;
+	int i, j, n;
 	double r;
 	CString csBuf;
 
@@ -595,6 +605,7 @@ int CTmcRTH_IndanOutput::PutSmatrixZero( CTmcRTH_BlockList *pcBl )
 	if( csFileNameSMatrix.GetLength() == 0 ) return 0;
 
 	int i, nPort = 0, nRet = 1;
+	// Порты — блоки-входы (типы 102..105); вход с «[файл]» — многочастотный расчёт, выход.
 	for( ; pcBl != NULL; pcBl = pcBl->GetNext() )
 	{
 		int nT = pcBl->GetnType();
@@ -610,6 +621,7 @@ int CTmcRTH_IndanOutput::PutSmatrixZero( CTmcRTH_BlockList *pcBl )
 	char szBuf[CTMCRTH_INDANSBUF];
 	strncpy( szBuf, (LPCSTR)csFileNameSMatrix, CTMCRTH_INDANSBUF - 1 );
 	szBuf[CTMCRTH_INDANSBUF - 1] = '\0';
+	// Нулевой столбец S-матрицы для каждого возбуждаемого порта на частоте dFreq.
 	for( i = 1; i <= nPort; i++ )
 	{
 		if( save_S_matrix_element( i, szBuf, pcZ, dFreq, nPort ) != 0 ) { nRet = -1; break; };
@@ -618,7 +630,7 @@ int CTmcRTH_IndanOutput::PutSmatrixZero( CTmcRTH_BlockList *pcBl )
 	return nRet;
 }
 
-void CTmcRTH_IndanOutput::ReadFileDistr( CString &csCh, char *ch )
+void CTmcRTH_IndanOutput::ReadFileDistr( CString &csCh, const char *ch )
 {
 	if( cError.IsError() ) return;
 	

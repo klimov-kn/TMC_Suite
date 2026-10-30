@@ -1,8 +1,13 @@
 // TmcGrParColTypWid.cpp : implementation file
 //
 
-#include "stdafx.h"
-#include "tmcgrout.h"
+/// @file TmcGrParColTypWid.cpp
+/// @brief Окно стиля одной линии TMC_DN: образцы, выбор цвета, перевод типа и толщины в номера переключателей и обратно.
+///
+/// Часть модуля «Вьювер TMC_DN»; совпадает с окном TMCGROUT. Описание методов — в `tmcgrparcoltypwid.h`.
+/// @see https://www.tamic.ru/docs/code/tmcgrout.html#line-style
+#include "StdAfx.h"
+#include "TMCGROUT.H"
 #include "TmcGrParColTypWid.h"
 
 #ifdef _DEBUG

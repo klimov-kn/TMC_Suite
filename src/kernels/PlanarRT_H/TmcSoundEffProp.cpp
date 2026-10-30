@@ -1,7 +1,12 @@
 // TmcSoundEffProp.cpp : implementation file
 //
 
-#include "stdafx.h"
+/// @file TmcSoundEffProp.cpp
+/// @brief Набор страниц «Sound Effects»: конструкторы и добавление страниц.
+///
+/// Часть модуля «Оболочка счётного ядра». Реализация `CTmcSoundEffProp`.
+/// @see https://www.tamic.ru/docs/code/kernel-shell.html#dialogs
+#include "StdAfx.h"
 #include "PlanRT_H.h"
 #include "TmcSoundEffProp.h"
 

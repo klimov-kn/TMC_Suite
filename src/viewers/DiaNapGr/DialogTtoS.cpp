@@ -1,12 +1,14 @@
 // DialogTtoS.cpp : implementation file
 //
 
-#include "stdafx.h"
-#ifndef TMC_IS_SEP	// path separator: backslash or '/'
-#define TMC_IS_SEP(c) ( ((c) == '/') || ((c) == '\\') )
-#endif
-#include "TMCGROUT.h"
-#include <tmcgrviw.h>
+/// @file DialogTtoS.cpp
+/// @brief Реализация окна To S-matrix (`CDialogTtoS`) в копии TMC_DN: выбор файлов, окно времени, частоты записи, пересчёт `.t` -> `.s`.
+///
+/// Часть модуля «Вьювер TMC_DN» (наследие TMCROS, без многочастотной обработки; из меню недоступно).
+/// @see https://www.tamic.ru/docs/code/tmcros.html#dialog-ttos
+#include "StdAfx.h"
+#include "TMCGROUT.H"
+#include <Tmcgrviw.h>
 #include "DialogTtoS.h"
 
 #ifdef _DEBUG
@@ -205,6 +207,9 @@ END_MESSAGE_MAP()
 // CDialogTtoS message handlers
 
 // S-47: pripisyvat papku dokumenta tolko k otnositelnomu imeni faila (ne k "C:\...", "\\server\...", "{...}")
+/// @brief Проверяет, относительное ли имя файла (его нужно дополнить папкой документа).
+/// @param[in] cs имя файла или выражение
+/// @return FALSE — выражение `{...}`, путь с `:` или сетевой путь `\\сервер`; TRUE — иначе.
 static BOOL TmcTtoSIsRelative( const CString &cs )
 {
 	const char *p = (const char *)cs;
@@ -223,7 +228,7 @@ INT_PTR CDialogTtoS::DoModal()
 	int i;
 	strcpy( ch, m_DocFileName );
 
-	for( i = (int)strlen(ch); i > 0; i-- )
+	for( i = strlen(ch); i > 0; i-- )
 	{
 		if( ch[i] == '.' )
 		{
@@ -231,11 +236,12 @@ INT_PTR CDialogTtoS::DoModal()
 			i = 0;
 		};
 	};
+	// Имя .s по умолчанию — путь документа без расширения + ".s"; затем ch — папка документа.
 	m_SFileName.Format( "%s.s", ch );
 	
-	for( i = (int)strlen(ch); i > 0; i-- )
+	for( i = strlen(ch); i > 0; i-- )
 	{
-		if( ch[i] == '\\' )
+		if( TMC_IS_SEP(ch[i]) )
 		{
 			ch[i] = '\0';
 			i = 0;
@@ -354,9 +360,9 @@ void CDialogTtoS::OnChangeSfilename()
 	int i;
 	strcpy( ch, m_DocFileName );
 
-	for( i = (int)strlen(ch); i > 0; i-- )
+	for( i = strlen(ch); i > 0; i-- )
 	{
-		if( ch[i] == '\\' )
+		if( TMC_IS_SEP(ch[i]) )
 		{
 			ch[i] = '\0';
 			i = 0;
@@ -383,9 +389,9 @@ void CDialogTtoS::OnAddCharacteristics()
 	int i;
 	strcpy( ch, m_DocFileName );
 
-	for( i = (int)strlen(ch); i > 0; i-- )
+	for( i = strlen(ch); i > 0; i-- )
 	{
-		if( ch[i] == '\\' )
+		if( TMC_IS_SEP(ch[i]) )
 		{
 			ch[i] = '\0';
 			i = 0;

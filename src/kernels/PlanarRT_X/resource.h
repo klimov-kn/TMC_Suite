@@ -2,6 +2,26 @@
 // Microsoft Visual C++ generated include file.
 // Used by PlanRT_H.rc
 //
+/// @file resource.h
+/// @brief Номера ресурсов ядра: окна, элементы окон, команды меню и панели (из ресурса PlanRT_H.rc).
+///
+/// Часть модуля «Оболочка счётного ядра». Номера команд связывают пункты меню и
+/// кнопки панели главного окна Qt (`mainwindow.cpp`) с обработчиками вида
+/// (`CPlanRT_HView`); номера окон и элементов — с разметкой окон
+/// (`src/kernels/PlanarRT_X/qt/dialogs/*.ui`, таблица `dialog_registry.cpp`). Номера элементов
+/// уникальны только внутри своего окна, поэтому в разных окнах они повторяются.
+/// Файл порождён редактором ресурсов; значения менять нельзя — от них зависят разметки.
+/// В ядре X файл совпадает с одноимённым файлом ядра H (ресурс X-версии тоже
+/// называется PlanRT_H.rc); разметка окон X отличается от H только текстами окна «About».
+/// @see https://www.tamic.ru/docs/code/kernel-shell.html#menu
+/// @see https://www.tamic.ru/docs/code/kernel-shell.html#x-differences
+
+/// @name Кнопки окон с малыми номерами
+/// Кнопки окон Statistics, Block и форматов вывода. Номер 2 совпадает с IDCANCEL:
+/// `IDC_TMCSTATISTICSVIEWBLOCKLIST` — кнопка Cancel окна Statistics,
+/// `IDOKDefaultFormat` — кнопка «Set default» окна форматов.
+///@{
+/// Номер кнопки окна (уникален внутри своего окна).
 #define IDC_TMCSTATISTICSVIEWBLOCKLIST  2
 #define IDOKDefaultFormat               2
 #define ID_TMCBLOCKBUTTONNEXT2          4
@@ -10,6 +30,12 @@
 #define IDC_TMCSTATISTICSPREVSTEP       6
 #define ID_TMCBLOCKBUTTONNEXT           6
 #define IDC_TMCSTATISTICSNEXTSTEP       7
+///@}
+/// @name Окна и общие ресурсы
+/// Номера разметок окон (`IDD_*`), меню и значков (`IDR_*`), ссылка на документацию
+/// в окне «About» (`IDC_TMC_DOCLINK`), строка состояния (`ID_MY_STATUS_BAR`).
+///@{
+/// Номер окна, ресурса или элемента общего назначения.
 #define IDD_ABOUTBOX                    100
 #define IDC_TMC_DOCLINK                 3000
 #define ID_MY_STATUS_BAR                101
@@ -20,6 +46,13 @@
 #define IDR_MAINFRAME                   128
 #define IDR_PLANRTTYPE                  129
 #define IDR_MAINFRAME1                  130
+///@}
+/// @name Элементы окон Statistics, Block, форматов, мелодии и «About»
+/// `IDC_TMCSTATISTICS*` — поля окна Statistics, `IDC_TMCBLOCK*` — окна Block,
+/// `IDC_TMCRTHFORMUOTF*` — окна форматов вывода, `IDC_TmcSoundEffects_*` и `IDC_EDIT1` —
+/// страницы мелодии, `IDC_RTHTMCABOUTBOXMODEL` — строка модели в окне «About».
+///@{
+/// Номер элемента окна (уникален внутри своего окна).
 #define IDC_TMCSTATISTICSERRORMESSAGE   1000
 #define IDC_TMCSTATISTICSNSTEP          1001
 #define IDC_TMCSTATISTICST0             1002
@@ -98,12 +131,23 @@
 #define IDC_TMCBLOCKDY6                 1031
 #define IDC_TmcSoundEffects_Sound7      1031
 #define IDC_TMCSTATISTICSTOLERANCE      1031
+///@}
+/// @name Окно «Calculation time»
+/// Разметка окна, кнопка «Calc. time...» окна Statistics, поле текста отчёта, кнопки
+/// «Export» и «Refresh».
+///@{
+/// Номер окна «Calculation time» или его элемента.
 // TIMING: calculation time window
 #define IDD_TMC_CALCTIME                170
 #define IDC_TMCSTATISTICSCALCTIME       1900
 #define IDC_TMCCALCTIMETEXT             1901
 #define IDC_TMCCALCTIMEEXPORT           1902
 #define IDC_TMCCALCTIMEREFRESH          1903
+///@}
+/// @name Элементы окон Block и мелодии (продолжение)
+/// Поля точек и границ окна Block, переключатели нот позиций 1…12 страницы мелодии.
+///@{
+/// Номер элемента окна (уникален внутри своего окна).
 #define IDC_TMCBLOCKDY7                 1032
 #define IDC_TmcSoundEffects_Sound8      1032
 #define IDC_TMCBLOCKDY8                 1033
@@ -119,6 +163,11 @@
 #define IDC_TMCBLOCKYMINBTEXT           1039
 #define IDC_TMCBLOCKYMAXBTEXT           1040
 #define IDC_TMCBLOCKMEMORY1             1041
+///@}
+/// @name Переключатели нот страницы мелодии
+/// Переключатели нот (по 13 в ряду каждой позиции), используются через `DDX_Radio`.
+///@{
+/// Номер переключателя ноты страницы мелодии.
 #define IDC_TmcSoundEffects_Sound97     1121
 #define IDC_TmcSoundEffects_Sound98     1122
 #define IDC_TmcSoundEffects_Sound99     1123
@@ -263,6 +312,13 @@
 #define IDC_TmcSoundEffects_Sound238    1262
 #define IDC_TmcSoundEffects_Sound239    1263
 #define IDC_TmcSoundEffects_Sound240    1264
+///@}
+/// @name Команды меню и панели
+/// Обработчики — в карте сообщений `CPlanRT_HView`; пункты меню и кнопки панели —
+/// в `mainwindow.cpp`. Стандартные команды (`ID_FILE_OPEN` …) — в `afxres.h` слоя совместимости.
+/// @see https://www.tamic.ru/docs/code/kernel-shell.html#menu
+///@{
+/// Номер команды меню и панели.
 #define ID_EDIT_EDIT                    32771
 #define ID_RUN_RUN                      32773
 #define ID_RUN_STOP                     32774
@@ -292,16 +348,21 @@
 #define ID_VIEW_DIRECTIONALPATTERN      32818
 #define ID_CONFIG_VIEWER_DIRECTIONALPATTERN 32820
 #define ID_CONFIG_DIRECTIONALPATTERN    32821
-#define ID_CONFIG_GPU                   32822
 
+///@}
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
+/// @name Служебные значения редактора ресурсов
+/// Следующие свободные номера; используются только редактором ресурсов Visual C++.
+///@{
+/// Служебное значение редактора ресурсов.
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        133
-#define _APS_NEXT_COMMAND_VALUE         32823
+#define _APS_NEXT_COMMAND_VALUE         32822
 #define _APS_NEXT_CONTROL_VALUE         1028
 #define _APS_NEXT_SYMED_VALUE           102
+///@}
 #endif
 #endif

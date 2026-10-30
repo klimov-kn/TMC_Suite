@@ -87,6 +87,15 @@
 **
 */
 
+/// @file Write_s.cpp
+/// @brief «апись S-матрицы одной частоты в двоичный S-файл (`save_S_matrix`) и служебные части заголовка.
+///
+/// „асть модул€ ЂЅиблиотека sfile95ї. —хема формата в шапке выше дана дл€
+/// 16-битных типов TAMIC; в сборке целые пол€ заголовка и блоков Ч `INT_1`
+/// (`short`, 2 байта), смещени€ Ч `int` (4 байта), числа Ч `double` (8 байт).
+/// “очна€ раскладка Ч на странице модул€.
+/// @see https://www.tamic.ru/docs/code/lib-sfile95.html#s-format
+
 #include <stdio.h>
 #include <string.h>
 
@@ -94,15 +103,15 @@
  #define _HIGH_ACCURACY
 #endif
 
-#include <typedef.h>
-#include <tmclimit.h>
-#include <tmcgraph.h>
-#include <tmc_lib.h>
-#include <indandec.h>
-#include <frqdata.h>
-#include <error1.h>
-#include <s_file.h>
-#include <mainwndw.h>
+#include <Typedef.h>
+#include <TMCLIMIT.H>
+#include <TMCGRAPH.H>
+#include <TMC_LIB.H>
+#include <INDANDEC.H>
+#include <FRQDATA.H>
+#include <Error1.h>
+#include <S_file.h>
+#include <MAINWNDW.H>
 
 
 
@@ -110,19 +119,34 @@
 
 
 
-#include <label\rth.h>
+#include <label/rth.h>
 
 
 #ifndef _HIGH_ACCURACY
 #endif
 
 
+/// @brief ѕишет начало S-файла: метку `SMT`, версию Ђ102ї, разделитель, число Ђпаскалевыхї строк, разделитель.
+/// @return 0 Ч успех; -1 Ч ошибка записи.
 static int Write_TITLE( void );
+/// @brief ѕишет Ђпаскалевуї строку сетки: длину, `extrapol_flag` и по три шага (`double`, м) на каждую сетку.
+/// @param[in] si             массив из `extrapol_flag+1` индексов сетки
+/// @param[in] extrapol_flag  число сеток минус один (0 Ч одна сетка, 1 Ч две, 2 Ч три)
+/// @return 0 Ч успех; -1 Ч ошибка записи.
 static int Write_GRID( S_INDEX *si, int extrapol_flag );
+/// @brief ѕишет пустую таблицу смещений на `get_frq_nf()` записей (нулевые частоты и смещени€).
+/// @param[in] cnFrq  число частот в шапке таблицы: дл€ основной Ч `get_frq_nf()`, дл€ таблицы интерпол€ции Ч 0
+/// @return 0 Ч успех; -1 Ч ошибка записи.
 static int write_offset_table( WORD cnFrq );
-static int write_string( char *string );
+/// @brief ѕишет Ђпаскалевуї строку: длину (`INT_1`), текст без завершающего нул€, разделитель.
+/// @param[in] string  строка, не длиннее 32767 символов
+/// @return 0 Ч успех; -1 Ч ошибка записи.
+static int write_string( const char *string );
+/// @brief ѕишет разделитель Ч значение `INT_1` 0x0a0d (байты 0D 0A).
+/// @return 0 Ч успех; -1 Ч ошибка записи.
 static int write_CR( void );
 
+/// “екст строки состо€ни€ при записи (через `put_trace`, в сборке Ч заглушка).
 static char trace[] = "Wrt.Scatt.Mt.";
 
 int save_S_matrix( _complex *sss, INPUT_DATA *id,
@@ -137,6 +161,7 @@ int save_S_matrix( _complex *sss, INPUT_DATA *id,
 
   if( Open_S_file( S_filename, S_WR ) != 0 ) return -1;
 
+  // перва€ частота: файл создан заново (Open_S_file, "wb+") Ч пишетс€ заголовок
   if( get_current_frq_num() == 0 )
    {
     Set_PS_Number( S_PS_NUMBER + 2*extrapol_flag  );
@@ -158,6 +183,7 @@ int save_S_matrix( _complex *sss, INPUT_DATA *id,
    }/* frq.num == 0*/
   else ret_code = 0;
 
+  // занести смещение будущего блока в основную таблицу и дописать блок в конец файла
   fTmp = (_real)get_current_dbl_frq();
   if( ret_code == 0 ) ret_code = update_offset_table( fTmp, get_current_frq_num(), OFF_TBL_MAIN );
 
@@ -210,7 +236,7 @@ static int Write_GRID( S_INDEX *si, int extrapol_flag )
    int ret_code = 0, i;
    INT_1 length, sFlag = (INT_1)extrapol_flag;
 
-   length = (short)( sizeof(INT_1) + 3*sizeof(double)*(extrapol_flag+1) );
+   length = sizeof(INT_1) + 3*sizeof(double)*(extrapol_flag+1);
    ret_code = write_S( &length, (size_t)sizeof(INT_1) );
 
    /* extrapolation flag 0 - no, 1 - two grids, 2 - three grids */
@@ -264,7 +290,7 @@ static int write_offset_table( WORD cnFrq )
 
 
 
-static int write_string( char *string )
+static int write_string( const char *string )
  {
   INT_1 length = (INT_1)strlen( string );                 /* string length*/
 

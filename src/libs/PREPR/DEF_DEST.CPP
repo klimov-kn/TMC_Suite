@@ -14,12 +14,18 @@
 **
 */
 
+/// @file DEF_DEST.CPP
+/// @brief Удаление временного файла макросов `$$vr$$s<PID>.prc` после прохода препроцессора (`dest_prep`).
+///
+/// Часть модуля «Библиотека prepr».
+/// @see https://www.tamic.ru/docs/code/lib-prepr.html#vr-file
+
 #include <stdio.h>
 	 
 #include <string.h>   // N-29
-#include <typedef.h>
+#include <Typedef.h>
 
-#include "prepr1.h"
+#include "Prepr1.h"
 
 
 

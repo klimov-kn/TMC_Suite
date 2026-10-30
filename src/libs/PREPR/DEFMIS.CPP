@@ -18,21 +18,32 @@
 **
 */
 
+/// @file DEFMIS.CPP
+/// @brief Поиск `#define`, вставка файлов `#include`, обработка переноса строки `\\`.
+///
+/// Часть модуля «Библиотека prepr». `def_include()` склеивает перенесённые строки
+/// (`def_sl`) и вставляет включаемые файлы с проверкой имени (только папка задания и
+/// её подпапки) и глубины вложенности; `def_macro()` находит очередное определение.
+/// @see https://www.tamic.ru/docs/code/lib-prepr.html#include
+
 
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 
-#include <typedef.h>
-#include <tmc_lib.h>
-#include <error1.h>
-#include <listing.h>
-#include <mainwndw.h>
-#include <tpl_file.h>
+#include <Typedef.h>
+#include <TMC_LIB.H>
+#include <Error1.h>
+#include <LISTING.H>
+#include <MAINWNDW.H>
+#include <TPL_FILE.H>
+#include <INDAN.H>
 
-#include "prepr1.h"
+#include "Prepr1.h"
 
+/// Образец начала директивы `#define` с пробелом (8 символов).
 static char  szDefine1[] = "#define ";
+/// Образец начала директивы `#define` с табуляцией (8 символов).
 static char  szDefine2[] = "#define\t";
                    /*  return pointer on string '#define' in buffer*/
 int  def_macro( BUFFER *buf )
@@ -51,16 +62,30 @@ int  def_macro( BUFFER *buf )
   return( p1 );
   }
 
+/// @brief Форматирует номер строки включаемого файла; результат никуда не выводится.
+/// @param[in] line_number  номер строки
 static void  put_inc_line_number( Uint line_number );
                    /*  include file in buffer and delete comment '\\' in buffer*/
+/// Образец начала директивы `#include` с пробелом (9 символов).
 static char  szInclude1[] = "#include ";
+/// Образец начала директивы `#include` с табуляцией (9 символов).
 static char  szInclude2[] = "#include\t";
+/// Формат строки листинга «начало включаемого файла» (не используется).
 static char  szMessage1[] = "*** Include file: \"%s\" ***";
+/// Формат строки листинга «номер и текст строки» (используется только в закомментированном коде).
 static char  szMessage2[] = "  %3d  %s";
+/// Формат строки листинга «конец включаемого файла» (не используется).
 static char  szMessage3[] = "*** End Include file: \"%s\" ***";
 
+/// Наибольшая глубина вложенности `#include` (защита от файла, включающего сам себя).
 #define DEF_INCLUDE_DEPTH_MAX 64        // S-18: limit of nested #include
 
+/// @brief Проверяет, выходит ли имя файла `#include` за пределы папки задания.
+///
+/// Запрещены имена с `:` (диск, поток NTFS) и любой элемент пути, состоящий только из
+/// точек (не менее двух: `..`, `...`), с учётом пробелов и табуляций.
+/// @param[in] pszName  имя файла из директивы (относительный путь, разделители `\` и `/`)
+/// @return 1 — имя недопустимо; 0 — допустимо.
 // T-3: 1 if the #include name leaves the task folder: a part of the path that is made only of
 // dots ("..", "...") or a drive name / stream (':').
 static int def_include_name_outside( const char *pszName )
@@ -126,6 +151,10 @@ int def_include( BUFFER *buf )
 
   buf->inp_p = p;
 
+  // Просмотр по всем узлам текста. Найденная директива удаляется, после её места
+  // вставляется текст файла, и просмотр продолжается с начала вставки — так
+  // обрабатываются вложенные #include. pnIncEnd хранит узел конца каждой открытой
+  // вставки: дойдя до него, глубина вложенности уменьшается.
   while(  buf->inp_p >= 0 )                       /*  find include file name*/
    {
     while( (nIncDepth > 0)&&(buf->inp_p == pnIncEnd[nIncDepth-1]) ) nIncDepth--;  // S-18: the included text is passed
@@ -255,18 +284,15 @@ int def_include( BUFFER *buf )
   }
 
 
+/// Формат номера строки включаемого файла для `put_inc_line_number()`.
 static char  szFmt[] = "Incl.line:%3d";
 
-static void  put_inc_line_number( Uint line_number )
- {
-  char buff[20];
-
-  sprintf( buff, szFmt, line_number );
-  }
 
 
                    /*  delete comment '\\' in buffer*/
+/// Маркер переноса строки: два обратных слеша.
 static char  mac[]  = "\\\\";
+/// Текст, который ставится на место маркера переноса и остатка строки: пробел и перевод строки.
 static char  str1[] = " \n";
 
 int  def_sl( BUFFER *buf )
@@ -291,8 +317,10 @@ int  def_sl( BUFFER *buf )
 		  delete []str;
 		  return -1;
 	  };
+      // Удаляются маркер, остаток строки и её завершающий '\0' (n1 + 1 символ), поэтому
+      // следующая строка становится продолжением этой же записи.
       buf->inp_p = p1;
-      n1 = (int)( strlen(str) );
+      n1 = strlen(str);
       buf_dels( buf, n1+1);                    /*  delete coment*/
       if( buf_puts2(str1, buf) != BUF_NULL ) 
 	  {
