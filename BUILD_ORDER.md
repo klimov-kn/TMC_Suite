@@ -1,126 +1,134 @@
 # Порядок сборки TMC Suite
 
-Краткая карта сборки: что и в каком порядке компилировать. Каждая фаза выполняется
-дважды — для **win32** и для **win64**.
-
-Подробная пошаговая инструкция со скриншотами публикуется на сайте проекта
-[www.tamic.ru](https://www.tamic.ru).
+Краткая карта сборки Windows-версии на Qt 6. Подробная пошаговая инструкция публикуется на сайте
+проекта [www.tamic.ru](https://www.tamic.ru).
 
 ---
 
-## Быстрый путь: одно общее решение
+## Быстрый путь: одна команда
 
-Все 12 проектов собираются разом через общее решение `src/tamic.slnx` — оно задаёт
-порядок зависимостей автоматически:
+Все библиотеки и программы собираются разом, порядок зависимостей задаёт CMake:
 
-```bat
-msbuild src\tamic.slnx /p:Platform=Win32 /p:Configuration=Release
-msbuild src\tamic.slnx /p:Platform=x64   /p:Configuration=Release
+```sh
+OCCT_DIR=<папка с OpenCASCADEConfig.cmake> build/build_win.sh
 ```
 
-Или в Visual Studio: открыть `src\tamic.slnx` → выбрать конфигурацию и платформу →
-**Сборка → Пересобрать решение**. Сборка проходит **без ошибок и без предупреждений** во всех
-четырёх конфигурациях (Release и Debug, x64 и Win32).
+Команду выполняют в Git Bash из корня проекта. Число параллельных заданий задаёт переменная
+`TMC_JOBS` (по умолчанию 4). Сборка проходит **без ошибок и без предупреждений**.
 
 Куда кладутся результаты:
 
-| Конфигурация | Библиотеки | Программы |
-|---|---|---|
-| Release | `dist\<платформа>\lib` | `dist\<платформа>\bin` |
-| Debug | `dist\<платформа>\debug\lib` | `dist\<платформа>\debug\bin` |
-
-`<платформа>` — `win32` или `win64`. Отладочная сборка не затирает выпуск: имена файлов у них
-одинаковые, а папки разные.
-
-Ниже — сборка по одному проекту (по фазам).
+| Что | Папка |
+|---|---|
+| Программы | `dist/win64/bin` |
+| Библиотеки | `dist/win64/lib` |
+| Промежуточные файлы | `build/obj` |
+| Журнал сборки | `build/build-win.log` |
 
 ---
 
 ## Перед началом (один раз)
 
-1. Установить **Visual Studio Community 2026 (v18.6)** с рабочей нагрузкой
-   *Desktop development with C++* и компонентом **MFC**. Набор инструментов
-   компилятора — **v145**.
-2. Убедиться, что ко всем проектам подключены property sheets из [`build/`](build/):
-   `Common.props`, `LibOutput.props`, `ExeOutput.props`. Они задают пути к заголовкам,
-   библиотекам и папкам вывода, поэтому жёстких путей в проектах нет.
-
-**Переключение платформы** — выпадающий список вверху окна Visual Studio, рядом с
-кнопкой запуска: `Win32` → результат в `dist\win32\`, `x64` → в `dist\win64\`.
+1. Установить **Qt 6.11.3** для MinGW 64-bit и средства из его установщика: **MinGW 13.1**, **CMake**,
+   **Ninja**. Сценарий ожидает их в `C:\Qt`; при другом расположении поправьте `PATH` в начале
+   `build/build_win.sh`.
+2. Собрать **Open CASCADE Technology** тем же компилятором (нужен TPL Designer для импорта STEP,
+   зависимость обязательная). Папку с `OpenCASCADEConfig.cmake` передают в переменной `OCCT_DIR`.
+3. Установить **Git for Windows**: сценарии сборки выполняются в Git Bash.
 
 ---
 
-## Фаза 1 — Библиотеки (6 штук)
+## Что собирается
 
-Порядок между библиотеками не важен: каждая `.lib` компилируется независимо. Важно
-собрать все шесть до перехода к программам.
+### Фаза 1 — библиотеки (6 штук)
 
-| № | Библиотека | Папка исходников | Результат |
-|---|---|---|---|
-| 1.1 | sfile95 | `src\libs\SFILE95` | `dist\<платформа>\lib\sfile95.lib` |
-| 1.2 | complex | `src\libs\complex` | `dist\<платформа>\lib\complex.lib` |
-| 1.3 | exprint | `src\libs\exprint` | `dist\<платформа>\lib\exprint.lib` |
-| 1.4 | TMCLibError | `src\libs\TMCLibError` | `dist\<платформа>\lib\TMCLibError.lib` |
-| 1.5 | prepr | `src\libs\PREPR` | `dist\<платформа>\lib\prepr.lib` |
-| 1.6 | TMCIndan | `src\libs\TMCIndan` | `dist\<платформа>\lib\TMCIndan.lib` |
+| Библиотека | Папка исходников |
+|---|---|
+| sfile95 | `src/libs/SFILE95` |
+| complex | `src/libs/complex` |
+| exprint | `src/libs/Expr`, `src/libs/Inter` |
+| TMCLibError | `src/libs/TMCLibError` |
+| prepr | `src/libs/PREPR` |
+| TMCIndan | `src/libs/TMCIndan` |
 
-✅ **Проверка:** в `dist\win32\lib` (и `dist\win64\lib`) лежат все шесть `.lib`.
+Общие заголовки — `src/Include`. Слой совместимости с MFC поверх Qt — `src/compat`, общие части
+интерфейса — `src/gui_common`.
 
----
+### Фаза 2 — вьюверы
 
-## Фаза 2 — Вьюверы (3 программы)
+| Программа | Код расчёта и файлов | Интерфейс Qt |
+|---|---|---|
+| `tmcros.exe` | `src/viewers/Tmcrtout` | `src/viewers/Tmcrtout/qt` |
+| `tmcgrout.exe` | `src/viewers/Tmcgrout` | `src/viewers/Tmcgrout/qt` |
+| `tmc_dn.exe` | `src/viewers/DiaNapGr`, `src/viewers/DiaNapr` | `src/viewers/DiaNapGr/qt` |
 
-Все три собираются одинаково и линкуются с **sfile95 + complex + exprint**.
+### Фаза 3 — счётные ядра
 
-| № | Программа | Папка исходников | Результат |
-|---|---|---|---|
-| 2.1 | Вьювер временных сигналов | `src\viewers\Tmcrtout` | `dist\<платформа>\bin\TMCROS.exe` |
-| 2.2 | Вьювер матриц рассеяния | `src\viewers\Tmcgrout` | `dist\<платформа>\bin\TMCGROUT.exe` |
-| 2.3 | Вьювер диаграмм направленностей | `src\viewers\DiaNapGr` | `dist\<платформа>\bin\TMC_DN.exe` |
+| Программа | Код расчёта | Интерфейс Qt |
+|---|---|---|
+| `planarrt_h.exe` | `src/kernels/PlanarRT_H` | `src/kernels/PlanarRT_H/qt`, `src/kernels/qt_common` |
+| `planarrt_x.exe` | `src/kernels/PlanarRT_X` | `src/kernels/PlanarRT_X/qt`, `src/kernels/qt_common` |
 
-✅ **Проверка:** в `dist\win32\bin` (и `dist\win64\bin`) лежат три вьювера.
+### Фаза 4 — FieldView и TPL Designer
 
----
-
-## Фаза 3 — Счётные ядра (2 программы)
-
-Оба ядра линкуются с пятью библиотеками: **sfile95, prepr, exprint, TMCIndan, TMCLibError**
-(уже указаны в проектах: Компоновщик → Ввод → Дополнительные зависимости).
-
-| № | Программа | Папка исходников | Результат |
-|---|---|---|---|
-| 3.1 | `tmc_rth.exe` — H-поляризация | `src\kernels\PlanarRT_H` | `dist\<платформа>\bin\tmc_rth.exe` |
-| 3.2 | `tmc_rtx.exe` — X-мода | `src\kernels\PlanarRT_X` | `dist\<платформа>\bin\tmc_rtx.exe` |
-
-Дополнительных макросов X-моде больше не нужно: физические константы и имена блоков плазмы
-определены в общих заголовках (`Typerth.h`, `Tmcgrviw.h`). Расчёт на видеокарте (только win64)
-подключает OpenCL во время работы — отдельных библиотек для сборки не требуется.
-
-✅ **Проверка:** оба ядра собрались и запускаются.
+| Программа | Папка |
+|---|---|
+| `fieldview.exe` | `src/fieldview` |
+| `TplDesigner.exe`, `gen_lr2.exe` | `src/tpl_designer` |
 
 ---
 
-## Фаза 4 — FieldView
+## Поставка и установщик
 
-Визуализатор полей, требует **OpenGL** (используются системные библиотеки Windows —
-`opengl32.lib`, `glu32.lib`; отдельная установка GLEW/GLFW не нужна).
-
-- Папка: `src\fieldview`
-- Результат: `dist\win32\bin\FieldView.exe` и `dist\win64\bin\FieldView.exe`
-
-✅ **Проверка:** обе версии запускаются и рисуют поле.
+`build/package_win.sh` собирает в `dist/TMC_Suite_Qt6_win64` готовую папку: программы, библиотеки Qt и
+MinGW, руководства, примеры. Руководства и примеры берутся из папки `TMC_ROOT`. Установщик собирается
+из `installer/TMC_Suite_Qt6.iss` (Inno Setup).
 
 ---
+---
 
-## Итог
+# Build order of TMC Suite (English)
 
-После всех фаз:
+A short map of the build of the Windows Qt 6 version. The detailed step-by-step guide is on the
+project website [www.tamic.ru](https://www.tamic.ru).
 
-```
-dist\win32\lib\   6 файлов .lib
-dist\win32\bin\   6 файлов .exe  (TMCROS, TMCGROUT, TMC_DN, tmc_rth, tmc_rtx, FieldView)
-dist\win64\lib\   6 файлов .lib
-dist\win64\bin\   6 файлов .exe
+## Quick way: one command
+
+All libraries and programs are built at once, CMake sets the order of dependencies:
+
+```sh
+OCCT_DIR=<folder with OpenCASCADEConfig.cmake> build/build_win.sh
 ```
 
-Перечень изменений и исправленных дефектов — в [`CHANGELOG.md`](CHANGELOG.md).
+Run the command in Git Bash from the project root. `TMC_JOBS` sets the number of parallel jobs
+(4 by default). The build gives **no errors and no warnings**.
+
+| What | Folder |
+|---|---|
+| Programs | `dist/win64/bin` |
+| Libraries | `dist/win64/lib` |
+| Intermediate files | `build/obj` |
+| Build log | `build/build-win.log` |
+
+## Before you start (once)
+
+1. Install **Qt 6.11.3** for MinGW 64-bit and, from its installer, **MinGW 13.1**, **CMake** and
+   **Ninja**. The script expects them in `C:\Qt`; for another location change the paths at the start of
+   `build/build_win.sh`.
+2. Build **Open CASCADE Technology** with the same compiler (TPL Designer needs it for STEP import; the
+   dependency is mandatory). Pass the folder with `OpenCASCADEConfig.cmake` in `OCCT_DIR`.
+3. Install **Git for Windows**: the build scripts run in Git Bash.
+
+## What is built
+
+| Phase | What | Where |
+|---|---|---|
+| 1 | six libraries: sfile95, complex, exprint, TMCLibError, prepr, TMCIndan | `src/libs`, common headers in `src/Include` |
+| 2 | viewers: `tmcros.exe`, `tmcgrout.exe`, `tmc_dn.exe` | `src/viewers`, the Qt interface in `qt/` subfolders |
+| 3 | kernels: `planarrt_h.exe`, `planarrt_x.exe` | `src/kernels`, the Qt interface in `qt/` and `src/kernels/qt_common` |
+| 4 | `fieldview.exe`, `TplDesigner.exe`, `gen_lr2.exe` | `src/fieldview`, `src/tpl_designer` |
+
+## Package and installer
+
+`build/package_win.sh` makes the ready folder `dist/TMC_Suite_Qt6_win64`: programs, Qt and MinGW
+libraries, manuals, examples. The installer is built from `installer/TMC_Suite_Qt6.iss` (Inno Setup).
